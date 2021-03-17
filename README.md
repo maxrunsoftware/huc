@@ -1,2 +1,1 @@
-# huc
-Various utilities
+# huc: Various utilities to make your life easier
