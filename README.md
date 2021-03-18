@@ -55,6 +55,9 @@ cp Orders.txt Orders.csv
 ./huc table -hd=pipe -hq=single -he=true -dd=pipe -dq=single -he=false Orders.csv
 ```
 
+Get a file from FTP server
+
+
 
 
 
