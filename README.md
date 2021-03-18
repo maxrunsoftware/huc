@@ -5,3 +5,4 @@ HUC is a simple to use command line tool for performing various tasks including.
 - SFTP
 - Delimited data conversion
 - SQL querying
+- ZIP
