@@ -8,6 +8,19 @@ HUC is a simple to use command line tool for performing various tasks including.
 - ZIP
 
 ## Examples:
+Get list of commands
+```sh
+huc
+```
+
+Get list of parameters for a command
+```sh
+huc Sql
+huc FtpPut
+huc Table
+huc <command>
+```
+
 Generate file with random data
 ```sh
 huc GenerateRandomFile testdata.txt
@@ -28,6 +41,18 @@ Query MSSQL server with SQL script file and output tab delimited data file
 ```sh
 printf "SELECT TOP 100 *\nFROM Orders" > mssqlscript.sql
 huc sql -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -f="mssqlscript.sql" OrdersFromScript.txt
+```
+
+Convert tab delimited file to csv delimited file using defaults
+```sh
+cp Orders.txt Orders.csv
+huc table Orders.csv
+```
+
+Convert tab delimited file to csv delimited file using specific delimiters and excluding the header row
+```sh
+cp Orders.txt Orders.csv
+./huc table -hd=pipe -hq=single -he=true -dd=pipe -dq=single -he=false Orders.csv
 ```
 
 
