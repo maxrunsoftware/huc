@@ -1,4 +1,4 @@
-# HUC: Various commandline tools to make your life easier
+# HUC: Various command line tools to make your life easier
 HUC is a simple to use open source command line tool for performing various tasks including...
 - FTP
 - FTPS
