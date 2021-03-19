@@ -77,13 +77,24 @@ huc ftpget -e=implicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt
 huc ftpget -e=ssh -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt
 ```
 
+Zipping a file
+```sh
+huc zip myOuputFile.zip someLocalFile.txt
+```
+
+Zipping multiple files
+```sh
+huc zip myOuputFile.zip *.txt *.csv
+```
+
 ## Putting it all together
-Query SQL server, convert the data, then sftp and email the data
+Query SQL server, convert the data, sftp it, zip it, then email the data
 ```sh
 huc sql -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -s="SELECT * FROM Orders" orders.csv
 huc table -hd=comma -hq=none -dd=comma -dq=none orders.csv
 huc ftpput -e=ssh -h=192.168.1.5 -u=testuser -p=testpass orders.csv
-huc email -h="smtp.somerelay.org" -from="me@aol.com" -to="person@aol.com" -s="Orders data" -b="Attached is the order data" orders.csv
+huc zip orders.zip "*.csv"
+huc email -h="smtp.somerelay.org" -from="me@aol.com" -to="person@aol.com" -s="Orders data" -b="Attached is the order data" "*.zip"
 ```
 ## Using properties file
 When huc first runs, it attempts to generate a huc.properties file in the directory of the executable. This file contains all of the parameters for each command. You can populate this file with certain properties so you don't have to type them in every time. The huc program will first check if a parameter was supplied at the command line. If not, if will then check the properties file (commandline overrides properties file). If still not found it will attempt to use a default value for some parameters (not all, some are required to be provided).
@@ -107,7 +118,8 @@ The commands now become...
 huc -s="SELECT * FROM Orders" orders.csv
 huc table orders.csv
 huc ftpput orders.csv
-huc email -to="person@aol.com" -s="Orders data" -b="Attached is the order data" orders.csv
+huc zip orders.zip "*.csv"
+huc email -to="person@aol.com" -s="Orders data" -b="Attached is the order data" "*.zip"
 ```
 
 
