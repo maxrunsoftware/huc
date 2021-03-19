@@ -58,7 +58,7 @@ huc table Orders.csv
 Convert tab delimited file to csv delimited file using specific delimiters and excluding the header row
 ```sh
 cp Orders.txt Orders.csv
-huc table -hd=pipe -hq=single -he=true -dd=pipe -dq=single -he=false Orders.csv
+huc table -hd=pipe -hq=single -he=true -dd=pipe -dq=single -de=false Orders.csv
 ```
 
 Get a file from a FTP/FTPS/SFTP server
@@ -77,7 +77,38 @@ huc ftpget -e=implicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt
 huc ftpget -e=ssh -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt
 ```
 
+## Putting it all together
+Query SQL server, convert the data, then sftp and email the data
+```sh
+huc sql -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -s="SELECT * FROM Orders" orders.csv
+huc table -hd=comma -hq=none -dd=comma -dq=none orders.csv
+huc ftpput -e=ssh -h=192.168.1.5 -u=testuser -p=testpass orders.csv
+huc email -h="smtp.somerelay.org" -from="me@aol.com" -to="person@aol.com" -s="Orders data" -b="Attached is the order data" orders.csv
+```
+## Using properties file
+When huc first runs, it attempts to generate a huc.properties file in the directory of the executable. This file contains all of the parameters for each command. You can populate this file with certain properties so you don't have to type them in every time. The huc program will first check if a parameter was supplied at the command line. If not, if will then check the properties file (commandline overrides properties file). If still not found it will attempt to use a default value for some parameters (not all, some are required to be provided).
 
+So assuming a properties file of...
+```properties
+sql.connectionString=Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;
+table.headerDelimiter=comma
+table.headerQuoting=none
+table.dataDelimiter=comma
+table.dataQuoting=none
+ftpput.host=192.168.1.5
+ftpput.encryptionMode=SSH
+ftpput.username=testuser
+ftpput.password=testpass
+email.host=smtp.somerelay.org
+email.from=me@aol.com
+```
+The commands now become...
+```sh
+huc -s="SELECT * FROM Orders" orders.csv
+huc table orders.csv
+huc ftpput orders.csv
+huc email -to="person@aol.com" -s="Orders data" -b="Attached is the order data" orders.csv
+```
 
 
 
