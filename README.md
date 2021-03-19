@@ -21,12 +21,6 @@ huc Table
 huc <command>
 ```
 
-Generate file with random data
-```sh
-huc GenerateRandomFile testdata.txt
-huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
-```
-
 Send an email
 ```sh
 huc email -h="smtp.somerelay.org" -from="someone@aol.com" -to="grandma@aol.com" -s="Grandpa Birthday" -b="Tell Grandpa/nHAPPY BIRTHDAY!"
@@ -122,6 +116,21 @@ huc zip orders.zip "*.csv"
 huc email -to="person@aol.com" -s="Orders data" -b="Attached is the order data" "*.zip"
 ```
 
+## Help functions
+Generate file with random data
+```sh
+huc GenerateRandomFile testdata.txt
+huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
+```
 
+Show current properties set in the properties file
+```sh
+huc ShowProperties CURRENT
+```
+
+Show all available properties
+```sh
+huc ShowProperties CURRENT -a
+```
 
 
