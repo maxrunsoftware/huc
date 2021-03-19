@@ -1,11 +1,13 @@
-# HUC: Various utilities to make your life easier
-HUC is a simple to use command line tool for performing various tasks including...
+# HUC: Various commandline tools to make your life easier
+HUC is a simple to use open source command line tool for performing various tasks including...
 - FTP
 - FTPS
 - SFTP
 - Delimited data conversion
 - SQL querying
 - ZIP
+
+HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
 ## Examples:
 Get list of commands
