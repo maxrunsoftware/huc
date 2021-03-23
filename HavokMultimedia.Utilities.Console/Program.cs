@@ -42,9 +42,7 @@ namespace HavokMultimedia.Utilities.Console
             {
                 try
                 {
-                    System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                    System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
-                    return fvi.FileVersion;
+                    return System.Reflection.Assembly.GetExecutingAssembly().GetFileVersion();
                 }
                 catch (Exception) { }
                 return null;

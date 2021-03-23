@@ -860,6 +860,8 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        public static string GetFileVersion(this Assembly assembly) => System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location)?.FileVersion;
+
         #region EqualsAny
 
         public static bool Equals<T1>(this Type type) => typeof(T1).Equals(type);
