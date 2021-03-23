@@ -28,17 +28,33 @@ namespace HavokMultimedia.Utilities.Console
         public static ILogFactory LogFactory { get { return Utilities.LogFactory.LogFactoryImpl; } }
 
         public static List<Type> CommandTypes => typeof(Program).Assembly
-                .GetTypes()
-                .Where(o => typeof(ICommand).IsAssignableFrom(o))
-                .Where(o => !o.IsInterface)
-                .Where(o => !o.IsAbstract)
-                .OrderBy(o => o.FullNameFormatted())
-                .ToList();
+            .GetTypes()
+            .Where(o => typeof(ICommand).IsAssignableFrom(o))
+            .Where(o => !o.IsInterface)
+            .Where(o => !o.IsAbstract)
+            .OrderBy(o => o.FullNameFormatted())
+            .ToList();
 
         public static List<ICommand> CommandObjects => CommandTypes
             .Select(o => CreateCommand(o))
             .ToList();
 
+        public static string Version
+        {
+            get
+            {
+                try
+                {
+                    System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                    System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+                    return fvi.FileVersion;
+                }
+                catch (Exception) { }
+                return null;
+            }
+        }
+
+        private static ICommand CreateCommand(Type type) => (ICommand)Activator.CreateInstance(type);
 
         public static int Main(string[] args)
         {
@@ -94,16 +110,14 @@ namespace HavokMultimedia.Utilities.Console
                 log.Info(CreateCommand(command).HelpDetails);
                 return 4;
             }
-            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
-            string version = fvi.FileVersion;
-            log.Info(typeof(Program).Namespace + " " + version + " (" + command.Name + ")");
+
+
+            log.Info(typeof(Program).Namespace + " " + Version + " : " + command.Name);
             var cmd = CreateCommand(command);
             cmd.Execute(args);
             return 0;
         }
 
-        private static ICommand CreateCommand(Type type) => (ICommand)Activator.CreateInstance(type);
 
 
     }
