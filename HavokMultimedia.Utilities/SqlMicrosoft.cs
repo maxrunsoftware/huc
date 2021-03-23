@@ -115,13 +115,8 @@ namespace HavokMultimedia.Utilities
         }
     }
 
-    public class SqlMicrosoft
+    public class SqlMicrosoft : SqlBase
     {
-        private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        private readonly Func<IDbConnection> connectionFactory;
-
-        private readonly object locker = new object();
 
         public static readonly Func<string, string> ESCAPE_MSSQL = (o =>
         {
@@ -135,13 +130,11 @@ namespace HavokMultimedia.Utilities
             return o;
         });
 
-        public bool IsDisposed { get; private set; }
 
-        public Func<string, string> EscapeObject { get; set; } = ESCAPE_MSSQL;
-
-        public int CommandTimeout { get; set; } = 60 * 60 * 24;
-
-        public SqlMicrosoft(Func<IDbConnection> connectionFactory) => this.connectionFactory = connectionFactory.CheckNotNull(nameof(connectionFactory));
+        public SqlMicrosoft(Func<IDbConnection> connectionFactory) : base(connectionFactory)
+        {
+            EscapeObject = ESCAPE_MSSQL;
+        }
 
         #region CRUD
 
@@ -464,76 +457,14 @@ namespace HavokMultimedia.Utilities
 
         #region General
 
-        public Table[] ExecuteQuery(string sql, params SqlParameter[] parameters)
-        {
-            using (var connection = OpenConnection())
-            using (var command = CreateCommand(connection, sql))
-            {
-                AddParameters(command, parameters);
-                using (var reader = command.ExecuteReader())
-                {
-                    return Table.Create(reader);
-                }
-            }
-        }
 
-        public int ExecuteNonQuery(string sql, params SqlParameter[] parameters)
-        {
-            using (var connection = OpenConnection())
-            using (var command = CreateCommand(connection, sql))
-            {
-                AddParameters(command, parameters);
-                return command.ExecuteNonQuery();
-            }
-        }
-
-        public object ExecuteScalar(string sql, params SqlParameter[] parameters)
-        {
-            using (var connection = OpenConnection())
-            using (var command = CreateCommand(connection, sql))
-            {
-                AddParameters(command, parameters);
-                return command.ExecuteScalar();
-            }
-        }
-
-        public Table[] ExecuteStoredProcedure(string schemaAndStoredProcedureEscaped, params SqlParameter[] parameters)
-        {
-            using (var connection = OpenConnection())
-            using (var command = CreateCommand(connection, schemaAndStoredProcedureEscaped, commandType: CommandType.StoredProcedure))
-            {
-                AddParameters(command, parameters);
-                using (var reader = command.ExecuteReader())
-                {
-                    return Table.Create(reader);
-                }
-            }
-        }
 
         #endregion General
 
-        private IDbCommand CreateCommand(IDbConnection connection, string sql, CommandType commandType = CommandType.Text)
-        {
-            var c = connection.CreateCommand();
 
-            c.CommandText = sql;
-            c.CommandType = commandType;
-            c.CommandTimeout = CommandTimeout;
-            return c;
-        }
 
-        private IDbConnection OpenConnection()
-        {
-            var connection = connectionFactory();
-            if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken) connection.Open();
-            return connection;
-        }
 
-        private string CleanParameterName(string parameterName) => parameterName.CheckNotNullTrimmed(nameof(parameterName)).Replace(' ', '_');
 
-        private IDataParameter AddParameter(IDbCommand command, SqlParameter parameter) => parameter == null ? null : command.AddParameter(dbType: parameter.Type, parameterName: CleanParameterName(parameter.Name), value: parameter.Value);
-
-        private IDataParameter[] AddParameters(IDbCommand command, SqlParameter[] parameters) => parameters.OrEmpty().Select(o => AddParameter(command, o)).ToArray();
 
         private void WhereCreateSql(StringBuilder sb, SqlParameter[] parametersWhere)
         {
@@ -565,11 +496,7 @@ namespace HavokMultimedia.Utilities
             }
         }
 
-        public string Escape(string objectToEscape)
-        {
-            var f = EscapeObject;
-            return f != null ? f(objectToEscape) : objectToEscape;
-        }
+
     }
 
 }
