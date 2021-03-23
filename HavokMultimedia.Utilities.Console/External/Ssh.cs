@@ -36,7 +36,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public class Ssh : IDisposable
     {
-        private static readonly ILogger log = Program.LOGFACTORY.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private SshClient _client;
 

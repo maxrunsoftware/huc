@@ -85,7 +85,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         protected FtpClientBase()
         {
-            log = Program.LOGFACTORY.GetLogger(GetType());
+            log = Program.LogFactory.GetLogger(GetType());
             serverInfo = new Lazy<string>(GetServerInfo);
         }
 

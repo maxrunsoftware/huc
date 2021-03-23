@@ -16,23 +16,28 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-
-
 
 namespace HavokMultimedia.Utilities.Console
 {
 
     public class Program
     {
-        public static ILogFactory LOGFACTORY { get { return LogFactory.LogFactoryImpl; } }
-        private static readonly ILogger log = LOGFACTORY.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        public static ILogFactory LogFactory { get { return Utilities.LogFactory.LogFactoryImpl; } }
 
+        public static List<Type> CommandTypes => typeof(Program).Assembly
+                .GetTypes()
+                .Where(o => typeof(ICommand).IsAssignableFrom(o))
+                .Where(o => !o.IsInterface)
+                .Where(o => !o.IsAbstract)
+                .OrderBy(o => o.FullNameFormatted())
+                .ToList();
+
+        public static List<ICommand> CommandObjects => CommandTypes
+            .Select(o => CreateCommand(o))
+            .ToList();
 
 
         public static int Main(string[] args)
@@ -42,7 +47,6 @@ namespace HavokMultimedia.Utilities.Console
             {
                 var p = new Program();
                 returnValue = p.Run(args);
-
             }
             catch (Exception e)
             {
@@ -53,14 +57,13 @@ namespace HavokMultimedia.Utilities.Console
             return returnValue;
         }
 
-
         private int Run(string[] args)
         {
             var a = new Args(args);
-            LogFactory.LogFactoryImpl.SetupConsole(a.IsDebug);
+            Utilities.LogFactory.LogFactoryImpl.SetupConsole(a.IsDebug);
             log.Debug(a.ToString());
 
-            var commandTypes = GetCommandTypes();
+            var commandTypes = CommandTypes;
 
             try
             {
@@ -75,7 +78,7 @@ namespace HavokMultimedia.Utilities.Console
             {
                 log.Info("No command specified");
                 log.Info("Commands: ");
-                foreach (var c in GetCommandObjects()) log.Info("  " + c.HelpSummary);
+                foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
                 return 2;
             }
             var command = commandTypes.Where(o => o.Name.Equals(a.Command, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
@@ -83,7 +86,7 @@ namespace HavokMultimedia.Utilities.Console
             {
                 log.Info($"Command '{a.Command}' does not exist");
                 log.Info("Commands: ");
-                foreach (var c in GetCommandObjects()) log.Info("  " + c.HelpSummary);
+                foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
                 return 3;
             }
             if (a.Values.IsEmpty() && a.Parameters.IsEmpty())
@@ -102,18 +105,6 @@ namespace HavokMultimedia.Utilities.Console
 
         private static ICommand CreateCommand(Type type) => (ICommand)Activator.CreateInstance(type);
 
-
-        public static List<Type> GetCommandTypes() => typeof(Program).Assembly
-                .GetTypes()
-                .Where(o => typeof(ICommand).IsAssignableFrom(o))
-                .Where(o => !o.IsInterface)
-                .Where(o => !o.IsAbstract)
-                .OrderBy(o => o.FullNameFormatted())
-                .ToList();
-
-        public static List<ICommand> GetCommandObjects() => GetCommandTypes()
-            .Select(o => CreateCommand(o))
-            .ToList();
 
     }
 

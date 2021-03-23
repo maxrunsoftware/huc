@@ -35,7 +35,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public class WindowsTaskScheduler : IDisposable
     {
-        private static readonly ILogger log = Program.LOGFACTORY.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly object locker = new object();
         private TaskService taskService;
         public static readonly IReadOnlyList<string> PATH_PARSE_CHARACTERS = (new string[] { "/", "\\" }).ToList().AsReadOnly();

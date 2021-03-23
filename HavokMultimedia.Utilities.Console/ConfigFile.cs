@@ -25,7 +25,7 @@ namespace HavokMultimedia.Utilities.Console
 {
     public class ConfigFile : IBucketReadOnly<string, string>
     {
-        private static readonly ILogger log = Program.LOGFACTORY.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDictionary<string, string> values = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public static string Name => Path.GetFileName(FullPathName);
@@ -79,15 +79,11 @@ namespace HavokMultimedia.Utilities.Console
             }
         }
 
-        public ConfigFile() : this(FullPathName)
-        {
-
-        }
-
+        public ConfigFile() : this(FullPathName) { }
 
         public static List<string> GetAllKeys()
         {
-            var cmdobjs = Program.GetCommandObjects();
+            var cmdobjs = Program.CommandObjects;
             var cmdobjsParams = new List<string>();
             foreach (var cmdobj in cmdobjs)
             {
@@ -102,7 +98,6 @@ namespace HavokMultimedia.Utilities.Console
             return cmdobjsParams;
         }
 
-
         public static void CreateDefaultPropertiesFile()
         {
             var programFile = ProgramFullPathName;
@@ -113,7 +108,6 @@ namespace HavokMultimedia.Utilities.Console
             var sb = new StringBuilder();
             foreach (var cmdobjsParam in cmdobjsParams) sb.AppendLine(cmdobjsParam + "=");
             Util.FileWrite(propFile, sb.ToString(), Constant.ENCODING_UTF8_WITHOUT_BOM);
-
         }
 
     }

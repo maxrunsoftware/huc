@@ -22,7 +22,7 @@ namespace HavokMultimedia.Utilities.Console
 {
     public class Args
     {
-        private static readonly ILogger log = Program.LOGFACTORY.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public string Command { get; init; }
         public IReadOnlyList<string> Values { get; init; }

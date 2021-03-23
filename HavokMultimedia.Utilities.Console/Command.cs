@@ -38,12 +38,12 @@ namespace HavokMultimedia.Utilities.Console
 
         protected Command()
         {
-            log = Program.LOGFACTORY.GetLogger(GetType());
+            log = Program.LogFactory.GetLogger(GetType());
             Help = new CommandHelpBuilder(GetType().Name);
             CreateHelp(Help);
         }
 
-        private static List<string> GetNames() => Program.GetCommandObjects().Select(o => o.Name).ToList();
+        private static List<string> GetNames() => Program.CommandObjects.Select(o => o.Name).ToList();
 
         public string Name => Help.Name;
 
