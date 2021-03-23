@@ -29,17 +29,12 @@ cp Orders.txt Orders.csv
 cp Orders100.txt Orders100.csv
 ./huc table -hd=pipe -hq=none -he=true -dd=pipe -dq=none -he=false Orders100.csv
 
-
-exit 1
-
 ./huc ftpput -h=$ip -u=testuser -p=testpass testdata1.txt
 ./huc ftpput -h=$ip -u=testuser -p=testpass testdata2.txt testdata3.txt
 ./huc ftpdelete -h=$ip -u=testuser -p=testpass testdata1.txt
 ./huc ftpdelete -h=$ip -u=testuser -p=testpass testdata2.txt testdata3.txt
 ./huc ftpput -h=$ip -u=testuser -p=testpass "testdata?.txt"
 ./huc ftpdelete -h=$ip -u=testuser -p=testpass "testdata?.txt"
-
-
 
 ./huc ftpput -e=Implicit -h=$ip -u=testuser -p=testpass testdata1.txt
 ./huc ftpput -e=Implicit -h=$ip -u=testuser -p=testpass testdata2.txt testdata3.txt
