@@ -77,6 +77,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
             using (var conn = new SqlConnection(cs))
             {
                 conn.Open();
+                conn.InfoMessage += delegate (object sender, SqlInfoMessageEventArgs e)
+                {
+                    var msg = e?.Message.TrimOrNull();
+                    if (msg != null) log.Info(msg);
+                };
+
                 using (var cmd = conn.CreateCommand(sql, commandType: System.Data.CommandType.Text, commandTimeout: t))
                 {
                     if (resultFiles.WhereNotNull().IsEmpty())
