@@ -28,10 +28,7 @@ namespace HavokMultimedia.Utilities.Console
         public static ILogFactory LogFactory { get { return Utilities.LogFactory.LogFactoryImpl; } }
 
         public static List<Type> CommandTypes => typeof(Program).Assembly
-            .GetTypes()
-            .Where(o => typeof(ICommand).IsAssignableFrom(o))
-            .Where(o => !o.IsInterface)
-            .Where(o => !o.IsAbstract)
+            .GetTypesOf<ICommand>(requireNoArgConstructor: true)
             .OrderBy(o => o.FullNameFormatted())
             .ToList();
 
