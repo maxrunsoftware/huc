@@ -26,7 +26,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class Sql : Command
     {
-
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Execute a SQL statement and/or script and optionally save the result(s) to a tab delimited file(s)");
@@ -34,11 +33,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("sqlStatement", "s", "SQL statement to execute");
             help.AddParameter("sqlScriptFile", "f", "SQL script file to execute");
             help.AddParameter("commandTimeout", "t", "Length of time in seconds to wait for SQL command to execute before erroring out (" + (60 * 60 * 24) + ")");
+            help.AddDetail("Example connection strings:");
+            help.AddDetail("  Server=192.168.0.5;Database=myDatabase;User Id=myUsername;Password=myPassword;");
+            help.AddDetail("  Server=192.168.0.5\\instanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;");
+            help.AddDetail("  Server=192.168.0.5;Database=myDataBase;Trusted_Connection=True;");
             help.AddValue("<result file 1> <result file 2> <etc>");
         }
-
-
-
 
         protected override void Execute()
         {
