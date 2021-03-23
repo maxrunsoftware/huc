@@ -5,7 +5,9 @@ HUC is a simple to use open source command line tool for performing various task
 - SFTP
 - Delimited data conversion
 - SQL querying
+- SQL uploading
 - ZIP
+- Windows Task Scheduler Management
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
