@@ -76,23 +76,26 @@ namespace HavokMultimedia.Utilities.Console.Commands
             Utilities.Table[] tables = Array.Empty<Utilities.Table>();
             using (var conn = new SqlConnection(cs))
             {
-                conn.Open();
                 conn.InfoMessage += delegate (object sender, SqlInfoMessageEventArgs e)
                 {
-                    var msg = e?.Message.TrimOrNull();
-                    if (msg != null) log.Info(msg);
+                    foreach (SqlError info in e.Errors)
+                    {
+                        var msg = info.Message.TrimOrNull();
+                        if (msg == null) continue;
+                        if (info.Class > 10) log.Warn(msg);
+                        else log.Info(msg);
+                    }
                 };
 
-                using (var cmd = conn.CreateCommand(sql, commandType: System.Data.CommandType.Text, commandTimeout: t))
+                var c = new SqlMicrosoft(() => conn);
+                c.CommandTimeout = t;
+                if (resultFiles.WhereNotNull().IsEmpty())
                 {
-                    if (resultFiles.WhereNotNull().IsEmpty())
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                    else
-                    {
-                        tables = cmd.ExecuteQuery();
-                    }
+                    c.ExecuteNonQuery(sql);
+                }
+                else
+                {
+                    tables = c.ExecuteQuery(sql);
                 }
             }
 

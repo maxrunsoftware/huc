@@ -61,7 +61,7 @@ namespace HavokMultimedia.Utilities
         }
     }
 
-    public sealed class DatabaseCrudInformationSchemaColumn : SqlMicrosoftInformationSchema
+    public sealed class SqlMicrosoftInformationSchemaColumn : SqlMicrosoftInformationSchema
     {
         public string TableCatalog { get; }
         public string TableSchema { get; }
@@ -87,7 +87,7 @@ namespace HavokMultimedia.Utilities
         public string DomainSchema { get; }
         public string DomainName { get; }
 
-        internal DatabaseCrudInformationSchemaColumn(TableRow row)
+        internal SqlMicrosoftInformationSchemaColumn(TableRow row)
         {
             TableCatalog = GetValue(row, nameof(TableCatalog));
             TableSchema = GetValue(row, nameof(TableSchema));
@@ -114,6 +114,7 @@ namespace HavokMultimedia.Utilities
             DomainName = GetValue(row, nameof(DomainName));
         }
     }
+
     public class SqlMicrosoft
     {
         private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -439,11 +440,11 @@ namespace HavokMultimedia.Utilities
             return GetFromTable(s).Select(o => new SqlMicrosoftInformationSchemaTable(o)).ToArray();
         }
 
-        public DatabaseCrudInformationSchemaColumn[] GetColumns(string database = null)
+        public SqlMicrosoftInformationSchemaColumn[] GetColumns(string database = null)
         {
             var s = Escape("INFORMATION_SCHEMA") + "." + Escape("COLUMNS");
             if (database != null) s = Escape(database) + "." + s;
-            return GetFromTable(s).Select(o => new DatabaseCrudInformationSchemaColumn(o)).ToArray();
+            return GetFromTable(s).Select(o => new SqlMicrosoftInformationSchemaColumn(o)).ToArray();
         }
 
         #endregion Information

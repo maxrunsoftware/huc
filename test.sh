@@ -20,6 +20,8 @@ cd test
 
 ./huc sql -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -s="SELECT TOP 100 * FROM Orders" Orders100.txt
 ./huc sql -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -s="SELECT * FROM Orders; SELECT * FROM Employees" Orders.txt Employees.txt
+./huc sql -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -s="PRINT 'Hello'; PRINT 'World';" 
+
 printf "SELECT TOP 100 *\nFROM Orders" > mssqlscript.sql
 ./huc sql -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -f="mssqlscript.sql" OrdersFromScript.txt
 
