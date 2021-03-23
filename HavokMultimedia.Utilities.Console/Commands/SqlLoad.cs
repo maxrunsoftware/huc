@@ -27,7 +27,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public static class SqlLoadExtensions
     {
-        public static readonly IReadOnlyDictionary<DbType, SqlDbType> DBTYPE_SQLDBTYPE_MAP = new Dictionary<DbType, SqlDbType>
+        private static readonly IReadOnlyDictionary<DbType, SqlDbType> DBTYPE_SQLDBTYPE_MAP = new Dictionary<DbType, SqlDbType>
             {
                 { DbType.AnsiString, SqlDbType.NVarChar },
                 { DbType.Binary, SqlDbType.Binary },
@@ -58,7 +58,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 { DbType.DateTimeOffset, SqlDbType.DateTimeOffset },
         }.AsReadOnly();
 
-        public static readonly IReadOnlyDictionary<SqlDbType, DbType> SQLDBTYPE_DBTYPE_MAP = new Dictionary<SqlDbType, DbType>
+        private static readonly IReadOnlyDictionary<SqlDbType, DbType> SQLDBTYPE_DBTYPE_MAP = new Dictionary<SqlDbType, DbType>
             {
                 { SqlDbType.BigInt, DbType.Int64 },
                 { SqlDbType.Binary, DbType.Binary },
@@ -93,7 +93,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 { SqlDbType.DateTimeOffset, DbType.DateTimeOffset },
         }.AsReadOnly();
 
-        public static readonly IReadOnlyDictionary<SqlDbType, Type> SQLDBTYPE_TYPE_MAP = new Dictionary<SqlDbType, Type> {
+        private static readonly IReadOnlyDictionary<SqlDbType, Type> SQLDBTYPE_TYPE_MAP = new Dictionary<SqlDbType, Type> {
             { SqlDbType.BigInt, typeof(long) },
             { SqlDbType.Binary, typeof(byte[]) },
             { SqlDbType.Bit, typeof(bool) },
@@ -127,7 +127,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             { SqlDbType.DateTimeOffset, typeof(DateTimeOffset) },
         }.AsReadOnly();
 
-        public static readonly IReadOnlyDictionary<Type, SqlDbType> TYPE_SQLDBTYPE_MAP = new Dictionary<Type, SqlDbType>
+        private static readonly IReadOnlyDictionary<Type, SqlDbType> TYPE_SQLDBTYPE_MAP = new Dictionary<Type, SqlDbType>
             {
                 { typeof(bool), SqlDbType.Bit },
                 { typeof(bool?), SqlDbType.Bit },
