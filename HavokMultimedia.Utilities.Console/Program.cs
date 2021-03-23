@@ -42,7 +42,7 @@ namespace HavokMultimedia.Utilities.Console
             {
                 try
                 {
-                    return System.Reflection.Assembly.GetExecutingAssembly().GetFileVersion();
+                    return typeof(Program).Assembly.GetVersion();
                 }
                 catch (Exception) { }
                 return null;
@@ -87,6 +87,7 @@ namespace HavokMultimedia.Utilities.Console
 
             if (a.Command == null)
             {
+                log.Info(typeof(Program).Namespace + " " + Version);
                 log.Info("No command specified");
                 log.Info("Commands: ");
                 foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
@@ -95,6 +96,7 @@ namespace HavokMultimedia.Utilities.Console
             var command = commandTypes.Where(o => o.Name.Equals(a.Command, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             if (command == null)
             {
+                log.Info(typeof(Program).Namespace + " " + Version);
                 log.Info($"Command '{a.Command}' does not exist");
                 log.Info("Commands: ");
                 foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
@@ -102,6 +104,7 @@ namespace HavokMultimedia.Utilities.Console
             }
             if (a.Values.IsEmpty() && a.Parameters.IsEmpty())
             {
+                log.Info(typeof(Program).Namespace + " " + Version + " : " + command.Name);
                 log.Info(CreateCommand(command).HelpDetails);
                 return 4;
             }
