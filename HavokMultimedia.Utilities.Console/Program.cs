@@ -40,12 +40,7 @@ namespace HavokMultimedia.Utilities.Console
         {
             get
             {
-                try
-                {
-                    return typeof(Program).Assembly.GetVersion();
-                }
-                catch (Exception) { }
-                return null;
+                return HavokMultimedia.Utilities.Console.Version.Value;
             }
         }
 
