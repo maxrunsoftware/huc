@@ -25,6 +25,17 @@ cd test
 printf "SELECT TOP 100 *\nFROM Orders" > mssqlscript.sql
 ./huc sql -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -f="mssqlscript.sql" OrdersFromScript.txt
 
+
+./huc sql -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -s="if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'TempOrders' AND TABLE_SCHEMA = 'dbo') DROP TABLE NorthWind.dbo.TempOrders;" 
+
+./huc sqlload -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+
+#./huc sqlload -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+
+#./huc sqlload -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+./huc sql -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -s="SELECT * FROM TempOrders" TempOrders.txt
+
+
 cp Orders.txt Orders.csv
 ./huc table Orders.csv
 

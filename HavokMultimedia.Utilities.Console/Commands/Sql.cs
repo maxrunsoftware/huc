@@ -24,15 +24,14 @@ using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class Sql : Command
+    public class Sql : SqlBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
+            base.CreateHelp(help);
             help.AddSummary("Execute a SQL statement and/or script and optionally save the result(s) to a tab delimited file(s)");
-            help.AddParameter("connectionString", "c", "SQL connection string");
             help.AddParameter("sqlStatement", "s", "SQL statement to execute");
             help.AddParameter("sqlScriptFile", "f", "SQL script file to execute");
-            help.AddParameter("commandTimeout", "t", "Length of time in seconds to wait for SQL command to execute before erroring out (" + (60 * 60 * 24) + ")");
             help.AddDetail("Example connection strings:");
             help.AddDetail("  Server=192.168.0.5;Database=myDatabase;User Id=myUsername;Password=myPassword;");
             help.AddDetail("  Server=192.168.0.5\\instanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;");
@@ -42,7 +41,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-            var cs = GetArgParameterOrConfigRequired("connectionString", "c");
+            base.Execute();
 
             var s = GetArgParameterOrConfig("sqlStatement", "s");
 
@@ -58,8 +57,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (sql == null) throw new ArgsException("sqlStatement", "No SQL provided to execute");
             log.Debug($"sql: {sql}");
 
-            var t = GetArgParameterOrConfigInt("commandTimeout", "t", 60 * 60 * 24);
-
             var resultFiles = GetArgValues().OrEmpty().TrimOrNull().ToList();
             for (var i = 0; i < resultFiles.Count; i++)
             {
@@ -74,30 +71,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
             stopwatch.Start();
 
             Utilities.Table[] tables = Array.Empty<Utilities.Table>();
-            using (var conn = new SqlConnection(cs))
-            {
-                conn.InfoMessage += delegate (object sender, SqlInfoMessageEventArgs e)
-                {
-                    foreach (SqlError info in e.Errors)
-                    {
-                        var msg = info.Message.TrimOrNull();
-                        if (msg == null) continue;
-                        if (info.Class > 10) log.Warn(msg);
-                        else log.Info(msg);
-                    }
-                };
 
-                var c = new SqlMicrosoft(() => conn);
-                c.CommandTimeout = t;
-                if (resultFiles.WhereNotNull().IsEmpty())
-                {
-                    c.ExecuteNonQuery(sql);
-                }
-                else
-                {
-                    tables = c.ExecuteQuery(sql);
-                }
+            var c = GetSqlHelper();
+
+            if (resultFiles.WhereNotNull().IsEmpty())
+            {
+                c.ExecuteNonQuery(sql);
             }
+            else
+            {
+                tables = c.ExecuteQuery(sql);
+            }
+
 
             stopwatch.Stop();
             var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);

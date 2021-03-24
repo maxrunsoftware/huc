@@ -192,13 +192,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
         public static SqlDbType GetSqlDbType(this Type type) => TYPE_SQLDBTYPE_MAP.TryGetValue(type, out var sqlDbType) ? sqlDbType : SqlDbType.NVarChar;
     }
 
-    public class SqlLoad : Command
+    public class SqlLoad : SqlBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
+            base.CreateHelp(help);
             help.AddSummary("Execute a SQL statement and/or script and optionally save the result(s) to a tab delimited file(s)");
-            help.AddParameter("connectionString", "c", "SQL connection string");
-            help.AddParameter("commandTimeout", "t", "Length of time in seconds to wait for SQL command to execute before erroring out (" + (60 * 60 * 24) + ")");
             help.AddParameter("drop", "dp", "Drop existing table if it exists (false)");
             help.AddParameter("detectColumnTypes", "dct", "Attempts to detect column types and lengths (false)");
             help.AddParameter("errorOnNonexistentColumns", "ec", "When inserting to an existing table, whether to error if columns in the data file don't have cooresponding columns in the existing SQL table (false)");
@@ -216,9 +215,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-            var connectionString = GetArgParameterOrConfigRequired("connectionString", "c");
+            base.Execute();
 
-            var commandTimeout = GetArgParameterOrConfigInt("commandTimeout", "t", 60 * 60 * 24);
             var drop = GetArgParameterOrConfigBool("drop", "dp", false);
             var detectColumnTypes = GetArgParameterOrConfigBool("detectColumnTypes", "dct", false);
             var errorOnNonexistentColumns = GetArgParameterOrConfigBool("errorOnNonexistentColumns", "ec", false);
@@ -241,117 +239,108 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 throw new Exception("No columns in import file");
             }
 
-            using (var conn = new SqlConnection(connectionString))
+
+
+            var c = GetSqlHelper();
+            var databaseSchemaTable = c.Escape(database) + "." + c.Escape(schema) + "." + c.Escape(table);
+
+            log.Debug($"databaseSchemaTable: {databaseSchemaTable}");
+
+            var tableExists = c.GetTableExists(table, schema, database);
+            if (tableExists && drop)
             {
-                conn.InfoMessage += delegate (object sender, SqlInfoMessageEventArgs e)
-                {
-                    foreach (SqlError info in e.Errors)
-                    {
-                        var msg = info.Message.TrimOrNull();
-                        if (msg == null) continue;
-                        if (info.Class > 10) log.Warn(msg);
-                        else log.Info(msg);
-                    }
-                };
-
-                var c = new SqlMicrosoft(() => conn);
-                var databaseSchemaTable = c.Escape(database) + "." + c.Escape(schema) + "." + c.Escape(table);
-
-                log.Debug($"databaseSchemaTable: {databaseSchemaTable}");
-
-                var tableExists = c.GetTableExists(table, schema, database);
-                if (tableExists && drop)
-                {
-                    log.Info($"Dropping existing table: {databaseSchemaTable}");
-                    c.DropTable(table, schema, database);
-                }
-
-                tableExists = c.GetTableExists(table, schema, database);
-                if (!tableExists)
-                {
-                    var sql = new StringBuilder();
-                    sql.Append($"CREATE TABLE {databaseSchemaTable} (");
-                    if (rowNumberColumnName != null) sql.Append(c.Escape(rowNumberColumnName) + " INTEGER NULL,");
-                    if (currentUtcDateTimeColumnName != null) sql.Append(c.Escape(currentUtcDateTimeColumnName) + " DATETIME NULL,");
-                    for (var i = 0; i < t.Columns.Count; i++)
-                    {
-                        var column = t.Columns[i];
-                        if (i > 0) sql.Append(",");
-                        sql.Append(c.Escape(column.Name));
-                        sql.Append(" ");
-                        if (detectColumnTypes)
-                        {
-                            var dbType = column.Type.GetDbType();
-                            var sqlDbType = dbType.GetSqlDbType();
-                            throw new NotImplementedException();
-                        }
-                        else
-                        {
-                            sql.Append("NVARCHAR(MAX)");
-                        }
-                    }
-                    sql.Append(");");
-
-                    c.ExecuteNonQuery(sql.ToString());
-                }
-
-                var sqlColumns = c.GetColumns(database)
-                    .Where(o => string.Equals(o.TableSchema, schema, StringComparison.OrdinalIgnoreCase))
-                    .Where(o => string.Equals(o.TableName, table, StringComparison.OrdinalIgnoreCase))
-                    .Select(o => o.ColumnName)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                var columnsToInsert = new List<TableColumn>();
-
-                foreach (var tablecolumn in t.Columns)
-                {
-                    if (sqlColumns.Contains(tablecolumn.Name)) // Found column in table
-                    {
-                        columnsToInsert.Add(tablecolumn);
-                    }
-                    else if (!errorOnNonexistentColumns) // Didn't find column, but that is OK we'll just not import it
-                    {
-                        log.Info($"Ignoring column {tablecolumn.Name} because it does not exist as a column in table {table}");
-                    }
-                    else // Didn't find column, and it is required, so we should fail here
-                    {
-                        throw new Exception($"DataFile contains column {tablecolumn.Name} but existing SQL table {table} does not contain this column.");
-                    }
-                }
-
-                /*
-                var dataToInsert = new List<DatabaseCrudParameter[]>();
-                foreach (var row in t)
-                {
-                    foreach (var column in columnsToInsert)
-                    {
-                        var dcp = new DatabaseCrudParameter(column.Name, row[column], System.Data.DbType.String);
-                    }
-                    dataToInsert.Add(columnsToInsert.Select(o => new DatabaseCrudParameter(o.Name, row[o], System.Data.DbType.String)).ToArray());
-                }
-                */
-
-                var columnsToRemove = t.Columns.Select(o => o.Name).Except(columnsToInsert.Select(o => o.Name), StringComparer.OrdinalIgnoreCase);
-                var t2 = t;
-                foreach (var columnToRemove in columnsToRemove)
-                {
-                    t2 = t2.RemoveColumn(columnToRemove);
-                }
-                t = t2;
-
-                log.Info($"Writing {t.Count} rows to database in columns " + string.Join(", ", columnsToInsert.Select(o => o.Name)));
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-
-                //foreach (var row in dataToInsert) c.Insert(databaseSchemaTable, row);
-                c.Insert(databaseSchemaTable, t, batchSize: batchSize);
-
-                stopwatch.Stop();
-                var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
-                log.Info($"Completed writing {t.Count} rows to database in {stopwatchtime} seconds");
+                log.Info($"Dropping existing table: {databaseSchemaTable}");
+                c.DropTable(table, schema, database);
             }
 
+            tableExists = c.GetTableExists(table, schema, database);
+            if (!tableExists)
+            {
+                var sql = new StringBuilder();
+                sql.Append($"CREATE TABLE {databaseSchemaTable} (");
+                if (rowNumberColumnName != null) sql.Append(c.Escape(rowNumberColumnName) + " INTEGER NULL,");
+                if (currentUtcDateTimeColumnName != null) sql.Append(c.Escape(currentUtcDateTimeColumnName) + " DATETIME NULL,");
+                for (var i = 0; i < t.Columns.Count; i++)
+                {
+                    var column = t.Columns[i];
+                    if (i > 0) sql.Append(",");
+                    sql.Append(c.Escape(column.Name));
+                    sql.Append(" ");
+                    if (detectColumnTypes)
+                    {
+                        var dbType = column.Type.GetDbType();
+                        var sqlDbType = dbType.GetSqlDbType();
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        sql.Append("NVARCHAR(MAX)");
+                    }
+                }
+                sql.Append(");");
+
+                c.ExecuteNonQuery(sql.ToString());
+            }
+
+            var sqlColumns = c.GetColumns(database)
+                .Where(o => string.Equals(o.TableSchema, schema, StringComparison.OrdinalIgnoreCase))
+                .Where(o => string.Equals(o.TableName, table, StringComparison.OrdinalIgnoreCase))
+                .Select(o => o.ColumnName)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var columnsToInsert = new List<TableColumn>();
+
+            foreach (var tablecolumn in t.Columns)
+            {
+                if (sqlColumns.Contains(tablecolumn.Name)) // Found column in table
+                {
+                    columnsToInsert.Add(tablecolumn);
+                }
+                else if (!errorOnNonexistentColumns) // Didn't find column, but that is OK we'll just not import it
+                {
+                    log.Info($"Ignoring column {tablecolumn.Name} because it does not exist as a column in table {table}");
+                }
+                else // Didn't find column, and it is required, so we should fail here
+                {
+                    throw new Exception($"DataFile contains column {tablecolumn.Name} but existing SQL table {table} does not contain this column.");
+                }
+            }
+
+            /*
+            var dataToInsert = new List<DatabaseCrudParameter[]>();
+            foreach (var row in t)
+            {
+                foreach (var column in columnsToInsert)
+                {
+                    var dcp = new DatabaseCrudParameter(column.Name, row[column], System.Data.DbType.String);
+                }
+                dataToInsert.Add(columnsToInsert.Select(o => new DatabaseCrudParameter(o.Name, row[o], System.Data.DbType.String)).ToArray());
+            }
+            */
+
+            var columnsToRemove = t.Columns.Select(o => o.Name).Except(columnsToInsert.Select(o => o.Name), StringComparer.OrdinalIgnoreCase);
+            var t2 = t;
+            foreach (var columnToRemove in columnsToRemove)
+            {
+                t2 = t2.RemoveColumn(columnToRemove);
+            }
+            t = t2;
+
+            log.Info($"Writing {t.Count} rows to database in columns " + string.Join(", ", columnsToInsert.Select(o => o.Name)));
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            //foreach (var row in dataToInsert) c.Insert(databaseSchemaTable, row);
+            c.Insert(databaseSchemaTable, t, batchSize: batchSize);
+
+            stopwatch.Stop();
+            var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
+            log.Info($"Completed writing {t.Count} rows to database in {stopwatchtime} seconds");
+
+
         }
+
+
 
 
 
