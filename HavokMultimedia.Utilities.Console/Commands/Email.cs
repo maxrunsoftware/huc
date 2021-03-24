@@ -62,7 +62,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var replyto = GetArgParameterOrConfig("replyto", "r", from);
             var s = GetArgParameterOrConfigRequired("subject", "s");
             var b = GetArgParameterOrConfig("body", "b");
-            b = b.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
+            if (b != null) b = b.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
 
             var attachmentFiles = Util.ParseInputFiles(GetArgValues()).ToArray();
             for (var i = 0; i < attachmentFiles.Length; i++) log.Debug($"Attachment[{i}]: {attachmentFiles[i]}");
@@ -88,7 +88,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
                     mail.BodyEncoding = encoding;
                     mail.IsBodyHtml = false;
-                    mail.Body = b;
+                    if (b != null) mail.Body = b;
 
                     mail.ReplyToList.Clear();
                     mail.ReplyToList.Add(new MailAddress(replyto ?? from));
