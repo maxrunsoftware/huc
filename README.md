@@ -47,6 +47,16 @@ printf "SELECT TOP 100 *\nFROM Orders" > mssqlscript.sql
 huc sql -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -f="mssqlscript.sql" OrdersFromScript.txt
 ```
 
+Upload tab delimited file into a SQL server table
+```sh
+./huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+```
+
+Upload tab delimited file into a SQL server table and include the file row number and a time stamp, dropping the table if it exists already
+```sh
+./huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+```
+
 Convert tab delimited file to csv delimited file using defaults
 ```sh
 cp Orders.txt Orders.csv
