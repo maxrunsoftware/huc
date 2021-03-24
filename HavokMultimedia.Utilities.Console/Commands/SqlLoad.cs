@@ -278,7 +278,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     }
                 }
                 sql.Append(");");
-
+                log.Debug("Executing Create Table...");
+                log.Debug(sql.ToString());
                 c.ExecuteNonQuery(sql.ToString());
             }
 
@@ -287,6 +288,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 .Where(o => string.Equals(o.TableName, table, StringComparison.OrdinalIgnoreCase))
                 .Select(o => o.ColumnName)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            if (rowNumberColumnName != null)
+            {
+                int i = 1;
+                t = t.AddColumn(rowNumberColumnName, row => (i++).ToString(), newColumnIndex: 0);
+            }
+
+            if (currentUtcDateTimeColumnName != null)
+            {
+                var now = DateTime.UtcNow;
+                t = t.AddColumn(currentUtcDateTimeColumnName, row => now.ToString("yyyy-MM-dd HH:mm:ss.fff"), newColumnIndex: 1);
+            }
 
             var columnsToInsert = new List<TableColumn>();
 

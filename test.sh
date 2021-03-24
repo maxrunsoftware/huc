@@ -30,9 +30,9 @@ printf "SELECT TOP 100 *\nFROM Orders" > mssqlscript.sql
 
 ./huc sqlload -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 
-#./huc sqlload -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+./huc sqlload -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 
-#./huc sqlload -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+./huc sqlload -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 ./huc sql -c="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;" -s="SELECT * FROM TempOrders" TempOrders.txt
 
 
