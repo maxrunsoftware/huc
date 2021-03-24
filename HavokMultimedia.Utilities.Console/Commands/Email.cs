@@ -107,7 +107,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         private IEnumerable<MailAddress> ParseEmailAddresses(string emailAddresses)
         {
+
             var list = new List<MailAddress>();
+            emailAddresses = emailAddresses.TrimOrNull();
+            if (emailAddresses == null) return list;
 
             foreach (var ea in emailAddresses.Split(';', ',', '|').TrimOrNull().WhereNotNull())
             {
