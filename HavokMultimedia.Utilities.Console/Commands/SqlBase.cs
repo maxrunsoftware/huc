@@ -16,6 +16,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -32,28 +33,28 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         private string connectionString;
         private int commandTimeout;
-        private SqlServerType sqlServerType;
+        protected SqlServerType SqlServerType { get; private set; }
 
         protected override void Execute()
         {
             connectionString = GetArgParameterOrConfigRequired("connectionString", "c");
             commandTimeout = GetArgParameterOrConfigInt("commandTimeout", "ct", 60 * 60 * 24);
-            sqlServerType = GetArgParameterOrConfigEnum("serverType", "st", SqlServerType.MSSQL);
+            SqlServerType = GetArgParameterOrConfigEnum("serverType", "st", SqlServerType.MSSQL);
 
         }
 
         protected Utilities.Sql GetSqlHelper()
         {
-            switch (sqlServerType)
+            switch (SqlServerType)
             {
-                case SqlServerType.MSSQL: return new SqlMSSQL(CreateConnection) { CommandTimeout = commandTimeout };
-                case SqlServerType.MySQL: return new SqlMySQL(CreateConnection) { CommandTimeout = commandTimeout };
-                default: throw new NotImplementedException($"sqlServerType {sqlServerType} has not been implemented yet");
+                case SqlServerType.MSSQL: return new SqlMSSQL(CreateConnectionMSSQL) { CommandTimeout = commandTimeout };
+                case SqlServerType.MySQL: return new SqlMySQL(CreateConnectionMySQL) { CommandTimeout = commandTimeout };
+                default: throw new NotImplementedException($"sqlServerType {SqlServerType} has not been implemented yet");
             }
         }
 
 
-        private IDbConnection CreateConnection()
+        private IDbConnection CreateConnectionMSSQL()
         {
             var conn = new SqlConnection(connectionString);
 
@@ -69,5 +70,24 @@ namespace HavokMultimedia.Utilities.Console.Commands
             };
             return conn;
         }
+
+        private IDbConnection CreateConnectionMySQL()
+        {
+            var conn = new MySqlConnection(connectionString);
+
+            conn.InfoMessage += delegate (object sender, MySqlInfoMessageEventArgs e)
+            {
+                foreach (var info in e.errors)
+                {
+                    var msg = info.Message.TrimOrNull();
+                    if (msg == null) continue;
+                    if (info.Code > 10) log.Warn(msg);
+                    else log.Info(msg);
+                }
+            };
+            return conn;
+        }
+
+
     }
 }

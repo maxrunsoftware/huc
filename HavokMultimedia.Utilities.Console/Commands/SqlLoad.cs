@@ -224,7 +224,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var rowNumberColumnName = GetArgParameterOrConfig("rowNumberColumnName", "rncn").TrimOrNull();
             var currentUtcDateTimeColumnName = GetArgParameterOrConfig("currentUtcDateTimeColumnName", "ctcn").TrimOrNull();
             var database = GetArgParameterOrConfigRequired("database", "d").TrimOrNull();
-            var schema = GetArgParameterOrConfigRequired("schema", "s").TrimOrNull();
+            var schema = GetArgParameterOrConfig("schema", "s").TrimOrNull();
             var table = GetArgParameterOrConfigRequired("table", "t").TrimOrNull();
 
             var inputFile = GetArgValues().OrEmpty().TrimOrNull().WhereNotNull().FirstOrDefault();
@@ -242,7 +242,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
 
             var c = GetSqlHelper();
-            var databaseSchemaTable = c.Escape(database) + "." + c.Escape(schema) + "." + c.Escape(table);
+            var databaseSchemaTable = c.Escape(database);
+            if (schema != null) databaseSchemaTable = databaseSchemaTable + "." + c.Escape(schema);
+            databaseSchemaTable = databaseSchemaTable + "." + c.Escape(table);
 
             log.Debug($"databaseSchemaTable: {databaseSchemaTable}");
 
@@ -250,13 +252,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (tableExists && drop)
             {
                 log.Info($"Dropping existing table: {databaseSchemaTable}");
-                c.DropTable(table, schema, database);
+                c.DropTable(database, schema, table);
             }
 
             tableExists = c.GetTableExists(database, schema, table);
             if (!tableExists)
             {
                 var sql = new StringBuilder();
+
                 sql.Append($"CREATE TABLE {databaseSchemaTable} (");
                 if (rowNumberColumnName != null) sql.Append(c.Escape(rowNumberColumnName) + " INTEGER NULL,");
                 if (currentUtcDateTimeColumnName != null) sql.Append(c.Escape(currentUtcDateTimeColumnName) + " DATETIME NULL,");
@@ -274,8 +277,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     }
                     else
                     {
-                        sql.Append("NVARCHAR(MAX)");
+                        if (SqlServerType == SqlServerType.MSSQL) sql.Append("NVARCHAR(MAX)");
+                        else if (SqlServerType == SqlServerType.MySQL) sql.Append("LONGTEXT");
+                        else throw new NotImplementedException($"SqlServerType {SqlServerType} has not been implemented yet");
                     }
+                    sql.Append(" ");
                 }
                 sql.Append(");");
                 log.Debug("Executing Create Table...");

@@ -23,7 +23,12 @@ namespace HavokMultimedia.Utilities
     {
         public override IEnumerable<string> GetDatabases() => ExecuteQueryToList("SELECT schema_name FROM information_schema.schemata;");
         public override IEnumerable<string> GetTables(string database, string schema) => ExecuteQueryToList($"SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_SCHEMA='{database}';");
-        public override void DropTable(string database, string schema, string table) => ExecuteNonQuery($"DROP TABLE {Escape(database)}.{Escape(table)};");
+        public override void DropTable(string database, string schema, string table)
+        {
+            var dst = Escape(database) + "." + Escape(table);
+            var sql = $"DROP TABLE IF EXISTS {dst};";
+            ExecuteNonQuery(sql);
+        }
         public override IEnumerable<string> GetSchemas(string database) => new List<string>();
         public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='{database}' AND TABLE_NAME = '{table}' ORDER BY ORDINAL_POSITION;");
 

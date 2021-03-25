@@ -129,6 +129,7 @@ namespace HavokMultimedia.Utilities
                         command.CommandText = sb.ToString().TrimOrNull();
                         if (command.CommandText != null)
                         {
+                            log.Debug("ExecuteNonQuery: " + command.CommandText);
                             command.ExecuteNonQuery();
                             command.Dispose();
                             command = null;
@@ -143,6 +144,7 @@ namespace HavokMultimedia.Utilities
 
                 if (command != null)
                 {
+                    log.Debug("ExecuteNonQuery: " + command.CommandText);
                     command.ExecuteNonQuery();
                     command.Dispose();
                     command = null;
@@ -183,6 +185,7 @@ namespace HavokMultimedia.Utilities
             using (var command = CreateCommand(connection, sql))
             {
                 AddParameters(command, parameters);
+                log.Debug($"ExecuteQuery: {sql}");
                 using (var reader = command.ExecuteReader())
                 {
                     return Table.Create(reader);
@@ -210,6 +213,7 @@ namespace HavokMultimedia.Utilities
             using (var command = CreateCommand(connection, sql))
             {
                 AddParameters(command, parameters);
+                log.Debug($"ExecuteNonQuery: {sql}");
                 return command.ExecuteNonQuery();
             }
         }
@@ -220,6 +224,7 @@ namespace HavokMultimedia.Utilities
             using (var command = CreateCommand(connection, sql))
             {
                 AddParameters(command, parameters);
+                log.Debug($"ExecuteScalar: {sql}");
                 return command.ExecuteScalar();
             }
         }
@@ -237,6 +242,7 @@ namespace HavokMultimedia.Utilities
             using (var command = CreateCommand(connection, schemaAndStoredProcedureEscaped, commandType: CommandType.StoredProcedure))
             {
                 AddParameters(command, parameters);
+                log.Debug($"ExecuteStoredProcedure: {schemaAndStoredProcedureEscaped}");
                 using (var reader = command.ExecuteReader())
                 {
                     return Table.Create(reader);
