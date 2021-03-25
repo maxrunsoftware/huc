@@ -56,7 +56,8 @@ namespace HavokMultimedia.Utilities
             for (int i = 0; i < columnParameterNames.Length; i++) columnParameterNames[i] = "@p" + i;
 
             var sb = new StringBuilder();
-            sb.Append($"INSERT INTO {Escape(database)}.{Escape(schema)}.{Escape(table)} (");
+            if (schema == null) sb.Append($"INSERT INTO {Escape(database)}.{Escape(table)} (");
+            else sb.Append($"INSERT INTO {Escape(database)}.{Escape(schema)}.{Escape(table)} (");
             sb.Append(string.Join(",", columnNames));
             sb.Append(") VALUES (");
             sb.Append(string.Join(",", columnParameterNames));
@@ -71,18 +72,79 @@ namespace HavokMultimedia.Utilities
             }
         }
 
-        public virtual void Insert(string database, string schema, string table, Table tableData)
+        public virtual void Insert(string database, string schema, string table, Table tableData, int batchSize = 1000)
         {
+            if (table.IsEmpty()) return;
+
+            if (batchSize > 2000) batchSize = 2000; // MSSQL character limit
+
+            var countRows = tableData.Count;
+            var countColumns = tableData.Columns.Count;
+
+            var commandsByRow = new string[batchSize + 10];
+            var commandVariableName = 0;
+            for (var i = 0; i < commandsByRow.Length; i++)
+            {
+                var sbInsert = new StringBuilder();
+                if (schema == null) sbInsert.Append($"INSERT INTO {Escape(database)}.{Escape(table)} (");
+                else sbInsert.Append($"INSERT INTO {Escape(database)}.{Escape(schema)}.{Escape(table)} (");
+                sbInsert.Append(string.Join(",", tableData.Columns.Select(o => Escape(o.Name))));
+                sbInsert.Append(") VALUES (");
+                for (var j = 0; j < countColumns; j++)
+                {
+                    if (j > 0) sbInsert.Append(", ");
+                    sbInsert.Append("@v" + commandVariableName);
+                    commandVariableName++;
+                }
+                sbInsert.Append("); ");
+                commandsByRow[i] = sbInsert.ToString();
+            }
+
+            var sbSize = 100;
+            var sb = new StringBuilder(sbSize);
+            var currentRow = 0;
+            var currentRowInBatch = 0;
+            var currentParameterCount = 0;
+
             using (var connection = OpenConnection())
             {
+                IDbCommand command = null;
                 foreach (var row in tableData)
                 {
-                    var d = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var col in tableData.Columns)
+                    if (command == null) command = CreateCommand(connection, null);
+                    currentRow++;
+                    currentRowInBatch++;
+                    var cmd = commandsByRow[currentRowInBatch - 1];
+                    sb.Append(cmd);
+                    for (var i = 0; i < countColumns; i++)
                     {
-                        d[col.Name] = row[col.Index];
+                        var p = command.AddParameter(dbType: DbType.String, parameterName: "@v" + currentParameterCount, size: -1, value: row[i]);
+                        currentParameterCount++;
                     }
-                    Insert(connection, database, schema, table, d);
+
+                    if ((currentParameterCount + countColumns) > batchSize || currentRow == countRows)
+                    {
+                        // Commit tran
+                        command.CommandText = sb.ToString().TrimOrNull();
+                        if (command.CommandText != null)
+                        {
+                            command.ExecuteNonQuery();
+                            command.Dispose();
+                            command = null;
+
+                            currentParameterCount = 0;
+                            currentRowInBatch = 0;
+                            sbSize = Math.Max(sbSize, sb.Length);
+                            sb = new StringBuilder(sbSize);
+                        }
+                    }
+                }
+
+                if (command != null)
+                {
+                    command.ExecuteNonQuery();
+                    command.Dispose();
+                    command = null;
                 }
             }
         }
