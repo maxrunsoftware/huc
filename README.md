@@ -4,8 +4,8 @@ HUC is a simple to use open source command line tool for performing various task
 - FTPS
 - SFTP
 - Delimited data conversion
-- SQL querying
-- SQL uploading
+- MSSQL/MySQL querying
+- MSSQL/MySQL uploading
 - ZIP
 - Windows Task Scheduler Management
 
