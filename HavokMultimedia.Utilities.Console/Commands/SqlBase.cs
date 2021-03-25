@@ -20,7 +20,7 @@ using MySql.Data.MySqlClient;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public enum SqlServerType { MSSQL, MySQL }
+    public enum SqlServerType { MSSQL, MySQL, Oracle }
 
     public abstract class SqlBase : Command
     {

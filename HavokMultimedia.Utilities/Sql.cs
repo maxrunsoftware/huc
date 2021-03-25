@@ -22,6 +22,8 @@ using System.Text;
 
 namespace HavokMultimedia.Utilities
 {
+
+
     public abstract class Sql
     {
         protected readonly ILogger log;
