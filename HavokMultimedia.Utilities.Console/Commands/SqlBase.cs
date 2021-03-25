@@ -17,6 +17,7 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using MySql.Data.MySqlClient;
+using Oracle.ManagedDataAccess.Client;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -49,6 +50,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             {
                 case SqlServerType.MSSQL: return new SqlMSSQL(CreateConnectionMSSQL) { CommandTimeout = commandTimeout };
                 case SqlServerType.MySQL: return new SqlMySQL(CreateConnectionMySQL) { CommandTimeout = commandTimeout };
+                case SqlServerType.Oracle: return new SqlOracle(CreateConnectionMySQL) { CommandTimeout = commandTimeout };
                 default: throw new NotImplementedException($"sqlServerType {SqlServerType} has not been implemented yet");
             }
         }
@@ -88,6 +90,21 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return conn;
         }
 
+        private IDbConnection CreateConnectionOracle()
+        {
+            var conn = new OracleConnection(connectionString);
+
+            conn.InfoMessage += delegate (object sender, OracleInfoMessageEventArgs e)
+            {
+                foreach (var info in e.Errors)
+                {
+                    var msg = info.ToString().TrimOrNull();
+                    if (msg == null) continue;
+                    else log.Info(msg);
+                }
+            };
+            return conn;
+        }
 
     }
 }
