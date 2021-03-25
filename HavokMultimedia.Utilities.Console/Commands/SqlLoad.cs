@@ -246,14 +246,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             log.Debug($"databaseSchemaTable: {databaseSchemaTable}");
 
-            var tableExists = c.GetTableExists(table, schema, database);
+            var tableExists = c.GetTableExists(database, schema, table);
             if (tableExists && drop)
             {
                 log.Info($"Dropping existing table: {databaseSchemaTable}");
                 c.DropTable(table, schema, database);
             }
 
-            tableExists = c.GetTableExists(table, schema, database);
+            tableExists = c.GetTableExists(database, schema, table);
             if (!tableExists)
             {
                 var sql = new StringBuilder();
@@ -283,10 +283,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 c.ExecuteNonQuery(sql.ToString());
             }
 
-            var sqlColumns = c.GetColumns(database)
-                .Where(o => string.Equals(o.TableSchema, schema, StringComparison.OrdinalIgnoreCase))
-                .Where(o => string.Equals(o.TableName, table, StringComparison.OrdinalIgnoreCase))
-                .Select(o => o.ColumnName)
+            var sqlColumns = c.GetColumns(database, schema, table)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             if (rowNumberColumnName != null)
@@ -344,7 +341,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             stopwatch.Start();
 
             //foreach (var row in dataToInsert) c.Insert(databaseSchemaTable, row);
-            c.Insert(databaseSchemaTable, t, batchSize: batchSize);
+            c.Insert(database, schema, table, t);
 
             stopwatch.Stop();
             var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);

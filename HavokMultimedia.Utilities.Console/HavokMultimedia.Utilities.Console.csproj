@@ -19,6 +19,7 @@
     <PackageReference Include="TaskScheduler" Version="2.9.1" />
     <PackageReference Include="FluentFTP" Version="33.0.3" />
     <PackageReference Include="SSH.NET" Version="2020.0.1" />
+    <PackageReference Include="MySql.Data" Version="8.0.23" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HavokMultimedia.Utilities\HavokMultimedia.Utilities.csproj" />

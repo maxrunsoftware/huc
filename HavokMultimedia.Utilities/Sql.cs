@@ -15,12 +15,14 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 
 namespace HavokMultimedia.Utilities
 {
-    public abstract class SqlBase
+    public abstract class Sql
     {
         protected readonly ILogger log;
         private readonly Func<IDbConnection> connectionFactory;
@@ -31,16 +33,63 @@ namespace HavokMultimedia.Utilities
 
         public int CommandTimeout { get; set; } = 60 * 60 * 24;
 
-        public SqlBase(Func<IDbConnection> connectionFactory)
+        public Sql(Func<IDbConnection> connectionFactory)
         {
             this.connectionFactory = connectionFactory.CheckNotNull(nameof(connectionFactory));
             log = LogFactory.LogFactoryImpl.GetLogger(GetType());
         }
 
+        public abstract IEnumerable<string> GetDatabases();
+        public abstract IEnumerable<string> GetTables(string database, string schema);
+        public abstract void DropTable(string database, string schema, string table);
+        public abstract IEnumerable<string> GetSchemas(string database);
+        public abstract IEnumerable<string> GetColumns(string database, string schema, string table);
+        public bool GetTableExists(string database, string schema, string table) => GetTables(database, schema).Where(o => string.Equals(table, o, StringComparison.OrdinalIgnoreCase)).Any();
+
+        public virtual void Insert(IDbConnection connection, string database, string schema, string table, IDictionary<string, string> columnsAndValues)
+        {
+            var list = new List<(string columnName, string columnValue)>();
+            foreach (var kvp in columnsAndValues) list.Add((Escape(kvp.Key), kvp.Value));
+            var columnNames = list.Select(o => o.columnName).ToArray();
+            var columnValues = list.Select(o => o.columnValue).ToArray();
+            var columnParameterNames = new string[columnNames.Length];
+            for (int i = 0; i < columnParameterNames.Length; i++) columnParameterNames[i] = "@p" + i;
+
+            var sb = new StringBuilder();
+            sb.Append($"INSERT INTO {Escape(database)}.{Escape(schema)}.{Escape(table)} (");
+            sb.Append(string.Join(",", columnNames));
+            sb.Append(") VALUES (");
+            sb.Append(string.Join(",", columnParameterNames));
+            sb.Append(");");
+            using (var cmd = CreateCommand(connection, sb.ToString()))
+            {
+                for (int i = 0; i < columnValues.Length; i++)
+                {
+                    cmd.AddParameter(parameterName: columnParameterNames[i], value: columnValues[i]);
+                }
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public virtual void Insert(string database, string schema, string table, Table tableData)
+        {
+            using (var connection = OpenConnection())
+            {
+                foreach (var row in tableData)
+                {
+                    var d = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var col in tableData.Columns)
+                    {
+                        d[col.Name] = row[col.Index];
+                    }
+                    Insert(connection, database, schema, table, d);
+                }
+            }
+        }
+
         protected IDbCommand CreateCommand(IDbConnection connection, string sql, CommandType commandType = CommandType.Text)
         {
             var c = connection.CreateCommand();
-
             c.CommandText = sql;
             c.CommandType = commandType;
             c.CommandTimeout = CommandTimeout;
@@ -78,6 +127,20 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        public List<string> ExecuteQueryToList(string sql, params SqlParameter[] parameters)
+        {
+            var tables = ExecuteQuery(sql, parameters);
+            var list = new List<string>();
+            if (tables.Length < 1) return list;
+            var table = tables[0];
+            if (table.Columns.Count < 1) return list;
+            foreach (var row in table)
+            {
+                list.Add(row[0]);
+            }
+            return list;
+        }
+
         public int ExecuteNonQuery(string sql, params SqlParameter[] parameters)
         {
             using (var connection = OpenConnection())
@@ -96,6 +159,13 @@ namespace HavokMultimedia.Utilities
                 AddParameters(command, parameters);
                 return command.ExecuteScalar();
             }
+        }
+
+        public string ExecuteScalarString(string sql, params SqlParameter[] parameters)
+        {
+            var o = ExecuteScalar(sql, parameters);
+            if (o == null || o == DBNull.Value) return null;
+            return o.ToStringGuessFormat();
         }
 
         public Table[] ExecuteStoredProcedure(string schemaAndStoredProcedureEscaped, params SqlParameter[] parameters)

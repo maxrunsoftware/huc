@@ -34,8 +34,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("port", "o", "Port (21/22/990 based on encryptionMode)");
             help.AddParameter("username", "u", "Username");
             help.AddParameter("password", "p", "Password");
-            help.AddParameter("encryptionMode", "e", "Encryption Mode. NONE is for standard FTP. SSH is for SFTP. EXPLICIT and IMPLICIT are for FTPS [NONE | SSH | Explicit | Implicit] (NONE)");
-            help.AddParameter("encryptionProtocol", "s", "FTPS encryption protocol [None | Ssl2 | Ssl3 | Tls | Default | Tls11 | Tls12] (None)");
+            help.AddParameter("encryptionMode", "e", "Encryption Mode. NONE is for standard FTP. SSH is for SFTP. EXPLICIT and IMPLICIT are for FTPS [ NONE | SSH | Explicit | Implicit ] (NONE)");
+            help.AddParameter("encryptionProtocol", "s", "FTPS encryption protocol [ None | Ssl2 | Ssl3 | Tls | Default | Tls11 | Tls12 ] (None)");
             help.AddParameter("bufferSizeMegabytes", "b", "SFTP buffer size in megabytes (10)");
             help.AddParameter("privateKey1File", "pk1", "SFTP private key 1 filename");
             help.AddParameter("privateKey1Password", "pk1pass", "SFTP private key 1 password");

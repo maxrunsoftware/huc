@@ -19,29 +19,39 @@ using System.Data.SqlClient;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
+    public enum SqlServerType { MSSQL, MySQL }
+
     public abstract class SqlBase : Command
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddParameter("connectionString", "c", "SQL connection string");
-            help.AddParameter("commandTimeout", "t", "Length of time in seconds to wait for SQL command to execute before erroring out (" + (60 * 60 * 24) + ")");
+            help.AddParameter("commandTimeout", "ct", "Length of time in seconds to wait for SQL command to execute before erroring out (" + (60 * 60 * 24) + ")");
+            help.AddParameter("serverType", "st", "The SQL server type [ MSSQL | MySQL ] (MSSQL)");
         }
 
         private string connectionString;
         private int commandTimeout;
+        private SqlServerType sqlServerType;
+
         protected override void Execute()
         {
             connectionString = GetArgParameterOrConfigRequired("connectionString", "c");
             commandTimeout = GetArgParameterOrConfigInt("commandTimeout", "ct", 60 * 60 * 24);
+            sqlServerType = GetArgParameterOrConfigEnum("serverType", "st", SqlServerType.MSSQL);
 
         }
 
-        protected SqlMicrosoft GetSqlHelper()
+        protected Utilities.Sql GetSqlHelper()
         {
-            var h = new SqlMicrosoft(CreateConnection);
-            h.CommandTimeout = commandTimeout;
-            return h;
+            switch (sqlServerType)
+            {
+                case SqlServerType.MSSQL: return new SqlMSSQL(CreateConnection) { CommandTimeout = commandTimeout };
+                case SqlServerType.MySQL: return new SqlMySQL(CreateConnection) { CommandTimeout = commandTimeout };
+                default: throw new NotImplementedException($"sqlServerType {sqlServerType} has not been implemented yet");
+            }
         }
+
 
         private IDbConnection CreateConnection()
         {
