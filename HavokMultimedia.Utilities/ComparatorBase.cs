@@ -20,6 +20,10 @@ using System.Collections.Generic;
 
 namespace HavokMultimedia.Utilities
 {
+    /// <summary>
+    /// Makes implementing a comparator easier
+    /// </summary>
+    /// <typeparam name="T">Type this comparator compares</typeparam>
     public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IComparer, IEqualityComparer
     {
         public abstract int Compare(T x, T y);

@@ -27,24 +27,38 @@ namespace HavokMultimedia.Utilities
 {
     public static class Constant
     {
-        private const string BOOL_TRUE  = "1 T TRUE Y YES";
+        private const string BOOL_TRUE = "1 T TRUE Y YES";
         private const string BOOL_FALSE = "0 F FALSE N NO";
 
         #region CHARS
 
+        /// <summary>
+        /// Characters A-Z
+        /// </summary>
         public const string CHARS_A_Z_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        /// <summary>
+        /// Characters a-z
+        /// </summary>
         public const string CHARS_A_Z_LOWER = "abcdefghijklmnopqrstuvwxyz";
+
+        /// <summary>
+        /// Numbers 0-9
+        /// </summary>
         public const string CHARS_0_9 = "0123456789";
 
+        /// <summary>
+        /// First 128 characters
+        /// </summary>
         public const string CHARS_00000_00128 =
-                "\u0000" +"\u0001" +"\u0002" +"\u0003" +"\u0004" +"\u0005" +"\u0006" +"\u0007" +"\u0008" +"\u0009" +"\u000A" +"\u000B" +"\u000C" +"\u000D" +"\u000E" +"\u000F" +
-                "\u0010" +"\u0011" +"\u0012" +"\u0013" +"\u0014" +"\u0015" +"\u0016" +"\u0017" +"\u0018" +"\u0019" +"\u001A" +"\u001B" +"\u001C" +"\u001D" +"\u001E" +"\u001F" +
-                "\u0020" +"\u0021" +"\u0022" +"\u0023" +"\u0024" +"\u0025" +"\u0026" +"\u0027" +"\u0028" +"\u0029" +"\u002A" +"\u002B" +"\u002C" +"\u002D" +"\u002E" +"\u002F" +
-                "\u0030" +"\u0031" +"\u0032" +"\u0033" +"\u0034" +"\u0035" +"\u0036" +"\u0037" +"\u0038" +"\u0039" +"\u003A" +"\u003B" +"\u003C" +"\u003D" +"\u003E" +"\u003F" +
-                "\u0040" +"\u0041" +"\u0042" +"\u0043" +"\u0044" +"\u0045" +"\u0046" +"\u0047" +"\u0048" +"\u0049" +"\u004A" +"\u004B" +"\u004C" +"\u004D" +"\u004E" +"\u004F" +
-                "\u0050" +"\u0051" +"\u0052" +"\u0053" +"\u0054" +"\u0055" +"\u0056" +"\u0057" +"\u0058" +"\u0059" +"\u005A" +"\u005B" +"\u005C" +"\u005D" +"\u005E" +"\u005F" +
-                "\u0060" +"\u0061" +"\u0062" +"\u0063" +"\u0064" +"\u0065" +"\u0066" +"\u0067" +"\u0068" +"\u0069" +"\u006A" +"\u006B" +"\u006C" +"\u006D" +"\u006E" +"\u006F" +
-                "\u0070" +"\u0071" +"\u0072" +"\u0073" +"\u0074" +"\u0075" +"\u0076" +"\u0077" +"\u0078" +"\u0079" +"\u007A" +"\u007B" +"\u007C" +"\u007D" +"\u007E" +"\u007F";
+                "\u0000" + "\u0001" + "\u0002" + "\u0003" + "\u0004" + "\u0005" + "\u0006" + "\u0007" + "\u0008" + "\u0009" + "\u000A" + "\u000B" + "\u000C" + "\u000D" + "\u000E" + "\u000F" +
+                "\u0010" + "\u0011" + "\u0012" + "\u0013" + "\u0014" + "\u0015" + "\u0016" + "\u0017" + "\u0018" + "\u0019" + "\u001A" + "\u001B" + "\u001C" + "\u001D" + "\u001E" + "\u001F" +
+                "\u0020" + "\u0021" + "\u0022" + "\u0023" + "\u0024" + "\u0025" + "\u0026" + "\u0027" + "\u0028" + "\u0029" + "\u002A" + "\u002B" + "\u002C" + "\u002D" + "\u002E" + "\u002F" +
+                "\u0030" + "\u0031" + "\u0032" + "\u0033" + "\u0034" + "\u0035" + "\u0036" + "\u0037" + "\u0038" + "\u0039" + "\u003A" + "\u003B" + "\u003C" + "\u003D" + "\u003E" + "\u003F" +
+                "\u0040" + "\u0041" + "\u0042" + "\u0043" + "\u0044" + "\u0045" + "\u0046" + "\u0047" + "\u0048" + "\u0049" + "\u004A" + "\u004B" + "\u004C" + "\u004D" + "\u004E" + "\u004F" +
+                "\u0050" + "\u0051" + "\u0052" + "\u0053" + "\u0054" + "\u0055" + "\u0056" + "\u0057" + "\u0058" + "\u0059" + "\u005A" + "\u005B" + "\u005C" + "\u005D" + "\u005E" + "\u005F" +
+                "\u0060" + "\u0061" + "\u0062" + "\u0063" + "\u0064" + "\u0065" + "\u0066" + "\u0067" + "\u0068" + "\u0069" + "\u006A" + "\u006B" + "\u006C" + "\u006D" + "\u006E" + "\u006F" +
+                "\u0070" + "\u0071" + "\u0072" + "\u0073" + "\u0074" + "\u0075" + "\u0076" + "\u0077" + "\u0078" + "\u0079" + "\u007A" + "\u007B" + "\u007C" + "\u007D" + "\u007E" + "\u007F";
 
         public static char[] CHARS_A_Z_UPPER_ARRAY => CHARS_A_Z_UPPER.ToCharArray();
         public static char[] CHARS_A_Z_LOWER_ARRAY => CHARS_A_Z_LOWER.ToCharArray();
@@ -92,6 +106,9 @@ namespace HavokMultimedia.Utilities
         public const ushort ZERO_USHORT = ushort.MinValue;
         public static readonly bool IS_BATCHFILE_EXECUTED = IS_BATCHFILE_EXECUTED_get();
 
+        /// <summary>
+        /// List of String Comparisons from most restrictive to least
+        /// </summary>
         public static readonly IReadOnlyList<StringComparison> LIST_StringComparison = new List<StringComparison> {
                 StringComparison.Ordinal,
                 StringComparison.CurrentCulture,
@@ -101,6 +118,9 @@ namespace HavokMultimedia.Utilities
                 StringComparison.InvariantCultureIgnoreCase
             }.AsReadOnly();
 
+        /// <summary>
+        /// List of String Comparisons from most restrictive to least
+        /// </summary>
         public static readonly IReadOnlyList<StringComparer> LIST_StringComparer = new List<StringComparer> {
                 StringComparer.Ordinal,
                 StringComparer.CurrentCulture,

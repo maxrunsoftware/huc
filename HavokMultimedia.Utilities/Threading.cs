@@ -29,12 +29,14 @@ namespace HavokMultimedia.Utilities
         Stopped
     }
 
+    /// <summary>
+    /// Base class for implementing custom threads
+    /// </summary>
     public abstract class ThreadBase : IDisposable
     {
         private readonly object stateLock = new object();
         private readonly Thread thread;
         protected static ILogFactory LogFactory => HavokMultimedia.Utilities.LogFactory.LogFactoryImpl;
-
 
         public bool IsStarted { get; private set; } = false;
         public bool IsDisposed { get; private set; } = false;
@@ -170,7 +172,7 @@ namespace HavokMultimedia.Utilities
                     ConsumerThreadState = ConsumerThreadState.Waiting;
                     var result = queue.TryTake(out t, -1, cancellation.Token);
                     stopwatch.Stop();
-                    var timeSpent =  stopwatch.Elapsed;
+                    var timeSpent = stopwatch.Elapsed;
                     log.Trace($"BlockingQueue.TryTake() time spent waiting {timeSpent.ToStringTotalSeconds(3)}s");
 
                     if (!result)
@@ -199,7 +201,7 @@ namespace HavokMultimedia.Utilities
                     WorkConsume(t);
                     itemsCompleted++;
                     stopwatch.Stop();
-                    var timeSpent =  stopwatch.Elapsed;
+                    var timeSpent = stopwatch.Elapsed;
                     log.Trace($"WorkConsume() time spent processing {timeSpent.ToStringTotalSeconds(3)}s");
                 }
                 catch (Exception e)
@@ -238,6 +240,10 @@ namespace HavokMultimedia.Utilities
         }
     }
 
+    /// <summary>
+    /// Thread for performing a specified action on a collection
+    /// </summary>
+    /// <typeparam name="T">The Type of object to process</typeparam>
     public class ConsumerThread<T> : ConsumerThreadBase<T>
     {
         private readonly Action<T> action;
@@ -287,6 +293,10 @@ namespace HavokMultimedia.Utilities
         protected abstract TProduce WorkConsumeProduce(TConsume item);
     }
 
+    /// <summary>
+    /// Pool of consumer threads
+    /// </summary>
+    /// <typeparam name="T">Type of object to process</typeparam>
     public class ConsumerThreadPool<T> : IDisposable
     {
         private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -409,6 +419,11 @@ namespace HavokMultimedia.Utilities
         }
     }
 
+    /// <summary>
+    /// Thread that consumes an object and produces a new object
+    /// </summary>
+    /// <typeparam name="TConsume">Consumed Type</typeparam>
+    /// <typeparam name="TProduce">Produced Type</typeparam>
     public class ConsumerProducerThread<TConsume, TProduce> : ConsumerProducerThreadBase<TConsume, TProduce>
     {
         private readonly Func<TConsume, TProduce> func;
@@ -418,6 +433,9 @@ namespace HavokMultimedia.Utilities
         protected override TProduce WorkConsumeProduce(TConsume item) => func(item);
     }
 
+    /// <summary>
+    /// Simple polling thread
+    /// </summary>
     public abstract class IntervalThread : ThreadBase
     {
         private DateTime lastCheck;

@@ -100,7 +100,16 @@ namespace HavokMultimedia.Utilities
 
         #region IReadOnlyList<TableRow>
 
+        /// <summary>
+        /// Number of rows in Table
+        /// </summary>
         public int Count => rows.Count;
+
+        /// <summary>
+        /// Gets a specific row
+        /// </summary>
+        /// <param name="rowIndex">The row index</param>
+        /// <returns>The row</returns>
         public TableRow this[int rowIndex] => rows[rowIndex];
 
         public IEnumerator<TableRow> GetEnumerator() => rows.GetEnumerator();
@@ -147,6 +156,11 @@ namespace HavokMultimedia.Utilities
 
         #region RemoveColumn
 
+        /// <summary>
+        /// Returns a new Table with the specified TableColumn removed
+        /// </summary>
+        /// <param name="column">The column to remove</param>
+        /// <returns>A new Table without the specified column</returns>
         public Table RemoveColumn(TableColumn column) => RemoveColumn(column.CheckNotNull(nameof(column)).Index);
 
         public Table RemoveColumn(string columnName) => RemoveColumn(Columns[columnName.CheckNotNullTrimmed(nameof(columnName))]);
