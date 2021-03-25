@@ -88,6 +88,7 @@ namespace HavokMultimedia.Utilities
                 var sbInsert = new StringBuilder();
                 if (schema == null) sbInsert.Append($"INSERT INTO {Escape(database)}.{Escape(table)} (");
                 else sbInsert.Append($"INSERT INTO {Escape(database)}.{Escape(schema)}.{Escape(table)} (");
+
                 sbInsert.Append(string.Join(",", tableData.Columns.Select(o => Escape(o.Name))));
                 sbInsert.Append(") VALUES (");
                 for (var j = 0; j < countColumns; j++)
