@@ -300,26 +300,26 @@ namespace HavokMultimedia.Utilities
     [System.Diagnostics.DebuggerStepThrough]
     public static class Extensions
     {
-        /*
-        bool		ToBool		bool			bool       	bool
-        byte		ToByte		byte			byte       	byte
-        sbyte		ToSByte		sbyte			sbyte      	sbyte
-        char		ToChar		char			char       	char
-        decimal	    ToDecimal	decimal			decimal    	decimal
-        double	    ToDouble	double			double     	double
-        float		ToFloat		float			float      	float
-        int		    ToInt		int				int        	int
-        uint		ToUInt		uint			uint       	uint
-        long		ToLong		long			long       	long
-        ulong		ToULong		ulong			ulong      	ulong
-        short		ToShort		short			short      	short
-        ushort	    ToUShort	ushort			ushort     	ushort
-        */
-
+        /// <summary>
+        /// Attempts to convert the DotNet type to a DbType
+        /// </summary>
+        /// <param name="type">The DotNet type</param>
+        /// <returns>The DbType</returns>
         public static DbType GetDbType(this Type type) => Constant.MAP_Type_DbType.TryGetValue(type, out var dbType) ? dbType : DbType.String;
 
+        /// <summary>
+        /// Converts a DbType to a DotNet type
+        /// </summary>
+        /// <param name="dbType">The DbType</param>
+        /// <returns>The DotNet type</returns>
         public static Type GetDotNetType(this DbType dbType) => Constant.MAP_DbType_Type.TryGetValue(dbType, out var type) ? type : typeof(string);
 
+        /// <summary>
+        /// Gets a typed service from a IServiceProvider
+        /// </summary>
+        /// <typeparam name="T">The service type</typeparam>
+        /// <param name="serviceProvider">The service provider</param>
+        /// <returns>The typed service</returns>
         public static T GetService<T>(this IServiceProvider serviceProvider) => (T)serviceProvider.GetService(typeof(T));
 
         public static T GetValue<T>(this System.Runtime.Serialization.SerializationInfo serializationInfo, string name) => (T)serializationInfo.GetValue(name, typeof(T));
@@ -341,10 +341,25 @@ namespace HavokMultimedia.Utilities
 
         #region string
 
+        /// <summary>
+        /// Gets the Ordinal hashcode
+        /// </summary>
+        /// <param name="str">The string</param>
+        /// <returns>The hashcode</returns>
         public static int GetHashCodeCaseSensitive(this string str) => str == null ? 0 : StringComparer.Ordinal.GetHashCode(str);
 
+        /// <summary>
+        /// Gets the OrdinalIgnoreCase hashcode
+        /// </summary>
+        /// <param name="str">The string</param>
+        /// <returns>The hashcode</returns>
         public static int GetHashCodeCaseInsensitive(this string str) => str == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(str);
 
+        /// <summary>
+        /// Removes the first character from a string if there is one
+        /// </summary>
+        /// <param name="str">The string</param>
+        /// <returns>The string without the first character</returns>
         public static string RemoveLeft(this string str) => RemoveLeft(str, out var c);
 
         public static string RemoveLeft(this string str, out char c)
@@ -2833,10 +2848,6 @@ namespace HavokMultimedia.Utilities
 
         #endregion MailAddress
 
-        #region Enum
-
-        #endregion Enum
-
         #region SecureString
 
         public static SecureString ToSecureString(this string str) => new NetworkCredential("", str).SecurePassword;
@@ -3215,12 +3226,26 @@ namespace HavokMultimedia.Utilities
 
         #region CheckNotNull
 
+        /// <summary>
+        /// Checks if an argument is null. If it is, throw an ArgumentNullException
+        /// </summary>
+        /// <typeparam name="T">Argument type</typeparam>
+        /// <param name="argument">The argument to check</param>
+        /// <param name="argumentName">The nameof argument</param>
+        /// <returns>The argument</returns>
         public static T CheckNotNull<T>(this T argument, string argumentName) where T : class
         {
             if (argument == null) throw new ArgumentNullException(argumentName);
             return argument;
         }
 
+        /// <summary>
+        /// Checks if an argument is null. If it is, throw an ArgumentNullException
+        /// </summary>
+        /// <typeparam name="T">Argument type</typeparam>
+        /// <param name="argument">The argument to check</param>
+        /// <param name="argumentName">The nameof argument</param>
+        /// <returns>The argument</returns>
         public static T[] CheckNotNullNotEmpty<T>(this T[] argument, string argumentName)
         {
             if (argument == null) throw new ArgumentNullException(argumentName);
@@ -3228,12 +3253,25 @@ namespace HavokMultimedia.Utilities
             return argument;
         }
 
+        /// <summary>
+        /// Checks if an argument is null. If it is, throw an ArgumentNullException
+        /// </summary>
+        /// <typeparam name="T">Argument type</typeparam>
+        /// <param name="argument">The argument to check</param>
+        /// <param name="argumentName">The nameof argument</param>
+        /// <returns>The argument</returns>
         public static T? CheckNotNull<T>(this T? argument, string argumentName) where T : struct
         {
             if (argument == null) throw new ArgumentNullException(argumentName);
             return argument;
         }
 
+        /// <summary>
+        /// Checks if an argument is null or empty after being trimmed. If it is, throw an ArgumentNullException
+        /// </summary>
+        /// <param name="argument">The argument to check</param>
+        /// <param name="argumentName">The nameof argument</param>
+        /// <returns>The trimmed argument</returns>
         public static string CheckNotNullTrimmed(this string argument, string argumentName)
         {
             var s = argument.TrimOrNull();
