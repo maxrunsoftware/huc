@@ -35,6 +35,9 @@ using System.Text.RegularExpressions;
 
 namespace HavokMultimedia.Utilities
 {
+    /// <summary>
+    /// Simple atomic boolean value
+    /// </summary>
     [Serializable]
     [System.Runtime.InteropServices.ComVisible(true)]
     public struct AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, IComparable<AtomicBoolean>, IEquatable<AtomicBoolean>
@@ -49,10 +52,23 @@ namespace HavokMultimedia.Utilities
 
         public static implicit operator AtomicBoolean(bool boolean) => new AtomicBoolean(boolean);
 
+        /// <summary>
+        /// Sets this value to true
+        /// </summary>
+        /// <returns>True if the current value was changed, else false</returns>
         public bool SetTrue() => Set(true);
 
+        /// <summary>
+        /// Sets this value to false
+        /// </summary>
+        /// <returns>True if the current value was changed, else false</returns>
         public bool SetFalse() => Set(false);
 
+        /// <summary>
+        /// Sets the value of this object
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <returns>True if the current value was changed, else false</returns>
         public bool Set(bool value) => value ? 0 == System.Threading.Interlocked.Exchange(ref m_value, 1) : 1 == System.Threading.Interlocked.Exchange(ref m_value, 0);
 
         public override int GetHashCode() => ((bool)this).GetHashCode();
@@ -86,6 +102,9 @@ namespace HavokMultimedia.Utilities
         public bool TryUse() => boolean.SetTrue();
     }
 
+    /// <summary>
+    /// System-wide Mutex lock. Good for locking on files using the file name.
+    /// </summary>
     public sealed class MutexLock : IDisposable
     {
         private readonly System.Threading.Mutex mutex;
@@ -118,6 +137,7 @@ namespace HavokMultimedia.Utilities
             Timeout = timeout;
         }
     }
+
     public static class Util
     {
         #region ConsoleColorChanger
@@ -164,10 +184,20 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        /// <summary>
+        /// Changes the console color, and then changes it back when it is disposed
+        /// </summary>
+        /// <param name="foreground">The foreground color</param>
+        /// <param name="background">The background color</param>
+        /// <returns>A disposable that will change the colors back once disposed</returns>
         public static IDisposable ChangeConsoleColor(ConsoleColor? foreground = null, ConsoleColor? background = null) => new ConsoleColorChanger(foreground, background);
 
         #endregion ConsoleColorChanger
 
+        /// <summary>
+        /// Attempts to get the current local time from the internet
+        /// </summary>
+        /// <returns>The current local time</returns>
         public static DateTime GetInternetDateTime()
         {
             // http://stackoverflow.com/questions/6435099/how-to-get-datetime-from-the-internet
@@ -194,8 +224,8 @@ namespace HavokMultimedia.Utilities
 
         public static char FindMagicCharacter(string str)
         {
-            if (str == null) throw new ArgumentNullException("str");
-            const int threshold = 1000; // TODO: Fine tune this. It determines whether to use a simple loop hashset or .
+            if (str == null) throw new ArgumentNullException(nameof(str));
+            const int threshold = 1000; // TODO: Fine tune this. It determines whether to use a simple loop or hashset.
 
             var c = 33;
             if (str.Length < threshold)
@@ -315,6 +345,12 @@ namespace HavokMultimedia.Utilities
             return Convert.ChangeType(obj, outputType);
         }
 
+        /// <summary>
+        /// Gets a 001/100 format for a running count
+        /// </summary>
+        /// <param name="index">The zero based index, +1 will be added automatically</param>
+        /// <param name="total">The total number of items</param>
+        /// <returns>001/100 formatted string</returns>
         public static string FormatRunningCount(int index, int total) => (index + 1).ToStringPadded().Right(total.ToString().Length) + "/" + total;
 
         /// <summary></summary>
@@ -593,6 +629,10 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        /// <summary>
+        /// Get all of the IP addresses on the current machine
+        /// </summary>
+        /// <returns>The IP addresses</returns>
         public static IEnumerable<IPAddress> GetIPAddresses() => NetworkInterface.GetAllNetworkInterfaces()
                 .Where(o => o.OperationalStatus == OperationalStatus.Up)
                 .Select(o => o.GetIPProperties())
@@ -725,6 +765,9 @@ namespace HavokMultimedia.Utilities
 
         #region Diagnostics
 
+        /// <summary>
+        /// Diagnostic disposable token
+        /// </summary>
         public sealed class DiagnosticToken : IDisposable
         {
             private static long idCounter;
@@ -784,6 +827,14 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        /// <summary>
+        /// With a using statement, logs start and stop time, memory difference, and souce line number. Only the log argument should be supplied
+        /// </summary>
+        /// <param name="log">Only provide this argument</param>
+        /// <param name="memberName">No not provide this argument</param>
+        /// <param name="sourceFilePath">No not provide this argument</param>
+        /// <param name="sourceLineNumber">No not provide this argument</param>
+        /// <returns>Disposable token when logging should end</returns>
         public static IDisposable Diagnostic(Action<string> log, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "", [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) => new DiagnosticToken(log, memberName, sourceFilePath, sourceLineNumber);
 
         #endregion Diagnostics
