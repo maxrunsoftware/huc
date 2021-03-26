@@ -25,15 +25,12 @@ using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class WindowsTaskSchedulerBatchSync : Command
+    public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
+            base.CreateHelp(help);
             help.AddSummary("Syncs Windows Task Scheduler folder with a directory of batch files (.bat|.cmd)");
-            help.AddParameter("host", "h", "Server hostname or IP");
-            help.AddParameter("username", "u", "Server username");
-            help.AddParameter("password", "p", "Server password");
-            help.AddParameter("forceV1", "v1", "Server force version 1 task scheduler implementation (false)");
             help.AddParameter("taskUsername", "tu", "User account username to run the tasks as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
             help.AddParameter("taskPassword", "tp", "User account password to run the tasks as");
             help.AddParameter("taskFolder", "tf", "User account username to run the tasks as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
@@ -297,16 +294,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
+            base.Execute();
             #region Initialization
 
 
-            var h = GetArgParameterOrConfigRequired("host", "h").TrimOrNull();
-
-            var u = GetArgParameterOrConfigRequired("username", "u").TrimOrNull();
-
-            var p = GetArgParameterOrConfigRequired("password", "p").TrimOrNull();
-
-            var v1 = GetArgParameterOrConfigBool("forceV1", "v1", false);
 
             var tu = GetArgParameterOrConfigRequired("taskUsername", "tu").TrimOrNull();
             log.Debug($"taskUsername: {tu}");
@@ -344,7 +335,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var batchFiles = GetBatchFiles(foldersToScan);
 
-            using (var scheduler = new WindowsTaskScheduler(h, u, p, forceV1: v1))
+            using (var scheduler = GetTaskScheduler())
             {
                 var currentDirectory = scheduler.GetTaskFolder(taskSchedulerFolderPath, true);
                 taskSchedulerFolderPath = WindowsTaskScheduler.ParsePath(currentDirectory);

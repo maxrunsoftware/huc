@@ -33,6 +33,51 @@ namespace HavokMultimedia.Utilities.Console.External
         public override int GetHashCode(string[] obj) => Util.GenerateHashCodeFromCollection(obj);
     }
 
+    public static class WindowsTaskSchedulerExtensions
+    {
+        public static string NameFull(this Task task)
+        {
+            return "/" + string.Join("/", NameFullParts(task));
+        }
+
+        public static string[] NameFullParts(this Task task)
+        {
+
+            var list = new List<string>();
+            list.AddRange(PathParts(task));
+            list.Add(task.Name);
+            return list.ToArray();
+
+        }
+
+        public static bool IsMatchNameFull(this Task task, string pathAndName)
+        {
+            var mypath = NameFullParts(task);
+            var pathParts = pathAndName.Split(new char[] { '/', '\\' }).TrimOrNull().WhereNotNull();
+            if (mypath.Length != pathParts.Length) return false;
+            for (int i = 0; i < mypath.Length; i++)
+            {
+                if (!mypath[i].EqualsCaseInsensitive(pathParts[i])) return false;
+            }
+            return true;
+        }
+
+        public static bool IsMatchPath(this Task task, string path)
+        {
+            var mypath = PathParts(task);
+            var pathParts = path.Split(new char[] { '/', '\\' }).TrimOrNull().WhereNotNull();
+            if (mypath.Length != pathParts.Length) return false;
+            for (int i = 0; i < mypath.Length; i++)
+            {
+                if (!mypath[i].EqualsCaseInsensitive(pathParts[i])) return false;
+            }
+            return true;
+
+        }
+
+        public static string[] PathParts(this Task task) => (task.Folder?.Path ?? string.Empty).Split(new char[] { '/', '\\' }).TrimOrNull().WhereNotNull();
+    }
+
     public class WindowsTaskScheduler : IDisposable
     {
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -236,6 +281,19 @@ namespace HavokMultimedia.Utilities.Console.External
 
         #region Get
 
+
+        public IEnumerable<Task> GetTasksAll()
+        {
+            var list = new List<Task>();
+            foreach (var a in GetTasks())
+            {
+                foreach (var b in a.Value)
+                {
+                    list.Add(b);
+                }
+            }
+            return list;
+        }
         public Dictionary<string[], List<Task>> GetTasks()
         {
             var queue = new Queue<TaskFolder>();
@@ -268,6 +326,15 @@ namespace HavokMultimedia.Utilities.Console.External
             var dir = GetTaskFolder(path, false);
             if (dir == null) return Enumerable.Empty<Task>();
             return dir.Tasks;
+        }
+
+        public Task GetTask(string path)
+        {
+            foreach (var task in GetTasksAll())
+            {
+                if (task.IsMatchNameFull(path)) return task;
+            }
+            return null;
         }
 
         public Task GetTask(string[] path, string taskName)
