@@ -95,6 +95,26 @@ Zipping multiple files
 huc zip myOuputFile.zip *.txt *.csv
 ```
 
+Create a Windows Task Scheduler job to run every day at 4:15am
+```sh
+huc WindowsTaskSchedulerCreate -h="localhost" -u="administrator" -p="password" -taskUsername="system" -tw="c:\temp" -t1="DAILY 04:15" -tn="MyTask" "C:\temp\RunMe.bat"
+```
+
+Create a Windows Task Scheduler job to run every hour at 35 minutes after the hour
+```sh
+huc WindowsTaskSchedulerCreate -h="localhost" -u="administrator" -p="password" -taskUsername="system" -tw="c:\temp" -t1="HOURLY 35" -tn="MyTask" "C:\temp\RunMe.bat"
+```
+
+Create a Windows Task Scheduler job to run Monday and Wednesday at 7:12pm 
+```sh
+huc WindowsTaskSchedulerCreate -h="localhost" -u="administrator" -p="password" -taskUsername="system" -tw="c:\temp" -t1="MONDAY 19:12" -t2="WEDNESDAY 19:12" -tn="MyTask" "C:\temp\RunMe.bat"
+```
+
+Delete a Windows Task Scheduler job
+```sh
+huc WindowsTaskSchedulerDelete -h="localhost" -u="administrator" -p="password" MyTask
+```
+
 ## Putting it all together
 Query SQL server, convert the data, sftp it, zip it, then email the data
 ```sh
