@@ -2119,6 +2119,11 @@ namespace HavokMultimedia.Utilities
 
         public static string[] PathParse(string path) => PathParse(path, PathDelimiters);
 
+        public static string[] PathParse(string path, params string[] pathDelimiters)
+        {
+            return PathParse(path.Yield(), pathDelimiters);
+        }
+
         public static string[] PathParse(IEnumerable<string> pathParts) => PathParse(pathParts, PathDelimiters);
 
         public static string[] PathParse(string path, IEnumerable<string> pathDelimiters) => PathParse(path.Yield(), pathDelimiters);

@@ -37,7 +37,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         private bool MatchesPath(Task task, string path)
         {
-            var pathParts = path.Split(new char[] { '/', '\\' }).TrimOrNull().WhereNotNull();
+            var pathParts = WindowsTaskScheduler.ParsePath(path);
             var taskParts = task.NameFullParts();
 
             if (pathParts.Length > taskParts.Length) return false;

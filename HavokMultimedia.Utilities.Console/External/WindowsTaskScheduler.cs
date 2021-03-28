@@ -53,7 +53,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public static bool IsMatchNameFull(this Task task, string pathAndName)
         {
             var mypath = NameFullParts(task);
-            var pathParts = pathAndName.Split(new char[] { '/', '\\' }).TrimOrNull().WhereNotNull();
+            var pathParts = WindowsTaskScheduler.ParsePath(pathAndName);
             if (mypath.Length != pathParts.Length) return false;
             for (int i = 0; i < mypath.Length; i++)
             {
@@ -65,7 +65,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public static bool IsMatchPath(this Task task, string path)
         {
             var mypath = PathParts(task);
-            var pathParts = path.Split(new char[] { '/', '\\' }).TrimOrNull().WhereNotNull();
+            var pathParts = WindowsTaskScheduler.ParsePath(path);
             if (mypath.Length != pathParts.Length) return false;
             for (int i = 0; i < mypath.Length; i++)
             {
@@ -126,7 +126,9 @@ namespace HavokMultimedia.Utilities.Console.External
             if (second < 0 || second > 59) throw new ArgumentOutOfRangeException(nameof(second), second, $"Argument [{nameof(second)}] must be between 0 - 59");
         }
 
-        public static string[] ParsePath(TaskFolder taskFolder) => Util.PathParse(taskFolder.Path, PATH_PARSE_CHARACTERS);
+        public static string[] ParsePath(TaskFolder taskFolder) => ParsePath(taskFolder.Path);
+
+        public static string[] ParsePath(string path) => Util.PathParse(path, PATH_PARSE_CHARACTERS);
 
         #endregion Helpers
 
@@ -181,7 +183,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         #region Add
 
-        public Task TaskAdd(string[] path, string taskName, string filePath, IEnumerable<Trigger> triggers, string arguments = null, string workingDirectory = null, string description = null, string documentation = null, string username = null, string password = null)
+        public Task TaskAdd(string[] path, string taskName, string[] filePaths, IEnumerable<Trigger> triggers, string arguments = null, string workingDirectory = null, string description = null, string documentation = null, string username = null, string password = null)
         {
             path.CheckNotNull(nameof(path));
             taskName = taskName.CheckNotNullTrimmed(nameof(taskName));
@@ -215,7 +217,10 @@ namespace HavokMultimedia.Utilities.Console.External
                 td.Triggers.Add(trigger);
             }
 
-            td.Actions.Add(new ExecAction(filePath, arguments, workingDirectory));
+            foreach (var filePath in filePaths)
+            {
+                td.Actions.Add(new ExecAction(filePath, arguments, workingDirectory));
+            }
 
             var task = dir.RegisterTaskDefinition(taskName, td, TaskCreation.CreateOrUpdate, username, password: password, logonType: tlt);
 

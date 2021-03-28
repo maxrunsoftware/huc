@@ -33,7 +33,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Syncs Windows Task Scheduler folder with a directory of batch files (.bat|.cmd)");
             help.AddParameter("taskUsername", "tu", "User account username to run the tasks as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
             help.AddParameter("taskPassword", "tp", "User account password to run the tasks as");
-            help.AddParameter("taskFolder", "tf", "User account username to run the tasks as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
+            help.AddParameter("taskFolder", "tf", "Folder in task scheduler to put the tasks");
             help.AddValue("<folder to scan 1> <folder to scan 2> <etc>");
             help.AddDetail("Batch file formats are...");
             help.AddDetail("  :: WindowsTaskSchedulerBatchSync DAILY {hour}:{minute}");
@@ -313,13 +313,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
             {
                 tu = taskUsernameMappingValue;
                 tp = null;
-                log.Debug($"taskUsername: {tu}");
-                log.Debug($"taskPassword: {tp}");
             }
+            log.Debug($"taskUsername: {tu}");
+            log.Debug($"taskPassword: {tp}");
 
             var tf = GetArgParameterOrConfigRequired("taskFolder", null).TrimOrNull();
             log.Debug($"taskFolder: {tf}");
-            var taskSchedulerFolderPath = Util.PathParse(tf, WindowsTaskScheduler.PATH_PARSE_CHARACTERS);
+            var taskSchedulerFolderPath = WindowsTaskScheduler.ParsePath(tf);
             log.Debug($"taskFolderPath: {taskSchedulerFolderPath}");
 
             var foldersToScan = GetArgValues().OrEmpty().TrimOrNull().WhereNotNull().ToList();
