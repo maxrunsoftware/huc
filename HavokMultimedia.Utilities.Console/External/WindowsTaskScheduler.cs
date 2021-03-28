@@ -112,6 +112,7 @@ namespace HavokMultimedia.Utilities.Console.External
                     username = parts[1];
                 }
             }
+            if (accountDomain == null) accountDomain = host;
 
             log.Debug($"Creating new {typeof(TaskService).FullNameFormatted()}(host: {host}, username: {username}, accountDomain: {accountDomain}, password: {password}, forceV1: {forceV1})");
             taskService = new TaskService(host, userName: username, accountDomain: accountDomain, password: password, forceV1: forceV1);

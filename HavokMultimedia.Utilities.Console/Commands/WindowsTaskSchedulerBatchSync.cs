@@ -266,7 +266,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             try
             {
-                scheduler.TaskAdd(path, batchFile.TaskName, batchFile.FilePath, batchFile.Triggers
+                scheduler.TaskAdd(path, batchFile.TaskName, batchFile.FilePath.Yield().ToArray(), batchFile.Triggers
                     , workingDirectory: Path.GetDirectoryName(batchFile.FilePath)
                     , description: batchFile.TaskName
                     , documentation: batchFile.Hash
