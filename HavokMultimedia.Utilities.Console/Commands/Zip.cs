@@ -35,6 +35,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("mask", "m", "Mask filter to apply to file list (*)");
             help.AddParameter("compressionLevel", "l", "Compression level 0-9, 9 being the highest level of compression (9)");
             help.AddParameter("skipTopLevelDirectory", "s", "Whether to not include the top level directory or rather include all the files under that directory instead (false)");
+            help.AddParameter("password", "p", "Password on the ZIP file");
             help.AddValue("<output zip file> <included item 1> <included item 2> <etc>");
 
         }
@@ -44,7 +45,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-            var bs = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10) ;
+            var bs = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10);
             bs = bs * (int)Constant.BYTES_MEGA;
 
             var r = GetArgParameterOrConfigBool("recursive", "r", false);
@@ -57,6 +58,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug($"compressionLevel: {l}");
 
             var s = GetArgParameterOrConfigBool("skipTopLevelDirectory", "s", false);
+
+            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
 
             var values = new Queue<string>(GetArgValues().OrEmpty().TrimOrNull().WhereNotNull());
             var outputFileString = values.DequeueOrDefault();
@@ -79,6 +82,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 using (var zos = new ZipOutputStream(fs, bs))
                 {
                     zos.SetLevel(l);
+                    if (password != null)
+                    {
+                        // https://stackoverflow.com/a/31722359
+                        zos.Password = password;
+                        zos.UseZip64 = UseZip64.On;
+                    }
 
                     foreach (var includedItem in inputFiles)
                     {
