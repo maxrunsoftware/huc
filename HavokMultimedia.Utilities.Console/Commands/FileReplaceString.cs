@@ -49,7 +49,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             { "LinefeedMAC", Utilities.Constant.NEWLINE_MAC },
             { "LinefeedApple", Utilities.Constant.NEWLINE_MAC },
 
-            { "BackSlash", "\"" },
+            { "BackSlash", "\\" },
             { "\\\\", "\\" },
         }.AsReadOnly();
 
