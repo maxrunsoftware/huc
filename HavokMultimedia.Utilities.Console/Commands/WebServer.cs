@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using EmbedIO;
+using EmbedIO.Authentication;
+using EmbedIO.Files;
 using Swan;
 using Swan.Logging;
 
@@ -80,7 +82,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Creates a web server to host static html files");
             help.AddParameter("ipaddress", "ip", "IP address to bind to (localhost)");
             help.AddParameter("port", "o", "Port to bind to (8080)");
-            help.AddDetail("It is recommended to have an index.html file in the root of the directory");
+            help.AddDetail("You can use an index.html file in the root of the directory to display a page rather then a directory listing");
             help.AddValue("<directory to serve>");
         }
 
@@ -100,7 +102,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var server = new EmbedIO.WebServer(o => o.WithUrlPrefix($"http://{ipaddress}:{port}").WithMode(HttpListenerMode.EmbedIO));
             server = server.WithLocalSessionManager();
-            server = server.WithStaticFolder("/", directoryToServe, false);
+            server = server.WithStaticFolder("/", directoryToServe, false, (o) => o.DirectoryLister = DirectoryLister.Html);
+            //BasicAuthenticationModule b = new BasicAuthenticationModule("/", "myrealm");
+            //b.Accounts["user"] = "pass";
+            //server = server.WithModule(b);
+
             server.StateChanged += (s, e) => log.Debug($"WebServer New State - {e.NewState}");
 
             using (server)
