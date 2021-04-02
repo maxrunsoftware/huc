@@ -1,4 +1,5 @@
 #! /bin/bash
+
 set -x #echo on
 
 mkdir -p ./publish/win-x64
@@ -23,12 +24,13 @@ dotnet publish -o ../publish/linux-x64 -r linux-x64 -p:PublishSingleFile=true --
 cd ..
 
 mv ./publish/win-x64/HavokMultimedia.Utilities.Console.exe ./publish/win-x64/huc.exe
-zip -9 -j ./publish/huc-win.zip ./publish/win-x64/huc.exe
-
 mv ./publish/osx-x64/HavokMultimedia.Utilities.Console ./publish/osx-x64/huc
-zip -9 -j ./publish/huc-osx.zip ./publish/osx-x64/huc
-
 mv ./publish/linux-x64/HavokMultimedia.Utilities.Console ./publish/linux-x64/huc
+
+if [[ " $@ " =~ " nozip " ]]; then
+   exit 0
+fi
+
+zip -9 -j ./publish/huc-win.zip ./publish/win-x64/huc.exe
+zip -9 -j ./publish/huc-osx.zip ./publish/osx-x64/huc
 zip -9 -j ./publish/huc-linux.zip ./publish/linux-x64/huc
-
-
