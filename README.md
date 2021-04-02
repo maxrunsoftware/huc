@@ -181,7 +181,7 @@ email.from=me@aol.com
 ```
 The commands now become...
 ```sh
-huc -s="SELECT * FROM Orders" orders.csv
+huc sql -s="SELECT * FROM Orders" orders.csv
 huc table orders.csv
 huc ftpput orders.csv
 huc zip orders.zip "*.csv"
