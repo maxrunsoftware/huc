@@ -2374,6 +2374,8 @@ namespace HavokMultimedia.Utilities
 
         }
 
+        public static string ParseInputFile(string inputFile) => ParseInputFiles(inputFile.Yield()).FirstOrDefault();
+
         public static List<string> ParseInputFiles(IEnumerable<string> inputFiles) => inputFiles.OrEmpty()
             .TrimOrNull()
             .WhereNotNull()
