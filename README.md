@@ -205,4 +205,17 @@ Show all available properties
 huc ShowProperties CURRENT -a
 ```
 
+Convert Binary file to Base16
+```sh
+huc ConvertBinaryToBase16 myinputfile.txt myoutputfile.txt
+```
+
+Convert Binary file to Base64
+```sh
+huc ConvertBinaryToBase64 myinputfile.txt myoutputfile.txt
+```
+
+
+
+
 
