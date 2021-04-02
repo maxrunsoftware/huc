@@ -161,7 +161,7 @@ huc ftpput -e=ssh -h=192.168.1.5 -u=testuser -p=testpass orders.csv
 huc zip orders.zip "*.csv"
 huc email -h="smtp.somerelay.org" -from="me@aol.com" -to="person@aol.com" -s="Orders data" -b="Attached is the order data" "*.zip"
 ```
-
+&nbsp;
 ## Using a properties file
 When huc first runs, it attempts to generate a huc.properties file in the directory of the executable. This file contains all of the parameters for each command. You can populate this file with certain properties so you don't have to type them in every time. The huc program will first check if a parameter was supplied at the command line. If not, if will then check the properties file (commandline overrides properties file). If still not found it will attempt to use a default value for some parameters (not all, some are required to be provided).
 
@@ -187,8 +187,8 @@ huc ftpput orders.csv
 huc zip orders.zip "*.csv"
 huc email -to="person@aol.com" -s="Orders data" -b="Attached is the order data" "*.zip"
 ```
-
-## Help functions
+&nbsp;
+## Helper functions
 Generate file with random data
 ```sh
 huc GenerateRandomFile testdata.txt
