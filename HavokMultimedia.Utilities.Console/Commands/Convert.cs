@@ -99,37 +99,37 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
     public class ConvertBinaryToBase16 : ConvertBinaryToText
     {
-        protected override string Summary => "Converts binary file to base 16";
+        protected override string Summary => "Converts binary file to base 16 file";
         protected override string Convert(byte[] bytes) => Util.Base16(bytes);
     }
 
     public class ConvertBinaryToBase64 : ConvertBinaryToText
     {
-        protected override string Summary => "Converts binary file to base 64";
+        protected override string Summary => "Converts binary file to base 64 file";
         protected override string Convert(byte[] bytes) => Util.Base64(bytes);
     }
 
     public class ConvertBase16ToBinary : ConvertTextToBinary
     {
-        protected override string Summary => "Converts base 16 to binary";
+        protected override string Summary => "Converts base 16 file to binary file";
         protected override byte[] Convert(string str) => Util.Base16(str);
     }
 
     public class ConvertBase16ToBase64 : ConvertTextToBinary
     {
-        protected override string Summary => "Converts base 16 to base 64";
+        protected override string Summary => "Converts base 16 file to base 64 file";
         protected override byte[] Convert(string str) => Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(Util.Base64(Util.Base16(str)));
     }
 
     public class ConvertBase64ToBinary : ConvertTextToBinary
     {
-        protected override string Summary => "Converts base 64 to binary";
+        protected override string Summary => "Converts base 64 file to binary file";
         protected override byte[] Convert(string str) => Util.Base64(str);
     }
 
     public class ConvertBase64ToBase16 : ConvertTextToBinary
     {
-        protected override string Summary => "Converts base 64 to base 16";
+        protected override string Summary => "Converts base 64 file to base 16 file";
         protected override byte[] Convert(string str) => Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(Util.Base16(Util.Base64(str)));
     }
 
