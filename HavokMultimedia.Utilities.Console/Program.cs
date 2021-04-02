@@ -36,14 +36,6 @@ namespace HavokMultimedia.Utilities.Console
             .Select(o => CreateCommand(o))
             .ToList();
 
-        public static string Version
-        {
-            get
-            {
-                return HavokMultimedia.Utilities.Console.Version.Value;
-            }
-        }
-
         private static ICommand CreateCommand(Type type) => (ICommand)Activator.CreateInstance(type);
 
         public static int Main(string[] args)
@@ -82,7 +74,7 @@ namespace HavokMultimedia.Utilities.Console
 
             if (a.Command == null)
             {
-                log.Info(typeof(Program).Namespace + " " + Version);
+                ShowBanner(a, null);
                 log.Info("No command specified");
                 log.Info("Commands: ");
                 foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
@@ -91,7 +83,7 @@ namespace HavokMultimedia.Utilities.Console
             var command = commandTypes.Where(o => o.Name.Equals(a.Command, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             if (command == null)
             {
-                log.Info(typeof(Program).Namespace + " " + Version);
+                ShowBanner(a, null);
                 log.Info($"Command '{a.Command}' does not exist");
                 log.Info("Commands: ");
                 foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
@@ -99,18 +91,26 @@ namespace HavokMultimedia.Utilities.Console
             }
             if (a.Values.IsEmpty() && a.Parameters.IsEmpty())
             {
-                log.Info(typeof(Program).Namespace + " " + Version + " : " + command.Name);
+                ShowBanner(a, command);
                 log.Info(CreateCommand(command).HelpDetails);
                 return 4;
             }
 
 
-            log.Info(typeof(Program).Namespace + " " + Version + " : " + command.Name);
+            ShowBanner(a, command);
             var cmd = CreateCommand(command);
             cmd.Execute(args);
             return 0;
         }
 
+
+        private static void ShowBanner(Args a, Type command)
+        {
+            if (a.IsNoBanner) return;
+            if (command == null) log.Info(typeof(Program).Namespace + " " + HavokMultimedia.Utilities.Console.Version.Value);
+            else log.Info(typeof(Program).Namespace + " " + HavokMultimedia.Utilities.Console.Version.Value + " : " + command.Name);
+
+        }
 
 
     }

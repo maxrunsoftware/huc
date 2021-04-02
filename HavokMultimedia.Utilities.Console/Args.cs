@@ -28,6 +28,7 @@ namespace HavokMultimedia.Utilities.Console
         public IReadOnlyList<string> Values { get; init; }
         public IReadOnlyDictionary<string, string> Parameters { get; init; }
         public bool IsDebug { get; init; }
+        public bool IsNoBanner { get; init; }
 
 
         public Args(params string[] args)
@@ -84,6 +85,7 @@ namespace HavokMultimedia.Utilities.Console
 
             Values = values;
             IsDebug = d.Remove("DEBUG");
+            IsNoBanner = d.Remove("NOBANNER");
             Parameters = d;
 
         }
