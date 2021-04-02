@@ -181,7 +181,7 @@ email.from=me@aol.com
 ```
 The commands now become...
 ```sh
-huc -s="SELECT * FROM Orders" orders.csv
+huc sql -s="SELECT * FROM Orders" orders.csv
 huc table orders.csv
 huc ftpput orders.csv
 huc zip orders.zip "*.csv"
@@ -204,5 +204,18 @@ Show all available properties
 ```sh
 huc ShowProperties CURRENT -a
 ```
+
+Convert Binary file to Base16
+```sh
+huc ConvertBinaryToBase16 myinputfile.txt myoutputfile.txt
+```
+
+Convert Binary file to Base64
+```sh
+huc ConvertBinaryToBase64 myinputfile.txt myoutputfile.txt
+```
+
+
+
 
 
