@@ -197,7 +197,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
-            help.AddSummary("Execute a SQL statement and/or script and optionally save the result(s) to a tab delimited file(s)");
+            help.AddSummary("Loads a tab delimited data file into a SQL server table");
             help.AddParameter("drop", "dp", "Drop existing table if it exists (false)");
             help.AddParameter("detectColumnTypes", "dct", "Attempts to detect column types and lengths (false)");
             help.AddParameter("errorOnNonexistentColumns", "ec", "When inserting to an existing table, whether to error if columns in the data file don't have cooresponding columns in the existing SQL table (false)");
