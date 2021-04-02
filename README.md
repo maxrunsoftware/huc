@@ -215,7 +215,12 @@ Convert Binary file to Base64
 huc ConvertBinaryToBase64 myinputfile.txt myoutputfile.txt
 ```
 
+Get a web file
+```sh
+huc wget https://github.com/Steven-D-Foster/huc/releases/download/v1.3.0/huc-linux.zip
+```
 
-
-
-
+Get a web page
+```
+huc wget https://github.com github.txt
+```
