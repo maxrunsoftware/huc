@@ -9,6 +9,8 @@ HUC is a simple to use open source command line tool for performing various task
 - MSSQL/MySQL importing data into a table
 - ZIP
 - Windows Task Scheduler Management
+- File String Replacement
+- WebServer
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
@@ -114,6 +116,21 @@ huc WindowsTaskSchedulerCreate -h="localhost" -u="administrator" -p="password" -
 Delete a Windows Task Scheduler job
 ```sh
 huc WindowsTaskSchedulerDelete -h="localhost" -u="administrator" -p="password" MyTask
+```
+
+Replace all instances of Person with Steve in the file mydoc.txt
+```sh
+huc FileReplaceSting "Person" "Steve" mydoc.txt
+```
+
+Start webserver and host files out of the current directory
+```sh
+huc WebServer .
+```
+
+Start webserver on port 80 and host files out of c:\www directory
+```sh
+huc WebServer -o=80 c:\www
 ```
 
 ## Putting it all together
