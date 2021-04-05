@@ -43,12 +43,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("privateKey2Password", "pk2pass", "SFTP private key 2 password");
             help.AddParameter("privateKey3File", "pk3", "SFTP private key 3 filename");
             help.AddParameter("privateKey3Password", "pk3pass", "SFTP private key 3 password");
-
-
         }
-
-
-
 
         #region Helpers
 
