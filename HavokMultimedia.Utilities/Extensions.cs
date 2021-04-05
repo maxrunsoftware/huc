@@ -392,9 +392,9 @@ namespace HavokMultimedia.Utilities
             return str.Substring(0, str.Length - 1);
         }
 
-        public static int CountOccurances(this string str, string stringToSearchFor)
+        public static int CountOccurances(this string str, string stringToSearchFor, StringComparison? comparison = null)
         {
-            str.Remove(stringToSearchFor, out var num);
+            str.Remove(stringToSearchFor, out var num, comparison);
             return num;
         }
 
@@ -405,10 +405,10 @@ namespace HavokMultimedia.Utilities
             return new string(chars);
         }
 
-        public static string Remove(this string str, string toRemove, out int itemsRemoved)
+        public static string Remove(this string str, string toRemove, out int itemsRemoved, StringComparison? comparison = null)
         {
             // https://stackoverflow.com/q/541954
-            var strRemoved = str.Replace(toRemove, string.Empty);
+            var strRemoved = comparison == null ? str.Replace(toRemove, string.Empty) : str.Replace(toRemove, string.Empty, comparison.Value);
             var countRemoved = (str.Length - strRemoved.Length) / toRemove.Length;
 
             itemsRemoved = countRemoved;

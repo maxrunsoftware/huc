@@ -30,8 +30,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private static readonly IReadOnlyDictionary<string, string> OptionKeywordMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
             { "\\t", "\t" },
             { "\\s", " " },
-            { "None", "" },
-            { "Empty", "" },
+            //{ "None", "" },
+            //{ "Empty", "" },
             { "SingleQuote", "'" },
             { "\\'", "'" },
             { "DoubleQuote", "\"" },
@@ -78,13 +78,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary("Replaces a string with a different string in a file");
             help.AddParameter("encoding", "en", "Encoding of the input file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
+            help.AddParameter("caseInsensitive", "i", "Ignore case when searching for the string to replace (false)");
             help.AddValue("<old string> <new string> <file to replace in>");
         }
 
         protected override void Execute()
         {
             var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
-
+            var caseInsensitive = GetArgParameterOrConfigBool("caseInsensitive", "i", false);
             var values = GetArgValues().WhereNotNull().ToList();
             var oldString = values.GetAtIndexOrDefault(0);
             log.Debug($"{nameof(oldString)}: {oldString}");
@@ -102,15 +103,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug($"file: {file}");
             if (file == null) throw new ArgsException(nameof(file), "No file specified");
 
-            file = Util.ParseInputFiles(file.Yield()).FirstOrDefault();
+            file = Util.ParseInputFile(file);
             if (file == null) throw new FileNotFoundException($"Could not find file {file}", file);
             if (!File.Exists(file)) throw new FileNotFoundException($"Could not find file {file}", file);
 
             log.Debug($"Processing file: {file}");
             var fileText = Util.FileRead(file, encoding);
-            var occurances = fileText.CountOccurances(oldStringParsed);
+            var occurances = caseInsensitive ? fileText.CountOccurances(oldStringParsed, StringComparison.OrdinalIgnoreCase) : fileText.CountOccurances(oldStringParsed);
             log.Debug($"Found {occurances} occurances of {oldString} in file {file}");
-            fileText = fileText.Replace(oldStringParsed, newStringParsed);
+            fileText = caseInsensitive ? fileText.Replace(oldStringParsed, newStringParsed, StringComparison.OrdinalIgnoreCase) : fileText.Replace(oldStringParsed, newStringParsed);
             Util.FileWrite(file, fileText, encoding);
             log.Info($"Replaced {occurances} occurances of {oldString} to {newString} in file {file}");
         }
