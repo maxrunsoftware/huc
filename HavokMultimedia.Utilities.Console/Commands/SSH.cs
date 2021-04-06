@@ -105,17 +105,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 {
                     cmd.Execute();
 
-                    log.Info(cmd.Result);
+                    var result = cmd.Result.TrimOrNull();
+                    if (result != null) log.Info(result);
 
                     var reader = new StreamReader(cmd.ExtendedOutputStream);
-                    log.Warn(reader.ReadToEnd());
+                    result = reader.ReadToEnd().TrimOrNull();
+                    if (result != null) log.Warn(result);
                 }
             }
 
             stopwatch.Stop();
             var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
             log.Debug($"Completed SSH command(s) execution in {stopwatchtime} seconds");
-
 
             log.Debug("SSH completed");
         }
