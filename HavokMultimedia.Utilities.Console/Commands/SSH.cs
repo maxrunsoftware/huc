@@ -102,17 +102,23 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            Utilities.Table[] tables = Array.Empty<Utilities.Table>();
-
             using (var ssh = External.Ssh.CreateSshClient(host, port, username, password, sshkeys))
             {
                 ssh.ErrorOccurred += (sender, args) => log.Error("SSH Error", args.Exception);
-                ssh.RunCommand(commands);
+                using (var cmd = ssh.CreateCommand(commands))
+                {
+                    cmd.Execute();
+
+                    log.Info(cmd.Result);
+
+                    var reader = new StreamReader(cmd.ExtendedOutputStream);
+                    log.Warn(reader.ReadToEnd());
+                }
             }
 
             stopwatch.Stop();
             var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
-            log.Info($"Completed SSH command(s) execution in {stopwatchtime} seconds");
+            log.Debug($"Completed SSH command(s) execution in {stopwatchtime} seconds");
 
 
             log.Debug("SSH completed");

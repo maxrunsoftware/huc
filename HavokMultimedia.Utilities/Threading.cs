@@ -18,6 +18,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 
 namespace HavokMultimedia.Utilities
@@ -458,5 +459,27 @@ namespace HavokMultimedia.Utilities
         }
 
         protected abstract void WorkInterval();
+    }
+
+    public class StreamReaderThread : ThreadBase
+    {
+        private readonly StreamReader reader;
+        private readonly Action<char> output;
+        public StreamReaderThread(StreamReader reader, Action<char> output)
+        {
+            this.reader = reader.CheckNotNull(nameof(reader));
+            this.output = output.CheckNotNull(nameof(output));
+        }
+        protected override void Work()
+        {
+            while (true)
+            {
+                Thread.Sleep(5);
+                var i = reader.Read();
+                if (i < 0) continue;
+                var c = (char)i;
+                output(c);
+            }
+        }
     }
 }
