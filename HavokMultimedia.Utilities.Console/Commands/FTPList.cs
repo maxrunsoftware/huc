@@ -15,7 +15,9 @@ limitations under the License.
 */
 
 using System.Collections.Generic;
+using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
+using Renci.SshNet.Common;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -26,28 +28,48 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Lists files on a FTP/FTPS/SFTP server");
             help.AddParameter("recursive", "r", "Recursively search for the file (false)");
+            help.AddValue("<path>");
         }
 
         protected override void Execute()
         {
             base.Execute();
 
-
-
             var r = GetArgParameterOrConfigBool("recursive", "r", false);
+            var path = GetArgValues().TrimOrNull().WhereNotNull().FirstOrDefault();
 
             using (var c = OpenClient())
             {
                 var dirs = new Queue<string>();
-                dirs.Enqueue(null);
+
+                dirs.Enqueue(path);
                 while (dirs.Count > 0)
                 {
                     var dir = dirs.Dequeue();
-                    log.Info("D " + (dir ?? c.WorkingDirectory));
-                    foreach (var f in c.ListFiles(dir))
+                    var msg = "D " + (dir ?? c.WorkingDirectory);
+
+                    try
                     {
-                        if (r && f.Type == FtpClientFileType.Directory) dirs.Enqueue(f.FullName);
-                        if (f.Type == FtpClientFileType.File) log.Info("  " + f.FullName);
+                        var enumerator = c.ListFiles(dir);
+                        log.Info(msg);
+                        foreach (var f in enumerator)
+                        {
+                            if (r && f.Type == FtpClientFileType.Directory)
+                            {
+                                if (f.FullName.EndsWith("/..")) continue;
+                                if (f.FullName.EndsWith("/.")) continue;
+                                dirs.Enqueue(f.FullName);
+                            }
+                            if (f.Type == FtpClientFileType.File) log.Info("  " + f.FullName);
+                        }
+                    }
+                    catch (SftpPermissionDeniedException pde)
+                    {
+                        log.Warn(msg + " - " + pde.Message);
+                    }
+                    catch (SftpPathNotFoundException pnfe)
+                    {
+                        log.Warn(msg + " - " + pnfe.Message);
                     }
                 }
             }
