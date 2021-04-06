@@ -108,8 +108,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     var result = cmd.Result.TrimOrNull();
                     if (result != null) log.Info(result);
 
-                    var reader = new StreamReader(cmd.ExtendedOutputStream);
-                    result = reader.ReadToEnd().TrimOrNull();
+                    result = (new StreamReader(cmd.ExtendedOutputStream)).ReadToEnd().TrimOrNull();
                     if (result != null) log.Warn(result);
                 }
             }
