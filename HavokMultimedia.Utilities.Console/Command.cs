@@ -85,9 +85,12 @@ namespace HavokMultimedia.Utilities.Console
 
         public void Execute(string[] args)
         {
-            this.args = new Args(args);
-            this.config = new ConfigFile();
-            Execute();
+            using (var diag = Util.Diagnostic(log.Debug))
+            {
+                this.args = new Args(args);
+                this.config = new ConfigFile();
+                Execute();
+            }
         }
         private Args args;
         private ConfigFile config;
