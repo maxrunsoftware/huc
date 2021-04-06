@@ -16,11 +16,9 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -34,7 +32,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("port", "o", "Port (22)");
             help.AddParameter("username", "u", "Username");
             help.AddParameter("password", "p", "Password");
-            //help.AddParameter("bufferSizeMegabytes", "b", "SFTP buffer size in megabytes (10)");
 
             help.AddParameter("privateKey1File", "pk1", "SFTP private key 1 filename");
             help.AddParameter("privateKey1Password", "pk1pass", "SFTP private key 1 password");
@@ -53,7 +50,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var port = GetArgParameterOrConfigInt("port", "o", 22).ToString().ToUShort();
             var username = GetArgParameterOrConfig("username", "u").TrimOrNull();
             var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
-            //var bufferSizeMegabytes = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10).ToString().ToUInt();
 
             var sshkeys = new List<SshKeyFile>();
 
@@ -123,8 +119,5 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             log.Debug("SSH completed");
         }
-
-
-
     }
 }
