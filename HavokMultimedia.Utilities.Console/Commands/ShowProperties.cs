@@ -38,7 +38,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var showUndefined = GetArgParameterOrConfigBool("showUndefined", "s", false);
             var fileLocation = GetArgValues().FirstOrDefault();
             ConfigFile c;
-            if (fileLocation == null || fileLocation.EqualsCaseInsensitive("CURRENT"))
+            if (fileLocation == null)
             {
                 c = new ConfigFile();
             }
