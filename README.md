@@ -3,7 +3,7 @@ HUC is a simple to use open source command line tool for performing various task
 - FTP
 - FTPS
 - SFTP
-- Email
+- [Email](#email)
 - Delimited data conversion
 - MSSQL/MySQL/Oracle querying
 - MSSQL/MySQL importing data into a table
