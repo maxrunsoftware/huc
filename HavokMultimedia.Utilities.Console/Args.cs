@@ -29,6 +29,7 @@ namespace HavokMultimedia.Utilities.Console
         public IReadOnlyDictionary<string, string> Parameters { get; init; }
         public bool IsDebug { get; init; }
         public bool IsNoBanner { get; init; }
+        public bool IsHelp { get; init; }
 
 
         public Args(params string[] args)
@@ -76,7 +77,8 @@ namespace HavokMultimedia.Utilities.Console
                 }
                 else
                 {
-                    if (Command == null) Command = arg;
+                    if (arg.EqualsCaseInsensitive("HELP")) IsHelp = true;
+                    else if (Command == null) Command = arg;
                     else values.Add(arg);
                 }
 
@@ -86,6 +88,7 @@ namespace HavokMultimedia.Utilities.Console
             Values = values;
             IsDebug = d.Remove("DEBUG");
             IsNoBanner = d.Remove("NOBANNER");
+            if (!IsHelp) IsHelp = d.Remove("HELP");
             Parameters = d;
 
         }

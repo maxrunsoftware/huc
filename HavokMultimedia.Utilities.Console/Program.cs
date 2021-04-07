@@ -89,13 +89,12 @@ namespace HavokMultimedia.Utilities.Console
                 foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
                 return 3;
             }
-            if (a.Values.IsEmpty() && a.Parameters.IsEmpty())
+            if (a.IsHelp)
             {
                 ShowBanner(a, command);
                 log.Info(CreateCommand(command).HelpDetails);
                 return 4;
             }
-
 
             ShowBanner(a, command);
             var cmd = CreateCommand(command);
