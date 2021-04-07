@@ -1,18 +1,18 @@
 # HUC: Various command line tools to make your life easier
 HUC is a simple to use open source command line tool for performing various tasks including...
-- FTP
-- FTPS
-- SFTP
+- [FTP](#ftp-ftps-sftp)
+- [FTPS](#ftp-ftps-sftp)
+- [SFTP](#ftp-ftps-sftp)
 - [Email](#email)
-- Delimited data conversion
-- MSSQL/MySQL/Oracle querying
-- MSSQL/MySQL importing data into a table
-- ZIP
-- Windows Task Scheduler Management
-- File String Replacement
-- File Appending
-- WebServer
-- SSH
+- [Delimited data conversion](#delimited-files)
+- [MSSQL/MySQL/Oracle querying](#sql)
+- [MSSQL/MySQL importing data into a table](#sql)
+- [ZIP](#zip)
+- [Windows Task Scheduler Management](#windows-task-scheduler)
+- [File String Replacement](#file-replacement)
+- [File Appending](#file-appending)
+- [Web Server](#web-server)
+- [SSH](#ssh)
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
@@ -81,7 +81,7 @@ cp Orders.txt Orders.csv
 huc table -hd=pipe -hq=single -he=true -dd=pipe -dq=single -de=false Orders.csv
 ```
 &nbsp;
-### FTP/FTPS/SFTP
+### FTP FTPS SFTP
 List files in default directory
 ```sh
 huc ftplist -h=192.168.1.5 -u=testuser -p=testpass
