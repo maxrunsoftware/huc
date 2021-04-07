@@ -23,10 +23,10 @@ huc
 
 Get list of parameters for a command
 ```sh
-huc Sql
-huc FtpPut
-huc Table
-huc <command>
+huc Sql help
+huc FtpPut help
+huc Table help
+huc <command> help
 ```
 &nbsp;
 ### Email
@@ -229,12 +229,12 @@ huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
 
 Show current properties set in the properties file
 ```sh
-huc ShowProperties CURRENT
+huc ShowProperties
 ```
 
 Show all available properties
 ```sh
-huc ShowProperties CURRENT -a
+huc ShowProperties -a
 ```
 
 Convert Binary file to Base16
