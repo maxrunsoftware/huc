@@ -11,6 +11,7 @@ HUC is a simple to use open source command line tool for performing various task
 - Windows Task Scheduler Management
 - File String Replacement
 - WebServer
+- SSH
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
@@ -32,6 +33,10 @@ huc <command>
 Send an email
 ```sh
 huc email -h="smtp.somerelay.org" -from="someone@aol.com" -to="grandma@aol.com" -s="Grandpa Birthday" -b="Tell Grandpa/nHAPPY BIRTHDAY!"
+```
+
+Send an email with CC and BCC and attachments
+```sh
 huc email -h="smtp.somerelay.org" -to="person1@aol.com;person2@aol.com" -cc="person3@aol.com" -bcc="person4@aol.com" -s="Some subject text" -b="Some text for body" myAttachedFile1.csv myAttachedFile2.txt
 ```
 &nbsp;
@@ -76,6 +81,22 @@ huc table -hd=pipe -hq=single -he=true -dd=pipe -dq=single -de=false Orders.csv
 ```
 &nbsp;
 ### FTP/FTPS/SFTP
+List files in default directory
+```sh
+huc ftplist -h=192.168.1.5 -u=testuser -p=testpass
+huc ftplist -e=explicit -h=192.168.1.5 -u=testuser -p=testpass
+huc ftplist -e=implicit -h=192.168.1.5 -u=testuser -p=testpass
+huc ftplist -e=ssh -h=192.168.1.5 -u=testuser -p=testpass
+```
+
+Recursively list files in /home/user directory
+```sh
+huc ftplist -h=192.168.1.5 -u=testuser -p=testpass -r "/home/user"
+huc ftplist -e=explicit -h=192.168.1.5 -u=testuser -p=testpass -r "/home/user"
+huc ftplist -e=implicit -h=192.168.1.5 -u=testuser -p=testpass -r "/home/user"
+huc ftplist -e=ssh -h=192.168.1.5 -u=testuser -p=testpass -r "/home/user"
+```
+
 Get a file from a FTP/FTPS/SFTP server
 ```sh
 huc ftpget -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt
@@ -149,6 +170,17 @@ huc WebServer .
 Start webserver on port 80 and host files out of c:\www directory
 ```sh
 huc WebServer -o=80 c:\www
+```
+&nbsp;
+### SSH
+Issue LS command
+```sh
+huc SSH -h=192.168.1.5 -u=testuser -p=testpass "ls"
+```
+
+Change directory and issue LS command with options
+```sh
+huc SSH -h=192.168.1.5 -u=testuser -p=testpass "cd someDirectory; ls -la;"
 ```
 &nbsp;
 &nbsp;
