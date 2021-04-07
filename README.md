@@ -10,6 +10,7 @@ HUC is a simple to use open source command line tool for performing various task
 - ZIP
 - Windows Task Scheduler Management
 - File String Replacement
+- File Appending
 - WebServer
 - SSH
 
@@ -59,12 +60,12 @@ huc sql -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=test
 
 Upload tab delimited file into a SQL server table
 ```sh
-./huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 ```
 
 Upload tab delimited file into a SQL server table and include the file row number and a time stamp, dropping the table if it exists already
 ```sh
-./huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 ```
 &nbsp;
 ### Delimited Files
@@ -161,6 +162,12 @@ Replace all instances of Person with Steve in the file mydoc.txt
 huc FileReplaceSting "Person" "Steve" mydoc.txt
 ```
 &nbsp;
+### File Appending
+Append files file1.txt and file2.txt to mainfile.txt
+```sh
+huc FileAppend mainfile.txt file1.txt file2.txt
+```
+&nbsp;
 ### Web Server
 Start webserver and host files out of the current directory
 ```sh
@@ -253,6 +260,16 @@ huc wget https://github.com/Steven-D-Foster/huc/releases/download/v1.3.0/huc-lin
 ```
 
 Get a web page
-```
+```sh
 huc wget https://github.com github.txt
+```
+
+Show internet time
+```sh
+huc time
+```
+
+Show drift of local clock compared to internet time
+```sh
+huc time -d
 ```
