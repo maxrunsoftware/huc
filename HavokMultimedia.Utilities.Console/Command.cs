@@ -106,6 +106,11 @@ namespace HavokMultimedia.Utilities.Console
             }
         }
 
+        protected void CheckFileExists(string file)
+        {
+            if (!File.Exists(file)) throw new FileNotFoundException("File " + file + " does not exist", file);
+        }
+
         protected string ReadFile(string path, Encoding encoding = null)
         {
             using (Util.Diagnostic(log.Trace)) return Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8_WITHOUT_BOM);
