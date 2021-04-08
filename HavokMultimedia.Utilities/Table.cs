@@ -467,6 +467,14 @@ namespace HavokMultimedia.Utilities
             return ts;
         }
 
+        private static string ReplaceNewLineWithSpace(string str)
+        {
+            if (str == null) return null;
+            str = str.Replace(Constant.NEWLINE_WINDOWS, " ");
+            str = str.Replace(Constant.NEWLINE_MAC, " ");
+            str = str.Replace(Constant.NEWLINE_UNIX, " ");
+            return str;
+        }
         public static void ToDelimited(
             this Table table,
              Action<string> writer,
@@ -493,7 +501,7 @@ namespace HavokMultimedia.Utilities
             {
                 foreach (var row in table)
                 {
-                    writer(string.Join(dataDelimiter, row.Select(o => dataQuoting + (o ?? string.Empty) + dataQuoting)) + newLine);
+                    writer(string.Join(dataDelimiter, row.Select(o => dataQuoting + (ReplaceNewLineWithSpace(o) ?? string.Empty) + dataQuoting)) + newLine);
                 }
             }
         }
