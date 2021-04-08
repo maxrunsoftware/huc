@@ -1,17 +1,18 @@
 # HUC: Various command line tools to make your life easier
 HUC is a simple to use open source command line tool for performing various tasks including...
-- FTP
-- FTPS
-- SFTP
-- Email
-- Delimited data conversion
-- MSSQL/MySQL/Oracle querying
-- MSSQL/MySQL importing data into a table
-- ZIP
-- Windows Task Scheduler Management
-- File String Replacement
-- WebServer
-- SSH
+- [FTP](#ftp-ftps-sftp)
+- [FTPS](#ftp-ftps-sftp)
+- [SFTP](#ftp-ftps-sftp)
+- [Email](#email)
+- [Delimited data conversion](#delimited-files)
+- [MSSQL/MySQL/Oracle querying](#sql)
+- [MSSQL/MySQL importing data into a table](#sql)
+- [ZIP](#zip)
+- [Windows Task Scheduler Management](#windows-task-scheduler)
+- [File String Replacement](#file-replacement)
+- [File Appending](#file-appending)
+- [Web Server](#web-server)
+- [SSH](#ssh)
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
@@ -59,12 +60,12 @@ huc sql -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=test
 
 Upload tab delimited file into a SQL server table
 ```sh
-./huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 ```
 
 Upload tab delimited file into a SQL server table and include the file row number and a time stamp, dropping the table if it exists already
 ```sh
-./huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
+huc sqlload -c="Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 ```
 &nbsp;
 ### Delimited Files
@@ -80,7 +81,7 @@ cp Orders.txt Orders.csv
 huc table -hd=pipe -hq=single -he=true -dd=pipe -dq=single -de=false Orders.csv
 ```
 &nbsp;
-### FTP/FTPS/SFTP
+### FTP FTPS SFTP
 List files in default directory
 ```sh
 huc ftplist -h=192.168.1.5 -u=testuser -p=testpass
@@ -159,6 +160,12 @@ huc WindowsTaskSchedulerDelete -h="localhost" -u="administrator" -p="password" M
 Replace all instances of Person with Steve in the file mydoc.txt
 ```sh
 huc FileReplaceSting "Person" "Steve" mydoc.txt
+```
+&nbsp;
+### File Appending
+Append files file1.txt and file2.txt to mainfile.txt
+```sh
+huc FileAppend mainfile.txt file1.txt file2.txt
 ```
 &nbsp;
 ### Web Server
@@ -253,6 +260,16 @@ huc wget https://github.com/Steven-D-Foster/huc/releases/download/v1.3.0/huc-lin
 ```
 
 Get a web page
-```
+```sh
 huc wget https://github.com github.txt
+```
+
+Show internet time
+```sh
+huc time
+```
+
+Show drift of local clock compared to internet time
+```sh
+huc time -d
 ```
