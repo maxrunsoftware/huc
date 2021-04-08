@@ -32,10 +32,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Execute a SQL statement and/or script and optionally save the result(s) to a tab delimited file(s)");
             help.AddParameter("sqlStatement", "s", "SQL statement to execute");
             help.AddParameter("sqlScriptFile", "f", "SQL script file to execute");
-            help.AddDetail("Example connection strings:");
-            help.AddDetail("  Server=192.168.0.5;Database=myDatabase;User Id=myUsername;Password=myPassword;");
-            help.AddDetail("  Server=192.168.0.5\\instanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;");
-            help.AddDetail("  Server=192.168.0.5;Database=myDataBase;Trusted_Connection=True;");
+
             help.AddValue("<result file 1> <result file 2> <etc>");
         }
 

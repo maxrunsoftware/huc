@@ -198,12 +198,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Loads a tab delimited data file into a SQL server table");
+            help.AddDetail("It is expected that the table being imported is in Tab delimited format, and that there is a header row. If there is no header row set the -noHeader option");
             help.AddParameter("drop", "dp", "Drop existing table if it exists (false)");
             help.AddParameter("detectColumnTypes", "dct", "Attempts to detect column types and lengths (false)");
             help.AddParameter("errorOnNonexistentColumns", "ec", "When inserting to an existing table, whether to error if columns in the data file don't have cooresponding columns in the existing SQL table (false)");
             help.AddParameter("batchSize", "bs", "Number of insert commands to batch. Set to zero if having issues (1000)");
             help.AddParameter("rowNumberColumnName", "rncn", "If provided, an extra column is inserted with the line number, -1 because excluding header");
             help.AddParameter("currentUtcDateTimeColumnName", "ctcn", "If provided, an extra column containing the UTC datetime is inserted");
+            help.AddParameter("noHeader", "nh", "Set if your importing tab delimited file does not have a header row (false)");
             help.AddParameter("database", "d", "Database name to load table");
             help.AddParameter("schema", "s", "Schema to load table");
             help.AddParameter("table", "t", "Table name");
@@ -223,6 +225,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var batchSize = GetArgParameterOrConfigInt("batchSize", "bs", 1000);
             var rowNumberColumnName = GetArgParameterOrConfig("rowNumberColumnName", "rncn").TrimOrNull();
             var currentUtcDateTimeColumnName = GetArgParameterOrConfig("currentUtcDateTimeColumnName", "ctcn").TrimOrNull();
+            var noHeader = GetArgParameterOrConfigBool("noHeader", "nh", false);
             var database = GetArgParameterOrConfigRequired("database", "d").TrimOrNull();
             var schema = GetArgParameterOrConfig("schema", "s").TrimOrNull();
             var table = GetArgParameterOrConfigRequired("table", "t").TrimOrNull();
@@ -233,7 +236,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var inputFile2 = Util.ParseInputFiles(inputFile.Yield()).FirstOrDefault();
             if (!File.Exists(inputFile2)) throw new FileNotFoundException($"inputFile {inputFile} does not exist", inputFile);
             inputFile = inputFile2;
-            var t = ReadTableTab(inputFile);
+            var t = ReadTableTab(inputFile, headerRow: !noHeader);
             if (t.Columns.IsEmpty())
             {
                 throw new Exception("No columns in import file");

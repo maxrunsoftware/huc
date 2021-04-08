@@ -31,6 +31,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("connectionString", "c", "SQL connection string");
             help.AddParameter("commandTimeout", "ct", "Length of time in seconds to wait for SQL command to execute before erroring out (" + (60 * 60 * 24) + ")");
             help.AddParameter("serverType", "st", "The SQL server type [ MSSQL | MySQL ] (MSSQL)");
+            help.AddDetail("Example connection strings:");
+            help.AddDetail("  Server=192.168.0.5;Database=myDatabase;User Id=myUsername;Password=myPassword;");
+            help.AddDetail("  Server=192.168.0.5\\instanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;");
+            help.AddDetail("  Server=192.168.0.5;Database=myDataBase;Trusted_Connection=True;");
         }
 
         private string connectionString;

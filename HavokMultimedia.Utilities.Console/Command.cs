@@ -116,7 +116,7 @@ namespace HavokMultimedia.Utilities.Console
             using (Util.Diagnostic(log.Trace)) return Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8_WITHOUT_BOM);
         }
 
-        protected Utilities.Table ReadTableTab(string path, Encoding encoding = null)
+        protected Utilities.Table ReadTableTab(string path, Encoding encoding = null, bool headerRow = true)
         {
             var data = ReadFile(path, encoding);
             log.Debug($"Read {data.Length} characters from file {path}");
@@ -125,7 +125,7 @@ namespace HavokMultimedia.Utilities.Console
             if (lines.Length > 0 && lines[lines.Length - 1] != null && lines[lines.Length - 1].Length == 0) lines = lines.RemoveTail(); // Ignore if last line is just line feed
             log.Debug($"Found {lines.Length} lines in file {path}");
 
-            var t = Utilities.Table.Create(lines.Select(l => l.Split('\t')), true);
+            var t = Utilities.Table.Create(lines.Select(l => l.Split('\t')), headerRow);
             log.Debug($"Created table with {t.Columns.Count} columns and {t.Count} rows");
 
             return t;
