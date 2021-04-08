@@ -52,6 +52,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     {
                         log.Debug("Writing file " + sourceFile + " to " + targetFile);
                         sourceFileStream.CopyTo(targetFileStream, 10 * (int)Constant.BYTES_MEGA);
+                        log.Info(targetFile + "  <--  " + sourceFile);
                     }
                 }
                 targetFileStream.Flush();
