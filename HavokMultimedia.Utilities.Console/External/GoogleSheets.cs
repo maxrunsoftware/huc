@@ -131,6 +131,31 @@ namespace HavokMultimedia.Utilities.Console.External
             SetData(sheetName, list);
         }
 
+        public void AddRow(string sheetName, params string[] rowValues)
+        {
+            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
+            sheetName = sheet.Properties.Title;
+
+            // TODO: Assign values to desired properties of `requestBody`:
+            var requestBody = new ValueRange();
+            var list = new List<IList<object>>();
+            var list2 = new List<object>();
+            foreach (var rowValue in rowValues) list2.Add(rowValue);
+            list.Add(list2);
+            requestBody.Values = list;
+            string range = sheetName + "!A1:ZZ";
+            SpreadsheetsResource.ValuesResource.AppendRequest request = service.Spreadsheets.Values.Append(requestBody, spreadsheetId, range);
+            request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+            request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
+
+            log.Debug("Adding row to sheet " + sheetName);
+            AppendValuesResponse response = request.Execute();
+            log.Debug("Added row to sheet " + sheetName);
+            log.Debug(JsonConvert.SerializeObject(response));
+
+        }
+
         public void Dispose()
         {
             if (service != null) service.Dispose();
