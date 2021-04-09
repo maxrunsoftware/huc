@@ -81,6 +81,11 @@ namespace HavokMultimedia.Utilities.Console.External
         public void SetData(string sheetName, List<string[]> data)
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null)
+            {
+                CreateSheet(sheetName);
+                sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            }
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
             sheetName = sheet.Properties.Title;
 
@@ -131,22 +136,36 @@ namespace HavokMultimedia.Utilities.Console.External
             SetData(sheetName, list);
         }
 
+        public static IList<object> AsGoogleListInner(params string[] strs)
+        {
+            var list = new List<object>();
+            foreach (var str in strs) list.Add(str);
+            return list;
+        }
+        public static List<IList<object>> AsGoogleListOuter(params IList<object>[] lists)
+        {
+            var list = new List<IList<object>>();
+            foreach (var l in lists) list.Add(l);
+            return list;
+        }
+
         public void AddRow(string sheetName, params string[] rowValues)
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null)
+            {
+                CreateSheet(sheetName);
+                sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            }
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
             sheetName = sheet.Properties.Title;
 
             // TODO: Assign values to desired properties of `requestBody`:
             var requestBody = new ValueRange();
-            var list = new List<IList<object>>();
-            var list2 = new List<object>();
-            foreach (var rowValue in rowValues) list2.Add(rowValue);
-            list.Add(list2);
-            requestBody.Values = list;
-            string range = sheetName + "!A1:ZZ";
+            requestBody.Values = AsGoogleListOuter(AsGoogleListInner(rowValues));
+            string range = sheetName + "!A1:A1";
             SpreadsheetsResource.ValuesResource.AppendRequest request = service.Spreadsheets.Values.Append(requestBody, spreadsheetId, range);
-            request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
+            request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
             request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
 
             log.Debug("Adding row to sheet " + sheetName);
@@ -154,6 +173,30 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug("Added row to sheet " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
 
+        }
+
+        public void CreateSheet(string sheetName)
+        {
+            var sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet != null)
+            {
+                log.Debug("Not creating already existing sheet " + sheetName);
+                return;
+            }
+            log.Debug("Adding new sheet " + sheetName);
+
+            var addSheetRequest = new AddSheetRequest();
+            addSheetRequest.Properties = new SheetProperties();
+            addSheetRequest.Properties.Title = sheetName;
+            BatchUpdateSpreadsheetRequest batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
+            batchUpdateSpreadsheetRequest.Requests = new List<Request>();
+            batchUpdateSpreadsheetRequest.Requests.Add(new Request { AddSheet = addSheetRequest });
+
+            var batchUpdateRequest = service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, spreadsheetId);
+            log.Debug("Adding new sheet " + sheetName);
+            var response = batchUpdateRequest.Execute();
+            log.Debug("Added new sheet " + sheetName);
+            log.Debug(JsonConvert.SerializeObject(response));
         }
 
         public void Dispose()
