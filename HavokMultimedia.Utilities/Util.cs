@@ -2288,6 +2288,11 @@ namespace HavokMultimedia.Utilities
 
         #region New
 
+        /// <summary>
+        /// High performance new object creation. Type must have a default constructor.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static Func<object> CreateNewFactory(Type type)
         {
             // https://stackoverflow.com/a/29972767
@@ -2348,12 +2353,42 @@ namespace HavokMultimedia.Utilities
             public TValue this[TKey key] => getValue(key);
         }
 
+        /// <summary>
+        /// Creates a bucket from a getValue and getKeys function. 
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="getValue"></param>
+        /// <param name="getKeys"></param>
+        /// <returns>A simple bucket wrapper around 2 functions</returns>
         public static IBucketReadOnly<TKey, TValue> CreateBucket<TKey, TValue>(Func<TKey, TValue> getValue, Func<IEnumerable<TKey>> getKeys) => new BucketReadOnlyFunc<TKey, TValue>(getValue, getKeys);
 
+        /// <summary>
+        /// Creates a bucket from a getValue and getKeys and setValue function.
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="getValue"></param>
+        /// <param name="getKeys"></param>
+        /// <param name="setValue"></param>
+        /// <returns>A simple bucket wrapper around 3 functions</returns>
         public static IBucket<TKey, TValue> CreateBucket<TKey, TValue>(Func<TKey, TValue> getValue, Func<IEnumerable<TKey>> getKeys, Action<TKey, TValue> setValue) => new BucketFunc<TKey, TValue>(getValue, getKeys, setValue);
 
         #endregion Buckets
 
+        /// <summary>
+        /// Parses an encoding name string to an Encoding. Values allowed are...
+        /// ASCII
+        /// BIGENDIANUNICODE
+        /// DEFAULT
+        /// UNICODE
+        /// UTF32
+        /// UTF8
+        /// UTF8BOM
+        /// If null is provided then UTF8 encoding is returned.
+        /// </summary>
+        /// <param name="encoding">The encoding name string</param>
+        /// <returns>The Encoding or UTF8 Encoding if null is provided</returns>
         public static Encoding ParseEncoding(string encoding)
         {
             encoding = encoding.TrimOrNull();

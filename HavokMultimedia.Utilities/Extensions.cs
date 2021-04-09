@@ -42,7 +42,10 @@ namespace HavokMultimedia.Utilities
         public static Converter<TInput, TOutput> AsConverter<TInput, TOutput>(this TypeConverter typeConverter) => inputObject => (TOutput)typeConverter(inputObject, typeof(TOutput));
     }
 
-    /// <summary>https://github.com/kellyelton/System.Reflection.ExtensionMethods/tree/master/System.Reflection.ExtensionMethods</summary>
+    /// <summary>
+    /// Formatting of methods for debugging
+    /// https://github.com/kellyelton/System.Reflection.ExtensionMethods/tree/master/System.Reflection.ExtensionMethods
+    /// </summary>
     public static class MethodSignatureTools
     {
         public static string GetSignature(this MethodBase method, bool invokable)
