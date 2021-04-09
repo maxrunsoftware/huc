@@ -207,6 +207,11 @@ Clear the first sheet tab and upload Orders.txt tab delimited file to it
 ```sh
 huc GoogleSheetsLoad -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" Orders.txt
 ```
+
+Add a row to first sheet with the values "AA", blank, "CC"
+```sh
+huc GoogleSheetsAddRow -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" AA null CC
+```
 &nbsp;
 &nbsp;
 ## Putting it all together
