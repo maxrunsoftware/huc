@@ -14,28 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Services;
-using Google.Apis.Sheets.v4;
-using Google.Apis.Sheets.v4.Data;
 using HavokMultimedia.Utilities.Console.External;
-using Newtonsoft.Json;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-
     public class GoogleSheetsLoad : Command
     {
-
-
-
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Loads a tab delimited data file into a Google Sheet");
+            help.AddDetail("See the following to setup the account to be able to load data...");
+            help.AddDetail("https://medium.com/@williamchislett/writing-to-google-sheets-api-using-net-and-a-services-account-91ee7e4a291");
             help.AddParameter("securityKeyFile", "k", "The JSON formatted security key file");
             help.AddParameter("applicationName", "a", "The Google Developer application name");
             help.AddParameter("spreadSheetId", "id", "The ID of the spreadsheet to upload to");
@@ -45,7 +35,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-
             var securityKeyFile = GetArgParameterOrConfigRequired("securityKeyFile", "k");
             var securityKeyFileData = ReadFile(securityKeyFile);
             log.Debug(nameof(securityKeyFileData) + ": " + securityKeyFileData);
@@ -61,13 +50,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var table = ReadTableTab(dataFileName);
 
-
             using (var c = new GoogleSheets(securityKeyFileData, applicationName, spreadSheetId))
             {
+                log.Debug("Clearing sheet");
                 c.ClearSheet(sheetName);
+                log.Info("Cleared sheet");
+
+                log.Debug("Setting data");
                 c.SetData(sheetName, table);
-
-
+                log.Info("Data loaded");
             }
         }
     }

@@ -136,6 +136,7 @@ namespace HavokMultimedia.Utilities.Console.External
             if (service != null) service.Dispose();
         }
     }
+
     public static class GoogleSheetsExtensions
     {
         public static Sheet GetSpreadsheetSheet(this SheetsService service, string spreadsheetId, int index)
