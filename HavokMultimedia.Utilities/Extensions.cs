@@ -1724,42 +1724,48 @@ namespace HavokMultimedia.Utilities
         #region In
 
         public static bool In<T>(this T value, T possibleValue1) => In(value, EqualityComparer<T>.Default, possibleValue1);
-
         public static bool In<T>(this T value, T possibleValue1, T possibleValue2) => In(value, EqualityComparer<T>.Default, possibleValue1, possibleValue2);
-
         public static bool In<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3) => In(value, EqualityComparer<T>.Default, possibleValue1, possibleValue2, possibleValue3);
-
         public static bool In<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4) => In(value, EqualityComparer<T>.Default, possibleValue1, possibleValue2, possibleValue3, possibleValue4);
-
         public static bool In<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5) => In(value, EqualityComparer<T>.Default, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5);
-
         public static bool In<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6) => In(value, EqualityComparer<T>.Default, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6);
-
         public static bool In<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6, T possibleValue7) => In(value, EqualityComparer<T>.Default, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6, possibleValue7);
-
         public static bool In<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6, T possibleValue7, T possibleValue8) => In(value, EqualityComparer<T>.Default, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6, possibleValue7, possibleValue8);
-
         public static bool In<T>(this T value, IEnumerable<T> possibleValues) => In<T>(value, EqualityComparer<T>.Default, possibleValues);
-
         public static bool In<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1) => equalityComparer.Equals(value, possibleValue1);
-
         public static bool In<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2) => equalityComparer.Equals(value, possibleValue1) || equalityComparer.Equals(value, possibleValue2);
-
         public static bool In<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3) => equalityComparer.Equals(value, possibleValue1) || equalityComparer.Equals(value, possibleValue2) || equalityComparer.Equals(value, possibleValue3);
-
         public static bool In<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4) => equalityComparer.Equals(value, possibleValue1) || equalityComparer.Equals(value, possibleValue2) || equalityComparer.Equals(value, possibleValue3) || equalityComparer.Equals(value, possibleValue4);
-
         public static bool In<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5) => equalityComparer.Equals(value, possibleValue1) || equalityComparer.Equals(value, possibleValue2) || equalityComparer.Equals(value, possibleValue3) || equalityComparer.Equals(value, possibleValue4) || equalityComparer.Equals(value, possibleValue5);
-
         public static bool In<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6) => equalityComparer.Equals(value, possibleValue1) || equalityComparer.Equals(value, possibleValue2) || equalityComparer.Equals(value, possibleValue3) || equalityComparer.Equals(value, possibleValue4) || equalityComparer.Equals(value, possibleValue5) || equalityComparer.Equals(value, possibleValue6);
-
         public static bool In<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6, T possibleValue7) => equalityComparer.Equals(value, possibleValue1) || equalityComparer.Equals(value, possibleValue2) || equalityComparer.Equals(value, possibleValue3) || equalityComparer.Equals(value, possibleValue4) || equalityComparer.Equals(value, possibleValue5) || equalityComparer.Equals(value, possibleValue6) || equalityComparer.Equals(value, possibleValue7);
-
         public static bool In<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6, T possibleValue7, T possibleValue8) => equalityComparer.Equals(value, possibleValue1) || equalityComparer.Equals(value, possibleValue2) || equalityComparer.Equals(value, possibleValue3) || equalityComparer.Equals(value, possibleValue4) || equalityComparer.Equals(value, possibleValue5) || equalityComparer.Equals(value, possibleValue6) || equalityComparer.Equals(value, possibleValue7) || equalityComparer.Equals(value, possibleValue8);
-
         public static bool In<T>(this T value, IEqualityComparer<T> comparer, IEnumerable<T> possibleValues) => possibleValues.Any(o => comparer.Equals(o, value));
 
         #endregion In
+
+        #region NotIn
+
+        public static bool NotIn<T>(this T value, T possibleValue1) => !In(value, possibleValue1);
+        public static bool NotIn<T>(this T value, T possibleValue1, T possibleValue2) => !In(value, possibleValue1, possibleValue2);
+        public static bool NotIn<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3) => !In(value, possibleValue1, possibleValue2, possibleValue3);
+        public static bool NotIn<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4) => !In(value, possibleValue1, possibleValue2, possibleValue3, possibleValue4);
+        public static bool NotIn<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5) => !In(value, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5);
+        public static bool NotIn<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6) => !In(value, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6);
+        public static bool NotIn<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6, T possibleValue7) => !In(value, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6, possibleValue7);
+        public static bool NotIn<T>(this T value, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6, T possibleValue7, T possibleValue8) => !In(value, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6, possibleValue7, possibleValue8);
+        public static bool NotIn<T>(this T value, IEnumerable<T> possibleValues) => !In(value, possibleValues);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1) => !In(value, equalityComparer, possibleValue1);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2) => !In(value, equalityComparer, possibleValue1, possibleValue2);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3) => !In(value, equalityComparer, possibleValue1, possibleValue2, possibleValue3);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4) => !In(value, equalityComparer, possibleValue1, possibleValue2, possibleValue3, possibleValue4);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5) => !In(value, equalityComparer, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6) => !In(value, equalityComparer, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6, T possibleValue7) => !In(value, equalityComparer, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6, possibleValue7);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> equalityComparer, T possibleValue1, T possibleValue2, T possibleValue3, T possibleValue4, T possibleValue5, T possibleValue6, T possibleValue7, T possibleValue8) => !In(value, equalityComparer, possibleValue1, possibleValue2, possibleValue3, possibleValue4, possibleValue5, possibleValue6, possibleValue7, possibleValue8);
+        public static bool NotIn<T>(this T value, IEqualityComparer<T> comparer, IEnumerable<T> possibleValues) => !In(value, comparer, possibleValues);
+
+        #endregion NotIn
 
         #region GetAtIndexOrDefault
 
