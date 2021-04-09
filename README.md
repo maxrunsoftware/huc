@@ -13,6 +13,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [File Appending](#file-appending)
 - [Web Server](#web-server)
 - [SSH](#ssh)
+- [Google Sheets](#google-sheets)
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
@@ -188,6 +189,22 @@ huc SSH -h=192.168.1.5 -u=testuser -p=testpass "ls"
 Change directory and issue LS command with options
 ```sh
 huc SSH -h=192.168.1.5 -u=testuser -p=testpass "cd someDirectory; ls -la;"
+```
+&nbsp;
+### Google Sheets
+Clear all data from a Google Sheet tab named Sheet1 (sheet ID is in the URL)
+```sh
+huc GoogleSheetsClear -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" -s="Sheet1"
+```
+
+Clear all data from the first Google Sheet tab
+```sh
+huc GoogleSheetsClear -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe"
+```
+
+Clear the first sheet tab and upload Orders.txt file to it
+```sh
+huc GoogleSheetsLoad -k="./MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" Orders.txt
 ```
 &nbsp;
 &nbsp;
