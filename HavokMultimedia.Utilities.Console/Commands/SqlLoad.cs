@@ -212,9 +212,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddValue("<tab delimited file to load>");
         }
 
-
-
-
         protected override void Execute()
         {
             base.Execute();
@@ -274,9 +271,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     sql.Append(" ");
                     if (detectColumnTypes)
                     {
-                        var dbType = column.Type.GetDbType();
-                        var sqlDbType = dbType.GetSqlDbType();
-                        throw new NotImplementedException();
+                        if (SqlServerType.NotIn(SqlServerType.MSSQL)) throw new NotImplementedException($"detectColumnTypes for SqlServerType {SqlServerType} has not been implemented yet");
+
+                        // MSSQL
+                        var sqlDbType = column.Type.GetSqlDbType();
+                        log.Debug("Column[" + column.Index + ":" + column.Name + "] " + column.Type.NameFormatted() + "  -->  " + sqlDbType);
+                        sql.Append(sqlDbType);
+                        if (sqlDbType.In(SqlDbType.NVarChar, SqlDbType.VarChar)) sql.Append("(" + (column.MaxLength > 4000 ? "MAX" : column.MaxLength) + ")");
+                        else if (sqlDbType.In(SqlDbType.NChar, SqlDbType.Char)) sql.Append("(" + column.MaxLength + ")");
+                        else if (sqlDbType.In(SqlDbType.Decimal)) sql.Append("(" + (37 - column.NumberOfDecimalPlaces) + "," + column.NumberOfDecimalPlaces + ")");
+
+
+
                     }
                     else
                     {
@@ -358,6 +364,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
 
         }
+
 
 
 

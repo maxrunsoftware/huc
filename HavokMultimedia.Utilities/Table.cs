@@ -389,6 +389,7 @@ namespace HavokMultimedia.Utilities
         private readonly Lazy<Type> type;
         private readonly Lazy<int> maxLength;
         private readonly Lazy<bool> isNullable;
+        private readonly Lazy<int> numberOfDecimalPlaces;
         public Table Table { get; }
 
         public int Index { get; }
@@ -396,6 +397,7 @@ namespace HavokMultimedia.Utilities
         public int MaxLength => maxLength.Value;
         public bool IsNullable => isNullable.Value;
         public Type Type => type.Value;
+        public int NumberOfDecimalPlaces => numberOfDecimalPlaces.Value;
 
         internal TableColumn(Table table, int index, string name)
         {
@@ -405,6 +407,24 @@ namespace HavokMultimedia.Utilities
             maxLength = new Lazy<int>(() => table.Max(row => row[Index] == null ? 0 : row[Index].Length));
             isNullable = new Lazy<bool>(() => table.Any(row => row[Index] == null));
             type = new Lazy<Type>(() => Util.GuessType(table.Select(o => o[Index])));
+            numberOfDecimalPlaces = new Lazy<int>(() => GetNumberOfDecimalPlaces(table, Index));
+        }
+
+        private int GetNumberOfDecimalPlaces(Table table, int index)
+        {
+            var type = table.Columns[index].Type;
+            if (type.NotIn(typeof(decimal), typeof(float), typeof(double))) return 0;
+            int decimalPlaces = 0;
+            foreach (var row in table)
+            {
+                var val = row[index];
+                if (val == null) continue;
+                var split = val.Split('.').TrimOrNull().WhereNotNull().ToList();
+                if (split.Count < 2) continue; // no decimal place
+                if (split.Count > 2) continue; // should not happen
+                decimalPlaces = Math.Max(decimalPlaces, split[1].Length);
+            }
+            return decimalPlaces;
         }
 
         public override string ToString() => Name;

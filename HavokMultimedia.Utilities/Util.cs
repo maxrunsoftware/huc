@@ -865,7 +865,10 @@ namespace HavokMultimedia.Utilities
             if (list.Count == 0) return typeof(string);
 
             if (list.All(o => Guid.TryParse(o, out var v))) return nullable ? typeof(Guid?) : typeof(Guid);
-            if (list.All(o => IPAddress.TryParse(o, out var v))) return typeof(IPAddress);
+            if (list.All(o => o.CountOccurances(".") == 3))
+            {
+                if (list.All(o => IPAddress.TryParse(o, out var v))) return typeof(IPAddress);
+            }
 
             if (list.All(o => o.ToBoolTry(out var v))) return nullable ? typeof(bool?) : typeof(bool);
             if (list.All(o => o.ToByteTry(out var v))) return nullable ? typeof(byte?) : typeof(byte);
@@ -885,6 +888,8 @@ namespace HavokMultimedia.Utilities
 
             if (list.All(o => DateTime.TryParse(o, out var v))) return nullable ? typeof(DateTime?) : typeof(DateTime);
             if (list.All(o => Uri.TryCreate(o, UriKind.Absolute, out var vUri))) return typeof(Uri);
+
+
 
             return typeof(string);
         }
