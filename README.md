@@ -202,9 +202,9 @@ Clear all data from the first Google Sheet tab
 huc GoogleSheetsClear -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe"
 ```
 
-Clear the first sheet tab and upload Orders.txt file to it
+Clear the first sheet tab and upload Orders.txt tab delimited file to it
 ```sh
-huc GoogleSheetsLoad -k="./MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" Orders.txt
+huc GoogleSheetsLoad -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" Orders.txt
 ```
 &nbsp;
 &nbsp;
