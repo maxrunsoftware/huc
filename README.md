@@ -192,8 +192,9 @@ huc SSH -h=192.168.1.5 -u=testuser -p=testpass "cd someDirectory; ls -la;"
 ```
 &nbsp;
 ### Google Sheets
-Clear all data from a Google Sheet tab named Sheet1 (sheet ID is in the URL)
-For setting up the Google account see... https://medium.com/@williamchislett/writing-to-google-sheets-api-using-net-and-a-services-account-91ee7e4a291
+Clear all data from a Google Sheet tab named Sheet1 (sheet ID is in the URL)\
+For setting up the Google account see...\
+https://medium.com/@williamchislett/writing-to-google-sheets-api-using-net-and-a-services-account-91ee7e4a291
 ```sh
 huc GoogleSheetsClear -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" -s="Sheet1"
 ```
