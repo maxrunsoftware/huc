@@ -13,7 +13,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [File Appending](#file-appending)
 - [Web Server](#web-server)
 - [SSH](#ssh)
-- [Google Sheets](#google-sheets)
+- [Google Sheets Interaction](#google-sheets)
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
