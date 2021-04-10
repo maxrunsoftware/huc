@@ -77,6 +77,132 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug(JsonConvert.SerializeObject(response));
         }
 
+        public void FormatCell(string sheetName, CellFormat cellFormat, GridRange range)
+        {
+            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
+            sheetName = sheet.Properties.Title;
+            int sheetId = sheet.GetId();
+
+            //define cell color
+            var userEnteredFormat = cellFormat;
+            BatchUpdateSpreadsheetRequest bussr = new BatchUpdateSpreadsheetRequest();
+
+            //create the update request for cells from the first row
+            var updateCellsRequest = new Request()
+            {
+                RepeatCell = new RepeatCellRequest()
+                {
+                    Range = range,
+                    Cell = new CellData() { UserEnteredFormat = cellFormat },
+                    Fields = "UserEnteredFormat(BackgroundColor,TextFormat)"
+                }
+            };
+            bussr.Requests = new List<Request>();
+            bussr.Requests.Add(updateCellsRequest);
+            var bur = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
+
+
+            log.Debug("Updating cell format for sheet " + sheetName);
+            var response = bur.Execute();
+            log.Debug("Updated cell format for sheet " + sheetName);
+            log.Debug(JsonConvert.SerializeObject(response));
+
+        }
+
+        public void FormatCell(
+            string sheetName,
+            int indexX,
+            int indexY,
+            int width = 1,
+            int height = 1,
+            Color backgroundColor = null,
+            Color foregroundColor = null,
+            bool? bold = null,
+            bool? italic = null,
+            bool? underline = null,
+            bool? strikethrough = null,
+            string fontFamily = null
+            )
+        {
+            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
+
+            var cellFormat = new CellFormat();
+            if (backgroundColor != null) cellFormat.BackgroundColor = backgroundColor;
+            if (cellFormat.TextFormat == null) cellFormat.TextFormat = new TextFormat();
+            if (foregroundColor != null) cellFormat.TextFormat.ForegroundColor = foregroundColor;
+            if (bold != null) cellFormat.TextFormat.Bold = bold.Value;
+            if (italic != null) cellFormat.TextFormat.Italic = italic.Value;
+            if (underline != null) cellFormat.TextFormat.Underline = underline.Value;
+            if (strikethrough != null) cellFormat.TextFormat.Strikethrough = strikethrough.Value;
+            if (fontFamily != null) cellFormat.TextFormat.FontFamily = fontFamily;
+
+            var range = new GridRange()
+            {
+                SheetId = sheet.GetId(),
+                StartColumnIndex = indexX,
+                StartRowIndex = indexY,
+                EndColumnIndex = indexX + width,
+                EndRowIndex = indexY + height
+            };
+
+            FormatCell(sheetName, cellFormat, range);
+
+        }
+
+        public void FormatCell(string sheetName)
+        {
+            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
+            sheetName = sheet.Properties.Title;
+
+
+            int sheetId = (int)sheet.Properties.SheetId;
+
+            //define cell color
+            var userEnteredFormat = new CellFormat()
+            {
+                BackgroundColor = new Color()
+                {
+                    Blue = 0,
+                    Red = 1,
+                    Green = (float)0.5,
+                    Alpha = (float)0.1
+                },
+                TextFormat = new TextFormat()
+                {
+                    Bold = true
+                }
+            };
+            BatchUpdateSpreadsheetRequest bussr = new BatchUpdateSpreadsheetRequest();
+
+            //create the update request for cells from the first row
+            var updateCellsRequest = new Request()
+            {
+                RepeatCell = new RepeatCellRequest()
+                {
+                    Range = new GridRange()
+                    {
+                        SheetId = sheetId,
+                        StartColumnIndex = 0,
+                        StartRowIndex = 0,
+                        EndColumnIndex = 1,
+                        EndRowIndex = 1
+                    },
+                    Cell = new CellData()
+                    {
+                        UserEnteredFormat = userEnteredFormat
+                    },
+                    Fields = "UserEnteredFormat(BackgroundColor,TextFormat)"
+                }
+            };
+            bussr.Requests = new List<Request>();
+            bussr.Requests.Add(updateCellsRequest);
+            var bur = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
+            bur.Execute();
+        }
+
 
         public void SetData(string sheetName, List<string[]> data)
         {
@@ -118,6 +244,31 @@ namespace HavokMultimedia.Utilities.Console.External
             BatchUpdateValuesResponse response = request.Execute();
             log.Debug("Set sheet values " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
+
+            FormatCell(
+                sheetName,
+                0, 0,
+                width: numberOfColumns, height: googleData.Count,
+                backgroundColor: System.Drawing.Color.White.ToGoogleColor(),
+                foregroundColor: System.Drawing.Color.Black.ToGoogleColor(),
+                bold: false,
+                italic: false,
+                underline: false,
+                strikethrough: false
+                );
+
+            FormatCell(
+                sheetName,
+                0, 0,
+                width: numberOfColumns, height: 1,
+                backgroundColor: System.Drawing.Color.White.ToGoogleColor(),
+                foregroundColor: System.Drawing.Color.Black.ToGoogleColor(),
+                bold: true,
+                italic: false,
+                underline: false,
+                strikethrough: false
+                );
+
         }
 
         public void SetData(string sheetName, Table table)
@@ -207,6 +358,14 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public static class GoogleSheetsExtensions
     {
+        public static Color ToGoogleColor(this System.Drawing.Color color) => new Color
+        {
+            Red = (float)color.R / 255.0F,
+            Green = (float)color.G / 255.0F,
+            Blue = (float)color.B / 255.0F,
+            Alpha = (float)color.A / 255.0F
+        };
+
         public static Sheet GetSpreadsheetSheet(this SheetsService service, string spreadsheetId, int index)
         {
             var d = new SortedDictionary<int, Sheet>();
@@ -227,10 +386,11 @@ namespace HavokMultimedia.Utilities.Console.External
             }
 
             return list.GetAtIndexOrDefault(index);
-
         }
 
         public static Sheet GetSpreadsheetSheetFirst(this SheetsService service, string spreadsheetId) => service.GetSpreadsheetSheet(spreadsheetId, 0);
+
+        public static int GetId(this Sheet sheet) => sheet.Properties.SheetId ?? 0;
 
         public static Sheet GetSpreadsheetSheet(this SheetsService service, string spreadsheetId, string name)
         {
