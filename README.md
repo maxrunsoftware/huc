@@ -214,6 +214,11 @@ Add a row to first sheet with the values "AA", blank, "CC"
 ```sh
 huc GoogleSheetsAddRow -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" AA null CC
 ```
+
+Make the first row of data have red text, blue background, and bold
+```sh
+huc GoogleSheetsFormatCells -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" -width=100 -b -fc=Red -bc=Blue 
+```
 &nbsp;
 &nbsp;
 ## Putting it all together
