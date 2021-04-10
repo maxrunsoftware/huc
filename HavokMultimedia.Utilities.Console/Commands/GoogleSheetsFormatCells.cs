@@ -40,8 +40,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("yPosition", "y", "The zero based row index to start at (0)");
             help.AddParameter("width", "w", "The number of column to include (1)");
             help.AddParameter("height", "h", "The number of rows to include (1)");
-            help.AddParameter("foregroundColor", "fc", "The foreground color (Black) [ " + string.Join(" | ", ColorNames) + " ]");
-            help.AddParameter("backgroundColor", "bc", "The background color (White) [ " + string.Join(" | ", ColorNames) + " ]");
+            help.AddParameter("foregroundColor", "fc", "The foreground color (Black) [ use \"huc colors\" to show colors ]");
+            help.AddParameter("backgroundColor", "bc", "The background color (White) [ use \"huc colors\" to show colors ]");
             help.AddParameter("bold", "b", "Bold text (false)");
             help.AddParameter("italic", "i", "Italic text (false)");
             help.AddParameter("underline", "u", "Underline text (false)");
