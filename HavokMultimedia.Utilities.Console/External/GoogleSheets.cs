@@ -77,7 +77,7 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug(JsonConvert.SerializeObject(response));
         }
 
-        public void FormatCell(string sheetName, CellFormat cellFormat, GridRange range)
+        public void FormatCells(string sheetName, CellFormat cellFormat, GridRange range)
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
@@ -110,14 +110,15 @@ namespace HavokMultimedia.Utilities.Console.External
 
         }
 
-        public void FormatCell(
+
+        public void FormatCells(
             string sheetName,
             int indexX,
             int indexY,
             int width = 1,
             int height = 1,
-            Color backgroundColor = null,
-            Color foregroundColor = null,
+            System.Drawing.Color? backgroundColor = null,
+            System.Drawing.Color? foregroundColor = null,
             bool? bold = null,
             bool? italic = null,
             bool? underline = null,
@@ -129,9 +130,9 @@ namespace HavokMultimedia.Utilities.Console.External
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
 
             var cellFormat = new CellFormat();
-            if (backgroundColor != null) cellFormat.BackgroundColor = backgroundColor;
+            if (backgroundColor != null) cellFormat.BackgroundColor = backgroundColor.Value.ToGoogleColor();
             if (cellFormat.TextFormat == null) cellFormat.TextFormat = new TextFormat();
-            if (foregroundColor != null) cellFormat.TextFormat.ForegroundColor = foregroundColor;
+            if (foregroundColor != null) cellFormat.TextFormat.ForegroundColor = foregroundColor.Value.ToGoogleColor();
             if (bold != null) cellFormat.TextFormat.Bold = bold.Value;
             if (italic != null) cellFormat.TextFormat.Italic = italic.Value;
             if (underline != null) cellFormat.TextFormat.Underline = underline.Value;
@@ -147,11 +148,11 @@ namespace HavokMultimedia.Utilities.Console.External
                 EndRowIndex = indexY + height
             };
 
-            FormatCell(sheetName, cellFormat, range);
+            FormatCells(sheetName, cellFormat, range);
 
         }
 
-        public void FormatCell(string sheetName)
+        public void FormatCells(string sheetName)
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
@@ -245,24 +246,24 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug("Set sheet values " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
 
-            FormatCell(
+            FormatCells(
                 sheetName,
                 0, 0,
                 width: numberOfColumns, height: googleData.Count,
-                backgroundColor: System.Drawing.Color.White.ToGoogleColor(),
-                foregroundColor: System.Drawing.Color.Black.ToGoogleColor(),
+                backgroundColor: System.Drawing.Color.White,
+                foregroundColor: System.Drawing.Color.Black,
                 bold: false,
                 italic: false,
                 underline: false,
                 strikethrough: false
                 );
 
-            FormatCell(
+            FormatCells(
                 sheetName,
                 0, 0,
                 width: numberOfColumns, height: 1,
-                backgroundColor: System.Drawing.Color.White.ToGoogleColor(),
-                foregroundColor: System.Drawing.Color.Black.ToGoogleColor(),
+                backgroundColor: System.Drawing.Color.White,
+                foregroundColor: System.Drawing.Color.Black,
                 bold: true,
                 italic: false,
                 underline: false,

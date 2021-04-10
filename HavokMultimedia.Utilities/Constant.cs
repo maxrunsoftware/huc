@@ -18,6 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -242,6 +244,30 @@ namespace HavokMultimedia.Utilities
                 { DbType.VarNumeric, typeof(decimal) },
                 { DbType.Xml, typeof(string) },
         };
+
+        public static IReadOnlyDictionary<string, Color> COLORS = COLORS_get();
+        private static IReadOnlyDictionary<string, Color> COLORS_get()
+        {
+            // https://stackoverflow.com/a/3821197
+
+            var d = new Dictionary<string, Color>();
+            Type colorType = typeof(System.Drawing.Color);
+            // We take only static property to avoid properties like Name, IsSystemColor ...
+            PropertyInfo[] propInfos = colorType.GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public);
+            foreach (PropertyInfo propInfo in propInfos)
+            {
+                var colorGetMethod = propInfo.GetGetMethod();
+                if (colorGetMethod == null) continue;
+                var colorObject = colorGetMethod.Invoke(null, null);
+                if (colorObject == null) continue;
+                var colorObjectType = colorObject.GetType();
+                if (!colorObjectType.Equals(typeof(Color))) continue;
+                var color = (Color)colorObject;
+                var colorName = propInfo.Name;
+                d[colorName] = color;
+            }
+            return d.AsReadOnly();
+        }
 
         public static readonly IReadOnlyCollection<string> SET_Bool_True = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
         public static readonly IReadOnlyCollection<string> SET_Bool_False = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
