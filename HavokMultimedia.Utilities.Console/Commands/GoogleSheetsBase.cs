@@ -26,7 +26,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddDetail("https://medium.com/@williamchislett/writing-to-google-sheets-api-using-net-and-a-services-account-91ee7e4a291");
             help.AddParameter("securityKeyFile", "k", "The JSON formatted security key file");
             help.AddParameter("applicationName", "a", "The Google Developer application name");
-            help.AddParameter("spreadSheetId", "id", "The ID of the spreadsheet to upload to");
+            help.AddParameter("spreadSheetId", "id", "The ID of the spreadsheet to upload to which is in the URL of the document");
         }
 
         private string securityKeyFileData;
