@@ -16,10 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Net.Mail;
-using System.Text;
 using HavokMultimedia.Utilities;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -29,25 +26,81 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Shows all of the colors available");
+            help.AddValue("<optional color name to list details for>");
+        }
+
+        private class Color
+        {
+            public string ColorName { get; init; }
+            public System.Drawing.Color ColorValue { get; init; }
+
+            private Color(string colorName, System.Drawing.Color colorValue)
+            {
+                ColorName = colorName;
+                ColorValue = colorValue;
+            }
+            public static List<Color> Colors => Constant.COLORS
+                .Select(o => new Color(o.Key, o.Value))
+                .OrderBy(o => o.ColorName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            public static string[] ColorNames => Colors.Select(o => o.ColorName).ToArray();
+
+            public static Color GetColor(string colorName)
+            {
+                return Colors.Where(o => string.Equals(o.ColorName, colorName, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            }
+
+            public static string ToPercent(byte colorByte)
+            {
+                return ((colorByte / 255.0F) * 100.0F).ToString(MidpointRounding.AwayFromZero, 0);
+            }
         }
 
 
         protected override void Execute()
         {
-            var colorNames = Constant.COLORS.Keys.OrderBy(o => o, StringComparer.OrdinalIgnoreCase).ToArray();
-            var width = 0;
-            foreach (var colorName in colorNames) width = Math.Max(width, colorName.Length);
-            width = width + 3;
-
-            var colorParts = colorNames.SplitIntoPartSizes(3);
-            foreach (var colorPart in colorParts)
+            var values = GetArgValues().TrimOrNull().WhereNotNull();
+            var colorRequested = values.FirstOrDefault();
+            log.Debug(nameof(colorRequested) + ": " + colorRequested);
+            if (colorRequested == null)
             {
-                var part1 = colorPart.GetAtIndexOrDefault(0) ?? string.Empty;
-                var part2 = colorPart.GetAtIndexOrDefault(1) ?? string.Empty;
-                var part3 = colorPart.GetAtIndexOrDefault(2) ?? string.Empty;
+                var width = 0;
+                var colorNames = Color.ColorNames;
+                foreach (var colorName in colorNames) width = Math.Max(width, colorName.Length);
+                width = width + 3;
 
-                log.Info(part1.PadRight(width) + part2.PadRight(width) + part3.PadRight(width));
+                var colorParts = colorNames.SplitIntoPartSizes(3);
+                foreach (var colorPart in colorParts)
+                {
+                    var part1 = colorPart.GetAtIndexOrDefault(0) ?? string.Empty;
+                    var part2 = colorPart.GetAtIndexOrDefault(1) ?? string.Empty;
+                    var part3 = colorPart.GetAtIndexOrDefault(2) ?? string.Empty;
 
+                    log.Info(part1.PadRight(width) + part2.PadRight(width) + part3.PadRight(width));
+                }
+            }
+            else
+            {
+                var color = Color.GetColor(colorRequested);
+                if (color == null)
+                {
+                    log.Info("Color not found: " + colorRequested);
+                }
+                else
+                {
+                    string formatColor(byte colorValue)
+                    {
+                        return colorValue.ToString().PadRight(3)
+                            + "  "
+                            + Color.ToPercent(colorValue).PadLeft(3)
+                            + " %";
+                    }
+                    log.Info("Color: " + color.ColorName);
+                    log.Info("    R: " + formatColor(color.ColorValue.R));
+                    log.Info("    G: " + formatColor(color.ColorValue.G));
+                    log.Info("    B: " + formatColor(color.ColorValue.B));
+                    log.Info("    A: " + formatColor(color.ColorValue.A));
+                }
             }
 
 
