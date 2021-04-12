@@ -309,3 +309,7 @@ Show all of the colors available for commands that take a color parameter
 huc colors
 ```
 
+Show details for a specific color
+```sh
+huc colors red
+```
