@@ -93,38 +93,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
                 if (rf != null)
                 {
-                    WriteTabDelimitedFile(rf, table);
+                    WriteTableTab(rf, table);
                 }
             }
 
             log.Debug("SQL completed");
         }
 
-        protected void WriteTabDelimitedFile(string fileName, Utilities.Table table, string suffix = null)
-        {
-            fileName = Path.GetFullPath(fileName);
-            table.CheckNotNull(nameof(table));
 
-            log.Debug("Writing TAB delimited Table to file " + fileName);
-            using (var stream = Util.FileOpenWrite(fileName))
-            using (var streamWriter = new StreamWriter(stream, Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM))
-            {
-                table.ToDelimited(
-                    o => streamWriter.Write(o),
-                    headerDelimiter: "\t",
-                    headerQuoting: null,
-                    includeHeader: true,
-                    dataDelimiter: "\t",
-                    dataQuoting: null,
-                    includeRows: true,
-                    newLine: Utilities.Constant.NEWLINE_WINDOWS
-                    );
-                streamWriter.Flush();
-                stream.Flush(true);
-            }
-
-            log.Info("Successfully wrote " + table.ToString() + " to file " + fileName + (suffix ?? string.Empty));
-        }
 
     }
 }

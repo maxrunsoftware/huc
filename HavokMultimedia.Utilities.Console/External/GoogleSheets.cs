@@ -301,6 +301,39 @@ namespace HavokMultimedia.Utilities.Console.External
             return list;
         }
 
+        public List<string[]> Query(string sheetName)
+        {
+            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null)
+            {
+                CreateSheet(sheetName);
+                sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            }
+            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
+            sheetName = sheet.Properties.Title;
+
+            string range = sheetName + "!A1:ZZ";
+            SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, range);
+
+            ValueRange response = request.Execute();
+            IList<IList<object>> responseValues = response.Values;
+            var list = new List<string[]>();
+            foreach (var sublist in responseValues.OrEmpty())
+            {
+                var list2 = new List<string>();
+                foreach (var sublistItem in sublist.OrEmpty())
+                {
+                    var sublistItemString = sublistItem.ToStringGuessFormat();
+                    list2.Add(sublistItemString);
+                }
+                list.Add(list2.ToArray());
+            }
+
+            list.ResizeAll(list.MaxLength());
+
+            return list;
+        }
+
         public void AddRow(string sheetName, params string[] rowValues)
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);

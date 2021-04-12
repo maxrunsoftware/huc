@@ -1690,6 +1690,38 @@ namespace HavokMultimedia.Utilities
 
             return newArray;
         }
+        public static void ResizeAll<T>(this IList<T[]> list, int newLength)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i] != null) list[i] = list[i].Resize(newLength);
+            }
+        }
+        public static void ResizeAll<T>(this T[][] list, int newLength)
+        {
+            for (int i = 0; i < list.Length; i++)
+            {
+                if (list[i] != null) list[i] = list[i].Resize(newLength);
+            }
+        }
+        public static int MaxLength<T>(this IEnumerable<T[]> enumerable)
+        {
+            int len = 0;
+            foreach (var item in enumerable)
+            {
+                if (item != null) len = Math.Max(len, item.Length);
+            }
+            return len;
+        }
+        public static int MaxLength<T, TEnumerable>(this IEnumerable<TEnumerable> enumerable) where TEnumerable : ICollection<T>
+        {
+            int len = 0;
+            foreach (var item in enumerable)
+            {
+                if (item != null) len = Math.Max(len, item.Count);
+            }
+            return len;
+        }
 
         public static void Populate<T>(this T[] array, T value)
         {
@@ -2414,6 +2446,9 @@ namespace HavokMultimedia.Utilities
             if (obj is IEnumerable enumerable) return enumerable.ToStringItems();
             return obj.ToString();
         }
+
+        public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter) => string.Join(delimiter, enumerable);
+        public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter) => enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);
 
         public static string ToStringInsecure(this SecureString secureString) => new NetworkCredential("", secureString).Password;
 
