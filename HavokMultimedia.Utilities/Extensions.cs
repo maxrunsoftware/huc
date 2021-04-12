@@ -2446,6 +2446,10 @@ namespace HavokMultimedia.Utilities
             if (obj is IEnumerable enumerable) return enumerable.ToStringItems();
             return obj.ToString();
         }
+        public static IEnumerable<string> ToStringsGuessFormat(this IEnumerable<object> enumerable)
+        {
+            foreach (var obj in enumerable.OrEmpty()) yield return obj.ToStringGuessFormat();
+        }
 
         public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter) => string.Join(delimiter, enumerable);
         public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter) => enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);

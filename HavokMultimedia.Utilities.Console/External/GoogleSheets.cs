@@ -464,17 +464,9 @@ namespace HavokMultimedia.Utilities.Console.External
             var list = new List<string[]>();
             foreach (var sublist in googleValues.OrEmpty())
             {
-                var list2 = new List<string>();
-                foreach (var sublistItem in sublist.OrEmpty())
-                {
-                    var sublistItemString = sublistItem.ToStringGuessFormat();
-                    list2.Add(sublistItemString);
-                }
-                list.Add(list2.ToArray());
+                list.Add(sublist.OrEmpty().ToStringsGuessFormat().ToArray());
             }
-
             list.ResizeAll(list.MaxLength());
-
             return list;
         }
     }
