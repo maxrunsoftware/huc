@@ -72,7 +72,10 @@ namespace HavokMultimedia.Utilities.Console.External
             ClearValuesRequest requestBody = new ClearValuesRequest();
             SpreadsheetsResource.ValuesResource.ClearRequest request = service.Spreadsheets.Values.Clear(requestBody, spreadsheetId, range);
             log.Debug("Clearing sheet " + sheetName);
-            ClearValuesResponse response = request.Execute();
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
             log.Debug("Cleared sheet " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
         }
@@ -100,11 +103,13 @@ namespace HavokMultimedia.Utilities.Console.External
             };
             bussr.Requests = new List<Request>();
             bussr.Requests.Add(updateCellsRequest);
-            var bur = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
-
+            var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
 
             log.Debug("Updating cell format for sheet " + sheetName);
-            var response = bur.Execute();
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
             log.Debug("Updated cell format for sheet " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
 
@@ -200,8 +205,12 @@ namespace HavokMultimedia.Utilities.Console.External
             };
             bussr.Requests = new List<Request>();
             bussr.Requests.Add(updateCellsRequest);
-            var bur = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
-            bur.Execute();
+            var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+
         }
 
 
@@ -242,7 +251,10 @@ namespace HavokMultimedia.Utilities.Console.External
 
             var request = service.Spreadsheets.Values.BatchUpdate(requestBody, spreadsheetId);
             log.Debug("Setting sheet values " + sheetName);
-            BatchUpdateValuesResponse response = request.Execute();
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
             log.Debug("Set sheet values " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
 
@@ -301,7 +313,8 @@ namespace HavokMultimedia.Utilities.Console.External
             return list;
         }
 
-        public List<string[]> Query(string sheetName)
+
+        public List<string[]> Query(string sheetName, string range = "A1:ZZ")
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
             if (sheet == null)
@@ -312,24 +325,17 @@ namespace HavokMultimedia.Utilities.Console.External
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
             sheetName = sheet.Properties.Title;
 
-            string range = sheetName + "!A1:ZZ";
-            SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, range);
+            string rangeString = sheetName + "!" + (range ?? "A1:ZZ");
+            SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, rangeString);
 
-            ValueRange response = request.Execute();
+            log.Debug($"Querying {rangeString}");
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
             IList<IList<object>> responseValues = response.Values;
-            var list = new List<string[]>();
-            foreach (var sublist in responseValues.OrEmpty())
-            {
-                var list2 = new List<string>();
-                foreach (var sublistItem in sublist.OrEmpty())
-                {
-                    var sublistItemString = sublistItem.ToStringGuessFormat();
-                    list2.Add(sublistItemString);
-                }
-                list.Add(list2.ToArray());
-            }
-
-            list.ResizeAll(list.MaxLength());
+            var list = responseValues.AsDotNetList();
+            log.Debug($"Query returned {list.Count} rows");
 
             return list;
         }
@@ -354,7 +360,10 @@ namespace HavokMultimedia.Utilities.Console.External
             request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
 
             log.Debug("Adding row to sheet " + sheetName);
-            AppendValuesResponse response = request.Execute();
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
             log.Debug("Added row to sheet " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
 
@@ -377,9 +386,12 @@ namespace HavokMultimedia.Utilities.Console.External
             batchUpdateSpreadsheetRequest.Requests = new List<Request>();
             batchUpdateSpreadsheetRequest.Requests.Add(new Request { AddSheet = addSheetRequest });
 
-            var batchUpdateRequest = service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, spreadsheetId);
+            var request = service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, spreadsheetId);
             log.Debug("Adding new sheet " + sheetName);
-            var response = batchUpdateRequest.Execute();
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
             log.Debug("Added new sheet " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
         }
@@ -446,5 +458,24 @@ namespace HavokMultimedia.Utilities.Console.External
         }
 
         public static Spreadsheet GetSpreadsheet(this SheetsService service, string spreadsheetId) => service.Spreadsheets.Get(spreadsheetId).Execute();
+
+        public static List<string[]> AsDotNetList(this IList<IList<object>> googleValues)
+        {
+            var list = new List<string[]>();
+            foreach (var sublist in googleValues.OrEmpty())
+            {
+                var list2 = new List<string>();
+                foreach (var sublistItem in sublist.OrEmpty())
+                {
+                    var sublistItemString = sublistItem.ToStringGuessFormat();
+                    list2.Add(sublistItemString);
+                }
+                list.Add(list2.ToArray());
+            }
+
+            list.ResizeAll(list.MaxLength());
+
+            return list;
+        }
     }
 }

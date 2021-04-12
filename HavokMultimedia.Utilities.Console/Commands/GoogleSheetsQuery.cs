@@ -25,6 +25,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Query a Google Sheet for data and generate a tab delimited file of the data");
             help.AddParameter("sheetName", "s", "The spreadsheet sheet name/tab to query (default first sheet)");
+            help.AddParameter("range", "r", "The range to query from (A1:ZZ)");
             help.AddValue("<tab delimited output file name>");
         }
 
@@ -32,6 +33,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.Execute();
             var sheetName = GetArgParameterOrConfig("sheetName", "s");
+            var range = GetArgParameterOrConfig("range", "r", "A1:ZZ");
 
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
             var outputFile = values.GetAtIndexOrDefault(0);
@@ -41,7 +43,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             using (var c = CreateConnection())
             {
                 log.Debug("Querying sheet");
-                var items = c.Query(sheetName);
+                var items = c.Query(sheetName, range: range);
                 var table = HavokMultimedia.Utilities.Table.Create(items, true);
                 WriteTableTab(outputFile, table);
                 log.Info("Sheet with " + items.Count + " rows written to " + outputFile);
