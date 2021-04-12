@@ -220,6 +220,11 @@ Make the first row of data have red text, blue background, and bold
 ```sh
 huc GoogleSheetsFormatCells -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" -width=100 -b -fc=Red -bc=Blue 
 ```
+
+Query all data from first sheet and output it to a tab delimited file MyFile.txt
+```sh
+huc GoogleSheetsQuery -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" MyFile.txt
+```
 &nbsp;
 &nbsp;
 ## Putting it all together
