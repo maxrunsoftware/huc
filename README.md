@@ -303,3 +303,9 @@ Show drift of local clock compared to internet time
 ```sh
 huc time -d
 ```
+
+Show all of the colors available for commands that take a color parameter
+```sh
+huc colors
+```
+
