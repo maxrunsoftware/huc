@@ -317,11 +317,6 @@ namespace HavokMultimedia.Utilities.Console.External
         public List<string[]> Query(string sheetName, string range = "A1:ZZ")
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            if (sheet == null)
-            {
-                CreateSheet(sheetName);
-                sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            }
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
             sheetName = sheet.Properties.Title;
 
