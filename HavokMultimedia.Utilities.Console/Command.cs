@@ -148,7 +148,9 @@ namespace HavokMultimedia.Utilities.Console
                     dataDelimiter: "\t",
                     dataQuoting: null,
                     includeRows: true,
-                    newLine: Utilities.Constant.NEWLINE_WINDOWS
+                    newLine: Utilities.Constant.NEWLINE_WINDOWS,
+                    headerDelimiterReplacement: "        ",
+                    dataDelimiterReplacement: "        "
                     );
                 streamWriter.Flush();
                 stream.Flush(true);

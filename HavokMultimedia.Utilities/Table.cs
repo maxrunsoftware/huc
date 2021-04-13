@@ -487,12 +487,13 @@ namespace HavokMultimedia.Utilities
             return ts;
         }
 
-        private static string ReplaceNewLineWithSpace(string str)
+        private static string Replacements(string str, string delimiter, string replacement)
         {
             if (str == null) return null;
             str = str.Replace(Constant.NEWLINE_WINDOWS, " ");
             str = str.Replace(Constant.NEWLINE_MAC, " ");
             str = str.Replace(Constant.NEWLINE_UNIX, " ");
+            if (replacement != null) str = str.Replace(delimiter, replacement);
             return str;
         }
         public static void ToDelimited(
@@ -504,7 +505,9 @@ namespace HavokMultimedia.Utilities
              string dataQuoting = null,
              string newLine = Constant.NEWLINE_WINDOWS,
              bool includeHeader = true,
-             bool includeRows = true
+             bool includeRows = true,
+             string headerDelimiterReplacement = null,
+             string dataDelimiterReplacement = null
              )
         {
             headerDelimiter = headerDelimiter ?? string.Empty;
@@ -515,13 +518,15 @@ namespace HavokMultimedia.Utilities
 
             if (includeHeader)
             {
-                writer(string.Join(headerDelimiter, table.Columns.ColumnNames.Select(o => headerQuoting + (o ?? string.Empty) + headerQuoting)) + newLine);
+                var itemsHeader = table.Columns.ColumnNames.Select(o => headerQuoting + (Replacements(o, headerDelimiter, headerDelimiterReplacement) ?? string.Empty) + headerQuoting);
+                writer(string.Join(headerDelimiter, itemsHeader + newLine));
             }
             if (includeRows)
             {
                 foreach (var row in table)
                 {
-                    writer(string.Join(dataDelimiter, row.Select(o => dataQuoting + (ReplaceNewLineWithSpace(o) ?? string.Empty) + dataQuoting)) + newLine);
+                    var itemsData = row.Select(o => dataQuoting + (Replacements(o, dataDelimiter, dataDelimiterReplacement) ?? string.Empty) + dataQuoting);
+                    writer(string.Join(dataDelimiter, itemsData + newLine));
                 }
             }
         }
