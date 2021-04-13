@@ -432,18 +432,19 @@ namespace HavokMultimedia.Utilities
 
     public sealed class TableRow : IReadOnlyList<string>, IBucketReadOnly<string, string>, IBucketReadOnly<TableColumn, string>
     {
+        private int numberOfCharacters = -1;
         private readonly string[] data;
         public Table Table { get; }
         public int RowIndex { get; }
-        public int Size { get; }
 
         internal TableRow(Table table, string[] data, int rowIndex)
         {
             Table = table;
             this.data = data;
             RowIndex = rowIndex;
-            Size = data.GetNumberOfCharacters(); // TODO: Should I make this Lazy init?
         }
+
+        public int GetNumberOfCharacters(int lengthOfNull) => data.GetNumberOfCharacters(lengthOfNull);
 
         #region IBucketReadOnly<string, string>
 
@@ -489,21 +490,30 @@ namespace HavokMultimedia.Utilities
             return ts;
         }
 
-        public static IEnumerable<TableRow[]> GetRowsChunkedBySize(this Table table, int maxNumberOfCharacters)
+        public static IEnumerable<TableRow[]> GetRowsChunkedByNumberOfCharacters(this Table table, int maxNumberOfCharacters, int lengthOfNull)
         {
             var list = new List<TableRow>();
+            int currentSize = 0;
             foreach (var row in table)
             {
-                var len = row.Size;
-                var currentSize = list.Sum(o => o.Size);
-                if (list.Count == 0) list.Add(row);
-                else if (len + currentSize < maxNumberOfCharacters) list.Add(row);
+                var len = row.GetNumberOfCharacters(lengthOfNull);
+                if (list.Count == 0)
+                {
+                    list.Add(row);
+                }
+                else if (len + currentSize < maxNumberOfCharacters)
+                {
+                    list.Add(row);
+                }
                 else
                 {
                     yield return list.ToArray();
                     list = new();
+                    currentSize = 0;
                     list.Add(row);
                 }
+                currentSize += row.GetNumberOfCharacters(lengthOfNull);
+
             }
             if (list.Count > 0) yield return list.ToArray();
         }
@@ -525,6 +535,16 @@ namespace HavokMultimedia.Utilities
                 }
             }
             if (list.Count > 0) yield return list.ToArray();
+        }
+
+        public static int GetNumberOfCharacters(this Table table, int lengthOfNull)
+        {
+            int size = 0;
+            foreach (var row in table)
+            {
+                size += row.GetNumberOfCharacters(lengthOfNull);
+            }
+            return size;
         }
 
         private static string Replacements(string str, string delimiter, string replacement)
