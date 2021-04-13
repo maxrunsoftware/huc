@@ -1753,6 +1753,19 @@ namespace HavokMultimedia.Utilities
             collection.CompleteAdding();
         }
 
+        public static int GetNumberOfCharacters(this string[] array, int lengthOfNull = 0)
+        {
+            if (array == null) return 0;
+            int size = 0;
+            for (int i = 0; i < array.Length; i++)
+            {
+                var s = array[i];
+                if (s == null) size = size + lengthOfNull;
+                else size = size + s.Length;
+            }
+            return size;
+        }
+
         #region In
 
         public static bool In<T>(this T value, T possibleValue1) => In(value, EqualityComparer<T>.Default, possibleValue1);
