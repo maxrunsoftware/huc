@@ -265,11 +265,8 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public void SetData(string sheetName, Table table, int characterThreshold)
         {
-            int numberOfCells = table.Count * table.Columns.Count;
-            if (table.Count * table.Columns.Count > 5000000) throw new Exception("Cannot load table with " + numberOfCells.ToStringCommas() + " cells, Google's limit is 5,000,000");
+            if (table.GetNumberOfCells() > 5000000) throw new Exception("Cannot load table with " + table.GetNumberOfCells().ToStringCommas() + " cells, Google's limit is 5,000,000");
             int nullSize = 6;
-
-
 
             List<string[]> list = new List<string[]>();
             list.Add(table.Columns.Select(o => o.Name).ToArray());

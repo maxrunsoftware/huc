@@ -424,7 +424,7 @@ namespace HavokMultimedia.Utilities
         public Type Type => type.Value;
 
         /// <summary>
-        /// If this column has a single decimal place then this is the max number of decimal digits
+        /// If this column is a =ihas a single decimal place then this is the max number of decimal digits
         /// </summary>
         public int NumberOfDecimalPlaces => numberOfDecimalPlaces.Value;
 
@@ -553,9 +553,18 @@ namespace HavokMultimedia.Utilities
             if (list.Count > 0) yield return list.ToArray();
         }
 
+        public static int GetNumberOfCells(this Table table)
+        {
+            return (table.Count * table.Columns.Count) + table.Columns.Count;
+        }
+
         public static int GetNumberOfCharacters(this Table table, int lengthOfNull)
         {
             int size = 0;
+            foreach (var column in table.Columns)
+            {
+                size += column.Name.Length;
+            }
             foreach (var row in table)
             {
                 size += row.GetNumberOfCharacters(lengthOfNull);
@@ -563,7 +572,7 @@ namespace HavokMultimedia.Utilities
             return size;
         }
 
-        private static string Replacements(string str, string delimiter, string replacement)
+        private static string ToDelimitedReplacements(string str, string delimiter, string replacement)
         {
             if (str == null) return null;
             str = str.Replace(Constant.NEWLINE_WINDOWS, " ");
@@ -595,14 +604,14 @@ namespace HavokMultimedia.Utilities
 
             if (includeHeader)
             {
-                var itemsHeader = table.Columns.ColumnNames.Select(o => headerQuoting + (Replacements(o, headerDelimiter, headerDelimiterReplacement) ?? string.Empty) + headerQuoting);
+                var itemsHeader = table.Columns.ColumnNames.Select(o => headerQuoting + (ToDelimitedReplacements(o, headerDelimiter, headerDelimiterReplacement) ?? string.Empty) + headerQuoting);
                 writer(string.Join(headerDelimiter, itemsHeader + newLine));
             }
             if (includeRows)
             {
                 foreach (var row in table)
                 {
-                    var itemsData = row.Select(o => dataQuoting + (Replacements(o, dataDelimiter, dataDelimiterReplacement) ?? string.Empty) + dataQuoting);
+                    var itemsData = row.Select(o => dataQuoting + (ToDelimitedReplacements(o, dataDelimiter, dataDelimiterReplacement) ?? string.Empty) + dataQuoting);
                     writer(string.Join(dataDelimiter, itemsData + newLine));
                 }
             }
