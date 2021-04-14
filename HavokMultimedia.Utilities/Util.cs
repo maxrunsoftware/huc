@@ -2429,15 +2429,15 @@ namespace HavokMultimedia.Utilities
 
         public static string ParseInputFile(string inputFile) => ParseInputFiles(inputFile.Yield()).FirstOrDefault();
 
-        public static List<string> ParseInputFiles(IEnumerable<string> inputFiles) => inputFiles.OrEmpty()
+        public static List<string> ParseInputFiles(IEnumerable<string> inputFiles, bool recursive = false) => inputFiles.OrEmpty()
             .TrimOrNull()
             .WhereNotNull()
-            .SelectMany(o => ParseFileName(o))
+            .SelectMany(o => ParseFileName(o, recursive: recursive))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        public static List<string> ParseFileName(string fileName)
+        public static List<string> ParseFileName(string fileName, bool recursive = false)
         {
             var l = new List<string>();
             fileName = fileName.TrimOrNull();
@@ -2477,7 +2477,7 @@ namespace HavokMultimedia.Utilities
                 fileName = Path.GetFullPath(fileName);
                 if (Util.IsDirectory(fileName))
                 {
-                    l.AddRange(Util.FileListFiles(fileName));
+                    l.AddRange(Util.FileListFiles(fileName, recursive));
                 }
                 else if (Util.IsFile(fileName))
                 {

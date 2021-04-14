@@ -26,6 +26,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary("Generates a checksum of a file(s)");
             help.AddParameter("checksumType", "t", "Checksum type to generate [ MD5 | SHA1 | SHA256 | SHA512 ] (MD5)");
+            help.AddParameter("recursive", "r", "If a directory is specified, recursively search that directory and all sudirectories for files (false)");
             help.AddValue("<source file 1> <source file 2> <etc>");
         }
 
@@ -33,25 +34,29 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var checksumType = GetArgParameterOrConfig("checksumType", "t", "MD5");
             if (checksumType.NotIn(StringComparer.OrdinalIgnoreCase, "MD5", "SHA1", "SHA256", "SHA512")) throw new ArgsException(nameof(checksumType), $"Invalid {nameof(checksumType)}");
+            var recursive = GetArgParameterOrConfigBool("recursive", "r", false);
 
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
             if (values.IsEmpty()) throw new ArgsException("sourceFiles", "No source files specified");
             for (int i = 0; i < values.Count; i++) log.Debug("sourceFiles[" + i + "]: " + values[i]);
 
-            var inputFiles = Util.ParseInputFiles(values);
+            var inputFiles = Util.ParseInputFiles(values, recursive: recursive)
+                .OrderBy(o => o, Constant.OS_WINDOWS ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
+                .ToList();
+            if (inputFiles.IsEmpty()) throw new ArgsException("sourceFiles", "No source files specified");
+
             for (int i = 0; i < inputFiles.Count; i++) log.Debug("inputFiles[" + i + "]: " + inputFiles[i]);
 
             foreach (var inputFile in inputFiles)
             {
                 string checksum = null;
-                using (var fs = Util.FileOpenRead(inputFile))
-                {
-                    if (checksumType.EqualsCaseInsensitive("MD5")) checksum = Util.GenerateHashMD5(fs);
-                    else if (checksumType.EqualsCaseInsensitive("SHA1")) checksum = Util.GenerateHashSHA1(fs);
-                    else if (checksumType.EqualsCaseInsensitive("SHA256")) checksum = Util.GenerateHashSHA256(fs);
-                    else if (checksumType.EqualsCaseInsensitive("SHA512")) checksum = Util.GenerateHashSHA512(fs);
-                    else throw new NotImplementedException(nameof(checksumType) + " " + checksumType + " has not been implemented yet");
-                }
+
+                if (checksumType.EqualsCaseInsensitive("MD5")) checksum = Util.GenerateHashMD5(inputFile);
+                else if (checksumType.EqualsCaseInsensitive("SHA1")) checksum = Util.GenerateHashSHA1(inputFile);
+                else if (checksumType.EqualsCaseInsensitive("SHA256")) checksum = Util.GenerateHashSHA256(inputFile);
+                else if (checksumType.EqualsCaseInsensitive("SHA512")) checksum = Util.GenerateHashSHA512(inputFile);
+                else throw new NotImplementedException(nameof(checksumType) + " " + checksumType + " has not been implemented yet");
+
                 if (inputFiles.Count == 1) log.Info(checksum);
                 else log.Info(checksum + "  <--  " + inputFile);
             }
