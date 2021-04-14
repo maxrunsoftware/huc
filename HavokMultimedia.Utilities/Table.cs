@@ -154,45 +154,6 @@ namespace HavokMultimedia.Utilities
 
         #endregion Create
 
-        #region RemoveColumn
-
-        /// <summary>
-        /// Returns a new Table with the specified TableColumn removed
-        /// </summary>
-        /// <param name="column">The column to remove</param>
-        /// <returns>A new Table without the specified column</returns>
-        public Table RemoveColumn(TableColumn column) => RemoveColumn(column.CheckNotNull(nameof(column)).Index);
-
-        public Table RemoveColumn(string columnName) => RemoveColumn(Columns[columnName.CheckNotNullTrimmed(nameof(columnName))]);
-
-        public Table RemoveColumn(int columnIndex)
-        {
-            var c = Columns[columnIndex]; // be sure column actually exists
-            columnIndex = c.Index;
-
-            var len = Columns.Count;
-            var h = new List<string>();
-            for (var i = 0; i < Columns.ColumnNames.Count; i++)
-            {
-                if (i != columnIndex) h.Add(Columns.ColumnNames[i]);
-            }
-            var lenMinusOne = h.Count;
-
-            var rs = new List<List<string>>();
-            foreach (var row in this)
-            {
-                var list = new List<string>(lenMinusOne);
-                for (var i = 0; i < len; i++)
-                {
-                    if (i != columnIndex) list.Add(row[i]);
-                }
-                rs.Add(list);
-            }
-            return Create(rs, h);
-        }
-
-        #endregion RemoveColumn
-
         #region RemoveColumns
 
         public Table RemoveColumns(params TableColumn[] columns)

@@ -344,12 +344,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             */
 
             var columnsToRemove = t.Columns.Select(o => o.Name).Except(columnsToInsert.Select(o => o.Name), StringComparer.OrdinalIgnoreCase);
-            var t2 = t;
-            foreach (var columnToRemove in columnsToRemove)
-            {
-                t2 = t2.RemoveColumn(columnToRemove);
-            }
-            t = t2;
+            t = t.RemoveColumns(columnsToRemove.ToArray());
 
             log.Info($"Writing {t.Count} rows to database in columns " + string.Join(", ", columnsToInsert.Select(o => o.Name)));
             var stopwatch = new Stopwatch();
