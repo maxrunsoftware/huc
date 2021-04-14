@@ -353,6 +353,18 @@ namespace HavokMultimedia.Utilities
         /// <returns>001/100 formatted string</returns>
         public static string FormatRunningCount(int index, int total) => (index + 1).ToStringPadded().Right(total.ToString().Length) + "/" + total;
 
+        public static string FormatRunningCountPercent(int index, int total, int decimalPlaces)
+        {
+            int len = 3;
+            if (decimalPlaces > 0) len += 1; // decimal
+            len += decimalPlaces;
+
+            var dindex = (decimal)(index + 1);
+            var dtotal = (decimal)(total);
+
+            return (dindex / dtotal).ToString(MidpointRounding.AwayFromZero, decimalPlaces).PadLeft(len) + " %";
+        }
+
         /// <summary></summary>
         /// <param name="buffer"></param>
         /// <param name="length"></param>

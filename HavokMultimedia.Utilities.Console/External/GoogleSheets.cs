@@ -359,7 +359,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 foreach (var row in rowChunk) list.Add(row.ToArray());
                 AddRows(sheetName, list);
                 rowsCurrent += list.Count;
-                log.Info("Added rows " + Util.FormatRunningCount(rowsCurrent - 1, rowsTotal) + "   + " + list.Count);
+                log.Info("Added rows " + Util.FormatRunningCount(rowsCurrent - 1, rowsTotal) + " " + Util.FormatRunningCountPercent(rowsCurrent - 1, rowsTotal, 2) + "   + " + list.Count + " rows");
             }
 
             FormatCellsDefault(sheetName, 0, 0, width: table.Columns.Count, height: table.Count + 1);
