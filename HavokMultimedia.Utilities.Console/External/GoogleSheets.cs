@@ -75,12 +75,8 @@ namespace HavokMultimedia.Utilities.Console.External
             ClearValuesRequest requestBody = new ClearValuesRequest();
             SpreadsheetsResource.ValuesResource.ClearRequest request = service.Spreadsheets.Values.Clear(requestBody, spreadsheetId, range);
             log.Debug("Clearing sheet " + sheetName);
-            log.Debug("Issuing: " + request.GetType().NameFormatted());
-            var response = request.Execute();
-            log.Debug("Received response: " + response.GetType().NameFormatted());
-            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+            IssueRequest(request);
             log.Debug("Cleared sheet " + sheetName);
-            log.Debug(JsonConvert.SerializeObject(response));
         }
 
         public void ResizeSheet(string sheetName, int columns, int rows)
@@ -102,13 +98,8 @@ namespace HavokMultimedia.Utilities.Console.External
             bussr.Requests.Add(new Request() { UpdateSheetProperties = updateSheetPropertiesRequest });
             var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
             log.Debug("Clearing sheet " + sheetName);
-            log.Debug("Issuing: " + request.GetType().NameFormatted());
-            var response = request.Execute();
-            log.Debug("Received response: " + response.GetType().NameFormatted());
-            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+            IssueRequest(request);
             log.Debug("Cleared sheet " + sheetName);
-            log.Debug(JsonConvert.SerializeObject(response));
-
         }
 
         public void FormatCells(string sheetName, CellFormat cellFormat, GridRange range)
@@ -137,13 +128,8 @@ namespace HavokMultimedia.Utilities.Console.External
             var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
 
             log.Debug("Updating cell format for sheet " + sheetName);
-            log.Debug("Issuing: " + request.GetType().NameFormatted());
-            var response = request.Execute();
-            log.Debug("Received response: " + response.GetType().NameFormatted());
-            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+            IssueRequest(request);
             log.Debug("Updated cell format for sheet " + sheetName);
-            log.Debug(JsonConvert.SerializeObject(response));
-
         }
 
         public void FormatCellsDefault(
@@ -249,18 +235,20 @@ namespace HavokMultimedia.Utilities.Console.External
             var updateData = new List<ValueRange> { dataValueRange };
             var requestBody = new BatchUpdateValuesRequest { ValueInputOption = "USER_ENTERED", Data = updateData };
 
-
             var request = service.Spreadsheets.Values.BatchUpdate(requestBody, spreadsheetId);
             log.Debug("Setting sheet values " + sheetName);
+            IssueRequest(request);
+        }
+
+        private T IssueRequest<T>(SheetsBaseServiceRequest<T> request, bool logResponse = true) where T : Google.Apis.Requests.IDirectResponseSchema
+        {
+            SpreadsheetsResource.BatchUpdateRequest r;
             log.Debug("Issuing: " + request.GetType().NameFormatted());
             var response = request.Execute();
             log.Debug("Received response: " + response.GetType().NameFormatted());
             log.Debug(nameof(response.ETag) + ": " + response.ETag);
-            log.Debug("Set sheet values " + sheetName);
-            log.Debug(JsonConvert.SerializeObject(response));
-
-
-
+            if (logResponse) log.Debug(JsonConvert.SerializeObject(response));
+            return response;
         }
 
         public void SetData(string sheetName, Table table, int characterThreshold)
@@ -268,12 +256,12 @@ namespace HavokMultimedia.Utilities.Console.External
             if (table.GetNumberOfCells() > 5000000) throw new Exception("Cannot load table with " + table.GetNumberOfCells().ToStringCommas() + " cells, Google's limit is 5,000,000");
             int nullSize = 6;
 
-            List<string[]> list = new List<string[]>();
-            list.Add(table.Columns.Select(o => o.Name).ToArray());
+            log.Info("Adding columns [" + table.Columns.Select(o => o.Name).ToStringDelimited("], [") + "]");
+            var list = new List<string[]> { table.Columns.Select(o => o.Name).ToArray() };
             SetData(sheetName, list);
-            log.Info("Added columns");
             int rowsTotal = table.Count;
             int rowsCurrent = 0;
+            log.Info($"Adding {table.Count} rows");
             foreach (var rowChunk in table.GetRowsChunkedByNumberOfCharacters(characterThreshold, nullSize))
             {
                 list = new();
@@ -299,10 +287,7 @@ namespace HavokMultimedia.Utilities.Console.External
             SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, rangeString);
 
             log.Debug($"Querying {rangeString}");
-            log.Debug("Issuing: " + request.GetType().NameFormatted());
-            var response = request.Execute();
-            log.Debug("Received response: " + response.GetType().NameFormatted());
-            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+            var response = IssueRequest(request, logResponse: false);
             IList<IList<object>> responseValues = response.Values;
             var list = responseValues.AsDotNetList();
             log.Debug($"Query returned {list.Count} rows");
@@ -345,12 +330,8 @@ namespace HavokMultimedia.Utilities.Console.External
             request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
 
             log.Debug("Adding " + listOuter.Count + " rows to sheet " + sheetName);
-            log.Debug("Issuing: " + request.GetType().NameFormatted());
-            var response = request.Execute();
-            log.Debug("Received response: " + response.GetType().NameFormatted());
-            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+            IssueRequest(request);
             log.Debug("Added " + listOuter.Count + " rows to sheet " + sheetName);
-            log.Debug(JsonConvert.SerializeObject(response));
         }
 
         public void CreateSheet(string sheetName)
@@ -372,12 +353,8 @@ namespace HavokMultimedia.Utilities.Console.External
 
             var request = service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, spreadsheetId);
             log.Debug("Adding new sheet " + sheetName);
-            log.Debug("Issuing: " + request.GetType().NameFormatted());
-            var response = request.Execute();
-            log.Debug("Received response: " + response.GetType().NameFormatted());
-            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+            IssueRequest(request);
             log.Debug("Added new sheet " + sheetName);
-            log.Debug(JsonConvert.SerializeObject(response));
         }
 
         public void Dispose()
