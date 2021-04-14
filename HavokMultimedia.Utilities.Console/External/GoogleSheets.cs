@@ -48,6 +48,8 @@ namespace HavokMultimedia.Utilities.Console.External
             return list.AsReadOnly();
         }
         public static string GetGoogleColumnName(int index) => GOOGLE_COLUMNS.GetAtIndexOrDefault(index);
+        public static int DefaultSheetWidth => 26;
+        public static int DefaultSheetHeight => 100;
 
         private readonly SheetsService service;
         private readonly string spreadsheetId;
@@ -62,17 +64,42 @@ namespace HavokMultimedia.Utilities.Console.External
             this.spreadsheetId = spreadsheetId;
         }
 
-        public void ClearSheet(string sheetName)
+        #region Helpers
+
+        private (Sheet sheet, string sheetName) GetSheet(string sheetName, bool createSheet)
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null && createSheet)
+            {
+                CreateSheet(sheetName);
+                sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            }
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
             sheetName = sheet.Properties.Title;
+            return (sheet, sheetName);
+        }
 
-            ResizeSheet(sheetName, 26, 100);
-            FormatCellsDefault(sheetName, 0, 0, width: 26, height: 100);
+        private T IssueRequest<T>(SheetsBaseServiceRequest<T> request, bool logResponse = true) where T : Google.Apis.Requests.IDirectResponseSchema
+        {
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+            if (logResponse) log.Debug(JsonConvert.SerializeObject(response));
+            return response;
+        }
+
+        #endregion
+
+        public void ClearSheet(string sheetName)
+        {
+            sheetName = GetSheet(sheetName, false).sheetName;
+
+            ResizeSheet(sheetName, DefaultSheetWidth, DefaultSheetHeight);
+            FormatCellsDefault(sheetName, 0, 0, width: DefaultSheetWidth, height: DefaultSheetHeight);
 
             string range = sheetName + "!A1:ZZ";
-            ClearValuesRequest requestBody = new ClearValuesRequest();
+            var requestBody = new ClearValuesRequest();
             SpreadsheetsResource.ValuesResource.ClearRequest request = service.Spreadsheets.Values.Clear(requestBody, spreadsheetId, range);
             log.Debug("Clearing sheet " + sheetName);
             IssueRequest(request);
@@ -81,9 +108,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public void ResizeSheet(string sheetName, int columns, int rows)
         {
-            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
-            sheetName = sheet.Properties.Title;
+            sheetName = GetSheet(sheetName, false).sheetName;
 
             UpdateSheetPropertiesRequest updateSheetPropertiesRequest = new UpdateSheetPropertiesRequest();
             if (updateSheetPropertiesRequest.Properties == null) updateSheetPropertiesRequest.Properties = new SheetProperties();
@@ -104,16 +129,10 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public void FormatCells(string sheetName, CellFormat cellFormat, GridRange range)
         {
-            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
-            sheetName = sheet.Properties.Title;
-            int sheetId = sheet.GetId();
+            sheetName = GetSheet(sheetName, false).sheetName;
 
-            //define cell color
-            var userEnteredFormat = cellFormat;
             BatchUpdateSpreadsheetRequest bussr = new BatchUpdateSpreadsheetRequest();
 
-            //create the update request for cells from the first row
             var updateCellsRequest = new Request()
             {
                 RepeatCell = new RepeatCellRequest()
@@ -123,8 +142,8 @@ namespace HavokMultimedia.Utilities.Console.External
                     Fields = "UserEnteredFormat(BackgroundColor,TextFormat)"
                 }
             };
-            bussr.Requests = new List<Request>();
-            bussr.Requests.Add(updateCellsRequest);
+            bussr.Requests = new List<Request> { updateCellsRequest };
+
             var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
 
             log.Debug("Updating cell format for sheet " + sheetName);
@@ -132,29 +151,6 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug("Updated cell format for sheet " + sheetName);
         }
 
-        public void FormatCellsDefault(
-            string sheetName,
-            int indexX,
-            int indexY,
-            int width = 1,
-            int height = 1
-            )
-        {
-            FormatCells(
-                sheetName,
-                indexX,
-                indexY,
-                width: width,
-                height: height,
-                backgroundColor: System.Drawing.Color.White,
-                foregroundColor: System.Drawing.Color.Black,
-                bold: false,
-                italic: false,
-                underline: false,
-                strikethrough: false,
-                fontFamily: "Arial"
-                );
-        }
         public void FormatCells(
             string sheetName,
             int indexX,
@@ -170,8 +166,9 @@ namespace HavokMultimedia.Utilities.Console.External
             string fontFamily = null
             )
         {
-            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
+            var sheetAndName = GetSheet(sheetName, false);
+            var sheet = sheetAndName.sheet;
+            sheetName = sheetAndName.sheetName;
 
             var cellFormat = new CellFormat();
             if (backgroundColor != null) cellFormat.BackgroundColor = backgroundColor.Value.ToGoogleColor();
@@ -196,18 +193,27 @@ namespace HavokMultimedia.Utilities.Console.External
 
         }
 
-
+        public void FormatCellsDefault(string sheetName, int indexX, int indexY, int width = 1, int height = 1)
+        {
+            FormatCells(
+                sheetName,
+                indexX,
+                indexY,
+                width: width,
+                height: height,
+                backgroundColor: System.Drawing.Color.White,
+                foregroundColor: System.Drawing.Color.Black,
+                bold: false,
+                italic: false,
+                underline: false,
+                strikethrough: false,
+                fontFamily: "Arial"
+                );
+        }
 
         public void SetData(string sheetName, List<string[]> data)
         {
-            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            if (sheet == null)
-            {
-                CreateSheet(sheetName);
-                sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            }
-            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
-            sheetName = sheet.Properties.Title;
+            sheetName = GetSheet(sheetName, true).sheetName;
 
             ClearSheet(sheetName);
             ResizeSheet(sheetName, data.MaxLength(), data.Count);
@@ -240,17 +246,6 @@ namespace HavokMultimedia.Utilities.Console.External
             IssueRequest(request);
         }
 
-        private T IssueRequest<T>(SheetsBaseServiceRequest<T> request, bool logResponse = true) where T : Google.Apis.Requests.IDirectResponseSchema
-        {
-            SpreadsheetsResource.BatchUpdateRequest r;
-            log.Debug("Issuing: " + request.GetType().NameFormatted());
-            var response = request.Execute();
-            log.Debug("Received response: " + response.GetType().NameFormatted());
-            log.Debug(nameof(response.ETag) + ": " + response.ETag);
-            if (logResponse) log.Debug(JsonConvert.SerializeObject(response));
-            return response;
-        }
-
         public void SetData(string sheetName, Table table, int characterThreshold)
         {
             if (table.GetNumberOfCells() > 5000000) throw new Exception("Cannot load table with " + table.GetNumberOfCells().ToStringCommas() + " cells, Google's limit is 5,000,000");
@@ -275,13 +270,9 @@ namespace HavokMultimedia.Utilities.Console.External
             ResizeSheet(sheetName, table.Columns.Count, table.Count + 1);
         }
 
-
-
         public List<string[]> Query(string sheetName, string range = "A1:ZZ")
         {
-            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
-            sheetName = sheet.Properties.Title;
+            sheetName = GetSheet(sheetName, false).sheetName;
 
             string rangeString = sheetName + "!" + (range ?? "A1:ZZ");
             SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, rangeString);
@@ -295,21 +286,11 @@ namespace HavokMultimedia.Utilities.Console.External
             return list;
         }
 
-        public void AddRow(string sheetName, params string[] rowValues)
-        {
-            AddRows(sheetName, new List<string[]> { rowValues });
-        }
+        public void AddRow(string sheetName, params string[] rowValues) => AddRows(sheetName, new List<string[]> { rowValues });
 
         public void AddRows(string sheetName, IList<string[]> rows)
         {
-            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            if (sheet == null)
-            {
-                CreateSheet(sheetName);
-                sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            }
-            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
-            sheetName = sheet.Properties.Title;
+            sheetName = GetSheet(sheetName, true).sheetName;
 
             // TODO: Assign values to desired properties of `requestBody`:
             var requestBody = new ValueRange();
