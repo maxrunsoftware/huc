@@ -11,11 +11,11 @@ HUC is a simple to use open source command line tool for performing various task
 - [Windows Task Scheduler Management](#windows-task-scheduler)
 - [File String Replacement](#file-replacement)
 - [File Appending](#file-appending)
+- [File Checksums](#file-checksum)
 - [Web Server](#web-server)
 - [SSH](#ssh)
 - [Google Sheets Interaction](#google-sheets)
 - [Helper Utility Functions](#helper-functions)
-- [File Checksums](#file-checksum)
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
