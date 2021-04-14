@@ -28,6 +28,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Loads a tab delimited data file into a Google Sheet");
             help.AddParameter("sheetName", "s", "The spreadsheet sheet name/tab to upload to (default first sheet)");
             help.AddParameter("columns", "c", "The command delimited list of columns to load (all columns)");
+            help.AddParameter("characterThreshold", "ct", "Batch size character limit, Google request must be less then 10MB, you should usually leave this as default (1000000)");
             help.AddValue("<tab delimited data file>");
         }
 
@@ -36,7 +37,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.Execute();
             var sheetName = GetArgParameterOrConfig("sheetName", "s");
             var columns = GetArgParameterOrConfig("columns", "c").TrimOrNull();
-
+            var characterThreshold = GetArgParameterOrConfigInt("characterThreshold", "ct", 1000000);
 
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
             var dataFileName = values.GetAtIndexOrDefault(0);
@@ -69,7 +70,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             using (var c = CreateConnection())
             {
                 log.Info("Loading data");
-                c.SetData(sheetName, table);
+                c.SetData(sheetName, table, characterThreshold);
                 log.Info("Data loaded");
             }
         }
