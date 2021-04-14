@@ -68,10 +68,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             using (var c = CreateConnection())
             {
-                log.Info("Clearing sheet");
-                c.ClearSheet(sheetName);
-                log.Info("Cleared sheet");
-
                 log.Info("Loading data");
                 c.SetData(sheetName, table);
                 log.Info("Data loaded");

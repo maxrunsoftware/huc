@@ -277,6 +277,9 @@ namespace HavokMultimedia.Utilities.Console.External
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
             sheetName = sheet.Properties.Title;
 
+            ClearSheet(sheetName);
+            ResizeSheet(sheetName, data.MaxLength(), data.Count);
+
             int numberOfColumns = 0;
             foreach (var row in data) numberOfColumns = Math.Max(numberOfColumns, row.Length);
 
@@ -359,7 +362,8 @@ namespace HavokMultimedia.Utilities.Console.External
                 log.Info("Added rows " + Util.FormatRunningCount(rowsCurrent - 1, rowsTotal) + "   + " + list.Count);
             }
 
-            FormatCellsDefault(sheetName, 0, 0, width: table.Columns.Count, height: table.Count);
+            FormatCellsDefault(sheetName, 0, 0, width: table.Columns.Count, height: table.Count + 1);
+            ResizeSheet(sheetName, table.Columns.Count, table.Count + 1);
         }
 
 
