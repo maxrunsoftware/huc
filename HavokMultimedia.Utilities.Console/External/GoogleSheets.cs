@@ -68,6 +68,9 @@ namespace HavokMultimedia.Utilities.Console.External
             if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
             sheetName = sheet.Properties.Title;
 
+            ResizeSheet(sheetName, 26, 100);
+            FormatCellsDefault(sheetName, 0, 0, width: 26, height: 100);
+
             string range = sheetName + "!A1:ZZ";
             ClearValuesRequest requestBody = new ClearValuesRequest();
             SpreadsheetsResource.ValuesResource.ClearRequest request = service.Spreadsheets.Values.Clear(requestBody, spreadsheetId, range);
@@ -78,6 +81,34 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug(nameof(response.ETag) + ": " + response.ETag);
             log.Debug("Cleared sheet " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
+        }
+
+        public void ResizeSheet(string sheetName, int columns, int rows)
+        {
+            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
+            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
+            sheetName = sheet.Properties.Title;
+
+            UpdateSheetPropertiesRequest updateSheetPropertiesRequest = new UpdateSheetPropertiesRequest();
+            if (updateSheetPropertiesRequest.Properties == null) updateSheetPropertiesRequest.Properties = new SheetProperties();
+            if (updateSheetPropertiesRequest.Properties.GridProperties == null) updateSheetPropertiesRequest.Properties.GridProperties = new GridProperties();
+            updateSheetPropertiesRequest.Properties.GridProperties.ColumnCount = columns;
+            updateSheetPropertiesRequest.Properties.GridProperties.RowCount = rows;
+            updateSheetPropertiesRequest.Fields = "gridProperties";
+
+            BatchUpdateSpreadsheetRequest bussr = new BatchUpdateSpreadsheetRequest();
+
+            bussr.Requests = new List<Request>();
+            bussr.Requests.Add(new Request() { UpdateSheetProperties = updateSheetPropertiesRequest });
+            var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
+            log.Debug("Clearing sheet " + sheetName);
+            log.Debug("Issuing: " + request.GetType().NameFormatted());
+            var response = request.Execute();
+            log.Debug("Received response: " + response.GetType().NameFormatted());
+            log.Debug(nameof(response.ETag) + ": " + response.ETag);
+            log.Debug("Cleared sheet " + sheetName);
+            log.Debug(JsonConvert.SerializeObject(response));
+
         }
 
         public void FormatCells(string sheetName, CellFormat cellFormat, GridRange range)
@@ -115,7 +146,29 @@ namespace HavokMultimedia.Utilities.Console.External
 
         }
 
-
+        public void FormatCellsDefault(
+            string sheetName,
+            int indexX,
+            int indexY,
+            int width = 1,
+            int height = 1
+            )
+        {
+            FormatCells(
+                sheetName,
+                indexX,
+                indexY,
+                width: width,
+                height: height,
+                backgroundColor: System.Drawing.Color.White,
+                foregroundColor: System.Drawing.Color.Black,
+                bold: false,
+                italic: false,
+                underline: false,
+                strikethrough: false,
+                fontFamily: "Arial"
+                );
+        }
         public void FormatCells(
             string sheetName,
             int indexX,
@@ -213,7 +266,6 @@ namespace HavokMultimedia.Utilities.Console.External
 
         }
 
-
         public void SetData(string sheetName, List<string[]> data)
         {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
@@ -286,32 +338,30 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public void SetData(string sheetName, Table table)
         {
+            int numberOfCells = table.Count * table.Columns.Count;
+            if (table.Count * table.Columns.Count > 5000000) throw new Exception("Cannot load table with " + numberOfCells.ToStringCommas() + " cells, Google's limit is 5,000,000");
+            int nullSize = 6;
+            int thresholdSize = 1000000;
+
+
             List<string[]> list = new List<string[]>();
             list.Add(table.Columns.Select(o => o.Name).ToArray());
-            foreach (var row in table)
-            {
-                var list2 = new List<string>();
-                foreach (var item in row)
-                {
-                    list2.Add(item);
-                }
-                list.Add(list2.ToArray());
-            }
             SetData(sheetName, list);
+            log.Info("Added columns");
+            int rowsTotal = table.Count;
+            int rowsCurrent = 0;
+            foreach (var rowChunk in table.GetRowsChunkedByNumberOfCharacters(thresholdSize, nullSize))
+            {
+                list = new();
+                foreach (var row in rowChunk) list.Add(row.ToArray());
+                AddRows(sheetName, list);
+                rowsCurrent += list.Count;
+                log.Info("Added rows " + Util.FormatRunningCount(rowsCurrent - 1, rowsTotal) + "   + " + list.Count);
+            }
+
+            FormatCellsDefault(sheetName, 0, 0, width: table.Columns.Count, height: table.Count);
         }
 
-        public static IList<object> AsGoogleListInner(params string[] strs)
-        {
-            var list = new List<object>();
-            foreach (var str in strs) list.Add(str);
-            return list;
-        }
-        public static List<IList<object>> AsGoogleListOuter(params IList<object>[] lists)
-        {
-            var list = new List<IList<object>>();
-            foreach (var l in lists) list.Add(l);
-            return list;
-        }
 
 
         public List<string[]> Query(string sheetName, string range = "A1:ZZ")
@@ -337,6 +387,11 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public void AddRow(string sheetName, params string[] rowValues)
         {
+            AddRows(sheetName, new List<string[]> { rowValues });
+        }
+
+        public void AddRows(string sheetName, IList<string[]> rows)
+        {
             var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
             if (sheet == null)
             {
@@ -348,20 +403,29 @@ namespace HavokMultimedia.Utilities.Console.External
 
             // TODO: Assign values to desired properties of `requestBody`:
             var requestBody = new ValueRange();
-            requestBody.Values = AsGoogleListOuter(AsGoogleListInner(rowValues));
+            var listOuter = new List<IList<object>>();
+            foreach (var array in rows)
+            {
+                var listInner = new List<object>();
+                foreach (var str in array)
+                {
+                    listInner.Add(str);
+                }
+                listOuter.Add(listInner);
+            }
+            requestBody.Values = listOuter;
             string range = sheetName + "!A1:A1";
             SpreadsheetsResource.ValuesResource.AppendRequest request = service.Spreadsheets.Values.Append(requestBody, spreadsheetId, range);
             request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
             request.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
 
-            log.Debug("Adding row to sheet " + sheetName);
+            log.Debug("Adding " + listOuter.Count + " rows to sheet " + sheetName);
             log.Debug("Issuing: " + request.GetType().NameFormatted());
             var response = request.Execute();
             log.Debug("Received response: " + response.GetType().NameFormatted());
             log.Debug(nameof(response.ETag) + ": " + response.ETag);
-            log.Debug("Added row to sheet " + sheetName);
+            log.Debug("Added " + listOuter.Count + " rows to sheet " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
-
         }
 
         public void CreateSheet(string sheetName)

@@ -193,6 +193,63 @@ namespace HavokMultimedia.Utilities
 
         #endregion RemoveColumn
 
+        #region RemoveColumns
+
+        public Table RemoveColumns(params TableColumn[] columns)
+        {
+            var columnIndexesToRemove = new HashSet<int>();
+            foreach (var column in columns)
+            {
+                if (!Columns.ContainsColumn(column)) throw new Exception("Column [" + column.Index + ":" + column.Name + "] does not exist");
+                columnIndexesToRemove.Add(column.Index);
+            }
+
+            // All of the columns exist, let's build up our new table...
+            var header = new List<string>();
+            foreach (var column in Columns)
+            {
+                if (!columnIndexesToRemove.Contains(column.Index)) header.Add(column.Name);
+            }
+
+            var rows = new List<string[]>();
+            var newWidth = Columns.Count - columnIndexesToRemove.Count + 1;
+            foreach (var row in this)
+            {
+                var rowData = new List<string>(newWidth);
+                for (int i = 0; i < Columns.Count; i++)
+                {
+                    if (!columnIndexesToRemove.Contains(i)) rowData.Add(row[i]);
+                }
+                rows.Add(rowData.ToArray());
+            }
+
+            return Create(rows, header);
+        }
+
+        public Table RemoveColumns(params string[] columnNames)
+        {
+            var list = new List<TableColumn>();
+            foreach (var columnName in columnNames)
+            {
+                var column = Columns[columnName];
+                list.Add(column);
+            }
+            return RemoveColumns(list.ToArray());
+        }
+
+        public Table RemoveColumns(params int[] columnIndexes)
+        {
+            var list = new List<TableColumn>();
+            foreach (var columnIndex in columnIndexes)
+            {
+                var column = Columns[columnIndex];
+                list.Add(column);
+            }
+            return RemoveColumns(list.ToArray());
+        }
+
+        #endregion RemoveColumns
+
         #region RenameColumn
 
         public Table RenameColumn(TableColumn column, string newColumnName) => RenameColumn(column.CheckNotNull(nameof(column)).Index, newColumnName);
@@ -379,9 +436,16 @@ namespace HavokMultimedia.Utilities
 
         public bool ContainsColumn(int columnIndex) => TryGetColumn(columnIndex, out var column);
 
+        public bool ContainsColumn(TableColumn column) => ContainsColumn(column.Name) && ContainsColumn(column.Index);
+
         public IEnumerator<TableColumn> GetEnumerator() => columns.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public override string ToString()
+        {
+            return string.Join(", ", this);
+        }
     }
 
     public sealed class TableColumn
@@ -432,7 +496,6 @@ namespace HavokMultimedia.Utilities
 
     public sealed class TableRow : IReadOnlyList<string>, IBucketReadOnly<string, string>, IBucketReadOnly<TableColumn, string>
     {
-        private int numberOfCharacters = -1;
         private readonly string[] data;
         public Table Table { get; }
         public int RowIndex { get; }
@@ -478,18 +541,6 @@ namespace HavokMultimedia.Utilities
 
     public static class TableExtensions
     {
-        public static Table[] ExecuteQuery(this IDbCommand command)
-        {
-            Table[] ts = new Table[0];
-
-            using (var reader = command.ExecuteReader())
-            {
-                ts = Table.Create(reader);
-            }
-
-            return ts;
-        }
-
         public static IEnumerable<TableRow[]> GetRowsChunkedByNumberOfCharacters(this Table table, int maxNumberOfCharacters, int lengthOfNull)
         {
             var list = new List<TableRow>();
