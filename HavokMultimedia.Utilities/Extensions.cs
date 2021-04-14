@@ -1491,18 +1491,13 @@ namespace HavokMultimedia.Utilities
             yield return item;
         }
 
-        // Summary: Concatenates an item to the end of a sequence.
-        //
-        // Parameters: enumerable: The sequence to add an item to.
-        //
-        // item: The item to append to the end of the sequence.
-        //
-        // Type parameters: T: The type of the elements of the input sequence.
-        //
-        // Returns: An System.Collections.Generic.IEnumerable`1 that contains the concatenated
-        // elements of the enumerable with the item appended to the end.
-        //
-        // Exceptions: T:System.ArgumentNullException: enumerable is null.
+        /// <summary>
+        /// Concatenates an item to the end of a sequence
+        /// </summary>
+        /// <typeparam name="T">The type of the elements of the input sequence</typeparam>
+        /// <param name="enumerable">The sequence to add an item to</param>
+        /// <param name="item">The item to append to the end of the sequence</param>
+        /// <returns>An System.Collections.Generic.IEnumerable`1 that contains the concatenated elements of the enumerable with the item appended to the end</returns>
         public static IEnumerable<T> Concat<T>(this IEnumerable<T> enumerable, T item) => enumerable.Concat(item.Yield());
 
         public static T[][] SplitIntoParts<T>(this T[] array, int numberOfParts)
@@ -1647,7 +1642,12 @@ namespace HavokMultimedia.Utilities
             return l;
         }
 
-
+        /// <summary>
+        /// Casts each item to type T
+        /// </summary>
+        /// <typeparam name="T">The type to cast to</typeparam>
+        /// <param name="enumerable">The enumerable to cast</param>
+        /// <returns>A list containing all of the casted elements of the enumerable</returns>
         public static List<T> ToList<T>(this CollectionBase enumerable)
         {
             var l = new List<T>();
@@ -1660,6 +1660,12 @@ namespace HavokMultimedia.Utilities
 
         }
 
+        /// <summary>
+        /// Processes an action on each element in an enumerable
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="value">The enumerable to process</param>
+        /// <param name="action">The action to execute on each item in enumerable</param>
         public static void ForEach<T>(this IEnumerable<T> value, Action<T> action)
         {
             foreach (var item in value)
@@ -1668,14 +1674,38 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        /// <summary>
+        /// If the array is null then returns an empty array
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="array">The array to check for null</param>
+        /// <returns>The same array or if null an empty array</returns>
         public static T[] OrEmpty<T>(this T[] array) => array ?? Array.Empty<T>();
 
+        /// <summary>
+        /// If the enumerable is null then returns an empty enumerable
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="enumerable">The enumerable to check for null</param>
+        /// <returns>The same enumerable or if null an empty enumerable</returns>
         public static IEnumerable<T> OrEmpty<T>(this IEnumerable<T> enumerable) => enumerable ?? Enumerable.Empty<T>();
 
+        /// <summary>
+        /// If the string is null then returns an empty string
+        /// </summary>
+        /// <param name="str">The string to check for null</param>
+        /// <returns>The same string or an empty string if null</returns>
         public static string OrEmpty(this string str) => str ?? string.Empty;
 
         public static T DequeueOrDefault<T>(this Queue<T> queue) => queue.Count < 1 ? default : queue.Dequeue();
 
+        /// <summary>
+        /// Resizes an array and returns a new array
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="array">The array to resize</param>
+        /// <param name="newLength">The length of the new array</param>
+        /// <returns>A new array of length newLength</returns>
         public static T[] Resize<T>(this T[] array, int newLength)
         {
             if (array == null) return null;
@@ -1704,6 +1734,13 @@ namespace HavokMultimedia.Utilities
                 if (list[i] != null) list[i] = list[i].Resize(newLength);
             }
         }
+
+        /// <summary>
+        /// Determines which array is longest and returns that array's length
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="enumerable">The enumerable to search</param>
+        /// <returns>The size of the longest array</returns>
         public static int MaxLength<T>(this IEnumerable<T[]> enumerable)
         {
             int len = 0;
@@ -1713,7 +1750,15 @@ namespace HavokMultimedia.Utilities
             }
             return len;
         }
-        public static int MaxLength<T, TEnumerable>(this IEnumerable<TEnumerable> enumerable) where TEnumerable : ICollection<T>
+
+        /// <summary>
+        /// Determines which collection is longest and returns that collection's length
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <typeparam name="TCollection">The type of collection</typeparam>
+        /// <param name="enumerable">The enumerable to search</param>
+        /// <returns>The size of the longest collection</returns>
+        public static int MaxLength<T, TCollection>(this IEnumerable<TCollection> enumerable) where TCollection : ICollection<T>
         {
             int len = 0;
             foreach (var item in enumerable)
@@ -1722,6 +1767,7 @@ namespace HavokMultimedia.Utilities
             }
             return len;
         }
+
 
         public static void Populate<T>(this T[] array, T value)
         {
