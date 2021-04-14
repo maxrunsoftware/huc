@@ -422,6 +422,10 @@ namespace HavokMultimedia.Utilities
         public int MaxLength => maxLength.Value;
         public bool IsNullable => isNullable.Value;
         public Type Type => type.Value;
+
+        /// <summary>
+        /// If this column has a single decimal place then this is the max number of decimal digits
+        /// </summary>
         public int NumberOfDecimalPlaces => numberOfDecimalPlaces.Value;
 
         internal TableColumn(Table table, int index, string name)
