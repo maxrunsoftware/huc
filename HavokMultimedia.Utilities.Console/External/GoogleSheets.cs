@@ -210,61 +210,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         }
 
-        public void FormatCells(string sheetName)
-        {
-            var sheet = sheetName == null ? service.GetSpreadsheetSheetFirst(spreadsheetId) : service.GetSpreadsheetSheet(spreadsheetId, sheetName);
-            if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
-            sheetName = sheet.Properties.Title;
 
-
-            int sheetId = (int)sheet.Properties.SheetId;
-
-            //define cell color
-            var userEnteredFormat = new CellFormat()
-            {
-                BackgroundColor = new Color()
-                {
-                    Blue = 0,
-                    Red = 1,
-                    Green = (float)0.5,
-                    Alpha = (float)0.1
-                },
-                TextFormat = new TextFormat()
-                {
-                    Bold = true
-                }
-            };
-            BatchUpdateSpreadsheetRequest bussr = new BatchUpdateSpreadsheetRequest();
-
-            //create the update request for cells from the first row
-            var updateCellsRequest = new Request()
-            {
-                RepeatCell = new RepeatCellRequest()
-                {
-                    Range = new GridRange()
-                    {
-                        SheetId = sheetId,
-                        StartColumnIndex = 0,
-                        StartRowIndex = 0,
-                        EndColumnIndex = 1,
-                        EndRowIndex = 1
-                    },
-                    Cell = new CellData()
-                    {
-                        UserEnteredFormat = userEnteredFormat
-                    },
-                    Fields = "UserEnteredFormat(BackgroundColor,TextFormat)"
-                }
-            };
-            bussr.Requests = new List<Request>();
-            bussr.Requests.Add(updateCellsRequest);
-            var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
-            log.Debug("Issuing: " + request.GetType().NameFormatted());
-            var response = request.Execute();
-            log.Debug("Received response: " + response.GetType().NameFormatted());
-            log.Debug(nameof(response.ETag) + ": " + response.ETag);
-
-        }
 
         public void SetData(string sheetName, List<string[]> data)
         {
@@ -313,29 +259,7 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug("Set sheet values " + sheetName);
             log.Debug(JsonConvert.SerializeObject(response));
 
-            FormatCells(
-                sheetName,
-                0, 0,
-                width: numberOfColumns, height: googleData.Count,
-                backgroundColor: System.Drawing.Color.White,
-                foregroundColor: System.Drawing.Color.Black,
-                bold: false,
-                italic: false,
-                underline: false,
-                strikethrough: false
-                );
 
-            FormatCells(
-                sheetName,
-                0, 0,
-                width: numberOfColumns, height: 1,
-                backgroundColor: System.Drawing.Color.White,
-                foregroundColor: System.Drawing.Color.Black,
-                bold: true,
-                italic: false,
-                underline: false,
-                strikethrough: false
-                );
 
         }
 
