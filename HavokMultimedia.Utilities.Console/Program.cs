@@ -106,8 +106,13 @@ namespace HavokMultimedia.Utilities.Console
         private static void ShowBanner(Args a, Type command)
         {
             if (a.IsNoBanner) return;
-            if (command == null) log.Info(typeof(Program).Namespace + " " + HavokMultimedia.Utilities.Console.Version.Value);
-            else log.Info(typeof(Program).Namespace + " " + HavokMultimedia.Utilities.Console.Version.Value + " : " + command.Name);
+            string os = "";
+            if (Constant.OS_WINDOWS) os = " (Windows)";
+            else if (Constant.OS_UNIX) os = " (Linux)";
+            else if (Constant.OS_MAC) os = " (Mac)";
+
+            if (command == null) log.Info(typeof(Program).Namespace + " " + HavokMultimedia.Utilities.Console.Version.Value + os);
+            else log.Info(typeof(Program).Namespace + " " + HavokMultimedia.Utilities.Console.Version.Value + " : " + command.Name + os);
 
         }
 
