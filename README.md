@@ -15,6 +15,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [Web Server](#web-server)
 - [SSH](#ssh)
 - [Google Sheets Interaction](#google-sheets)
+- [Can use a properties file](#using-a-properties-file)
 - [Helper Utility Functions](#helper-functions)
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
