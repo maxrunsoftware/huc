@@ -279,7 +279,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                         sql.Append(sqlDbType);
                         if (sqlDbType.In(SqlDbType.NVarChar, SqlDbType.VarChar)) sql.Append("(" + (column.MaxLength > 4000 ? "MAX" : column.MaxLength) + ")");
                         else if (sqlDbType.In(SqlDbType.NChar, SqlDbType.Char)) sql.Append("(" + column.MaxLength + ")");
-                        else if (sqlDbType.In(SqlDbType.Decimal)) sql.Append("(" + (37 - column.NumberOfDecimalPlaces) + "," + column.NumberOfDecimalPlaces + ")");
+                        else if (sqlDbType.In(SqlDbType.Decimal)) sql.Append("(" + (37 - column.NumberOfDecimalDigits) + "," + column.NumberOfDecimalDigits + ")");
 
 
 

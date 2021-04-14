@@ -24,14 +24,21 @@ using System.Runtime.Serialization;
 namespace HavokMultimedia.Utilities
 {
     /// <summary>
-    /// Encapsulates a 2-diminsional array of string data into columns and rows. The table will never be jagged, all rows will have all columns.
-    /// Fields can be null. Columns must have names or they will be generated. Row limit is limited to int.MaxValue for all general purposes.
+    /// Encapsulates a 2-diminsional array of string data into immutable columns and rows. The table will never be jagged, all rows will have all columns.
+    /// Fields can be null. Columns must have names or they will be generated. Row limit is limited to int.MaxValue.
     /// </summary>
     [Serializable]
     public sealed class Table : ISerializable, IReadOnlyList<TableRow>
     {
+        /// <summary>
+        /// A unique ID for this table
+        /// </summary>
         public Guid Id { get; init; }
         private readonly IReadOnlyList<TableRow> rows;
+
+        /// <summary>
+        /// The columns in this table
+        /// </summary>
         public TableColumnCollection Columns { get; }
 
         private Table(IEnumerable<string[]> data, bool firstRowIsHeader)
@@ -108,7 +115,7 @@ namespace HavokMultimedia.Utilities
         public int Count => rows.Count;
 
         /// <summary>
-        /// Gets a specific row
+        /// Gets a specific row, or throws out of bounds exception
         /// </summary>
         /// <param name="rowIndex">The row index</param>
         /// <returns>The row</returns>
@@ -123,8 +130,6 @@ namespace HavokMultimedia.Utilities
         #region Create
 
         public static Table Create<TEnumerable>(IEnumerable<TEnumerable> data, bool firstRowIsHeader) where TEnumerable : class, IEnumerable<string> => new Table(data.CheckNotNull(nameof(data)).Where(o => o != null).Select(o => (o as string[]) ?? o.ToArray()), firstRowIsHeader);
-
-        // public static Table Create<TEnumerable>(IEnumerable<TEnumerable> data, TEnumerable header) where TEnumerable : class, IEnumerable<string> => Create(new List<TEnumerable> { header.CheckNotNull(nameof(header)) }.Concat(data.CheckNotNull(nameof(data))), true);
 
         public static Table Create<TEnumerableRow, TEnumerableHeader>(IEnumerable<TEnumerableRow> data, TEnumerableHeader header) where TEnumerableRow : class, IEnumerable<string> where TEnumerableHeader : class, IEnumerable<string> => Create(new List<IEnumerable<string>> { header.CheckNotNull(nameof(header)) }.Concat(data.CheckNotNull(nameof(data))), true);
 
@@ -163,7 +168,7 @@ namespace HavokMultimedia.Utilities
             var columnIndexesToRemove = new HashSet<int>();
             foreach (var column in columns)
             {
-                if (!Columns.ContainsColumn(column)) throw new Exception("Column [" + column.Index + ":" + column.Name + "] does not exist");
+                if (!Columns.ContainsColumn(column)) throw new Exception("Column [" + column.Index + ":" + column.Name + "] does not exist on table");
                 columnIndexesToRemove.Add(column.Index);
             }
 
@@ -215,14 +220,10 @@ namespace HavokMultimedia.Utilities
 
         #region RenameColumn
 
-        public Table RenameColumn(TableColumn column, string newColumnName) => RenameColumn(column.CheckNotNull(nameof(column)).Index, newColumnName);
-
-        public Table RenameColumn(string columnName, string newColumnName) => RenameColumn(Columns[columnName.CheckNotNullTrimmed(nameof(columnName))], newColumnName);
-
-        public Table RenameColumn(int columnIndex, string newColumnName)
+        public Table RenameColumn(TableColumn column, string newColumnName)
         {
-            var c = Columns[columnIndex]; // be sure column actually exists
-            columnIndex = c.Index;
+            if (!Columns.ContainsColumn(column.CheckNotNull(nameof(column)))) throw new Exception($"No column [{column.Index}:{column.Name}] is attached to this table {Id}");
+            var columnIndex = column.Index;
 
             newColumnName = newColumnName.CheckNotNullTrimmed(nameof(newColumnName));
 
@@ -234,6 +235,9 @@ namespace HavokMultimedia.Utilities
             }
             return Create(this, h);
         }
+        public Table RenameColumn(string columnName, string newColumnName) => RenameColumn(Columns[columnName.CheckNotNullTrimmed(nameof(columnName))], newColumnName);
+
+        public Table RenameColumn(int columnIndex, string newColumnName) => RenameColumn(Columns[columnIndex], newColumnName);
 
         #endregion RenameColumn
 
@@ -295,8 +299,11 @@ namespace HavokMultimedia.Utilities
 
         #endregion AddColumn
 
-
-
+        /// <summary>
+        /// Gets a sub-set of the current table rows by a predicate
+        /// </summary>
+        /// <param name="predicate">Whether to include the row or not</param>
+        /// <returns>A new table with a subset of the rows</returns>
         public Table Subset(Func<TableRow, bool> predicate)
         {
             var list = new List<IEnumerable<string>>(Count);
@@ -316,6 +323,7 @@ namespace HavokMultimedia.Utilities
     {
         private readonly IBucketReadOnly<string, TableColumn> columnNameCache;
         private readonly IReadOnlyList<TableColumn> columns;
+        private readonly HashSet<TableColumn> columnsSet;
         public IReadOnlyList<string> ColumnNames { get; }
 
         public int Count => columns.Count;
@@ -326,7 +334,8 @@ namespace HavokMultimedia.Utilities
         {
             this.columns = columns.CheckNotNull(nameof(columns)).WhereNotNull().ToList().AsReadOnly();
             ColumnNames = columns.Select(o => o.Name).ToList().AsReadOnly();
-
+            columnsSet = new HashSet<TableColumn>(this.columns);
+            // Use a fast cache for column name lookups by any case formatting
             columnNameCache = new BucketCacheCopyOnWrite<string, TableColumn>(columnName =>
             {
                 foreach (var sc in Constant.LIST_StringComparison)
@@ -404,7 +413,7 @@ namespace HavokMultimedia.Utilities
 
         public bool ContainsColumn(int columnIndex) => TryGetColumn(columnIndex, out var column);
 
-        public bool ContainsColumn(TableColumn column) => ContainsColumn(column.Name) && ContainsColumn(column.Index);
+        public bool ContainsColumn(TableColumn column) => columnsSet.Contains(column);
 
         public IEnumerator<TableColumn> GetEnumerator() => columns.GetEnumerator();
 
@@ -421,19 +430,42 @@ namespace HavokMultimedia.Utilities
         private readonly Lazy<Type> type;
         private readonly Lazy<int> maxLength;
         private readonly Lazy<bool> isNullable;
-        private readonly Lazy<int> numberOfDecimalPlaces;
+        private readonly Lazy<int> numberOfDecimalDigits;
+
+        /// <summary>
+        /// The Table this column is attached to
+        /// </summary>
         public Table Table { get; }
 
+        /// <summary>
+        /// The zero-based index of this column
+        /// </summary>
         public int Index { get; }
+
+        /// <summary>
+        /// The name of this column
+        /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// (lazy) The maximum string length for rows in this column
+        /// </summary>
         public int MaxLength => maxLength.Value;
+
+        /// <summary>
+        /// (lazy) If there is any null values in this column
+        /// </summary>
         public bool IsNullable => isNullable.Value;
+
+        /// <summary>
+        /// (lazy) Attempts to determine the type of this column by testing all values against various types
+        /// </summary>
         public Type Type => type.Value;
 
         /// <summary>
-        /// If this column is a =ihas a single decimal place then this is the max number of decimal digits
+        /// (lazy) If this column is a decimal, float, or double and has a single decimal place then this is the max number of decimal digits
         /// </summary>
-        public int NumberOfDecimalPlaces => numberOfDecimalPlaces.Value;
+        public int NumberOfDecimalDigits => numberOfDecimalDigits.Value;
 
         internal TableColumn(Table table, int index, string name)
         {
@@ -443,7 +475,7 @@ namespace HavokMultimedia.Utilities
             maxLength = new Lazy<int>(() => table.Max(row => row[Index] == null ? 0 : row[Index].Length));
             isNullable = new Lazy<bool>(() => table.Any(row => row[Index] == null));
             type = new Lazy<Type>(() => Util.GuessType(table.Select(o => o[Index])));
-            numberOfDecimalPlaces = new Lazy<int>(() => GetNumberOfDecimalPlaces(table, Index));
+            numberOfDecimalDigits = new Lazy<int>(() => GetNumberOfDecimalPlaces(table, Index));
         }
 
         private int GetNumberOfDecimalPlaces(Table table, int index)
@@ -464,6 +496,7 @@ namespace HavokMultimedia.Utilities
         }
 
         public override string ToString() => Name;
+
         public override bool Equals(object obj) => Equals(obj as TableColumn);
 
         public bool Equals(TableColumn other)
@@ -546,22 +579,14 @@ namespace HavokMultimedia.Utilities
             int currentSize = 0;
             foreach (var row in table)
             {
-                var len = row.GetNumberOfCharacters(lengthOfNull);
-                if (list.Count == 0)
+                if (list.Count > 0 && currentSize + row.GetNumberOfCharacters(lengthOfNull) >= maxNumberOfCharacters)
                 {
-                    list.Add(row);
-                }
-                else if (len + currentSize < maxNumberOfCharacters)
-                {
-                    list.Add(row);
-                }
-                else
-                {
+                    // adding the current row will result in us being too big so return what we have so far
                     yield return list.ToArray();
                     list = new();
                     currentSize = 0;
-                    list.Add(row);
                 }
+                list.Add(row);
                 currentSize += row.GetNumberOfCharacters(lengthOfNull);
 
             }
