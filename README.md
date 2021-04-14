@@ -15,6 +15,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [SSH](#ssh)
 - [Google Sheets Interaction](#google-sheets)
 - [Helper Utility Functions](#helper-functions)
+- [File Checksums](#file-checksum)
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
@@ -168,6 +169,17 @@ huc FileReplaceSting "Person" "Steve" mydoc.txt
 Append files file1.txt and file2.txt to mainfile.txt
 ```sh
 huc FileAppend mainfile.txt file1.txt file2.txt
+```
+&nbsp;
+### File Checksum
+Generate MD5 checksum for file MyFile.zip
+```sh
+huc FileChecksum MyFile.zip
+```
+
+Generate SHA512 checksum for files *.txt
+```sh
+huc FileChecksum -t=SHA512 *.txt
 ```
 &nbsp;
 ### Web Server
