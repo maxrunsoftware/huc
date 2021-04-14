@@ -86,7 +86,7 @@ namespace HavokMultimedia.Utilities.Console.External
             var response = request.Execute();
             log.Debug("Received response: " + response.GetType().NameFormatted());
             log.Debug(nameof(response.ETag) + ": " + response.ETag);
-            if (logResponse) log.Debug(JsonConvert.SerializeObject(response));
+            if (logResponse) log.Debug(Environment.NewLine + JsonConvert.SerializeObject(response, Formatting.Indented));
             log.Debug(afterMessage + " [" + sheetName + "]");
             return response;
         }
