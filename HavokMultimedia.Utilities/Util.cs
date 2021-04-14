@@ -359,10 +359,11 @@ namespace HavokMultimedia.Utilities
             if (decimalPlaces > 0) len += 1; // decimal
             len += decimalPlaces;
 
-            var dindex = (decimal)(index + 1);
-            var dtotal = (decimal)(total);
+            decimal dindex = index + 1;
+            var dtotal = total;
+            var dmultipler = 100;
 
-            return (dindex / dtotal).ToString(MidpointRounding.AwayFromZero, decimalPlaces).PadLeft(len) + " %";
+            return (dindex / dtotal * dmultipler).ToString(MidpointRounding.AwayFromZero, decimalPlaces).PadLeft(len) + " %";
         }
 
         /// <summary></summary>
