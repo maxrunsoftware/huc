@@ -30,11 +30,13 @@ namespace HavokMultimedia.Utilities
     [Serializable]
     public sealed class Table : ISerializable, IReadOnlyList<TableRow>
     {
+        public Guid Id { get; init; }
         private readonly IReadOnlyList<TableRow> rows;
         public TableColumnCollection Columns { get; }
 
         private Table(IEnumerable<string[]> data, bool firstRowIsHeader)
         {
+            Id = Guid.NewGuid();
             data.CheckNotNull(nameof(data));
 
             var rowData = new List<string[]>();
@@ -337,6 +339,11 @@ namespace HavokMultimedia.Utilities
 
         public TableColumn this[int columnIndex] => columns[columnIndex];
 
+        /// <summary>
+        /// Attempts to get a column with the specified name, or throws an ArgumentException if column was not found
+        /// </summary>
+        /// <param name="columnName">The name of the column to get</param>
+        /// <returns>The found column or throws an exception</returns>
         public TableColumn this[string columnName]
         {
             get
@@ -409,7 +416,7 @@ namespace HavokMultimedia.Utilities
         }
     }
 
-    public sealed class TableColumn
+    public sealed class TableColumn : IEquatable<TableColumn>
     {
         private readonly Lazy<Type> type;
         private readonly Lazy<int> maxLength;
@@ -457,6 +464,18 @@ namespace HavokMultimedia.Utilities
         }
 
         public override string ToString() => Name;
+        public override bool Equals(object obj) => Equals(obj as TableColumn);
+
+        public bool Equals(TableColumn other)
+        {
+            if (other == null) return false;
+            if (!other.Table.Id.Equals(Table.Id)) return false;
+            if (!other.Index.Equals(Index)) return false;
+            if (!string.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase)) return false;
+            return true;
+        }
+
+        public override int GetHashCode() => Util.GenerateHashCode(Table.Id, Index, Name.ToUpper());
     }
 
     public sealed class TableRow : IReadOnlyList<string>, IBucketReadOnly<string, string>, IBucketReadOnly<TableColumn, string>
@@ -506,6 +525,21 @@ namespace HavokMultimedia.Utilities
 
     public static class TableExtensions
     {
+        public static Table SetColumnsListTo(this Table table, params string[] columnNames)
+        {
+            var columnsToKeep = new HashSet<TableColumn>();
+            foreach (var columnName in columnNames)
+            {
+                columnsToKeep.Add(table.Columns[columnName]);
+            }
+            var columnsToRemove = new HashSet<TableColumn>();
+            foreach (var column in table.Columns)
+            {
+                if (!columnsToKeep.Contains(column)) columnsToRemove.Add(column);
+            }
+            return table.RemoveColumns(columnsToRemove.ToArray());
+        }
+
         public static IEnumerable<TableRow[]> GetRowsChunkedByNumberOfCharacters(this Table table, int maxNumberOfCharacters, int lengthOfNull)
         {
             var list = new List<TableRow>();

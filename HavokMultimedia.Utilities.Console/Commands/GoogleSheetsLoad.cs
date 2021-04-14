@@ -48,23 +48,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             if (columns != null)
             {
-                var columnNames = columns.Split(new string[] { "," }, System.StringSplitOptions.None).TrimOrNull().WhereNotNull().ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                foreach (var columnName in columnNames)
-                {
-                    if (!table.Columns.ContainsColumn(columnName))
-                    {
-                        throw new ArgsException(nameof(columns), "Table does not contain column [" + columnName + "]. Valid columns are " + table.Columns);
-                    }
-                }
-                var columnsToRemove = new List<string>();
-                foreach (var column in table.Columns)
-                {
-                    if (!columnNames.Contains(column.Name)) columnsToRemove.Add(column.Name);
-                }
-                log.Info("Reformatting table");
-                table = table.RemoveColumns(columnsToRemove.ToArray());
-                log.Info("Reformatted table");
+                var columnNamesToKeep = columns.Split(new string[] { "," }, System.StringSplitOptions.None).TrimOrNull().WhereNotNull().ToArray();
+                log.Info("Reformatting table to only keep columns [" + columnNamesToKeep.ToStringDelimited("], [") + "]");
+                table = table.SetColumnsListTo(columnNamesToKeep);
             }
 
             using (var c = CreateConnection())
