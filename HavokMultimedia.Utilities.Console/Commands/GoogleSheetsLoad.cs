@@ -48,7 +48,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             if (columns != null)
             {
-                var columnNamesToKeep = columns.Split(new string[] { "," }, System.StringSplitOptions.None).TrimOrNull().WhereNotNull().ToArray();
+                var columnNamesToKeep = columns.Split(",").TrimOrNull().WhereNotNull().ToArray();
                 log.Info("Reformatting table to only keep columns [" + columnNamesToKeep.ToStringDelimited("], [") + "]");
                 table = table.SetColumnsListTo(columnNamesToKeep);
             }
