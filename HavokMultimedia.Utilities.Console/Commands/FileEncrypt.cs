@@ -25,43 +25,31 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Encrypts a file");
-            help.AddParameter("base64", "b64", "Convert the file to base 64 (false)");
-            help.AddValue("<public key file> <file to encrypt> <optional new encrypted file>");
+            help.AddParameter("publicKey", "pk", "The public key file used to encrypt the data");
+            help.AddValue("<file to encrypt> <optional new encrypted file>");
         }
 
         protected override void Execute()
         {
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
-            var base64 = GetArgParameterOrConfigBool("base64", "b64", false);
-
-            var publicKeyFile = values.GetAtIndexOrDefault(0);
-            log.Debug($"{nameof(publicKeyFile)}: {publicKeyFile}");
-            if (publicKeyFile == null) throw new ArgsException(nameof(publicKeyFile), $"No {nameof(publicKeyFile)} specified");
+            var publicKeyFile = GetArgParameterOrConfigRequired("publicKey", "pk");
             publicKeyFile = Path.GetFullPath(publicKeyFile);
             CheckFileExists(publicKeyFile);
-            log.Debug($"{nameof(publicKeyFile)}: {publicKeyFile}");
-            var publicKey = ReadFile(publicKeyFile, Constant.ENCODING_UTF8_WITHOUT_BOM);
+            var publicKey = ReadFile(publicKeyFile);
 
-            var fileToEncrypt = values.GetAtIndexOrDefault(1);
+            var fileToEncrypt = values.GetAtIndexOrDefault(0);
             log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
             if (fileToEncrypt == null) throw new ArgsException(nameof(fileToEncrypt), $"No {nameof(fileToEncrypt)} specified to encrypt");
             fileToEncrypt = Path.GetFullPath(fileToEncrypt);
             CheckFileExists(fileToEncrypt);
             log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
 
-            var encryptedFile = values.GetAtIndexOrDefault(2);
-            log.Debug($"{nameof(encryptedFile)}: {encryptedFile}");
+            var encryptedFile = values.GetAtIndexOrDefault(1);
             if (encryptedFile == null) encryptedFile = fileToEncrypt;
             log.Debug($"{nameof(encryptedFile)}: {encryptedFile}");
 
             var fileToEncryptData = Util.FileRead(fileToEncrypt);
             var encryptedData = Encryption.Encrypt(publicKey, fileToEncryptData);
-            if (base64)
-            {
-                var base64Data = Util.Base64(encryptedData);
-                encryptedData = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(base64Data);
-            }
-
             Util.FileWrite(encryptedFile, encryptedData);
         }
     }
