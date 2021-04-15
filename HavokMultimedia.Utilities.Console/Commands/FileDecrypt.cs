@@ -25,6 +25,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Decrypts a file");
+            help.AddDetail("Either password or privateKey can be specified but not both");
+            help.AddParameter("password", "p", "The password to encrypt the file with");
             help.AddParameter("privateKey", "pk", "The private key file used to decrypt the data");
             help.AddValue("<file to decrypt> <optional new decrypted file>");
         }
@@ -32,10 +34,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void Execute()
         {
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
-            var privateKeyFile = GetArgParameterOrConfigRequired("privateKey", "pk");
-            privateKeyFile = Path.GetFullPath(privateKeyFile);
-            CheckFileExists(privateKeyFile);
-            var privateKey = ReadFile(privateKeyFile);
+
+            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
+            var privateKeyFile = GetArgParameterOrConfig("privateKey", "pk");
+            if (password == null && privateKeyFile == null) throw new ArgsException(nameof(password), $"Either password or privateKey must be specified");
+            if (password != null && privateKeyFile != null) throw new ArgsException(nameof(password), $"Both password and privateKey can not be specified at the same time");
 
             var fileToDecrypt = values.GetAtIndexOrDefault(0);
             log.Debug($"{nameof(fileToDecrypt)}: {fileToDecrypt}");
@@ -48,9 +51,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (decryptedFile == null) decryptedFile = fileToDecrypt;
             log.Debug($"{nameof(decryptedFile)}: {decryptedFile}");
 
-            var fileToDecryptData = Util.FileRead(fileToDecrypt);
-            var decryptedData = Encryption.Decrypt(privateKey, fileToDecryptData);
+            var fileToDecryptData = ReadFileBinary(fileToDecrypt);
+            byte[] decryptedData;
+            if (password != null)
+            {
+                var passwordBytes = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password);
+                decryptedData = Encryption.Decrypt(passwordBytes, fileToDecryptData);
+            }
+            else
+            {
+                var privateKey = ReadFile(privateKeyFile);
+                decryptedData = Encryption.Decrypt(privateKey, fileToDecryptData);
+            }
             WriteFileBinary(decryptedFile, decryptedData);
+            log.Info("Created decrypted file " + decryptedFile);
         }
     }
 }

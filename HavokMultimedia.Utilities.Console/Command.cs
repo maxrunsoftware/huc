@@ -116,6 +116,7 @@ namespace HavokMultimedia.Utilities.Console
         protected string ReadFile(string path, Encoding encoding = null)
         {
             string data;
+            path = Path.GetFullPath(path);
             log.Debug($"Reading text file {path}");
             using (Util.Diagnostic(log.Trace))
             {
@@ -129,6 +130,7 @@ namespace HavokMultimedia.Utilities.Console
         protected byte[] ReadFileBinary(string path)
         {
             byte[] data;
+            path = Path.GetFullPath(path);
             log.Debug($"Reading binary file {path}");
             using (Util.Diagnostic(log.Trace))
             {
@@ -141,6 +143,7 @@ namespace HavokMultimedia.Utilities.Console
 
         protected void WriteFile(string path, string data, Encoding encoding = null)
         {
+            path = Path.GetFullPath(path);
             log.Debug($"Writing text file {path}   {data.Length} characters");
             using (Util.Diagnostic(log.Trace))
             {
@@ -152,6 +155,7 @@ namespace HavokMultimedia.Utilities.Console
 
         protected void WriteFileBinary(string path, byte[] data)
         {
+            path = Path.GetFullPath(path);
             log.Debug($"Writing binary file {path}   {data.Length} bytes");
             using (Util.Diagnostic(log.Trace))
             {

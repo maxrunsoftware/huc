@@ -25,6 +25,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Encrypts a file");
+            help.AddDetail("Either password or publicKey can be specified but not both");
+            help.AddParameter("password", "p", "The password to encrypt the file with");
             help.AddParameter("publicKey", "pk", "The public key file used to encrypt the data");
             help.AddValue("<file to encrypt> <optional new encrypted file>");
         }
@@ -32,10 +34,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void Execute()
         {
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
-            var publicKeyFile = GetArgParameterOrConfigRequired("publicKey", "pk");
-            publicKeyFile = Path.GetFullPath(publicKeyFile);
-            CheckFileExists(publicKeyFile);
-            var publicKey = ReadFile(publicKeyFile);
+
+            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
+            var publicKeyFile = GetArgParameterOrConfig("publicKey", "pk").TrimOrNull();
+            if (password == null && publicKeyFile == null) throw new ArgsException(nameof(password), $"Either password or publicKey must be specified");
+            if (password != null && publicKeyFile != null) throw new ArgsException(nameof(password), $"Both password and publicKey can not be specified at the same time");
 
             var fileToEncrypt = values.GetAtIndexOrDefault(0);
             log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
@@ -48,9 +51,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (encryptedFile == null) encryptedFile = fileToEncrypt;
             log.Debug($"{nameof(encryptedFile)}: {encryptedFile}");
 
-            var fileToEncryptData = Util.FileRead(fileToEncrypt);
-            var encryptedData = Encryption.Encrypt(publicKey, fileToEncryptData);
+            var fileToEncryptData = ReadFileBinary(fileToEncrypt);
+            byte[] encryptedData;
+            if (password != null)
+            {
+                var passwordBytes = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password);
+                encryptedData = Encryption.Encrypt(passwordBytes, fileToEncryptData);
+            }
+            else
+            {
+                var publicKey = ReadFile(publicKeyFile);
+                encryptedData = Encryption.Encrypt(publicKey, fileToEncryptData);
+            }
             WriteFileBinary(encryptedFile, encryptedData);
+            log.Info("Created encrypted file " + encryptedFile);
         }
     }
 }

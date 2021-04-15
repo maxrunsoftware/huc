@@ -1645,6 +1645,17 @@ namespace HavokMultimedia.Utilities
             return result;
         }
 
+        public static (T[], T[]) Split<T>(this T[] array, int index)
+        {
+            var array1 = new T[index];
+            var array2 = new T[array.Length - index];
+
+            Buffer.BlockCopy(array, 0, array1, 0, array1.Length);
+            Buffer.BlockCopy(array, index, array2, 0, array2.Length);
+
+            return (array1, array2);
+        }
+
         public static List<T> ToListReversed<T>(this IEnumerable<T> enumerable)
         {
             var l = enumerable.ToList();

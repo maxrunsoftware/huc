@@ -23,43 +23,30 @@ namespace HavokMultimedia.Utilities.Console.External
 {
     public class Encryption
     {
-        public static byte[] EncryptAsymetric(string publicKey, byte[] data)
+        private static byte[] RandomBytes(int length)
         {
-            using (var rsa = RSA.Create())
-            {
-                rsa.ImportFromPem(publicKey.ToCharArray());
-                return rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA512);
-            }
+            var array = new byte[length];
+            using (var rng = RandomNumberGenerator.Create()) rng.GetBytes(array);
+            return array;
         }
 
-        public static byte[] DecryptAsymetric(string privateKey, byte[] data)
-        {
-            using (var rsa = RSA.Create())
-            {
-                rsa.ImportFromPem(privateKey.ToCharArray());
-                return rsa.Decrypt(data, RSAEncryptionPadding.OaepSHA512);
-            }
-        }
+        public static byte[] EncryptAsymetric(string pemPublicKey, byte[] data) => Util.EncryptionEncryptAsymetric(pemPublicKey, data, RSAEncryptionPadding.OaepSHA512);
 
-        public static byte[] EncryptSymetric(byte[] password, byte[] data)
-        {
-            return SuiteB.Encrypt(password, data);
-        }
+        public static byte[] DecryptAsymetric(string pemPrivateKey, byte[] data) => Util.EncryptionDecryptAsymetric(pemPrivateKey, data, RSAEncryptionPadding.OaepSHA512);
 
-        public static byte[] DecryptSymetric(byte[] password, byte[] data)
-        {
-            return SuiteB.Decrypt(password, data);
-        }
+        public static byte[] EncryptSymetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Encrypt(password, data, salt);
 
+        public static byte[] DecryptSymetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Decrypt(password, data, salt);
+
+        public static (string publicKey, string privateKey) GenerateKeyPair(int length) => Util.EncryptionGeneratePublicPrivateKeys(length);
 
         public static byte[] Encrypt(string publicKey, byte[] data)
         {
-            byte[] password = new byte[256];
-            using (var rng = RandomNumberGenerator.Create()) rng.GetBytes(password);
+            byte[] password = RandomBytes(256);
 
             var encryptedData = EncryptSymetric(password, data);
             var encryptedPass = EncryptAsymetric(publicKey, password);
-
+            if (encryptedPass.Length != 512) throw new Exception("Expecting encrypted password length of 512 but was " + encryptedPass.Length);
             var result = encryptedPass.Append(encryptedData);
 
             return result;
@@ -67,12 +54,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static byte[] Decrypt(string privateKey, byte[] data)
         {
-            int asymetricKeyLength = 512;
-            var encryptedPass = new byte[asymetricKeyLength];
-            Buffer.BlockCopy(data, 0, encryptedPass, 0, encryptedPass.Length);
-
-            var encryptedData = new byte[data.Length - asymetricKeyLength];
-            Buffer.BlockCopy(data, asymetricKeyLength, encryptedData, 0, encryptedData.Length);
+            var (encryptedPass, encryptedData) = data.Split(512);
 
             var decryptedPass = DecryptAsymetric(privateKey, encryptedPass);
             var decryptedData = DecryptSymetric(decryptedPass, encryptedData);
@@ -80,177 +62,24 @@ namespace HavokMultimedia.Utilities.Console.External
             return decryptedData;
         }
 
-        public static (string publicKey, string privateKey) GenerateKeyPair(int length = 1024)
+        public static byte[] Encrypt(byte[] password, byte[] data)
         {
-            using (var rsa = RSA.Create(length))
-            {
-                //rsa.ExportParameters(true);
-                string publicKey = ExportPublicKey(rsa);
-                string privateKey = ExportPrivateKey(rsa);
-                return (publicKey, privateKey);
-            }
+            byte[] salt = new byte[256];
+
+            var encryptedData = EncryptSymetric(password, data, salt);
+
+            var result = salt.Append(encryptedData);
+
+            return result;
         }
 
-        private static string ExportPrivateKey(RSA rsa)
+        public static byte[] Decrypt(byte[] password, byte[] data)
         {
-            var sb = new StringWriter();
-            ExportPrivateKey(rsa, sb);
-            return sb.ToString();
-        }
+            var (salt, encryptedData) = data.Split(256);
 
-        private static string ExportPublicKey(RSA rsa)
-        {
-            var sb = new StringWriter();
-            ExportPublicKey(rsa, sb);
-            return sb.ToString();
-        }
+            var decryptedData = DecryptSymetric(password, encryptedData, salt);
 
-        private static void ExportPrivateKey(RSA csp, TextWriter outputStream)
-        {
-            // https://stackoverflow.com/a/23739932
-            var parameters = csp.ExportParameters(true);
-            using (var stream = new MemoryStream())
-            {
-                var writer = new BinaryWriter(stream);
-                writer.Write((byte)0x30); // SEQUENCE
-                using (var innerStream = new MemoryStream())
-                {
-                    var innerWriter = new BinaryWriter(innerStream);
-                    EncodeIntegerBigEndian(innerWriter, new byte[] { 0x00 }); // Version
-                    EncodeIntegerBigEndian(innerWriter, parameters.Modulus);
-                    EncodeIntegerBigEndian(innerWriter, parameters.Exponent);
-                    EncodeIntegerBigEndian(innerWriter, parameters.D);
-                    EncodeIntegerBigEndian(innerWriter, parameters.P);
-                    EncodeIntegerBigEndian(innerWriter, parameters.Q);
-                    EncodeIntegerBigEndian(innerWriter, parameters.DP);
-                    EncodeIntegerBigEndian(innerWriter, parameters.DQ);
-                    EncodeIntegerBigEndian(innerWriter, parameters.InverseQ);
-                    var length = (int)innerStream.Length;
-                    EncodeLength(writer, length);
-                    writer.Write(innerStream.GetBuffer(), 0, length);
-                }
-
-                var base64 = Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length).ToCharArray();
-                outputStream.WriteLine("-----BEGIN RSA PRIVATE KEY-----");
-                // Output as Base64 with lines chopped at 64 characters
-                for (var i = 0; i < base64.Length; i += 64)
-                {
-                    outputStream.WriteLine(base64, i, Math.Min(64, base64.Length - i));
-                }
-                outputStream.WriteLine("-----END RSA PRIVATE KEY-----");
-            }
-        }
-
-        private static void ExportPublicKey(RSA csp, TextWriter outputStream)
-        {
-            // https://stackoverflow.com/a/28407693
-            var parameters = csp.ExportParameters(false);
-            using (var stream = new MemoryStream())
-            {
-                var writer = new BinaryWriter(stream);
-                writer.Write((byte)0x30); // SEQUENCE
-                using (var innerStream = new MemoryStream())
-                {
-                    var innerWriter = new BinaryWriter(innerStream);
-                    innerWriter.Write((byte)0x30); // SEQUENCE
-                    EncodeLength(innerWriter, 13);
-                    innerWriter.Write((byte)0x06); // OBJECT IDENTIFIER
-                    var rsaEncryptionOid = new byte[] { 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01 };
-                    EncodeLength(innerWriter, rsaEncryptionOid.Length);
-                    innerWriter.Write(rsaEncryptionOid);
-                    innerWriter.Write((byte)0x05); // NULL
-                    EncodeLength(innerWriter, 0);
-                    innerWriter.Write((byte)0x03); // BIT STRING
-                    using (var bitStringStream = new MemoryStream())
-                    {
-                        var bitStringWriter = new BinaryWriter(bitStringStream);
-                        bitStringWriter.Write((byte)0x00); // # of unused bits
-                        bitStringWriter.Write((byte)0x30); // SEQUENCE
-                        using (var paramsStream = new MemoryStream())
-                        {
-                            var paramsWriter = new BinaryWriter(paramsStream);
-                            EncodeIntegerBigEndian(paramsWriter, parameters.Modulus); // Modulus
-                            EncodeIntegerBigEndian(paramsWriter, parameters.Exponent); // Exponent
-                            var paramsLength = (int)paramsStream.Length;
-                            EncodeLength(bitStringWriter, paramsLength);
-                            bitStringWriter.Write(paramsStream.GetBuffer(), 0, paramsLength);
-                        }
-                        var bitStringLength = (int)bitStringStream.Length;
-                        EncodeLength(innerWriter, bitStringLength);
-                        innerWriter.Write(bitStringStream.GetBuffer(), 0, bitStringLength);
-                    }
-                    var length = (int)innerStream.Length;
-                    EncodeLength(writer, length);
-                    writer.Write(innerStream.GetBuffer(), 0, length);
-                }
-
-                var base64 = Convert.ToBase64String(stream.GetBuffer(), 0, (int)stream.Length).ToCharArray();
-                outputStream.WriteLine("-----BEGIN PUBLIC KEY-----");
-                for (var i = 0; i < base64.Length; i += 64)
-                {
-                    outputStream.WriteLine(base64, i, Math.Min(64, base64.Length - i));
-                }
-                outputStream.WriteLine("-----END PUBLIC KEY-----");
-            }
-        }
-
-        private static void EncodeLength(BinaryWriter stream, int length)
-        {
-            if (length < 0) throw new ArgumentOutOfRangeException("length", "Length must be non-negative");
-            if (length < 0x80)
-            {
-                // Short form
-                stream.Write((byte)length);
-            }
-            else
-            {
-                // Long form
-                var temp = length;
-                var bytesRequired = 0;
-                while (temp > 0)
-                {
-                    temp >>= 8;
-                    bytesRequired++;
-                }
-                stream.Write((byte)(bytesRequired | 0x80));
-                for (var i = bytesRequired - 1; i >= 0; i--)
-                {
-                    stream.Write((byte)(length >> (8 * i) & 0xff));
-                }
-            }
-        }
-
-        private static void EncodeIntegerBigEndian(BinaryWriter stream, byte[] value, bool forceUnsigned = true)
-        {
-            stream.Write((byte)0x02); // INTEGER
-            var prefixZeros = 0;
-            for (var i = 0; i < value.Length; i++)
-            {
-                if (value[i] != 0) break;
-                prefixZeros++;
-            }
-            if (value.Length - prefixZeros == 0)
-            {
-                EncodeLength(stream, 1);
-                stream.Write((byte)0);
-            }
-            else
-            {
-                if (forceUnsigned && value[prefixZeros] > 0x7f)
-                {
-                    // Add a prefix zero to force unsigned if the MSB is 1
-                    EncodeLength(stream, value.Length - prefixZeros + 1);
-                    stream.Write((byte)0);
-                }
-                else
-                {
-                    EncodeLength(stream, value.Length - prefixZeros);
-                }
-                for (var i = prefixZeros; i < value.Length; i++)
-                {
-                    stream.Write(value[i]);
-                }
-            }
+            return decryptedData;
         }
 
     }
