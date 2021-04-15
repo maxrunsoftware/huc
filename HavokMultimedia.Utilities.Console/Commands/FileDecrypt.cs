@@ -25,7 +25,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Decrypts a file");
-            help.AddParameter("privateKey", "pk", "The private key used to decrypt the data");
+            help.AddParameter("privateKey", "pk", "The private key file used to decrypt the data");
             help.AddValue("<file to decrypt> <optional new decrypted file>");
         }
 
