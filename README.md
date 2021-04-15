@@ -15,6 +15,8 @@ HUC is a simple to use open source command line tool for performing various task
 - [Web Server](#web-server)
 - [SSH](#ssh)
 - [Google Sheets Interaction](#google-sheets)
+- [Generation of public and private keys](#generate-public-and-private-keys)
+- [File encryption and decryption](#file-encryption-and-decryption)
 - [Can use a properties file](#using-a-properties-file)
 - [Helper Utility Functions](#helper-functions)
 
@@ -237,6 +239,28 @@ huc GoogleSheetsFormatCells -k="MyGoogleAppKey.json" -a="MyApplicationName" -id=
 Query all data from first sheet and output it to a tab delimited file MyFile.txt
 ```sh
 huc GoogleSheetsQuery -k="MyGoogleAppKey.json" -a="MyApplicationName" -id="dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe" MyFile.txt
+```
+&nbsp;
+### Generate public and private keys
+Generate RSA public and private key files
+```sh
+huc GenerateKeyPair MyPublicKey.txt MyPrivateKey.txt
+```
+
+Generate RSA public and private key files with RSA length 4096
+```sh
+huc GenerateKeyPair -l=4096 MyPublicKey.txt MyPrivateKey.txt
+```
+&nbsp;
+### File encryption and decryption
+Encrypt file with public key
+```sh
+huc FileEncrypt MyPublicKey.txt data.txt data.encrypted
+```
+
+Decrypt file with private key
+```sh
+huc FileDecrypt MyPrivateKey.txt data.encrypted dataDecrypted.txt
 ```
 &nbsp;
 &nbsp;
