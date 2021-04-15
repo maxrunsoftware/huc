@@ -14,16 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-
     public class GenerateKeyPair : Command
     {
         protected override void CreateHelp(CommandHelpBuilder help)
@@ -50,11 +45,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             Util.FileWrite(publicKeyFile, keyPair.publicKey, Constant.ENCODING_UTF8_WITHOUT_BOM);
             Util.FileWrite(privateKeyFile, keyPair.privateKey, Constant.ENCODING_UTF8_WITHOUT_BOM);
-
-            //log.Debug("Completed generation of " + outputFiles.Count + " random files");
-
         }
-
-
     }
 }
