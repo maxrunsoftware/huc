@@ -1635,6 +1635,16 @@ namespace HavokMultimedia.Utilities
             return arrayNew;
         }
 
+        public static T[] Append<T>(this T[] array, T[] otherArray)
+        {
+            T[] result = new T[array.Length + otherArray.Length];
+
+            Buffer.BlockCopy(array, 0, result, 0, array.Length);
+            Buffer.BlockCopy(otherArray, 0, result, array.Length, otherArray.Length);
+
+            return result;
+        }
+
         public static List<T> ToListReversed<T>(this IEnumerable<T> enumerable)
         {
             var l = enumerable.ToList();

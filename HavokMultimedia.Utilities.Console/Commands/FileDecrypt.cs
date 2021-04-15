@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -47,7 +48,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             fileToDecrypt = Path.GetFullPath(fileToDecrypt);
             CheckFileExists(fileToDecrypt);
             log.Debug($"{nameof(fileToDecrypt)}: {fileToDecrypt}");
-            var fileToDecryptData = Util.FileRead(fileToDecrypt);
+            var fileToDecryptData = Util.FileRead(fileToDecrypt, Constant.ENCODING_UTF8_WITHOUT_BOM);
 
             var decryptedFile = values.GetAtIndexOrDefault(2);
             log.Debug($"{nameof(decryptedFile)}: {decryptedFile}");
@@ -55,13 +56,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             decryptedFile = Path.GetFullPath(decryptedFile);
             log.Debug($"{nameof(decryptedFile)}: {decryptedFile}");
 
-            using (var rsa = RSA.Create())
-            {
-                rsa.ImportFromPem(privateKey.ToCharArray());
-
-                var decryptedFileData = rsa.Decrypt(fileToDecryptData, RSAEncryptionPadding.OaepSHA512);
-                Util.FileWrite(decryptedFile, decryptedFileData);
-            }
+            var fileToDecryptDataBinary = Util.Base64(fileToDecryptData);
+            var decryptedData = Encryption.Decrypt(privateKey, fileToDecryptDataBinary);
+            Util.FileWrite(decryptedFile, decryptedData);
         }
     }
 }
