@@ -27,12 +27,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Decrypts a file");
-            help.AddValue("<private key file> <file to decrypt> <decrypted file>");
+            help.AddParameter("base64", "b64", "Was the file base 64 encoded (false)");
+            help.AddValue("<private key file> <file to decrypt> <optional new decrypted file>");
         }
 
         protected override void Execute()
         {
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
+            var base64 = GetArgParameterOrConfigBool("base64", "b64", false);
 
             var privateKeyFile = values.GetAtIndexOrDefault(0);
             log.Debug($"{nameof(privateKeyFile)}: {privateKeyFile}");
@@ -48,16 +50,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
             fileToDecrypt = Path.GetFullPath(fileToDecrypt);
             CheckFileExists(fileToDecrypt);
             log.Debug($"{nameof(fileToDecrypt)}: {fileToDecrypt}");
-            var fileToDecryptData = Util.FileRead(fileToDecrypt, Constant.ENCODING_UTF8_WITHOUT_BOM);
 
             var decryptedFile = values.GetAtIndexOrDefault(2);
             log.Debug($"{nameof(decryptedFile)}: {decryptedFile}");
-            if (decryptedFile == null) throw new ArgsException(nameof(decryptedFile), $"No {nameof(decryptedFile)} specified to output to");
-            decryptedFile = Path.GetFullPath(decryptedFile);
+            if (decryptedFile == null) decryptedFile = fileToDecrypt;
             log.Debug($"{nameof(decryptedFile)}: {decryptedFile}");
 
-            var fileToDecryptDataBinary = Util.Base64(fileToDecryptData);
-            var decryptedData = Encryption.Decrypt(privateKey, fileToDecryptDataBinary);
+            var fileToDecryptData = Util.FileRead(fileToDecrypt);
+            if (base64)
+            {
+                var base64DataString = Constant.ENCODING_UTF8_WITHOUT_BOM.GetString(fileToDecryptData);
+                fileToDecryptData = Util.Base64(base64DataString);
+            }
+
+            var decryptedData = Encryption.Decrypt(privateKey, fileToDecryptData);
             Util.FileWrite(decryptedFile, decryptedData);
         }
     }

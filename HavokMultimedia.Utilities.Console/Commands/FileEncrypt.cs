@@ -27,12 +27,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Encrypts a file");
-            help.AddValue("<public key file> <file to encrypt> <encrypted file>");
+            help.AddParameter("base64", "b64", "Convert the file to base 64 (false)");
+            help.AddValue("<public key file> <file to encrypt> <optional new encrypted file>");
         }
 
         protected override void Execute()
         {
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
+            var base64 = GetArgParameterOrConfigBool("base64", "b64", false);
 
             var publicKeyFile = values.GetAtIndexOrDefault(0);
             log.Debug($"{nameof(publicKeyFile)}: {publicKeyFile}");
@@ -48,17 +50,21 @@ namespace HavokMultimedia.Utilities.Console.Commands
             fileToEncrypt = Path.GetFullPath(fileToEncrypt);
             CheckFileExists(fileToEncrypt);
             log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
-            var fileToEncryptData = Util.FileRead(fileToEncrypt);
 
             var encryptedFile = values.GetAtIndexOrDefault(2);
             log.Debug($"{nameof(encryptedFile)}: {encryptedFile}");
-            if (encryptedFile == null) throw new ArgsException(nameof(encryptedFile), $"No {nameof(encryptedFile)} specified to output to");
-            encryptedFile = Path.GetFullPath(encryptedFile);
+            if (encryptedFile == null) encryptedFile = fileToEncrypt;
             log.Debug($"{nameof(encryptedFile)}: {encryptedFile}");
 
+            var fileToEncryptData = Util.FileRead(fileToEncrypt);
             var encryptedData = Encryption.Encrypt(publicKey, fileToEncryptData);
-            var encryptedDataBase64 = Util.Base64(encryptedData);
-            Util.FileWrite(encryptedFile, encryptedDataBase64, Constant.ENCODING_UTF8_WITHOUT_BOM);
+            if (base64)
+            {
+                var base64Data = Util.Base64(encryptedData);
+                encryptedData = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(base64Data);
+            }
+
+            Util.FileWrite(encryptedFile, encryptedData);
 
 
         }
