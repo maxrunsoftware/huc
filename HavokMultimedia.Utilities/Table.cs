@@ -531,21 +531,21 @@ namespace HavokMultimedia.Utilities
         public IEnumerable<string> Keys => Table.Columns.ColumnNames;
         IEnumerable<string> IBucketReadOnly<string, string>.Keys => Keys;
 
-        public string this[string key] => this[Table.Columns[key].Index];
+        public string this[string columnName] => this[Table.Columns[columnName].Index];
 
         #endregion IBucketReadOnly<string, string>
 
         #region IBucketReadOnly<TableColumn, string>
 
         IEnumerable<TableColumn> IBucketReadOnly<TableColumn, string>.Keys => Table.Columns;
-        public string this[TableColumn key] => this[key.Index];
+        public string this[TableColumn column] => this[column.Index];
 
         #endregion IBucketReadOnly<TableColumn, string>
 
         #region IReadOnlyList<string>
 
         public int Count => Table.Columns.Count;
-        public string this[int index] => data[index];
+        public string this[int columnIndex] => data[columnIndex];
 
         public IEnumerator<string> GetEnumerator() => ((IEnumerable<string>)data).GetEnumerator();
 

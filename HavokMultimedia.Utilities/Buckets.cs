@@ -551,7 +551,26 @@ namespace HavokMultimedia.Utilities
         protected override string CleanValue(string value) => base.CleanValue(value).TrimOrNull();
     }
 
+    public static class BucketExtensions
+    {
+        private sealed class BucketDictionaryWrapper<TKey, TValue> : IBucket<TKey, TValue>
+        {
+            private readonly IDictionary<TKey, TValue> dictionary;
 
+            public BucketDictionaryWrapper(IDictionary<TKey, TValue> dictionary)
+            {
+                this.dictionary = dictionary;
+            }
+
+            public TValue this[TKey key] { get => dictionary[key]; set => dictionary[key] = value; }
+
+            TValue IBucketReadOnly<TKey, TValue>.this[TKey key] => dictionary[key];
+
+            public IEnumerable<TKey> Keys => dictionary.Keys;
+        }
+
+        public static IBucket<TKey, TValue> AsBucket<TKey, TValue>(IDictionary<TKey, TValue> dictionary) => new BucketDictionaryWrapper<TKey, TValue>(dictionary);
+    }
 
 
 
