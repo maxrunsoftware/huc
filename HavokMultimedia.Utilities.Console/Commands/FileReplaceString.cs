@@ -105,11 +105,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (!File.Exists(file)) throw new FileNotFoundException($"Could not find file {file}", file);
 
             log.Debug($"Processing file: {file}");
-            var fileText = Util.FileRead(file, encoding);
+            var fileText = ReadFile(file, encoding);
             var occurances = caseInsensitive ? fileText.CountOccurances(oldStringParsed, StringComparison.OrdinalIgnoreCase) : fileText.CountOccurances(oldStringParsed);
             log.Debug($"Found {occurances} occurances of {oldString} in file {file}");
             fileText = caseInsensitive ? fileText.Replace(oldStringParsed, newStringParsed, StringComparison.OrdinalIgnoreCase) : fileText.Replace(oldStringParsed, newStringParsed);
-            Util.FileWrite(file, fileText, encoding);
+            WriteFile(file, fileText, encoding);
             log.Info($"Replaced {occurances} occurances of {oldString} to {newString} in file {file}");
         }
     }

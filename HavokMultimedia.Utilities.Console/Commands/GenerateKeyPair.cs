@@ -43,8 +43,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var keyPair = Encryption.GenerateKeyPair(length: length);
 
-            Util.FileWrite(publicKeyFile, keyPair.publicKey, Constant.ENCODING_UTF8_WITHOUT_BOM);
-            Util.FileWrite(privateKeyFile, keyPair.privateKey, Constant.ENCODING_UTF8_WITHOUT_BOM);
+            WriteFile(publicKeyFile, keyPair.publicKey, Constant.ENCODING_UTF8_WITHOUT_BOM);
+            WriteFile(privateKeyFile, keyPair.privateKey, Constant.ENCODING_UTF8_WITHOUT_BOM);
         }
     }
 }

@@ -97,6 +97,8 @@ namespace HavokMultimedia.Utilities.Console
         protected abstract void Execute();
         protected abstract void CreateHelp(CommandHelpBuilder help);
 
+        #region File
+
         protected void DeleteExistingFile(string file)
         {
             if (File.Exists(file))
@@ -113,7 +115,50 @@ namespace HavokMultimedia.Utilities.Console
 
         protected string ReadFile(string path, Encoding encoding = null)
         {
-            using (Util.Diagnostic(log.Trace)) return Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8_WITHOUT_BOM);
+            string data;
+            log.Debug($"Reading text file {path}");
+            using (Util.Diagnostic(log.Trace))
+            {
+                CheckFileExists(path);
+                data = Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8_WITHOUT_BOM);
+            }
+            log.Debug($"Read text file {path}   {data.Length} characters");
+            return data;
+        }
+
+        protected byte[] ReadFileBinary(string path)
+        {
+            byte[] data;
+            log.Debug($"Reading binary file {path}");
+            using (Util.Diagnostic(log.Trace))
+            {
+                CheckFileExists(path);
+                data = Util.FileRead(path);
+            }
+            log.Debug($"Read binary file {path}   {data.Length} bytes");
+            return data;
+        }
+
+        protected void WriteFile(string path, string data, Encoding encoding = null)
+        {
+            log.Debug($"Writing text file {path}   {data.Length} characters");
+            using (Util.Diagnostic(log.Trace))
+            {
+                DeleteExistingFile(path);
+                Util.FileWrite(path, data, encoding ?? Constant.ENCODING_UTF8_WITHOUT_BOM);
+            }
+            log.Debug($"Wrote text file {path}   {data.Length} characters");
+        }
+
+        protected void WriteFileBinary(string path, byte[] data)
+        {
+            log.Debug($"Writing binary file {path}   {data.Length} bytes");
+            using (Util.Diagnostic(log.Trace))
+            {
+                DeleteExistingFile(path);
+                Util.FileWrite(path, data);
+            }
+            log.Debug($"Wrote binary file {path}   {data.Length} bytes");
         }
 
         protected Utilities.Table ReadTableTab(string path, Encoding encoding = null, bool headerRow = true)
@@ -158,6 +203,8 @@ namespace HavokMultimedia.Utilities.Console
 
             log.Info("Successfully wrote " + table.ToString() + " to file " + fileName + (suffix ?? string.Empty));
         }
+
+        #endregion File
 
         #region Parameters
 

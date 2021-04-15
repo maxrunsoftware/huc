@@ -50,7 +50,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var fileToEncryptData = Util.FileRead(fileToEncrypt);
             var encryptedData = Encryption.Encrypt(publicKey, fileToEncryptData);
-            Util.FileWrite(encryptedFile, encryptedData);
+            WriteFileBinary(encryptedFile, encryptedData);
         }
     }
 }
