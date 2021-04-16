@@ -642,17 +642,76 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        #region Networking
+
         /// <summary>
         /// Get all of the IP addresses on the current machine
         /// </summary>
         /// <returns>The IP addresses</returns>
-        public static IEnumerable<IPAddress> GetIPAddresses() => NetworkInterface.GetAllNetworkInterfaces()
+        public static IEnumerable<IPAddress> NetGetIPAddresses() => NetworkInterface.GetAllNetworkInterfaces()
                 .Where(o => o.OperationalStatus == OperationalStatus.Up)
                 .Select(o => o.GetIPProperties())
                 .WhereNotNull()
                 .SelectMany(o => o.UnicastAddresses)
                 .Select(o => o.Address)
                 .WhereNotNull();
+
+        private static bool[] NetGetPortStatusInternal()
+        {
+            var array = new bool[65536]; // array[0] should not ever be populated
+            array.Populate(true);
+
+            var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
+
+            foreach (var tcpConnectionInformation in ipGlobalProperties.GetActiveTcpConnections())
+            {
+                array[tcpConnectionInformation.LocalEndPoint.Port] = false;
+            }
+
+            foreach (var ipEndPoint in ipGlobalProperties.GetActiveTcpListeners())
+            {
+                array[ipEndPoint.Port] = false;
+            }
+
+            return array;
+        }
+
+        public static IEnumerable<(int port, bool isOpen)> NetGetPortStatus()
+        {
+            var portStatus = NetGetPortStatusInternal();
+            for (int i = 1; i < portStatus.Length; i++)
+            {
+                yield return (i, portStatus[i]);
+            }
+        }
+
+        public static IEnumerable<int> NetGetOpenPorts() => NetGetPortStatus().Where(o => o.isOpen).Select(o => o.port);
+
+        public static IEnumerable<int> NetGetClosedPorts() => NetGetPortStatus().Where(o => !o.isOpen).Select(o => o.port);
+
+        public static bool NetIsPortAvailable(int port) => NetGetPortStatus().Where(o => o.port == port).Select(o => o.isOpen).FirstOrDefault();
+
+        /// <summary>
+        /// Tries to find an open port in a range or if none is found a -1 is returned
+        /// </summary>
+        /// <param name="startInclusive">The inclusive starting port to search for an open port</param>
+        /// <param name="endInclusive">The inclusive ending port to search for an open port</param>
+        /// <returns>An open port or -1 if none were found</returns>
+        public static int NetFindOpenPort(int startInclusive, int endInclusive = 65535)
+        {
+            if (startInclusive < 1) startInclusive = 1;
+            if (endInclusive > 65535) endInclusive = 65535;
+            foreach (var portStatus in NetGetPortStatus())
+            {
+                if (portStatus.port < startInclusive) continue;
+                if (portStatus.port > endInclusive) continue;
+                if (!portStatus.isOpen) continue;
+                return portStatus.port;
+            }
+            return -1;
+        }
+
+        #endregion Networking
 
         #region Type and Assembly Scanning
 
