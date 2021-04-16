@@ -253,14 +253,24 @@ huc GenerateKeyPair -l=4096 MyPublicKey.txt MyPrivateKey.txt
 ```
 &nbsp;
 ### File encryption and decryption
+Encrypt file with password
+```sh
+huc FileEncrypt -p=password data.txt data.encrypted
+```
+
+Decrypt file with password
+```sh
+huc FileDecrypt -p=password data.encrypted dataDecrypted.txt
+```
+
 Encrypt file with public key
 ```sh
-huc FileEncrypt MyPublicKey.txt data.txt data.encrypted
+huc FileEncrypt -pk=MyPublicKey.txt data.txt data.encrypted
 ```
 
 Decrypt file with private key
 ```sh
-huc FileDecrypt MyPrivateKey.txt data.encrypted dataDecrypted.txt
+huc FileDecrypt -pk=MyPrivateKey.txt data.encrypted dataDecrypted.txt
 ```
 &nbsp;
 &nbsp;
