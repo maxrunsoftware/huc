@@ -98,7 +98,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                         if (Util.IsFile(includedItem))
                         {
                             var fi = new FileInfo(includedItem);
-                            External.Zip.AddFileToZip(fi, fi.Directory, zos, bs, Path.GetFileName(outputFile));
+                            External.Zip.AddFileToZip(fi, fi.Directory, zos, bs, Path.GetFileName(outputFile), encrypt: password != null);
                         }
                         else
                         {
@@ -119,7 +119,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
                                 if (item.IsDirectory)
                                 {
-                                    External.Zip.AddDirectoryToZip((DirectoryInfo)item.GetFileSystemInfo(), basePath, zos, Path.GetFileName(outputFile));
+                                    External.Zip.AddDirectoryToZip((DirectoryInfo)item.GetFileSystemInfo(), basePath, zos, Path.GetFileName(outputFile), encrypt: password != null);
                                     continue;
                                 }
 
@@ -130,7 +130,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                                     {
                                         continue;
                                     }
-                                    External.Zip.AddFileToZip(fi, basePath, zos, bs, Path.GetFileName(outputFile));
+                                    External.Zip.AddFileToZip(fi, basePath, zos, bs, Path.GetFileName(outputFile), encrypt: password != null);
                                 }
                             }
 

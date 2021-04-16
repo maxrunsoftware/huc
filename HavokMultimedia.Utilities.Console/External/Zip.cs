@@ -24,7 +24,7 @@ namespace HavokMultimedia.Utilities.Console.External
     {
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static void AddFileToZip(FileInfo file, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, int bufferSize, string zipFileName)
+        public static void AddFileToZip(FileInfo file, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, int bufferSize, string zipFileName, bool encrypt = false)
         {
             var entryPath = ZipEntry.CleanName(string.Join("/", file.RemoveBase(baseDirectoryToRemove)));
             log.Debug($"Adding: {file.FullName} --> {zipFileName}/{entryPath}");
@@ -33,7 +33,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 DateTime = file.LastWriteTime,
                 Size = file.Length
             };
-
+            if (encrypt) newEntry.AESKeySize = 256;
             zos.PutNextEntry(newEntry);
             var buffer = new byte[bufferSize];
             using (var fs = Util.FileOpenRead(file.FullName))
@@ -44,7 +44,7 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Info($"Added: {file.FullName} --> {zipFileName}/{entryPath}");
         }
 
-        public static void AddDirectoryToZip(DirectoryInfo directory, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, string zipFileName)
+        public static void AddDirectoryToZip(DirectoryInfo directory, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, string zipFileName, bool encrypt = false)
         {
             var entryPath = ZipEntry.CleanName(string.Join("/", directory.RemoveBase(baseDirectoryToRemove))) + "/";
             log.Debug($"Adding: {directory.FullName} --> {zipFileName}/{entryPath}");
@@ -52,7 +52,7 @@ namespace HavokMultimedia.Utilities.Console.External
             {
                 DateTime = directory.LastWriteTime,
             };
-
+            if (encrypt) newEntry.AESKeySize = 256;
             zos.PutNextEntry(newEntry);
             zos.CloseEntry();
             log.Info($"Added: {directory.FullName} --> {zipFileName}/{entryPath}");
