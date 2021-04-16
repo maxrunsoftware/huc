@@ -194,34 +194,6 @@ namespace HavokMultimedia.Utilities
 
         #endregion ConsoleColorChanger
 
-        /// <summary>
-        /// Attempts to get the current local time from the internet
-        /// </summary>
-        /// <returns>The current local time</returns>
-        public static DateTime GetInternetDateTime()
-        {
-            // http://stackoverflow.com/questions/6435099/how-to-get-datetime-from-the-internet
-
-            ServicePointManager.SecurityProtocol = (SecurityProtocolType)(0xc0 | 0x300 | 0xc00);
-            // SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-
-            var request = (HttpWebRequest)WebRequest.Create("http://worldtimeapi.org/api/timezone/Europe/London.txt");
-            request.Method = "GET";
-            request.Accept = "text/html, application/xhtml+xml, */*";
-            request.UserAgent = "p2pcopy";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore); //No caching
-            var response = (HttpWebResponse)request.GetResponse();
-            if (response.StatusCode != HttpStatusCode.OK) throw new WebException(response.StatusCode + ":" + response.StatusDescription);
-            var stream = new StreamReader(response.GetResponseStream());
-            var html = stream.ReadToEnd(); //<timestamp time=\"1395772696469995\" delay=\"1395772696469995\"/>
-            var time = Regex.Match(html, @"(?<=unixtime: )[^u]*").Value;
-            var milliseconds = Convert.ToInt64(time) * 1000.0;
-            var dateTime = new DateTime(1970, 1, 1).AddMilliseconds(milliseconds).ToLocalTime();
-
-            return dateTime;
-        }
-
         public static char FindMagicCharacter(string str)
         {
             if (str == null) throw new ArgumentNullException(nameof(str));
@@ -643,6 +615,34 @@ namespace HavokMultimedia.Utilities
         }
 
         #region Networking
+
+        /// <summary>
+        /// Attempts to get the current local time from the internet
+        /// </summary>
+        /// <returns>The current local time</returns>
+        public static DateTime NetGetInternetDateTime()
+        {
+            // http://stackoverflow.com/questions/6435099/how-to-get-datetime-from-the-internet
+
+            ServicePointManager.SecurityProtocol = (SecurityProtocolType)(0xc0 | 0x300 | 0xc00);
+            // SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+            var request = (HttpWebRequest)WebRequest.Create("http://worldtimeapi.org/api/timezone/Europe/London.txt");
+            request.Method = "GET";
+            request.Accept = "text/html, application/xhtml+xml, */*";
+            request.UserAgent = "p2pcopy";
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore); //No caching
+            var response = (HttpWebResponse)request.GetResponse();
+            if (response.StatusCode != HttpStatusCode.OK) throw new WebException(response.StatusCode + ":" + response.StatusDescription);
+            var stream = new StreamReader(response.GetResponseStream());
+            var html = stream.ReadToEnd(); //<timestamp time=\"1395772696469995\" delay=\"1395772696469995\"/>
+            var time = Regex.Match(html, @"(?<=unixtime: )[^u]*").Value;
+            var milliseconds = Convert.ToInt64(time) * 1000.0;
+            var dateTime = new DateTime(1970, 1, 1).AddMilliseconds(milliseconds).ToLocalTime();
+
+            return dateTime;
+        }
 
         /// <summary>
         /// Get all of the IP addresses on the current machine

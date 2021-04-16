@@ -37,7 +37,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var drift = GetArgParameterOrConfigBool("drift", "d", false);
 
-            var internetTime = Util.GetInternetDateTime();
+            var internetTime = Util.NetGetInternetDateTime();
             // Strip milliseconds
             internetTime = DateTime.ParseExact(internetTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
