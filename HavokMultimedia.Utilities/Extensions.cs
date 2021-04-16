@@ -1773,6 +1773,21 @@ namespace HavokMultimedia.Utilities
         }
 
         /// <summary>
+        /// Determines which string is longest and returns that string's length
+        /// </summary>
+        /// <param name="enumerable">The enumerable to search</param>
+        /// <returns>The size of the longest string</returns>
+        public static int MaxLength(this IEnumerable<string> enumerable)
+        {
+            int len = 0;
+            foreach (var item in enumerable)
+            {
+                if (item != null) len = Math.Max(len, item.Length);
+            }
+            return len;
+        }
+
+        /// <summary>
         /// Determines which collection is longest and returns that collection's length
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
@@ -1831,6 +1846,27 @@ namespace HavokMultimedia.Utilities
                 else size = size + s.Length;
             }
             return size;
+        }
+
+        public static IEnumerable<string> ToStringsColumns(this IEnumerable<string> enumerable, int numberOfColumns, string paddingBetweenColumns = "   ", bool rightAlign = false)
+        {
+            var items = enumerable.ToArray();
+            var width = items.MaxLength();
+
+            var itemParts = items.SplitIntoPartSizes(numberOfColumns);
+            var lines = new List<string>();
+            foreach (var item in itemParts)
+            {
+                var list = new List<string>();
+                for (int i = 0; i < numberOfColumns; i++)
+                {
+                    var part = item.GetAtIndexOrDefault(i) ?? string.Empty;
+                    part = rightAlign ? part.PadLeft(width) : part.PadRight(width);
+                    list.Add(part);
+                }
+                lines.Add(list.ToStringDelimited(paddingBetweenColumns));
+            }
+            return lines;
         }
 
         #region In

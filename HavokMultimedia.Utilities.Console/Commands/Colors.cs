@@ -64,20 +64,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug(nameof(colorRequested) + ": " + colorRequested);
             if (colorRequested == null)
             {
-                var width = 0;
-                var colorNames = Color.ColorNames;
-                foreach (var colorName in colorNames) width = Math.Max(width, colorName.Length);
-                width = width + 3;
-
-                var colorParts = colorNames.SplitIntoPartSizes(3);
-                foreach (var colorPart in colorParts)
-                {
-                    var part1 = colorPart.GetAtIndexOrDefault(0) ?? string.Empty;
-                    var part2 = colorPart.GetAtIndexOrDefault(1) ?? string.Empty;
-                    var part3 = colorPart.GetAtIndexOrDefault(2) ?? string.Empty;
-
-                    log.Info(part1.PadRight(width) + part2.PadRight(width) + part3.PadRight(width));
-                }
+                var lines = Color.ColorNames.ToStringsColumns(4);
+                foreach (var line in lines) log.Info(line);
             }
             else
             {
