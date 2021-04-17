@@ -27,6 +27,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary("Same as WGET command for getting web resources");
             help.AddValue("<source URL> <output file>");
+            help.AddExample("https://github.com/Steven-D-Foster/huc/releases/download/v1.3.0/huc-linux.zip");
+            help.AddExample("https://github.com github.txt");
         }
 
         protected override void Execute()

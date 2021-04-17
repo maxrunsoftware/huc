@@ -32,6 +32,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("ignoreMissingFiles", "Do not error on missing remote files (false)");
             help.AddParameter("search", "Recursively search for the file (false)");
             help.AddValue("<remote file 1> <remote file 2> <etc>");
+            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
+            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
+            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
+            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
         }
 
         private FtpClientFile FindFile(IFtpClient ftp, string fileName)

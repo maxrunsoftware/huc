@@ -28,59 +28,61 @@ namespace HavokMultimedia.Utilities.Console
         void Execute(string[] args);
         string HelpSummary { get; }
         string HelpDetails { get; }
-
     }
 
     public abstract class Command : ICommand
     {
+        private Args args;
+        private ConfigFile config;
         protected readonly ILogger log;
+
         public CommandHelpBuilder Help { get; }
-
-        protected Command()
-        {
-            log = Program.LogFactory.GetLogger(GetType());
-            Help = new CommandHelpBuilder(GetType().Name);
-            CreateHelp(Help);
-        }
-
-        private static List<string> GetNames() => Program.CommandObjects.Select(o => o.Name).ToList();
-
         public string Name => Help.Name;
-
-        public string HelpSummary => Name.PadRight(GetNames().Select(o => o.Length).Max() + 2) + Help.summary.FirstOrDefault();
-
+        public string HelpSummary => Name.PadRight(Program.CommandObjects.Select(o => o.Name).MaxLength() + 2) + Help.Summary;
         public string HelpDetails
         {
             get
             {
                 var sb = new StringBuilder();
                 sb.AppendLine(Name);
-                foreach (var s in Help.summary) sb.AppendLine(s);
-                foreach (var s in Help.details) sb.AppendLine(s);
-                sb.AppendLine();
+                sb.AppendLine(Help.Summary);
+                foreach (var s in Help.Details) sb.AppendLine(s);
 
+                if (!Help.Parameters.IsEmpty()) { sb.AppendLine(); sb.AppendLine("Parameters:"); }
                 var padWidth = 0;
-                foreach (var s in Help.parameters)
+                foreach (var s in Help.Parameters)
                 {
                     var ss = "-" + s.p1;
-                    if (s.p2 != null) ss = ss + ", -" + s.p2;
+                    if (s.p2 != null) ss += ", -" + s.p2;
                     var len = ss.Length;
                     if (len > padWidth) padWidth = len;
                 }
-                padWidth = padWidth + 2;
-                foreach (var s in Help.parameters)
+                padWidth += 3;
+
+                foreach (var s in Help.Parameters)
                 {
                     var ss = "-" + s.p1;
-                    if (s.p2 != null) ss = ss + ", -" + s.p2;
+                    if (s.p2 != null) ss += ", -" + s.p2;
                     ss = ss.PadRight(padWidth);
-                    ss = ss + s.description;
-                    sb.AppendLine(ss);
+                    ss += s.description;
+                    sb.AppendLine("  " + ss);
                 }
-                sb.AppendLine();
-                foreach (var s in Help.values) sb.AppendLine(s);
+
+                if (!Help.Values.IsEmpty()) { sb.AppendLine(); sb.AppendLine("Arguments:"); }
+                foreach (var s in Help.Values) sb.AppendLine("  " + s);
+
+                if (!Help.Examples.IsEmpty()) { sb.AppendLine(); sb.AppendLine("Examples:"); }
+                foreach (var example in Help.Examples) sb.AppendLine("  huc " + Name + " " + example);
 
                 return sb.ToString();
             }
+        }
+
+        protected Command()
+        {
+            log = Program.LogFactory.GetLogger(GetType());
+            Help = new CommandHelpBuilder(GetType().Name);
+            CreateHelp(Help);
         }
 
         public void Execute(string[] args)
@@ -93,8 +95,6 @@ namespace HavokMultimedia.Utilities.Console
             }
         }
 
-        private Args args;
-        private ConfigFile config;
         protected abstract void Execute();
         protected abstract void CreateHelp(CommandHelpBuilder help);
 
@@ -307,14 +307,27 @@ namespace HavokMultimedia.Utilities.Console
     {
         public CommandHelpBuilder(string name) => Name = name;
         public string Name { get; }
-        public readonly List<string> summary = new();
-        public readonly List<(string p1, string p2, string description)> parameters = new();
-        public readonly List<string> values = new();
-        public readonly List<string> details = new();
+
+        private readonly List<string> summary = new();
+        public string Summary => summary.FirstOrDefault();
+
+        private readonly List<(string p1, string p2, string description)> parameters = new();
+        public IReadOnlyList<(string p1, string p2, string description)> Parameters => parameters;
+
+        private readonly List<string> values = new();
+        public IReadOnlyList<string> Values => values;
+
+        private readonly List<string> details = new();
+        public IReadOnlyList<string> Details => details;
+
+        private readonly List<string> examples = new();
+        public IReadOnlyList<string> Examples => examples;
+
         public void AddSummary(string msg) => summary.Add(msg);
         public void AddValue(string msg) => values.Add(msg);
         public void AddDetail(string msg) => details.Add(msg);
         public void AddParameter(string p1, string p2, string description) => parameters.Add((p1, p2, description));
         public void AddParameter(string p1, string description) => parameters.Add((p1, null, description));
+        public void AddExample(string example) => examples.Add(example.Replace("`", "\""));
     }
 }

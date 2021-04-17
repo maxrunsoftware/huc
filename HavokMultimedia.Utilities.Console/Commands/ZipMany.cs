@@ -15,10 +15,8 @@ limitations under the License.
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using ICSharpCode.SharpZipLib.Zip;
 
@@ -26,13 +24,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ZipMany : Command
     {
-
         private readonly int processTotal = 0;
         private bool delete;
         private int processCurrent = 0;
         private int compressionLevel;
         private int bufferSize;
-
 
         protected override void CreateHelp(CommandHelpBuilder help)
         {
@@ -42,9 +38,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("delete", "d", "Whether to delete the uncompressed file after compression completes (false)");
             help.AddParameter("threads", "t", "Number of files to process at one time (total # of logical processors - 1)");
             help.AddValue("<included item 1> <included item 2> <etc>");
-
         }
-
 
         private void ProcessFile(string inputFile)
         {

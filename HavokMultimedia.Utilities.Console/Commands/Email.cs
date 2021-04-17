@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
-using System.Text;
 using HavokMultimedia.Utilities;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -43,6 +42,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("subject", "s", "Subject line");
             help.AddParameter("body", "b", "Body of email");
             help.AddValue("<attachment1> <attachment2> <attachment3> <etc>");
+            help.AddExample("-h=`smtp.somerelay.org` -from=`someone@aol.com` -to=`grandma@aol.com` -s=`Grandpa Birthday` -b=`Tell Grandpa / nHAPPY BIRTHDAY!`");
+            help.AddExample("-h=`smtp.somerelay.org` -to=`person1@aol.com; person2 @aol.com` -cc=`person3 @aol.com` -bcc=`person4 @aol.com` -s=`Some subject text` -b=`Some text for body` myAttachedFile1.csv myAttachedFile2.txt");
         }
 
 

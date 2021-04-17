@@ -46,6 +46,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("italic", "i", "Italic text (false)");
             help.AddParameter("underline", "u", "Underline text (false)");
             help.AddParameter("strikethrough", "st", "Strikethrough text (false)");
+            help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` -width=100 -b -fc=Red -bc=Blue");
         }
 
         protected override void Execute()

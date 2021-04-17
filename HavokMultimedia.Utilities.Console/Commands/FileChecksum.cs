@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System;
-using System.IO;
 using System.Linq;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -42,6 +41,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("checksumType", "t", "Checksum type to generate [ " + Util.GetEnumItems<ChecksumType>().ToStringDelimited(" | ") + " ] (" + ChecksumType.MD5 + ")");
             help.AddParameter("recursive", "r", "If a directory is specified, recursively search that directory and all sudirectories for files (false)");
             help.AddValue("<source file 1> <source file 2> <etc>");
+            help.AddExample("MyFile.zip");
+            help.AddExample("-t=SHA512 *.txt");
         }
 
         protected override void Execute()

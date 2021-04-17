@@ -15,11 +15,7 @@ limitations under the License.
 */
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Authentication;
-using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -30,6 +26,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Deletes a file or files on a FTP/FTPS/SFTP server");
             help.AddValue("<fileToDelete1> <fileToDelete2> <etc>");
+            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
+            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
+            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
+            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
         }
 
         protected override void Execute()

@@ -27,6 +27,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary("Shows all of the colors available");
             help.AddValue("<optional color name to list details for>");
+            help.AddExample("");
+            help.AddExample("red");
         }
 
         private class Color

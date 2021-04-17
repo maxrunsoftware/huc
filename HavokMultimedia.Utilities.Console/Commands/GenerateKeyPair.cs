@@ -26,6 +26,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Generates a public/private key pair");
             help.AddParameter("length", "l", "The RSA key length (1024)");
             help.AddValue("<public key file> <private key file>");
+            help.AddExample("MyPublicKey.txt MyPrivateKey.txt");
+            help.AddExample("-l=4096 MyPublicKey.txt MyPrivateKey.txt");
         }
 
         protected override void Execute()

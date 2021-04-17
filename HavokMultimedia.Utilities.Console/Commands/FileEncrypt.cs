@@ -29,6 +29,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("password", "p", "The password to encrypt the file with");
             help.AddParameter("publicKey", "pk", "The public key file used to encrypt the data");
             help.AddValue("<file to encrypt> <optional new encrypted file>");
+            help.AddExample("-p=password data.txt data.encrypted");
+            help.AddExample("-pk=MyPublicKey.txt data.txt data.encrypted");
         }
 
         protected override void Execute()

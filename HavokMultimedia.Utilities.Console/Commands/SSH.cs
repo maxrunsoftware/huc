@@ -32,16 +32,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("port", "o", "Port (22)");
             help.AddParameter("username", "u", "Username");
             help.AddParameter("password", "p", "Password");
-
             help.AddParameter("privateKey1File", "pk1", "SFTP private key 1 filename");
             help.AddParameter("privateKey1Password", "pk1pass", "SFTP private key 1 password");
             help.AddParameter("privateKey2File", "pk2", "SFTP private key 2 filename");
             help.AddParameter("privateKey2Password", "pk2pass", "SFTP private key 2 password");
             help.AddParameter("privateKey3File", "pk3", "SFTP private key 3 filename");
             help.AddParameter("privateKey3Password", "pk3pass", "SFTP private key 3 password");
-
             help.AddParameter("sshScriptFile", "f", "SSH script file to execute");
             help.AddValue("<ssh command>");
+            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass `ls`");
+            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass `cd someDirectory; ls -la;`");
         }
 
         protected override void Execute()

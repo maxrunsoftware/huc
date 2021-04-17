@@ -27,6 +27,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddDetail("For empty values use the keyword NULL instead of a blank");
             help.AddParameter("sheetName", "s", "The spreadsheet sheet name/tab to upload to (default first sheet)");
             help.AddValue("<column A value> <column B value> <column C value> <etc>");
+            help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` AA null CC");
         }
 
         protected override void Execute()

@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,6 +29,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("remotePath", "Remote directory to upload files to");
             help.AddParameter("ignoreMissingFiles", "Do not error on missing local files (false)");
             help.AddValue("<local file 1> <local file 2> <etc>");
+            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
+            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
+            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
+            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
         }
 
         protected override void Execute()

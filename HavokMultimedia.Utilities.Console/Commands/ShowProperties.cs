@@ -17,9 +17,6 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
-using System.Text;
-using HavokMultimedia.Utilities;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -30,8 +27,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Shows property file definitions");
             help.AddParameter("showUndefined", "a", "Shows undefined properties too");
             help.AddValue("<propertiesFile> | CURRENT");
+            help.AddExample("");
+            help.AddExample("-a");
         }
-
 
         protected override void Execute()
         {

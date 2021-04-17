@@ -31,8 +31,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("all", "a", "Lists all tasks including the Microsoft/Windows ones (false)");
             help.AddParameter("detail", "d", "Lists the task details (false)");
             help.AddParameter("xml", "x", "Show XML for task (false)");
-
             help.AddValue("ALL | <folder path>");
+            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` ALL");
+            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` -d /myTaskFolder/MyTask");
         }
 
         private bool MatchesPath(Task task, string path)

@@ -27,6 +27,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("sheetName", "s", "The spreadsheet sheet name/tab to query (default first sheet)");
             help.AddParameter("range", "r", "The range to query from (A1:ZZ)");
             help.AddValue("<tab delimited output file name>");
+            help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` MyFile.txt");
         }
 
         protected override void Execute()

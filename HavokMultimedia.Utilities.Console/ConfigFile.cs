@@ -89,7 +89,7 @@ namespace HavokMultimedia.Utilities.Console
             {
                 if (cmdobj is Command cmdobj2)
                 {
-                    foreach (var p in cmdobj2.Help.parameters)
+                    foreach (var p in cmdobj2.Help.Parameters)
                     {
                         cmdobjsParams.Add(cmdobj.Name + "." + p.p1);
                     }

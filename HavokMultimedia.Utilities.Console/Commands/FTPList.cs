@@ -29,6 +29,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Lists files on a FTP/FTPS/SFTP server");
             help.AddParameter("recursive", "r", "Recursively search for the file (false)");
             help.AddValue("<path>");
+            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass");
+            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass");
+            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass");
+            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass");
+            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
+            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
+            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
+            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
+
         }
 
         protected override void Execute()

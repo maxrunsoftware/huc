@@ -26,6 +26,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Appends one or more source files to a target file");
             //help.AddParameter("encoding", "en", "Encoding of the input file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
             help.AddValue("<target file> <source file 1> <source file 2> <etc>");
+            help.AddExample("mainfile.txt file1.txt file2.txt");
         }
 
         protected override void Execute()

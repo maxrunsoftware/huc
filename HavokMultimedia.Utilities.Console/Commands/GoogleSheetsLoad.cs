@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -30,6 +28,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("columns", "c", "The command delimited list of columns to load (all columns)");
             help.AddParameter("characterThreshold", "ct", "Batch size character limit, Google request must be less then 10MB, you should usually leave this as default (1000000)");
             help.AddValue("<tab delimited data file>");
+            help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` Orders.txt");
         }
 
         protected override void Execute()

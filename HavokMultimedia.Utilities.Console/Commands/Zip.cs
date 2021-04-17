@@ -18,15 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-
     public class Zip : Command
     {
-
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("File compression");
@@ -37,11 +34,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("skipTopLevelDirectory", "s", "Whether to not include the top level directory or rather include all the files under that directory instead (false)");
             help.AddParameter("password", "p", "Password on the ZIP file");
             help.AddValue("<output zip file> <included item 1> <included item 2> <etc>");
-
+            help.AddExample("myOuputFile.zip someLocalFile.txt");
+            help.AddExample("myOuputFile.zip *.txt *.csv");
         }
-
-
-
 
         protected override void Execute()
         {

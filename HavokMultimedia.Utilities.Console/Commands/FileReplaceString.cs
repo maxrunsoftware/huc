@@ -77,6 +77,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("encoding", "en", "Encoding of the input file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
             help.AddParameter("caseInsensitive", "i", "Ignore case when searching for the string to replace (false)");
             help.AddValue("<old string> <new string> <file to replace in>");
+            help.AddExample("`Person` `Steve` mydoc.txt");
         }
 
         protected override void Execute()

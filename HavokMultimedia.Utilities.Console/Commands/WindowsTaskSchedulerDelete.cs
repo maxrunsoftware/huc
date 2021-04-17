@@ -14,10 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
 using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
-using Microsoft.Win32.TaskScheduler;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -27,8 +25,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Deletes a task from the Windows Task Scheduler");
-
             help.AddValue("<task path>");
+            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` MyTask");
         }
 
         protected override void Execute()

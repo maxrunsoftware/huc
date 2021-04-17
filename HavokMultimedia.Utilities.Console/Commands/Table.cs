@@ -17,7 +17,6 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -37,6 +36,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("newline", "nl", "The type of newline character to use, win/unix/mac (win)");
             help.AddParameter("encoding", "en", "Encoding of the output file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
             help.AddValue("<tab delimited input file 1> <tab delimited input file 2> <etc>");
+            help.AddExample("Orders.csv");
+            help.AddExample("-hd=pipe -hq=single -he=true -dd=pipe -dq=single -de=false Orders.csv");
         }
 
 

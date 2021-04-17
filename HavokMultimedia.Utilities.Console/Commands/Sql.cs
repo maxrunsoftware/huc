@@ -15,12 +15,9 @@ limitations under the License.
 */
 
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -32,8 +29,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Execute a SQL statement and/or script and optionally save the result(s) to a tab delimited file(s)");
             help.AddParameter("sqlStatement", "s", "SQL statement to execute");
             help.AddParameter("sqlScriptFile", "f", "SQL script file to execute");
-
             help.AddValue("<result file 1> <result file 2> <etc>");
+            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -s=`SELECT TOP 100 * FROM Orders` Orders100.txt");
+            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -s=`SELECT * FROM Orders; SELECT * FROM Employees` Orders.txt Employees.txt");
+            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -f=`mssqlscript.sql` OrdersFromScript.txt");
         }
 
         protected override void Execute()

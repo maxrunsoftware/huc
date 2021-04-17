@@ -17,7 +17,6 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -210,6 +209,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("schema", "s", "Schema to load table");
             help.AddParameter("table", "t", "Table name");
             help.AddValue("<tab delimited file to load>");
+            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
+            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
         }
 
         protected override void Execute()

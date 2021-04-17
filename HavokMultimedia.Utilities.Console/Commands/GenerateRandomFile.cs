@@ -21,10 +21,8 @@ using System.Security.Cryptography;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-
     public class GenerateRandomFile : Command
     {
-
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Generates a random data file");
@@ -33,6 +31,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("width", "w", "Size of the column of data to write for each line (80)");
             help.AddParameter("secureRandom", "s", "Use the secure random algorithim (false)");
             help.AddValue("<output file 1> <output file 2> <etc>");
+            help.AddExample("testdata.txt");
+            help.AddExample("-l=1000000 testdata1.txt testdata2.txt testdata3.txt");
         }
 
         protected override void Execute()

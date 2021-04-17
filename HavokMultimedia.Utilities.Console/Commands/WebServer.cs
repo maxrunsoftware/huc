@@ -83,6 +83,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("port", "o", "Port to bind to (8080)");
             help.AddDetail("You can use an index.html file in the root of the directory to display a page rather then a directory listing");
             help.AddValue("<directory to serve>");
+            help.AddExample(".");
+            help.AddExample("-o=80 c:\\www");
         }
 
 
