@@ -22,18 +22,31 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class FileChecksum : Command
     {
+        private enum ChecksumType { MD5, SHA1, SHA256, SHA512 }
+
+        private Func<string, string> GetHashMethod(ChecksumType checksumType)
+        {
+            switch (checksumType)
+            {
+                case ChecksumType.MD5: return new Func<string, string>(o => Util.GenerateHashMD5(o));
+                case ChecksumType.SHA1: return new Func<string, string>(o => Util.GenerateHashSHA1(o));
+                case ChecksumType.SHA256: return new Func<string, string>(o => Util.GenerateHashSHA256(o));
+                case ChecksumType.SHA512: return new Func<string, string>(o => Util.GenerateHashSHA512(o));
+                default: throw new NotImplementedException(nameof(checksumType) + " " + checksumType + " has not been implemented yet");
+            }
+        }
+
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Generates a checksum of a file(s)");
-            help.AddParameter("checksumType", "t", "Checksum type to generate [ MD5 | SHA1 | SHA256 | SHA512 ] (MD5)");
+            help.AddParameter("checksumType", "t", "Checksum type to generate [ " + Util.GetEnumItems<ChecksumType>().ToStringDelimited(" | ") + " ] (" + ChecksumType.MD5 + ")");
             help.AddParameter("recursive", "r", "If a directory is specified, recursively search that directory and all sudirectories for files (false)");
             help.AddValue("<source file 1> <source file 2> <etc>");
         }
 
         protected override void Execute()
         {
-            var checksumType = GetArgParameterOrConfig("checksumType", "t", "MD5");
-            if (checksumType.NotIn(StringComparer.OrdinalIgnoreCase, "MD5", "SHA1", "SHA256", "SHA512")) throw new ArgsException(nameof(checksumType), $"Invalid {nameof(checksumType)}");
+            var checksumType = GetArgParameterOrConfigEnum("checksumType", "t", ChecksumType.MD5);
             var recursive = GetArgParameterOrConfigBool("recursive", "r", false);
 
             var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
@@ -49,13 +62,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             foreach (var inputFile in inputFiles)
             {
-                string checksum = null;
-
-                if (checksumType.EqualsCaseInsensitive("MD5")) checksum = Util.GenerateHashMD5(inputFile);
-                else if (checksumType.EqualsCaseInsensitive("SHA1")) checksum = Util.GenerateHashSHA1(inputFile);
-                else if (checksumType.EqualsCaseInsensitive("SHA256")) checksum = Util.GenerateHashSHA256(inputFile);
-                else if (checksumType.EqualsCaseInsensitive("SHA512")) checksum = Util.GenerateHashSHA512(inputFile);
-                else throw new NotImplementedException(nameof(checksumType) + " " + checksumType + " has not been implemented yet");
+                var checksumFunction = GetHashMethod(checksumType);
+                string checksum = checksumFunction(inputFile);
 
                 if (inputFiles.Count == 1) log.Info(checksum);
                 else log.Info(checksum + "  <--  " + inputFile);

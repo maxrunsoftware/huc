@@ -284,7 +284,11 @@ namespace HavokMultimedia.Utilities.Console
             if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
             log.Debug($"{key1}String: {v}");
             var o = defaultValue;
-            if (v.TrimOrNull() != null) o = Util.GetEnumItem<T>(v);
+            if (v.TrimOrNull() != null)
+            {
+                var onullable = Util.GetEnumItemNullable<T>(v);
+                if (onullable == null) throw new ArgsException(key1, "Arg " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
+            }
             log.Debug($"{key1}: {o}");
             return o;
 
@@ -292,6 +296,7 @@ namespace HavokMultimedia.Utilities.Console
         public string GetArgParameterConfig(string key) => config[Name + "." + key];
 
         public IReadOnlyList<string> GetArgValues() => args.Values;
+
         #endregion Parameters
     }
 
