@@ -92,6 +92,7 @@ namespace HavokMultimedia.Utilities.Console
                 Execute();
             }
         }
+
         private Args args;
         private ConfigFile config;
         protected abstract void Execute();
@@ -213,6 +214,7 @@ namespace HavokMultimedia.Utilities.Console
         #region Parameters
 
         public string GetArgParameter(string key1, string key2) => args.GetParameter(key1, key2);
+
         public string GetArgParameterOrConfig(string key1, string key2)
         {
             var v = GetArgParameter(key1, key2);
@@ -220,6 +222,7 @@ namespace HavokMultimedia.Utilities.Console
             log.Debug($"{key1}: {v}");
             return v;
         }
+
         public string GetArgParameterOrConfig(string key1, string key2, string defaultValue)
         {
             var v = GetArgParameter(key1, key2);
@@ -242,8 +245,8 @@ namespace HavokMultimedia.Utilities.Console
 
             var msg = $"No value provided for argument '{key1}' or properties file entry for '{Name}.{key1}'";
             throw new ArgsException(key1, msg);
-
         }
+
         public Encoding GetArgParameterOrConfigEncoding(string key1, string key2)
         {
             var v = GetArgParameter(key1, key2);
@@ -253,7 +256,6 @@ namespace HavokMultimedia.Utilities.Console
             if (v.TrimOrNull() != null) encoding = Util.ParseEncoding(v);
             log.Debug($"{key1}: {encoding}");
             return encoding;
-
         }
 
         public int GetArgParameterOrConfigInt(string key1, string key2, int defaultValue)
@@ -265,8 +267,8 @@ namespace HavokMultimedia.Utilities.Console
             if (v.TrimOrNull() != null) o = v.ToInt();
             log.Debug($"{key1}: {o}");
             return o;
-
         }
+
         public bool GetArgParameterOrConfigBool(string key1, string key2, bool defaultValue)
         {
             var v = GetArgParameter(key1, key2);
@@ -276,8 +278,8 @@ namespace HavokMultimedia.Utilities.Console
             if (v.TrimOrNull() != null) o = v.ToBool();
             log.Debug($"{key1}: {o}");
             return o;
-
         }
+
         public T GetArgParameterOrConfigEnum<T>(string key1, string key2, T defaultValue) where T : struct, IConvertible, IComparable, IFormattable
         {
             var v = GetArgParameter(key1, key2);
@@ -292,8 +294,8 @@ namespace HavokMultimedia.Utilities.Console
             }
             log.Debug($"{key1}: {o}");
             return o;
-
         }
+
         public string GetArgParameterConfig(string key) => config[Name + "." + key];
 
         public IReadOnlyList<string> GetArgValues() => args.Values;
@@ -314,6 +316,5 @@ namespace HavokMultimedia.Utilities.Console
         public void AddDetail(string msg) => details.Add(msg);
         public void AddParameter(string p1, string p2, string description) => parameters.Add((p1, p2, description));
         public void AddParameter(string p1, string description) => parameters.Add((p1, null, description));
-
     }
 }
