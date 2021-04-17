@@ -287,7 +287,8 @@ namespace HavokMultimedia.Utilities.Console
             if (v.TrimOrNull() != null)
             {
                 var onullable = Util.GetEnumItemNullable<T>(v);
-                if (onullable == null) throw new ArgsException(key1, "Arg " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
+                if (onullable == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
+                o = onullable.Value;
             }
             log.Debug($"{key1}: {o}");
             return o;
