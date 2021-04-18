@@ -680,47 +680,38 @@ namespace HavokMultimedia.Utilities.Console.External
                     var v = new List<(int attributeIndex, string attributeValue)>();
                     if (attributeValue != null)
                     {
-                        var index = 0;
-                        if (attributeValue is string str)
-                        {
-                            v.Add((index, str));
-                        }
-                        else if (attributeValue is byte[] bytes)
-                        {
-                            v.Add((index, "0x" + Util.Base16(bytes)));
-                        }
+                        if (attributeValue is string str) v.Add((0, str));
+                        else if (attributeValue is byte[] bytes) v.Add((0, "0x" + Util.Base16(bytes)));
                         else if (attributeValue is IEnumerable enumerable)
                         {
+                            var index = 0;
                             foreach (var attributeValueObject in enumerable)
                             {
-                                if (attributeValueObject is string str2)
-                                {
-                                    v.Add((index, str2));
-                                }
-                                else if (attributeValueObject is byte[] bytes2)
-                                {
-                                    v.Add((index, "0x" + Util.Base16(bytes2)));
-                                }
-                                else
-                                {
-                                    v.Add((index, attributeValueObject.ToStringGuessFormat()));
-                                }
+                                if (attributeValueObject is string str2) v.Add((index, str2));
+                                else if (attributeValueObject is byte[] bytes2) v.Add((index, "0x" + Util.Base16(bytes2)));
+                                else v.Add((index, attributeValueObject.ToStringGuessFormat()));
                                 index++;
                             }
                         }
-                        else
-                        {
-                            v.Add((index, attributeValue.ToStringGuessFormat()));
-                        }
+                        else v.Add((0, attributeValue.ToStringGuessFormat()));
                     }
 
                     foreach (var item in v)
                     {
-                        data.Add(new string[] { obj.DistinguishedName, obj.ObjectGUID.ToString(), attributeName, item.attributeIndex.ToString(), item.attributeValue });
+                        var rowValues = new List<string>
+                        {
+                            obj.DistinguishedName,
+                            obj.ObjectGUID.ToString(),
+                            attributeName,
+                            item.attributeIndex.ToString(),
+                            item.attributeValue
+                        };
+                        data.Add(rowValues.ToArray());
                     }
                 }
             }
 
+            log.Debug("Creating table with header " + header.ToStringDelimited(",") + " and " + data.Count + " rows");
             return Table.Create(data, header);
         }
 

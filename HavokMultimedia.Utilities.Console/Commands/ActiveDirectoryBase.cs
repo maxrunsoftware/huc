@@ -27,25 +27,29 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("port", "o", "ActiveDirectory server port (" + Ldap.LDAP_PORT + ")");
             help.AddParameter("username", "u", "ActiveDirectory server username");
             help.AddParameter("password", "p", "ActiveDirectory server password");
+            help.AddParameter("domainName", "d", "ActiveDirectory domain name");
         }
 
         private string host;
         private ushort port;
         private string username;
         private string password;
+        private string domainName;
 
         protected override void Execute()
         {
+            if (!Constant.OS_WINDOWS) throw new Exception("This function is only supported on Windows clients");
             host = GetArgParameterOrConfigRequired("host", "h");
             port = GetArgParameterOrConfigInt("port", "o", Ldap.LDAP_PORT).ToString().ToUShort();
             username = GetArgParameterOrConfig("username", "u");
             password = GetArgParameterOrConfig("password", "p");
+            domainName = GetArgParameterOrConfig("domainName", "d");
         }
 
         protected ActiveDirectory GetActiveDirectory()
         {
             if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-            return new ActiveDirectory(server: host, userName: username, password: password, ldapPort: port);
+            return new ActiveDirectory(server: host, userName: username, password: password, ldapPort: port, domainName: domainName);
         }
     }
 }

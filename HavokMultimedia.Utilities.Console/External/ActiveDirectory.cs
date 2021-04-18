@@ -123,7 +123,7 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <param name="siteName">(Optional)The name of a site in Active Directory to use the domain controllers from. Defaults to DEFAULT_FIRST_SITE_NAME if not supplied.</param>
         /// <param name="ouDn">(Optional)The distinguished name of the OU to use as a base for operations or use DistinguishedName if null.</param>
         /// <param name="ldapEncrypted">(Optional)Whether to use SSL or not for the connection.</param>
-        public ActiveDirectory(string server = null, ushort ldapPort = Ldap.LDAP_PORT, string userName = null, string password = null, string siteName = DEFAULT_FIRST_SITE_NAME, string ouDn = null)
+        public ActiveDirectory(string server = null, ushort ldapPort = Ldap.LDAP_PORT, string userName = null, string password = null, string siteName = DEFAULT_FIRST_SITE_NAME, string ouDn = null, string domainName = null)
         {
             server = server.TrimOrNull();
             if (server == null)
@@ -138,6 +138,7 @@ namespace HavokMultimedia.Utilities.Console.External
             userName = userName.TrimOrNull();
             password = password.TrimOrNull();
             siteName = siteName.TrimOrNull();
+            domainName = domainName.TrimOrNull();
 
             var domainControllers = new List<string>();
             if (siteName != null) domainControllers = GetSiteDomainControllers(server, siteName); // Get a list of domain controllers from a specific site, if one was supplied.
@@ -153,7 +154,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 authType: AuthType.Negotiate,
                 userName: userName,
                 password: password,
-                domainName: null,
+                domainName: domainName,
                 useLogonCredentials: useLogonCredentials,
                 searchBaseDNdefault: ouDn ?? DistinguishedName
                 );
