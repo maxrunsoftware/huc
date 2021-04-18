@@ -22,6 +22,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Changes the password of a user in ActiveDirectory");
+            help.AddDetail("Requires LDAPS configured on the server");
             help.AddValue("<SAMAccountName> <new password>");
         }
 
