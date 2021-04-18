@@ -338,6 +338,8 @@ namespace HavokMultimedia.Utilities
             return (dindex / dtotal * dmultipler).ToString(MidpointRounding.AwayFromZero, decimalPlaces).PadLeft(len) + " %";
         }
 
+        public static bool IsValidUTF8(byte[] buffer) => IsValidUTF8(buffer, buffer.Length);
+
         /// <summary></summary>
         /// <param name="buffer"></param>
         /// <param name="length"></param>
