@@ -15,35 +15,31 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class ActiveDirectoryList : ActiveDirectoryBase
+    public class ActiveDirectoryListObjects : ActiveDirectoryBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
-            help.AddSummary("Lists all objects and their attributes in an ActiveDirectory to the specified tab delimited file");
-            help.AddParameter("includeExpensiveProperties", "e", "Whether to include expensive properties or not (false)");
-            help.AddValue("<output tab delimited file>");
+            help.AddSummary("Lists all object names in an ActiveDirectory");
         }
 
         protected override void Execute()
         {
             base.Execute();
-            var includeExpensiveProperties = GetArgParameterOrConfigBool("includeExpensiveProperties", "e", false);
-            var values = GetArgValues().TrimOrNull().WhereNotNull();
-            var outputFile = values.GetAtIndexOrDefault(0);
-            log.Debug(nameof(outputFile) + ": " + outputFile);
-            if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
 
             using (var ad = GetActiveDirectory())
             {
-                var ados = ad.GetAll();
-                var t = ActiveDirectoryObject.CreateTable(ados, includeExpensiveProperties);
-                WriteTableTab(outputFile, t);
+                var objects = ad.GetAll().OrEmpty();
+                foreach (var obj in objects.OrderBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase))
+                {
+                    log.Info(obj.DistinguishedName);
+                }
             }
         }
     }

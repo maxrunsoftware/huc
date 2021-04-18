@@ -18,6 +18,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
@@ -379,7 +381,54 @@ namespace HavokMultimedia.Utilities.Console.External
             }
         }
 
+        private static string ParseFirstCN(string item)
+        {
+            var itemParts = item.Split(",");
+            foreach (var itemPart in itemParts)
+            {
+                if (itemPart.ToLower().StartsWith("cn="))
+                {
+                    var itemPart2 = itemPart.Substring(3).TrimOrNull();
+                    if (itemPart2 != null) return itemPart2;
+                }
+            }
+            return null;
+        }
+        public string MemberOfNames => "[" + MemberOf.Select(o => ParseFirstCN(o)).WhereNotNull().ToStringDelimited(", ") + "]";
+
+        public string MemberNames => "[" + Member.Select(o => ParseFirstCN(o)).WhereNotNull().ToStringDelimited(", ") + "]";
+
+
         #endregion Properties Custom
+
+        public IDictionary<string, string> GetAllProperties()
+        {
+            var d = new Dictionary<string, string>();
+            IList<PropertyInfo> props = new List<PropertyInfo>(GetType().GetProperties());
+
+            foreach (PropertyInfo prop in props)
+            {
+                if (nameof(Attributes).Equals(prop.Name)) continue;
+
+                var getMethod = prop.GetGetMethod();
+                if (getMethod == null) continue;
+                object propValue = prop.GetValue(this, null);
+
+                string val = propValue.ToStringGuessFormat().TrimOrNull();
+                if (val == null) continue;
+                if (val == "[]") continue;
+                if (propValue.GetType() is IEnumerable<ActiveDirectoryObject> enumerableObjects)
+                {
+                    var list = enumerableObjects.ToList();
+                    if (list.Count == 0) continue;
+                    val = "[" + list.Select(o => o.SAMAccountName).ToStringDelimited(", ") + "]";
+                }
+
+                d[prop.Name] = val;
+            }
+
+            return d;
+        }
 
         #region Constructor
 
