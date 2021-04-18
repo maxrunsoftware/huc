@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -45,6 +46,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected GoogleSheets CreateConnection()
         {
+            if (spreadsheetId == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
             log.Debug("Opening Google Sheets connection");
             return new GoogleSheets(securityKeyFileData, applicationName, spreadsheetId);
         }

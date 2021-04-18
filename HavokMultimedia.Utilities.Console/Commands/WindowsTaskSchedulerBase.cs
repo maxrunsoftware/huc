@@ -35,7 +35,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("forceV1", "v1", "Server force version 1 task scheduler implementation (false)");
         }
 
-        protected WindowsTaskScheduler GetTaskScheduler() => new WindowsTaskScheduler(host, username, password, forceV1: forceV1);
+        protected WindowsTaskScheduler GetTaskScheduler()
+        {
+            if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
+
+            return new WindowsTaskScheduler(host, username, password, forceV1: forceV1);
+        }
 
         private string host;
         private string username;

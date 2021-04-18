@@ -63,7 +63,6 @@ namespace HavokMultimedia.Utilities.Console.External
         /// </summary>
         public string DistinguishedName => Ldap?.DefaultNamingContext;
 
-        // ----- PROPERTIES -----
         /// <summary>
         /// The domain name of the Active Directory.
         /// </summary>
@@ -360,7 +359,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             activeDirectoryObject.CheckNotNull(nameof(activeDirectoryObject));
             parentObjectDistinguishedName.CheckNotNullTrimmed(nameof(parentObjectDistinguishedName));
-            if (activeDirectoryObject.ObjectGUID == null) throw new ArgumentException("Cannot move object " + activeDirectoryObject + " because it does not have an " + nameof(ActiveDirectoryObject.ObjectGUID));
+            //if (activeDirectoryObject.ObjectGUID == null) throw new ArgumentException("Cannot move object " + activeDirectoryObject + " because it does not have an " + nameof(ActiveDirectoryObject.ObjectGUID));
 
             Ldap.EntryMoveRename(activeDirectoryObject.DistinguishedName, parentObjectDistinguishedName, activeDirectoryObject.CN);
 
@@ -377,7 +376,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             activeDirectoryObject.CheckNotNull(nameof(activeDirectoryObject));
             newCommonName.CheckNotNullTrimmed(nameof(newCommonName));
-            if (activeDirectoryObject.ObjectGUID == null) throw new ArgumentException("Cannot move object " + activeDirectoryObject + " because it does not have an " + nameof(ActiveDirectoryObject.ObjectGUID));
+            //if (activeDirectoryObject.ObjectGUID == null) throw new ArgumentException("Cannot move object " + activeDirectoryObject + " because it does not have an " + nameof(ActiveDirectoryObject.ObjectGUID));
 
             Ldap.EntryMoveRename(activeDirectoryObject.DistinguishedName, activeDirectoryObject.OrganizationalUnit, newCommonName);
 

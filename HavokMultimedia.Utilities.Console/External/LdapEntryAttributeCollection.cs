@@ -52,7 +52,9 @@ namespace HavokMultimedia.Utilities.Console.External
                 }
             }
 
-            ObjectGUID = Ldap.Bytes2Guid(GetByteArray("objectGUID"));
+            Guid? ObjectGUID = null;
+            var objectGuidBytes = GetByteArray("objectGUID");
+            if (objectGuidBytes != null && objectGuidBytes.Length > 0) ObjectGUID = Ldap.Bytes2Guid(objectGuidBytes);
             DistinguishedName = GetString("distinguishedName");
 
             foreach (var attributeName in dictionary.Keys.ToList())
@@ -78,7 +80,7 @@ namespace HavokMultimedia.Utilities.Console.External
                     var end = range.rangeEnd.Value + blockSize;
                     var attributeFilter = range.name + ";range=" + start + "-" + end;
 
-                    if (ObjectGUID != null) entry = ldap.SearchResultEntryGetByObjectGuid(ObjectGUID, new LdapQueryConfig(attributes: attributeFilter.Yield()));
+                    if (ObjectGUID != null) entry = ldap.SearchResultEntryGetByObjectGuid(ObjectGUID.Value, new LdapQueryConfig(attributes: attributeFilter.Yield()));
                     else if (DistinguishedName != null) entry = ldap.SearchResultEntryGetByDistinguishedName(DistinguishedName, new LdapQueryConfig(attributes: attributeFilter.Yield()));
                     else break;
                     attributes = entry.Attributes;

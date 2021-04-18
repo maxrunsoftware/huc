@@ -209,6 +209,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected IFtpClient OpenClient()
         {
+            if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
             return encryptionMode switch
             {
                 FTPEncryptionMode.None => OpenClientFTP(),

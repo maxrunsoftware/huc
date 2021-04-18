@@ -51,6 +51,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected Utilities.Sql GetSqlHelper()
         {
+            if (connectionString == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
+
             switch (SqlServerType)
             {
                 case SqlServerType.MSSQL: return new SqlMSSQL(CreateConnectionMSSQL) { CommandTimeout = commandTimeout };
