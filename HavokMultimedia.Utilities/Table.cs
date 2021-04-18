@@ -129,9 +129,44 @@ namespace HavokMultimedia.Utilities
 
         #region Create
 
-        public static Table Create<TEnumerable>(IEnumerable<TEnumerable> data, bool firstRowIsHeader) where TEnumerable : class, IEnumerable<string> => new Table(data.CheckNotNull(nameof(data)).Where(o => o != null).Select(o => (o as string[]) ?? o.ToArray()), firstRowIsHeader);
+        public static Table Create<TEnumerable>(IEnumerable<TEnumerable> data, bool firstRowIsHeader) where TEnumerable : class, IEnumerable<string>
+        {
+            data.CheckNotNull(nameof(data));
+            var list = new List<string[]>();
+            foreach (var row in data)
+            {
+                var rowList = new List<string>();
+                foreach (var cell in row.OrEmpty())
+                {
+                    rowList.Add(cell);
+                }
+                list.Add(rowList.ToArray());
+            }
+            return new Table(list, firstRowIsHeader);
+        }
 
-        public static Table Create<TEnumerableRow, TEnumerableHeader>(IEnumerable<TEnumerableRow> data, TEnumerableHeader header) where TEnumerableRow : class, IEnumerable<string> where TEnumerableHeader : class, IEnumerable<string> => Create(new List<IEnumerable<string>> { header.CheckNotNull(nameof(header)) }.Concat(data.CheckNotNull(nameof(data))), true);
+        public static Table Create<TEnumerableRow, TEnumerableHeader>(IEnumerable<TEnumerableRow> data, TEnumerableHeader header) where TEnumerableRow : class, IEnumerable<string> where TEnumerableHeader : class, IEnumerable<string>
+        {
+            data.CheckNotNull(nameof(data));
+            header.CheckNotNull(nameof(header));
+
+            var list = new List<string[]>();
+            var headerList = new List<string>();
+            foreach (var item in header) headerList.Add(item);
+            list.Add(headerList.ToArray());
+
+            foreach (var row in data)
+            {
+                var rowList = new List<string>();
+                foreach (var cell in row)
+                {
+                    rowList.Add(cell);
+                }
+                list.Add(rowList.ToArray());
+            }
+
+            return new Table(list, true);
+        }
 
         public static Table[] Create(IDataReader dataReader, TypeConverter converter)
         {
