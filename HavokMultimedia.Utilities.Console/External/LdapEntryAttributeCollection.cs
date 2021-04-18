@@ -39,7 +39,7 @@ namespace HavokMultimedia.Utilities.Console.External
             entry.CheckNotNull(nameof(entry));
 
             var attributes = entry.Attributes;
-            if (attributes == null) return;
+            if (attributes == null) return; // no attributes for this object
 
             foreach (DictionaryEntry da in attributes)
             {
@@ -119,12 +119,12 @@ namespace HavokMultimedia.Utilities.Console.External
             (string name, int rangeStart, int? rangeEnd) def = (null, -1, null);
             if (name.IndexOf(";range=", StringComparison.OrdinalIgnoreCase) <= 0) return def;
 
-            var nameParts = name.Split(new string[] { ";range=" }, StringSplitOptions.RemoveEmptyEntries).TrimOrNull().WhereNotNull();
+            var nameParts = name.Split(";range=").TrimOrNull().WhereNotNull();
             if (nameParts.Length != 2) return def;
             var n = nameParts[0].TrimOrNull();
             if (n == null) return def;
 
-            var rangeParts = nameParts[1].Split(new string[] { "-" }, StringSplitOptions.RemoveEmptyEntries).TrimOrNull().WhereNotNull();
+            var rangeParts = nameParts[1].Split("-").TrimOrNull().WhereNotNull();
             if (rangeParts.Length != 2) return def;
 
             if (!rangeParts[0].ToIntTry(out var rangeStart)) return def;

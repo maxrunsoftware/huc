@@ -383,7 +383,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         #region Constructor
 
-        public ActiveDirectoryObject(ActiveDirectory activeDirectory, LdapEntryAttributeCollection attributes)
+        private ActiveDirectoryObject(ActiveDirectory activeDirectory, LdapEntryAttributeCollection attributes)
         {
             this.activeDirectory = activeDirectory.CheckNotNull(nameof(activeDirectory));
             Attributes = attributes.CheckNotNull(nameof(attributes));
@@ -391,18 +391,17 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static ActiveDirectoryObject Create(ActiveDirectory activeDirectory, LdapEntryAttributeCollection attributes)
         {
-            activeDirectory.CheckNotNull(nameof(activeDirectory));
-            if (attributes == null) return null;
             return new ActiveDirectoryObject(activeDirectory, attributes);
         }
 
         public static IEnumerable<ActiveDirectoryObject> Create(ActiveDirectory activeDirectory, IEnumerable<LdapEntryAttributeCollection> attributes)
         {
             activeDirectory.CheckNotNull(nameof(activeDirectory));
-            foreach (var attribute in (attributes ?? Enumerable.Empty<LdapEntryAttributeCollection>()))
+            foreach (var attribute in attributes.OrEmpty())
             {
+                if (attribute == null) continue;
                 var o = Create(activeDirectory, attribute);
-                if (o != null) yield return o;
+                yield return o;
             }
         }
 
