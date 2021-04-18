@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace HavokMultimedia.Utilities
 {
@@ -698,15 +699,35 @@ namespace HavokMultimedia.Utilities
 
             if (includeHeader)
             {
-                var itemsHeader = table.Columns.ColumnNames.Select(o => headerQuoting + (ToDelimitedReplacements(o, headerDelimiter, headerDelimiterReplacement) ?? string.Empty) + headerQuoting);
-                writer(string.Join(headerDelimiter, itemsHeader + newLine));
+                var sb = new StringBuilder();
+                bool first = true;
+                foreach (var col in table.Columns.ColumnNames)
+                {
+                    if (first) first = false;
+                    else sb.Append(headerDelimiter);
+                    sb.Append(headerQuoting);
+                    var colText = ToDelimitedReplacements(col, headerDelimiter, headerDelimiterReplacement);
+                    sb.Append(colText);
+                    sb.Append(headerQuoting);
+                }
+                writer(sb.ToString() + newLine);
             }
             if (includeRows)
             {
                 foreach (var row in table)
                 {
-                    var itemsData = row.Select(o => dataQuoting + (ToDelimitedReplacements(o, dataDelimiter, dataDelimiterReplacement) ?? string.Empty) + dataQuoting);
-                    writer(string.Join(dataDelimiter, itemsData + newLine));
+                    var sb = new StringBuilder();
+                    var first = true;
+                    foreach (var cell in row)
+                    {
+                        if (first) first = false;
+                        else sb.Append(dataDelimiter);
+                        sb.Append(dataQuoting);
+                        var cellText = ToDelimitedReplacements(cell, dataDelimiter, dataDelimiterReplacement);
+                        sb.Append(cellText);
+                        sb.Append(dataQuoting);
+                    }
+                    writer(sb.ToString() + newLine);
                 }
             }
         }
