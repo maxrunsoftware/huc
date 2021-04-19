@@ -14,6 +14,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [File Checksums](#file-checksum)
 - [Web Server](#web-server)
 - [SSH](#ssh)
+- [Active Directory Interaction](#active-directory)
 - [Google Sheets Interaction](#google-sheets)
 - [Generation of public and private keys](#generate-public-and-private-keys)
 - [File encryption and decryption](#file-encryption-and-decryption)
@@ -205,6 +206,30 @@ huc SSH -h=192.168.1.5 -u=testuser -p=testpass "ls"
 Change directory and issue LS command with options
 ```sh
 huc SSH -h=192.168.1.5 -u=testuser -p=testpass "cd someDirectory; ls -la;"
+```
+&nbsp;
+### Active Directory
+List all objects and their attributes to a tab delimited file
+```sh
+huc ActiveDirectoryList -h=192.168.1.5 -u=administrator -p=testpass adlist.txt
+```
+
+List various object types
+```sh
+huc ActiveDirectoryListUsers -h=192.168.1.5 -u=administrator -p=testpass
+huc ActiveDirectoryListGroups -h=192.168.1.5 -u=administrator -p=testpass
+huc ActiveDirectoryListComputers -h=192.168.1.5 -u=administrator -p=testpass
+```
+
+List additional details for an Active Directory object
+```sh
+huc ActiveDirectoryListObjectDetails -h=192.168.1.5 -u=administrator -p=testpass Administrator
+huc ActiveDirectoryListObjectDetails -h=192.168.1.5 -u=administrator -p=testpass Users
+```
+
+Change a user's password (note: requires LDAPS certificate to be installed on AD server)
+```sh
+huc ActiveDirectoryChangePassword -h=192.168.1.5 -u=administrator -p=testpass testuser newpassword
 ```
 &nbsp;
 ### Google Sheets
