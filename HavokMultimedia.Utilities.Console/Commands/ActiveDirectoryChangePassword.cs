@@ -24,6 +24,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Changes the password of a user in ActiveDirectory");
             help.AddDetail("Requires LDAPS configured on the server");
             help.AddValue("<SAMAccountName> <new password>");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser newpassword");
         }
 
         protected override void Execute()

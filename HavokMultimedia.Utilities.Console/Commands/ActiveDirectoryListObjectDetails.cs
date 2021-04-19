@@ -26,6 +26,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Lists object details of an object in an ActiveDirectory");
             help.AddValue("<object name>");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass Administrator");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass Users");
         }
 
         protected override void Execute()

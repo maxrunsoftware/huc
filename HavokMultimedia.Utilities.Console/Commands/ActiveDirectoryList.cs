@@ -28,6 +28,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Lists all objects and their attributes in an ActiveDirectory to the specified tab delimited file");
             help.AddParameter("includeExpensiveProperties", "e", "Whether to include expensive properties or not (false)");
             help.AddValue("<output tab delimited file>");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass adlist.txt");
         }
 
         protected override void Execute()

@@ -25,6 +25,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Lists all user names in an ActiveDirectory");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass");
         }
 
         protected override void Execute()
