@@ -34,8 +34,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.Execute();
 
-            var values = GetArgValues().TrimOrNull().WhereNotNull();
-            var objectName = values.GetAtIndexOrDefault(0);
+            var objectName = GetArgValueTrimmed(0);
             log.Debug(nameof(objectName) + ": " + objectName);
             if (objectName == null) throw new ArgsException(nameof(objectName), "No <" + nameof(objectName) + "> specified to search for");
 

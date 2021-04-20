@@ -45,7 +45,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var secureRandom = GetArgParameterOrConfigBool("secureRandom", "s", false);
             if (w < 1) w = int.MaxValue;
 
-            var outputFiles = GetArgValues().TrimOrNull().WhereNotNull().ToList();
+            var outputFiles = GetArgValuesTrimmed();
             for (var i = 0; i < outputFiles.Count; i++) log.Debug($"outputFile[{i}]: {outputFiles[i]}");
             if (outputFiles.IsEmpty()) throw new ArgsException("outputFiles", "No <outputFile> specified");
 

@@ -36,8 +36,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var sheetName = GetArgParameterOrConfig("sheetName", "s");
             var range = GetArgParameterOrConfig("range", "r", "A1:ZZ");
 
-            var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
-            var outputFile = values.GetAtIndexOrDefault(0);
+            var outputFile = GetArgValueTrimmed(0);
             log.Debug(nameof(outputFile) + ": " + outputFile);
             if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
 

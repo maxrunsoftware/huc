@@ -45,7 +45,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.Execute();
 
             var r = GetArgParameterOrConfigBool("recursive", "r", false);
-            var path = GetArgValues().TrimOrNull().WhereNotNull().FirstOrDefault();
+            var path = GetArgValueTrimmed(0);
 
             using (var c = OpenClient())
             {

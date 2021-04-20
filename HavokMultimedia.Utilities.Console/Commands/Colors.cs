@@ -61,8 +61,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-            var values = GetArgValues().TrimOrNull().WhereNotNull();
-            var colorRequested = values.FirstOrDefault();
+            var colorRequested = GetArgValueTrimmed(0);
             log.Debug(nameof(colorRequested) + ": " + colorRequested);
             if (colorRequested == null)
             {

@@ -34,12 +34,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var length = GetArgParameterOrConfigInt("length", "l", 1024);
 
-            var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
-            var publicKeyFile = values.GetAtIndexOrDefault(0);
+            var publicKeyFile = GetArgValueTrimmed(0);
             log.Debug($"{nameof(publicKeyFile)}: {publicKeyFile}");
             if (publicKeyFile == null) throw new ArgsException(nameof(publicKeyFile), $"No {nameof(publicKeyFile)} specified to save to");
 
-            var privateKeyFile = values.GetAtIndexOrDefault(1);
+            var privateKeyFile = GetArgValueTrimmed(1);
             log.Debug($"{nameof(privateKeyFile)}: {privateKeyFile}");
             if (privateKeyFile == null) throw new ArgsException(nameof(privateKeyFile), $"No {nameof(privateKeyFile)} specified to save to");
 

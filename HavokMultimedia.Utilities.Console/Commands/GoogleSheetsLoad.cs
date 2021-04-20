@@ -38,8 +38,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var columns = GetArgParameterOrConfig("columns", "c").TrimOrNull();
             var characterThreshold = GetArgParameterOrConfigInt("characterThreshold", "ct", 1000000);
 
-            var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
-            var dataFileName = values.GetAtIndexOrDefault(0);
+            var dataFileName = GetArgValueTrimmed(0);
             log.Debug(nameof(dataFileName) + ": " + dataFileName);
             if (dataFileName == null) throw new ArgsException("dataFileName", "No dataFile specified");
 

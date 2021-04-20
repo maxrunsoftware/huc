@@ -41,7 +41,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-            var colWidths = GetArgValues().TrimOrNull().WhereNotNull().ToList();
+            var colWidths = GetArgValuesTrimmed();
             var inputFile = colWidths.PopHead();
             log.Debug($"inputFile: {inputFile}");
             for (int i = 0; i < colWidths.Count; i++) log.Debug($"columnWidth[{i}]: {colWidths[i]}");

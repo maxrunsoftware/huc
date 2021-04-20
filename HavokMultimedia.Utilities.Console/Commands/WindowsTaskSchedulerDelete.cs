@@ -33,7 +33,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.Execute();
 
-            var taskPath = GetArgValues().TrimOrNull().WhereNotNull().FirstOrDefault();
+            var taskPath = GetArgValueTrimmed(0);
             if (taskPath == null) throw new ArgsException(nameof(taskPath), "No task path specified");
 
             using (var scheduler = GetTaskScheduler())

@@ -125,7 +125,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-            var includedItems = Util.ParseInputFiles(GetArgValues().TrimOrNull().WhereNotNull());
+            var includedItems = Util.ParseInputFiles(GetArgValuesTrimmed());
             if (includedItems.Count < 1) throw new ArgsException("inputFiles", "No input files supplied");
             for (int i = 0; i < includedItems.Count; i++) log.Debug($"inputFile[{i}]: {includedItems[i]}");
 

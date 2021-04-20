@@ -92,7 +92,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var ipaddress = GetArgParameterOrConfig("ipaddress", "ip").TrimOrNull() ?? "localhost";
             var port = GetArgParameterOrConfigInt("port", "o", 8080);
-            var directoryToServe = GetArgValues().GetAtIndexOrDefault(0) ?? Environment.CurrentDirectory;
+            var directoryToServe = GetArgValueTrimmed(0) ?? Environment.CurrentDirectory;
             log.Debug($"{nameof(directoryToServe)}: {directoryToServe}");
             directoryToServe = Path.GetFullPath(directoryToServe);
             if (!Directory.Exists(directoryToServe)) throw new DirectoryNotFoundException("Directory was not found " + directoryToServe);

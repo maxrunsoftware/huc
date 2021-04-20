@@ -34,7 +34,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void Execute()
         {
             var showUndefined = GetArgParameterOrConfigBool("showUndefined", "s", false);
-            var fileLocation = GetArgValues().FirstOrDefault();
+            var fileLocation = GetArgValueTrimmed(0);
             ConfigFile c;
             if (fileLocation == null)
             {

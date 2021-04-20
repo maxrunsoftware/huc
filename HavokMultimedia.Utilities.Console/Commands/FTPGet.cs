@@ -60,7 +60,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.Execute();
 
-            var remoteFiles = GetArgValues().OrEmpty().TrimOrNull().WhereNotNull().ToList();
+            var remoteFiles = GetArgValuesTrimmed();
             if (remoteFiles.IsEmpty()) throw new ArgsException("remoteFiles", "No remote files provided");
             for (var i = 0; i < remoteFiles.Count; i++) log.Debug($"remoteFile[{i}]: {remoteFiles[i]}");
 

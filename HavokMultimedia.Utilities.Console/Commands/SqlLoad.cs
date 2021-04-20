@@ -228,7 +228,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var schema = GetArgParameterOrConfig("schema", "s").TrimOrNull();
             var table = GetArgParameterOrConfigRequired("table", "t").TrimOrNull();
 
-            var inputFile = GetArgValues().OrEmpty().TrimOrNull().WhereNotNull().FirstOrDefault();
+            var inputFile = GetArgValueTrimmed(0);
             if (inputFile == null) throw new ArgsException("inputFile", "No input file provided to load");
             log.Debug($"inputFile: {inputFile}");
             var inputFile2 = Util.ParseInputFiles(inputFile.Yield()).FirstOrDefault();

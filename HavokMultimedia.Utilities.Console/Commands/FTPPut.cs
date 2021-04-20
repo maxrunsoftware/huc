@@ -39,7 +39,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.Execute();
 
-            var localFiles = GetArgValues().OrEmpty().TrimOrNull().WhereNotNull().ToList();
+            var localFiles = GetArgValuesTrimmed();
             if (localFiles.IsEmpty()) throw new ArgsException("localFiles", "No local files provided");
             for (var i = 0; i < localFiles.Count; i++) log.Debug($"localFile[{i}]: {localFiles[i]}");
 

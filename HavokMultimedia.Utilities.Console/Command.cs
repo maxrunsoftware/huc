@@ -300,6 +300,10 @@ namespace HavokMultimedia.Utilities.Console
 
         public IReadOnlyList<string> GetArgValues() => args.Values;
 
+        public List<string> GetArgValuesTrimmed() => GetArgValues().TrimOrNull().WhereNotNull().ToList();
+
+        public string GetArgValueTrimmed(int index) => GetArgValuesTrimmed().GetAtIndexOrDefault(index);
+
         #endregion Parameters
     }
 

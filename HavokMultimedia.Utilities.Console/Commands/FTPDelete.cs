@@ -36,7 +36,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.Execute();
 
-            var filesToDelete = GetArgValues().OrEmpty().TrimOrNull().WhereNotNull().ToList();
+            var filesToDelete = GetArgValuesTrimmed();
             if (filesToDelete.IsEmpty()) throw new ArgsException("fileToDelete", "No files to delete provided");
             for (var i = 0; i < filesToDelete.Count; i++) log.Debug($"filesToDelete[{i}]: {filesToDelete[i]}");
 

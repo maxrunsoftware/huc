@@ -35,8 +35,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.Execute();
             var includeExpensiveProperties = GetArgParameterOrConfigBool("includeExpensiveProperties", "e", false);
-            var values = GetArgValues().TrimOrNull().WhereNotNull();
-            var outputFile = values.GetAtIndexOrDefault(0);
+            var outputFile = GetArgValueTrimmed(0);
             log.Debug(nameof(outputFile) + ": " + outputFile);
             if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
 

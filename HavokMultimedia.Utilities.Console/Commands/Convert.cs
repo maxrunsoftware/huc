@@ -39,13 +39,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var bufferSizeMegabytes = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10).ToString().ToUInt();
             bufferSize = (int)bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
 
-            var inputFile = GetArgValues().GetAtIndexOrDefault(0).TrimOrNull();
+            var inputFile = GetArgValueTrimmed(0);
             log.Debug($"{nameof(inputFile)}: {inputFile}");
             inputFile = Util.ParseInputFile(inputFile);
             if (!File.Exists(inputFile)) throw new FileNotFoundException($"{nameof(inputFile)} {inputFile} does not exist");
             log.Debug($"{nameof(inputFile)}: {inputFile}");
 
-            var outputFile = GetArgValues().GetAtIndexOrDefault(1).TrimOrNull();
+            var outputFile = GetArgValueTrimmed(1);
             log.Debug($"{nameof(outputFile)}: {outputFile}");
             if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
             outputFile = Path.GetFullPath(outputFile);

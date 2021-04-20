@@ -59,7 +59,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.Execute();
 
-
             var taskUsername = GetArgParameterOrConfigRequired("taskUsername", "tu").TrimOrNull();
             var taskPassword = GetArgParameterOrConfig("taskPassword", "tp").TrimOrNull();
             var taskUsernameMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -91,7 +90,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             triggerStrings = triggerStrings.TrimOrNull().WhereNotNull().ToList();
             for (int i = 1; i < triggerStrings.Count; i++) log.Debug($"triggerStrings[{i}]: {triggerStrings[i]}");
 
-            var executeFiles = GetArgValues().TrimOrNull().WhereNotNull().ToList();
+            var executeFiles = GetArgValuesTrimmed();
             for (int i = 0; i < executeFiles.Count; i++)
             {
                 executeFiles[i] = Path.GetFullPath(executeFiles[i]);

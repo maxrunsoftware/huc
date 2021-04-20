@@ -33,11 +33,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-            var sourceURL = GetArgValues().GetAtIndexOrDefault(0).TrimOrNull();
+            var sourceURL = GetArgValueTrimmed(0);
             log.Debug($"{nameof(sourceURL)}: {sourceURL}");
             if (sourceURL == null) throw new ArgsException(nameof(sourceURL), $"{nameof(sourceURL)} not provided");
 
-            var outputFile = GetArgValues().GetAtIndexOrDefault(1).TrimOrNull();
+            var outputFile = GetArgValueTrimmed(1);
             log.Debug($"{nameof(outputFile)}: {outputFile}");
             if (outputFile == null)
             {

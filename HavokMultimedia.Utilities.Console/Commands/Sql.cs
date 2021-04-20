@@ -53,7 +53,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (sql == null) throw new ArgsException("sqlStatement", "No SQL provided to execute");
             log.Debug($"sql: {sql}");
 
-            var resultFiles = GetArgValues().OrEmpty().TrimOrNull().ToList();
+            var resultFiles = GetArgValuesTrimmed();
             for (var i = 0; i < resultFiles.Count; i++)
             {
                 if (resultFiles[i] == null) continue;

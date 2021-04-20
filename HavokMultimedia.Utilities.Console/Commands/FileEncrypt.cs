@@ -35,21 +35,19 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
-            var values = GetArgValues().TrimOrNull().WhereNotNull().ToList();
-
             var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
             var publicKeyFile = GetArgParameterOrConfig("publicKey", "pk").TrimOrNull();
             if (password == null && publicKeyFile == null) throw new ArgsException(nameof(password), $"Either password or publicKey must be specified");
             if (password != null && publicKeyFile != null) throw new ArgsException(nameof(password), $"Both password and publicKey can not be specified at the same time");
 
-            var fileToEncrypt = values.GetAtIndexOrDefault(0);
+            var fileToEncrypt = GetArgValueTrimmed(0);
             log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
             if (fileToEncrypt == null) throw new ArgsException(nameof(fileToEncrypt), $"No {nameof(fileToEncrypt)} specified to encrypt");
             fileToEncrypt = Path.GetFullPath(fileToEncrypt);
             CheckFileExists(fileToEncrypt);
             log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
 
-            var encryptedFile = values.GetAtIndexOrDefault(1);
+            var encryptedFile = GetArgValueTrimmed(1);
             if (encryptedFile == null) encryptedFile = fileToEncrypt;
             log.Debug($"{nameof(encryptedFile)}: {encryptedFile}");
 

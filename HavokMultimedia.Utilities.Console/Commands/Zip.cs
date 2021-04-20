@@ -56,7 +56,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
 
-            var values = new Queue<string>(GetArgValues().OrEmpty().TrimOrNull().WhereNotNull());
+            var values = new Queue<string>(GetArgValuesTrimmed());
             var outputFileString = values.DequeueOrDefault();
             log.Debug($"outputFileString: {outputFileString}");
             var outputFile = Path.GetFullPath(outputFileString);

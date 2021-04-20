@@ -111,7 +111,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var t = GetArgParameterOrConfigInt("threads", "t", Environment.ProcessorCount - 1);
 
-            var inputFileStrings = GetArgValues().TrimOrNull().WhereNotNull().ToList();
+            var inputFileStrings = GetArgValuesTrimmed();
             log.Debug($"inputFileStrings: " + string.Join(", ", inputFileStrings));
             var inputFiles = Util.ParseInputFiles(inputFileStrings);
             for (var i = 0; i < inputFiles.Count; i++) log.Debug($"inputFile[{i}]: {inputFiles[i]}");

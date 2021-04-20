@@ -32,7 +32,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void Execute()
         {
             //var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
-            var values = GetArgValues().WhereNotNull().ToList();
+            var values = GetArgValuesTrimmed();
             if (values.Count < 1) throw new ArgsException("targetFile", "No target file specified");
             if (values.Count < 2) throw new ArgsException("sourceFile", "No source file(s) specified");
 

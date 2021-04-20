@@ -295,9 +295,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void Execute()
         {
             base.Execute();
+
             #region Initialization
-
-
 
             var tu = GetArgParameterOrConfigRequired("taskUsername", "tu").TrimOrNull();
             log.Debug($"taskUsername: {tu}");
@@ -322,7 +321,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var taskSchedulerFolderPath = WindowsTaskScheduler.ParsePath(tf);
             log.Debug($"taskFolderPath: {taskSchedulerFolderPath}");
 
-            var foldersToScan = GetArgValues().OrEmpty().TrimOrNull().WhereNotNull().ToList();
+            var foldersToScan = GetArgValuesTrimmed();
             if (foldersToScan.IsEmpty()) throw new ArgsException("foldersToScan", "No folders to scan specified");
             for (var i = 0; i < foldersToScan.Count; i++)
             {

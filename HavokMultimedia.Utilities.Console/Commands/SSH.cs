@@ -81,7 +81,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (privateKey3File != null) sshkeys.Add(new SshKeyFile(privateKey3File, privateKey3Password));
 
 
-            var command = GetArgValues().TrimOrNull().WhereNotNull().FirstOrDefault();
+            var command = GetArgValueTrimmed(0);
             log.Debug("command: " + command);
             var f = GetArgParameterOrConfig("sshScriptFile", "f").TrimOrNull();
 

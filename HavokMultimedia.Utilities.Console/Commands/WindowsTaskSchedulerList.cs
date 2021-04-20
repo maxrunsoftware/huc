@@ -57,7 +57,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var detail = GetArgParameterOrConfigBool("detail", "d", false);
             var xml = GetArgParameterOrConfigBool("xml", "x", false);
 
-            var allOrFolderPath = GetArgValues().TrimOrNull().WhereNotNull().FirstOrDefault() ?? "ALL";
+            var allOrFolderPath = GetArgValueTrimmed(0) ?? "ALL";
 
             using (var scheduler = GetTaskScheduler())
             {
