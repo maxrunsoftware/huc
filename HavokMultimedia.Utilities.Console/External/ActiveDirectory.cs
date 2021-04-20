@@ -148,16 +148,26 @@ namespace HavokMultimedia.Utilities.Console.External
             var useLogonCredentials = false;
             if (userName == null) useLogonCredentials = true;
 
-            Ldap = new Ldap(
-                domainControllers.FirstOrDefault(),
-                ldapPort,
-                authType: AuthType.Negotiate,
-                userName: userName,
-                password: password,
-                domainName: domainName,
-                useLogonCredentials: useLogonCredentials,
-                searchBaseDNdefault: ouDn ?? DistinguishedName
-                );
+            log.Debug($"Attempting LDAP connection to {domainControllers.FirstOrDefault()}:{ldapPort} with user {userName}");
+            try
+            {
+                Ldap = new Ldap(
+                    domainControllers.FirstOrDefault(),
+                    ldapPort,
+                    authType: AuthType.Negotiate,
+                    userName: userName,
+                    password: password,
+                    domainName: domainName,
+                    useLogonCredentials: useLogonCredentials,
+                    searchBaseDNdefault: ouDn ?? DistinguishedName
+                    );
+            }
+            catch (Exception)
+            {
+                log.Error($"Failed LDAP connection to {domainControllers.FirstOrDefault()}:{ldapPort} with user {userName}");
+                throw;
+            }
+            log.Debug($"Success LDAP connection to {domainControllers.FirstOrDefault()}:{ldapPort} with user {userName}");
         }
 
         #region Methods Instance
@@ -313,19 +323,20 @@ namespace HavokMultimedia.Utilities.Console.External
 
             var objectDistinguishedName = "CN=" + sAMAccountName + "," + ouDistinguishedName;
 
-            var attributes = new List<DirectoryAttribute> { new DirectoryAttribute("sAMAccountName", sAMAccountName) };
+            var attributes = new List<DirectoryAttribute>();
+            attributes.Add("sAMAccountName", sAMAccountName);
 
             if (groupType == null) // user
             {
-                attributes.Add(new DirectoryAttribute("objectClass", "user"));
-                attributes.Add(new DirectoryAttribute("userPrincipalName", sAMAccountName + "@" + Name));
+                attributes.Add("objectClass", "user");
+                attributes.Add("userPrincipalName", sAMAccountName + "@" + Name);
             }
             else // group
             {
-                if (!IsGroupNameValid(sAMAccountName)) throw new ArgumentException("The SAM Account Name provided is not a valid group name.");
-                attributes.Add(new DirectoryAttribute("objectClass", "group"));
+                if (!IsGroupNameValid(sAMAccountName)) throw new ArgumentException("The SAM Account Name '" + sAMAccountName + "' is not a valid group name.");
+                attributes.Add("objectClass", "group");
                 //attributes.Add(new DirectoryAttribute("groupType", BitConverter.GetBytes(groupType.Value)));
-                attributes.Add(new DirectoryAttribute("groupType", groupType.Value.ToString()));
+                attributes.Add("groupType", groupType.Value.ToString());
             }
 
             Ldap.EntryAdd(objectDistinguishedName, attributes.ToArray());
@@ -470,6 +481,13 @@ namespace HavokMultimedia.Utilities.Console.External
         #endregion IDisposable
     }
 
+    public static class ActiveDirectoryExtensions
+    {
+        public static void Add(this List<DirectoryAttribute> list, string name, string value)
+        {
+            list.Add(new DirectoryAttribute(name, value));
+        }
+    }
 
 
 

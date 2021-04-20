@@ -15,18 +15,18 @@ limitations under the License.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class ActiveDirectoryListObjects : ActiveDirectoryBase
+    public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
     {
+        protected abstract string Summary { get; }
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
-            help.AddSummary("Lists all object names in an ActiveDirectory");
+            help.AddSummary(Summary);
             help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass");
         }
 
@@ -39,9 +39,36 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 var objects = ad.GetAll().OrEmpty();
                 foreach (var obj in objects.OrderBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase))
                 {
-                    log.Info(obj.DistinguishedName);
+                    if (IsValidObject(obj)) log.Info(obj.SAMAccountName + "   " + obj.DistinguishedName);
                 }
             }
+
         }
+
+        protected abstract bool IsValidObject(ActiveDirectoryObject obj);
+    }
+
+    public class ActiveDirectoryListObjects : ActiveDirectoryListBase
+    {
+        protected override string Summary => "Lists all object names in an ActiveDirectory";
+        protected override bool IsValidObject(ActiveDirectoryObject obj) => true;
+    }
+
+    public class ActiveDirectoryListUsers : ActiveDirectoryListBase
+    {
+        protected override string Summary => "Lists all user names in an ActiveDirectory";
+        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser;
+    }
+
+    public class ActiveDirectoryListGroups : ActiveDirectoryListBase
+    {
+        protected override string Summary => "Lists all group names in an ActiveDirectory";
+        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsGroup;
+    }
+
+    public class ActiveDirectoryListComputers : ActiveDirectoryListBase
+    {
+        protected override string Summary => "Lists all computer names in an ActiveDirectory";
+        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsComputer;
     }
 }

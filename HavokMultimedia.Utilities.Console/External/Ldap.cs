@@ -190,8 +190,12 @@ namespace HavokMultimedia.Utilities.Console.External
                 }
             }
 
-            // Bind to the ldap server with the connection credentials if supplied.
-            if (connection.AuthType != AuthType.Anonymous) connection.Bind();
+            log.Debug("Attempting " + connection.GetType().NameFormatted() + ".Bind()");
+            if (connection.AuthType != AuthType.Anonymous)
+            {
+                connection.Bind();
+                log.Debug("Success " + connection.GetType().NameFormatted() + ".Bind()");
+            }
             //connection.SessionOptions.ProtocolVersion = 3;
 
             var ldapConnectionString = "LDAP://" + this.server + ":" + port;
