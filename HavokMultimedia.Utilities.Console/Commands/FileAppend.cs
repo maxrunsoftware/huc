@@ -32,16 +32,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void Execute()
         {
             //var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
-            var values = GetArgValuesTrimmed();
-            if (values.Count < 1) throw new ArgsException("targetFile", "No target file specified");
-            if (values.Count < 2) throw new ArgsException("sourceFile", "No source file(s) specified");
+            var values = GetArgValuesTrimmed1N();
+            if (values.firstValue == null) throw new ArgsException("targetFile", "No target file specified");
+            if (values.otherValues.Count < 1) throw new ArgsException("sourceFile", "No source file(s) specified");
 
-            var targetFile = values.PopHead();
+            var targetFile = values.firstValue;
             log.Debug($"{nameof(targetFile)}: {targetFile}");
             targetFile = Path.GetFullPath(targetFile);
             log.Debug($"{nameof(targetFile)}: {targetFile}");
 
-            var sourceFiles = Util.ParseInputFiles(values).Select(o => Path.GetFullPath(o)).ToList();
+            var sourceFiles = Util.ParseInputFiles(values.otherValues).Select(o => Path.GetFullPath(o)).ToList();
             foreach (var sourceFile in sourceFiles) CheckFileExists(sourceFile);
             for (int i = 0; i < sourceFiles.Count; i++) log.Debug(nameof(sourceFiles) + "[" + i + "]: " + sourceFiles[i]);
             using (var targetFileStream = Util.FileOpenWrite(targetFile))

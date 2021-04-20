@@ -56,14 +56,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
 
-            var values = new Queue<string>(GetArgValuesTrimmed());
-            var outputFileString = values.DequeueOrDefault();
+            var values = GetArgValuesTrimmed1N();
+            var outputFileString = values.firstValue;
             log.Debug($"outputFileString: {outputFileString}");
             var outputFile = Path.GetFullPath(outputFileString);
             log.Debug($"outputFile: {outputFile}");
             if (outputFile == null) throw new ArgsException("outputFile", "No <outputFile> specified");
 
-            var inputFileStrings = values.ToList();
+            var inputFileStrings = values.otherValues;
             log.Debug($"inputFileStrings: " + string.Join(", ", inputFileStrings));
             var inputFiles = Util.ParseInputFiles(inputFileStrings);
             for (var i = 0; i < inputFiles.Count; i++) log.Debug($"inputFile[{i}]: {inputFiles[i]}");

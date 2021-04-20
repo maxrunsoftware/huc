@@ -304,6 +304,13 @@ namespace HavokMultimedia.Utilities.Console
 
         public string GetArgValueTrimmed(int index) => GetArgValuesTrimmed().GetAtIndexOrDefault(index);
 
+        public (string firstValue, List<string> otherValues) GetArgValuesTrimmed1N()
+        {
+            var list = GetArgValuesTrimmed();
+            if (list.Count < 1) return (null, list);
+            var firstItem = list.PopHead();
+            return (firstItem, list);
+        }
         #endregion Parameters
     }
 
