@@ -39,7 +39,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 var objects = ad.GetAll().OrEmpty();
                 foreach (var obj in objects.OrderBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase))
                 {
-                    if (IsValidObject(obj)) log.Info(obj.SAMAccountName + "   " + obj.DistinguishedName);
+                    if (IsValidObject(obj)) log.Info((obj.LogonNamePreWindows2000 ?? obj.LogonName ?? obj.Name) + "  -->  " + obj.DistinguishedName);
                 }
             }
 
