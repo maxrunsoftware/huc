@@ -1869,6 +1869,16 @@ namespace HavokMultimedia.Utilities
             return lines;
         }
 
+        public static Dictionary<TKey, TValue> Copy<TKey, TValue>(this Dictionary<TKey, TValue> dictionary)
+        {
+            var d = new Dictionary<TKey, TValue>(dictionary.Count, dictionary.Comparer);
+            foreach (var kvp in dictionary)
+            {
+                d.Add(kvp.Key, kvp.Value);
+            }
+            return d;
+        }
+
         #region In
 
         public static bool In<T>(this T value, T possibleValue1) => In(value, EqualityComparer<T>.Default, possibleValue1);

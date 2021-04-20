@@ -446,12 +446,16 @@ namespace HavokMultimedia.Utilities.Console.External
         public static IEnumerable<ActiveDirectoryObject> Create(ActiveDirectory activeDirectory, IEnumerable<LdapEntryAttributeCollection> attributes)
         {
             activeDirectory.CheckNotNull(nameof(activeDirectory));
+            int i = 0;
             foreach (var attribute in attributes.OrEmpty())
             {
                 if (attribute == null) continue;
                 var o = Create(activeDirectory, attribute);
+                i++;
                 yield return o;
+
             }
+            log.Debug($"Created {i} {nameof(ActiveDirectoryObject)}");
         }
 
         #endregion Constructor
@@ -771,7 +775,20 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public override int GetHashCode() => ObjectGUID.GetHashCode();
 
-        public override string ToString() => DistinguishedName ?? CN ?? SAMAccountName ?? ObjectGUID.ToString();
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append(GetType().NameFormatted());
+            sb.Append("[");
+            var list = new List<string>();
+            if (DistinguishedName != null) list.Add(nameof(DistinguishedName) + ":" + DistinguishedName);
+            if (CN != null) list.Add(nameof(CN) + ":" + CN);
+            if (SAMAccountName != null) list.Add(nameof(SAMAccountName) + ":" + SAMAccountName);
+            list.Add(nameof(ObjectGUID) + ":" + ObjectGUID);
+            sb.Append(list.ToStringDelimited(", "));
+            sb.Append("]");
+            return sb.ToString();
+        }
 
         #endregion Object
 

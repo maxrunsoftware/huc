@@ -19,10 +19,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.DirectoryServices.Protocols;
 using System.Linq;
+using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
-    public class LdapEntryAttributeCollection : IBucketReadOnly<string, IReadOnlyList<LdapEntryAttributeValue>>
+    public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<LdapEntryAttributeValue>>
     {
         private static readonly ILogger log = Program.LogFactory.GetLogger<LdapEntryAttributeCollection>();
         private static readonly List<LdapEntryAttributeValue> EMPTY = new List<LdapEntryAttributeValue>();
@@ -57,6 +58,7 @@ namespace HavokMultimedia.Utilities.Console.External
             if (objectGuidBytes != null && objectGuidBytes.Length > 0) ObjectGUID = Ldap.Bytes2Guid(objectGuidBytes);
             DistinguishedName = GetString("distinguishedName");
 
+            // Parsing ranged attributes
             foreach (var attributeName in dictionary.Keys.ToList())
             {
                 var range = ParseRange(attributeName);
@@ -112,6 +114,8 @@ namespace HavokMultimedia.Utilities.Console.External
 
                 dictionary[range.name] = values;
             }
+            CleanLists();
+            log.Debug(ToString());
         }
 
         private static (string name, int rangeStart, int? rangeEnd) ParseRange(string name)
@@ -146,21 +150,38 @@ namespace HavokMultimedia.Utilities.Console.External
 
             if (dictionary.TryGetValue(name, out var list))
             {
-                list.AddRange(values);
+                list.AddRange(values); // we already have a list there so add to it
             }
             else
             {
-                dictionary.Add(name, values.ToList());
+                dictionary.Add(name, values.ToList()); // new key so add the key and list
+            }
+        }
+
+        /// <summary>
+        /// Removes any kvp's that have all nulls or empty lists from the dictionary
+        /// </summary>
+        private void CleanLists()
+        {
+            foreach (var kvp in dictionary.Copy())
+            {
+                var list = kvp.Value;
+                list = list.OrEmpty().WhereNotNull().ToList();
+                if (list.IsEmpty()) dictionary.Remove(kvp.Key);
+                else dictionary[kvp.Key] = list;
             }
         }
 
         #region Get
 
-        private List<LdapEntryAttributeValue> GetList(string name)
+        private IReadOnlyList<LdapEntryAttributeValue> GetList(string name)
         {
             name = name.TrimOrNull();
             if (name == null) return EMPTY;
-            if (dictionary.TryGetValue(name, out var list)) return list;
+            if (dictionary.TryGetValue(name, out var list))
+            {
+                return list;
+            }
             return EMPTY;
         }
 
@@ -242,14 +263,39 @@ namespace HavokMultimedia.Utilities.Console.External
             return null;
         }
 
+        public bool IsCollection(string name)
+        {
+            return GetList(name).Count > 1;
+        }
+
         #endregion Get
 
         #region IBucketReadOnly
 
         public IEnumerable<string> Keys => dictionary.Keys;
-        public IReadOnlyList<LdapEntryAttributeValue> this[string key] => GetList(key).AsReadOnly();
+        public IEnumerable<LdapEntryAttributeValue> this[string key] => GetList(key);
 
         #endregion IBucketReadOnly
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(GetType().NameFormatted() + " [");
+            foreach (var kvp in dictionary.OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase))
+            {
+                if (kvp.Value.Count == 0) continue;
+                else if (kvp.Value.Count == 1) sb.AppendLine("  " + kvp.Key + ": " + kvp.Value.First());
+                else
+                {
+                    for (int i = 0; i < kvp.Value.Count; i++)
+                    {
+                        sb.AppendLine("  " + kvp.Key + "[" + i + "]: " + kvp.Value[i]);
+                    }
+                }
+            }
+            sb.AppendLine("]");
+            return sb.ToString();
+        }
     }
 
 

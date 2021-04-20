@@ -19,6 +19,9 @@ using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
+    /// <summary>
+    /// Holds a byte[] or string attribute value, which can then be converted to whatever format is required
+    /// </summary>
     public class LdapEntryAttributeValue
     {
         public byte[] Bytes { get; }
@@ -77,21 +80,22 @@ namespace HavokMultimedia.Utilities.Console.External
             if (obj is string str)
             {
                 var s = str.TrimOrNull();
-                if (s == null) return null;
+                if (s == null) return null; // Empty value string, don't return anything
                 var bytes = Encoding.UTF8.GetBytes(s);
                 return new LdapEntryAttributeValue(bytes, s);
             }
             else if (obj is Uri uri)
             {
                 var s = uri.ToString().TrimOrNull();
-                if (s == null) return null;
+                if (s == null) return null; // Empty value URI, don't return anything
                 var bytes = Encoding.UTF8.GetBytes(s);
                 return new LdapEntryAttributeValue(bytes, s);
             }
             else if (obj is byte[] b)
             {
                 string s = null;
-                if (Util.IsValidUTF8(b)) s = Encoding.UTF8.GetString(b);
+                if (b == null) return null; // null byte[], don't return anything
+                if (Util.IsValidUTF8(b)) s = Encoding.UTF8.GetString(b); // If it is a valid string convert it to a string
                 return new LdapEntryAttributeValue(b, s);
             }
             else

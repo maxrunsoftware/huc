@@ -211,7 +211,8 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <returns>A list of SearchResultEntry objects, or null if not found.</returns>
         public List<ActiveDirectoryObject> GetObjects(string filter, LdapQueryConfig queryConfig = null, bool useCache = true)
         {
-            if (queryConfig == null) queryConfig = Ldap.QueryConfig;
+            if (queryConfig == null) queryConfig = Ldap.DefaultQueryConfig;
+
             if (useCache)
             {
                 var values = cache.Get(filter, queryConfig);
@@ -223,8 +224,9 @@ namespace HavokMultimedia.Utilities.Console.External
                 }
             }
 
+            log.Debug($"Issuing LDAP Query: " + (filter ?? "ALL OBJECTS") + "  " + queryConfig);
             var attributeCollections = Ldap.EntryGet(filter, queryConfig);
-            log.Debug($"Query filter[{filter}] retrieved {attributeCollections.Count} objects");
+            log.Debug($"Query filter[{filter}]  {queryConfig}  retrieved {attributeCollections.Count} objects");
             var objs = ActiveDirectoryObject.Create(this, attributeCollections).ToList();
             cache.Add(filter, objs, queryConfig);
             return objs;
@@ -247,7 +249,7 @@ namespace HavokMultimedia.Utilities.Console.External
         #region Queries
 
         /// <summary>
-        /// Gets all users in the Active Directory.
+        /// Gets all objects in the Active Directory.
         /// </summary>
         /// <returns>A list of all users in the Active Directory.</returns>
         public List<ActiveDirectoryObject> GetAll(LdapQueryConfig queryConfig = null, bool useCache = false) => GetObjects(null, queryConfig: queryConfig, useCache: useCache);

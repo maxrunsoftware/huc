@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.DirectoryServices.Protocols;
 using System.Linq;
+using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
@@ -93,6 +94,20 @@ namespace HavokMultimedia.Utilities.Console.External
             if (Attributes.Count != other.Attributes.Count) return false;
             if (!(Attributes.SequenceEqual(other.Attributes, StringComparer.OrdinalIgnoreCase))) return false;
             return true;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append(GetType().NameFormatted());
+            sb.Append("[");
+            sb.Append(nameof(BaseDn) + ": " + BaseDn);
+            sb.Append(", " + nameof(Scope) + ": " + Scope);
+            sb.Append(", " + nameof(QueryPageSize) + ": " + QueryPageSize);
+            sb.Append(", " + nameof(ChaseReferrals) + ": " + ChaseReferrals);
+            sb.Append(", " + nameof(Attributes) + ": {" + Attributes.ToStringDelimited(",") + "}");
+            sb.Append("]");
+            return sb.ToString();
         }
     }
 

@@ -26,6 +26,7 @@ namespace HavokMultimedia.Utilities.Console.External
     public class Ldap : IDisposable
     {
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly object locker = new object();
 
         /// <summary>
         /// The object that manages the connection with the LDAP server.
@@ -86,15 +87,24 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public bool IsPagingSupported => SupportedControls.Contains("1.2.840.113556.1.4.319");
 
-        public LdapQueryConfig QueryConfig
+        public LdapQueryConfig DefaultQueryConfig
         {
             get
             {
-                var o = queryConfig;
-                if (o == null) o = queryConfig = new LdapQueryConfig();
-                return o;
+                lock (locker)
+                {
+                    var o = queryConfig;
+                    if (o == null) o = queryConfig = new LdapQueryConfig();
+                    return o;
+                }
             }
-            set => queryConfig = value ?? new LdapQueryConfig();
+            set
+            {
+                lock (locker)
+                {
+                    queryConfig = value ?? new LdapQueryConfig();
+                }
+            }
         }
 
         /// <summary>
@@ -212,13 +222,22 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <returns>A collection of search result entries found.</returns>
         public List<SearchResultEntry> SearchResultEntryGet(string filter, LdapQueryConfig config)
         {
-            config = config ?? QueryConfig;
+            config = config ?? DefaultQueryConfig;
             filter = filter.TrimOrNull();
-            // Set the search base and scope for the search if provided.
+            var baseDn = config.BaseDn ?? searchBaseDNdefault;
 
-            var request = config.Attributes.Count == 0
-                ? new SearchRequest(config.BaseDn ?? searchBaseDNdefault, filter, config.Scope)
-                : new SearchRequest(config.BaseDn ?? searchBaseDNdefault, filter, config.Scope, config.Attributes.ToArray());
+            // Set the search base and scope for the search if provided.
+            SearchRequest request;
+            if (config.Attributes.Count == 0)
+            {
+                request = new SearchRequest(baseDn, filter, config.Scope);
+            }
+            else
+            {
+                request = new SearchRequest(baseDn, filter, config.Scope, config.Attributes.ToArray());
+            }
+
+
 
             // Add a directory control that makes the search use pages for returning large result sets.
             var pageResultRequestControl = new PageResultRequestControl(config.QueryPageSize);

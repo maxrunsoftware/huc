@@ -31,18 +31,17 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             var hc = queryConfig.GetHashCode().ToString();
             var queryKey = (filter ?? string.Empty) + hc;
-            var objs = cache[queryKey] = activeDirectoryObjects.OrEmpty().ToList();
+            var objs = activeDirectoryObjects.OrEmpty().ToList();
+            Add(queryKey, objs);
 
             foreach (var obj in objs)
             {
-                var l = new List<ActiveDirectoryObject>(1) { obj };
-
                 var distinguishedName = obj.DistinguishedName;
                 if (distinguishedName != null)
                 {
                     var key = nameof(ActiveDirectoryObject.DistinguishedName);
                     var val = distinguishedName;
-                    cache[$"({key}={val})" + hc] = l;
+                    Add($"({key}={val})" + hc, obj);
                 }
 
                 var objectGuid = obj.ObjectGUID;
@@ -50,7 +49,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 {
                     var key = nameof(ActiveDirectoryObject.ObjectGUID);
                     var val = Ldap.Guid2String(objectGuid);
-                    cache[$"({key}={val})" + hc] = l;
+                    Add($"({key}={val})" + hc, obj);
                 }
 
                 var samAccountName = obj.SAMAccountName;
@@ -58,10 +57,25 @@ namespace HavokMultimedia.Utilities.Console.External
                 {
                     var key = nameof(ActiveDirectoryObject.SAMAccountName);
                     var val = samAccountName;
-                    cache[$"({key}={val})" + hc] = l;
+                    Add($"({key}={val})" + hc, obj);
                 }
             }
         }
+
+        private void Add(string cacheKey, List<ActiveDirectoryObject> objects)
+        {
+            if (objects.Count == 0) return;
+            else if (objects.Count == 1) log.Trace($"Cache[{cacheKey}]: " + objects.First());
+            else
+            {
+                for (int i = 0; i < objects.Count; i++)
+                {
+                    log.Trace($"Cache[{cacheKey}][{i}]: " + objects[i]);
+                }
+            }
+            cache[cacheKey] = objects;
+        }
+        private void Add(string cacheKey, ActiveDirectoryObject obj) => Add(cacheKey, new List<ActiveDirectoryObject>(1) { obj });
 
         public IEnumerable<ActiveDirectoryObject> Get(string filter, LdapQueryConfig queryConfig)
         {
