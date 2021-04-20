@@ -395,40 +395,11 @@ namespace HavokMultimedia.Utilities.Console.External
             return null;
         }
         public string MemberOfNames => "[" + MemberOf.Select(o => ParseFirstCN(o)).WhereNotNull().ToStringDelimited(", ") + "]";
-
         public string MemberNames => "[" + Member.Select(o => ParseFirstCN(o)).WhereNotNull().ToStringDelimited(", ") + "]";
-
 
         #endregion Properties Custom
 
-        public IDictionary<string, string> GetAllProperties()
-        {
-            var d = new Dictionary<string, string>();
-            IList<PropertyInfo> props = new List<PropertyInfo>(GetType().GetProperties());
 
-            foreach (PropertyInfo prop in props)
-            {
-                if (nameof(Attributes).Equals(prop.Name)) continue;
-
-                var getMethod = prop.GetGetMethod();
-                if (getMethod == null) continue;
-                object propValue = prop.GetValue(this, null);
-
-                string val = propValue.ToStringGuessFormat().TrimOrNull();
-                if (val == null) continue;
-                if (val == "[]") continue;
-                if (propValue.GetType() is IEnumerable<ActiveDirectoryObject> enumerableObjects)
-                {
-                    var list = enumerableObjects.ToList();
-                    if (list.Count == 0) continue;
-                    val = "[" + list.Select(o => o.SAMAccountName).ToStringDelimited(", ") + "]";
-                }
-
-                d[prop.Name] = val;
-            }
-
-            return d;
-        }
 
         #region Constructor
 
@@ -709,6 +680,31 @@ namespace HavokMultimedia.Utilities.Console.External
                 }
                 if (string.Equals(prop.Name, nameof(Attributes), StringComparison.OrdinalIgnoreCase)) continue;
                 d[prop.Name] = Util.GetPropertyValue(this, prop.Name);
+            }
+
+            return d;
+        }
+
+        public IDictionary<string, string> GetPropertiesStrings()
+        {
+            var d = new Dictionary<string, string>();
+
+            foreach (var kvp in GetProperties())
+            {
+                var propKey = kvp.Key;
+                var propValue = kvp.Value;
+
+                string val = propValue.ToStringGuessFormat().TrimOrNull();
+                if (val == null) continue;
+                if (val == "[]") continue;
+                if (propValue.GetType() is IEnumerable<ActiveDirectoryObject> enumerableObjects)
+                {
+                    var list = enumerableObjects.ToList();
+                    if (list.Count == 0) continue;
+                    val = "[" + list.Select(o => o.SAMAccountName).ToStringDelimited(", ") + "]";
+                }
+
+                d[propKey] = val;
             }
 
             return d;

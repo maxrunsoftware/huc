@@ -224,7 +224,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 }
             }
 
-            log.Debug($"Issuing LDAP Query: " + (filter ?? "ALL OBJECTS") + "  " + queryConfig);
+            log.Debug($"Issuing LDAP Query: " + (filter ?? "ALL-OBJECTS") + "  " + queryConfig);
             var attributeCollections = Ldap.EntryGet(filter, queryConfig);
             log.Debug($"Query filter[{filter}]  {queryConfig}  retrieved {attributeCollections.Count} objects");
             var objs = ActiveDirectoryObject.Create(this, attributeCollections).ToList();

@@ -66,7 +66,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     foreach (var adobj in adobjs)
                     {
                         if (adobjs.Count > 1) log.Info(" ---  " + adobj.DistinguishedName + "  --- ");
-                        foreach (var kvp in adobj.GetAllProperties().OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase))
+                        foreach (var kvp in adobj.GetPropertiesStrings().OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase))
                         {
                             log.Info(kvp.Key + ": " + kvp.Value);
                         }
