@@ -16,9 +16,12 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.Protocols;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Principal;
+using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
@@ -30,6 +33,10 @@ namespace HavokMultimedia.Utilities.Console.External
     {
         private readonly ActiveDirectoryObjectCache cache = new ActiveDirectoryObjectCache();
         protected static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        private string username;
+        private string password;
+        private string ipaddress;
 
         /// <summary>
         /// The default first site name in Active Directory.
@@ -133,10 +140,10 @@ namespace HavokMultimedia.Utilities.Console.External
                     server = domain.Name.TrimOrNull();
                 }
             }
-            server.CheckNotNull(nameof(server));
+            this.ipaddress = server.CheckNotNull(nameof(server));
             ouDn = ouDn.TrimOrNull();
-            userName = userName.TrimOrNull();
-            password = password.TrimOrNull();
+            this.username = userName = userName.TrimOrNull();
+            this.password = password = password.TrimOrNull();
             siteName = siteName.TrimOrNull();
             domainName = domainName.TrimOrNull();
 
@@ -323,23 +330,43 @@ namespace HavokMultimedia.Utilities.Console.External
 
             var objectDistinguishedName = "CN=" + sAMAccountName + "," + ouDistinguishedName;
 
-            var attributes = new List<DirectoryAttribute>();
-            attributes.Add("sAMAccountName", sAMAccountName);
+            var attributes = new SortedDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+            //attributes.AddToList("sAMAccountName", sAMAccountName);
 
             if (groupType == null) // user
             {
-                attributes.Add("objectClass", "user");
-                attributes.Add("userPrincipalName", sAMAccountName + "@" + Name);
+                //attributes.Add("objectClass", "user");
+                //attributes.Add("userPrincipalName", sAMAccountName + "@" + Name);
+                attributes.AddToList("cn", sAMAccountName);
+                //attributes.Add("userPrincipalName", sAMAccountName);
+                //attributes.Add("GivenName", sAMAccountName);
+                //attributes.AddToList("sn", sAMAccountName);
+
+                attributes.AddToList("uid", sAMAccountName);
+                attributes.AddToList("ou", "users");
+
+                attributes.AddToList("objectClass", "top", "account", "simpleSecurityObject");
+                var userpassword = "badPassword1!";
+                string encodedPassword;
+                using (var sha1 = new SHA1Managed())
+                {
+                    var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(userpassword)));
+                    encodedPassword = "{SHA}" + digest;
+                }
+                attributes.AddToList("userPassword", encodedPassword);
+
             }
             else // group
             {
                 if (!IsGroupNameValid(sAMAccountName)) throw new ArgumentException("The SAM Account Name '" + sAMAccountName + "' is not a valid group name.");
-                attributes.Add("objectClass", "group");
+                attributes.AddToList("objectClass", "group");
                 //attributes.Add(new DirectoryAttribute("groupType", BitConverter.GetBytes(groupType.Value)));
-                attributes.Add("groupType", groupType.Value.ToString());
+                attributes.AddToList("groupType", groupType.Value.ToString());
             }
 
-            Ldap.EntryAdd(objectDistinguishedName, attributes.ToArray());
+
+            log.Debug("Ldap.Add(" + objectDistinguishedName + ", [" + attributes.Select(o => o.Key + ":" + o.Value).ToStringDelimited(", ") + "])");
+            Ldap.EntryAdd(objectDistinguishedName, attributes.ToDirectoryAttributes().ToArray());
 
             return GetObjectByDistinguishedName(objectDistinguishedName);
         }
@@ -362,6 +389,24 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <param name="ouDistinguishedName">The distinguished name for the OU to place the user within.</param>
         /// <returns>The newly created user object.</returns>
         public ActiveDirectoryObject AddUser(string sAMAccountName, string ouDistinguishedName) => AddObject(sAMAccountName, ouDistinguishedName, null);
+
+        public ActiveDirectoryObject AddUser2(string username, string password, string ouDistinguishedName)
+        {
+            // https://stackoverflow.com/a/2305871
+            using (PrincipalContext pc = new PrincipalContext(ContextType.Domain, ipaddress, ouDistinguishedName, ContextOptions.Negotiate, this.username, this.password))
+            {
+                using (var up = new UserPrincipal(pc))
+                {
+                    up.SamAccountName = username;
+                    //up.EmailAddress = email;
+                    up.SetPassword(password);
+                    up.Enabled = true;
+                    //up.ExpirePasswordNow();
+                    up.Save();
+                }
+            }
+            return null;
+        }
 
         /// <summary>
         /// Moves and / or renames an object in Active Directory.
@@ -499,9 +544,25 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public static class ActiveDirectoryExtensions
     {
-        public static void Add(this List<DirectoryAttribute> list, string name, string value)
+        public static void Add(this List<DirectoryAttribute> list, string name, params string[] values)
         {
-            list.Add(new DirectoryAttribute(name, value));
+            var attrValues = new List<string>();
+            foreach (var value in values.OrEmpty()) attrValues.Add(value);
+            attrValues = attrValues.TrimOrNull().WhereNotNull().ToList();
+            DirectoryAttribute a;
+            if (attrValues.Count < 2) a = new DirectoryAttribute(name, attrValues.First());
+            else a = new DirectoryAttribute(name, attrValues.ToArray());
+            list.Add(a);
+        }
+
+        public static List<DirectoryAttribute> ToDirectoryAttributes(this IDictionary<string, List<string>> directoryAttributes)
+        {
+            var list = new List<DirectoryAttribute>();
+            foreach (var kvp in directoryAttributes)
+            {
+                list.Add(kvp.Key, kvp.Value.ToArray());
+            }
+            return list;
         }
     }
 

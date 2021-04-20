@@ -52,6 +52,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 if (ou == null)
                 {
                     ou = ad.DomainUsersGroupDN;
+                    var ouList = ou.Split(",").ToList();
+                    ouList.PopHead();
+                    ou = ouList.ToStringDelimited(",");
                     log.Debug(nameof(ou) + ": " + ou);
                 }
 
@@ -67,9 +70,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 ado = ad.AddUser(samAccountName, ou);
                 log.Info("Successfully added user " + samAccountName + "   " + ou);
 
-                log.Debug("Changing password for user " + samAccountName + "   " + ou);
-                ado.Password = userpassword;
-                log.Info("Successfully set password for user " + samAccountName + "   " + ou);
+                //log.Debug("Changing password for user " + samAccountName + "   " + ou);
+                //ado.Password = userpassword;
+                //log.Info("Successfully set password for user " + samAccountName + "   " + ou);
 
             }
 

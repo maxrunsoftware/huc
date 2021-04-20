@@ -2142,10 +2142,11 @@ namespace HavokMultimedia.Utilities
         /// <typeparam name="V">V</typeparam>
         /// <param name="dictionary">Dictionary</param>
         /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
+        /// <param name="values">Values</param>
         /// <returns>True if a new list was created, otherwise false</returns>
-        public static bool AddToList<K, V>(this IDictionary<K, List<V>> dictionary, K key, V value)
+        public static bool AddToList<K, V>(this IDictionary<K, List<V>> dictionary, K key, params V[] values)
         {
+            if (values == null || values.Length < 1) return false;
             var listCreated = false;
             if (!dictionary.TryGetValue(key, out var list))
             {
@@ -2153,7 +2154,8 @@ namespace HavokMultimedia.Utilities
                 dictionary.Add(key, list);
                 listCreated = true;
             }
-            list.Add(value);
+
+            foreach (var value in values) list.Add(value);
             return listCreated;
         }
 

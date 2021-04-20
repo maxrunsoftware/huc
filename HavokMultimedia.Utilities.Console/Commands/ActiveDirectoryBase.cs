@@ -53,9 +53,30 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return new ActiveDirectory(server: host, userName: username, password: password, ldapPort: port, domainName: domainName);
         }
 
-        protected ActiveDirectoryObject FindUser(ActiveDirectory ad, string samAccountName, string ou) => ad.GetUsers()
+
+
+        protected ActiveDirectoryObject FindUser(ActiveDirectory ad, string samAccountName, string ou)
+        {
+            var users = ad.GetUsers();
+            var ado = users
                 .Where(o => samAccountName.EqualsCaseInsensitive(o.SAMAccountName))
                 .Where(o => ActiveDirectory.MatchesDN(o.OU, ou))
                 .FirstOrDefault();
+
+            if (ado == null) ado = users
+                .Where(o => samAccountName.EqualsCaseInsensitive(o.UID))
+                .Where(o => ActiveDirectory.MatchesDN(o.OU, ou))
+                .FirstOrDefault();
+
+            if (ado == null) ado = users
+                .Where(o => samAccountName.EqualsCaseInsensitive(o.SAMAccountName))
+                .FirstOrDefault();
+
+            if (ado == null) ado = users
+                .Where(o => samAccountName.EqualsCaseInsensitive(o.UID))
+                .FirstOrDefault();
+
+            return ado;
+        }
     }
 }

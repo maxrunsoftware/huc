@@ -55,6 +55,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 if (ado == null)
                 {
                     log.Warn("User does not exist " + samAccountName + "   " + ou);
+                    return;
                 }
 
                 log.Debug("Deleting user " + samAccountName + "   " + ou);

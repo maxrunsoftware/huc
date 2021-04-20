@@ -201,9 +201,15 @@ namespace HavokMultimedia.Utilities.Console.External
             var ldapConnectionString = "LDAP://" + this.server + ":" + port;
             var usernameAndDomain = this.userName;
             if (domainName != null) usernameAndDomain = domainName + "\\" + usernameAndDomain;
+
             searchRoot = new System.DirectoryServices.DirectoryEntry(ldapConnectionString, usernameAndDomain, this.password);
+            log.Debug(nameof(searchRoot) + Environment.NewLine + searchRoot.ToStringDebug());
+
             searcher = new System.DirectoryServices.DirectorySearcher(searchRoot);
+            log.Debug(nameof(searcher) + Environment.NewLine + searcher.ToStringDebug());
+
             context = new System.DirectoryServices.AccountManagement.PrincipalContext(System.DirectoryServices.AccountManagement.ContextType.Domain, this.server, usernameAndDomain, this.password);
+            log.Debug(nameof(context) + Environment.NewLine + context.ToStringDebug());
         }
 
         private bool MakeRequest(DirectoryRequest request)
@@ -518,5 +524,44 @@ namespace HavokMultimedia.Utilities.Console.External
         }
 
         #endregion Guid Conversion
+    }
+
+    public static class LdapExtensions
+    {
+        public static string ToStringDebug(this System.DirectoryServices.DirectoryEntry entry)
+        {
+            var sb = new StringBuilder();
+            foreach (var prop in entry.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                var getter = prop.GetGetMethod();
+                if (getter == null) continue;
+                sb.AppendLine("    " + prop.Name + ": " + getter.Invoke(entry, null));
+            }
+            return sb.ToString();
+        }
+
+        public static string ToStringDebug(this System.DirectoryServices.DirectorySearcher searcher)
+        {
+            var sb = new StringBuilder();
+            foreach (var prop in searcher.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                var getter = prop.GetGetMethod();
+                if (getter == null) continue;
+                sb.AppendLine("    " + prop.Name + ": " + getter.Invoke(searcher, null));
+            }
+            return sb.ToString();
+        }
+
+        public static string ToStringDebug(this System.DirectoryServices.AccountManagement.PrincipalContext context)
+        {
+            var sb = new StringBuilder();
+            foreach (var prop in context.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                var getter = prop.GetGetMethod();
+                if (getter == null) continue;
+                sb.AppendLine("    " + prop.Name + ": " + getter.Invoke(context, null));
+            }
+            return sb.ToString();
+        }
     }
 }

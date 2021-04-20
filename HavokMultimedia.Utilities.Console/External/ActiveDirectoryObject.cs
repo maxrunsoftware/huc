@@ -96,7 +96,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public byte[] DSASignature => Attributes.GetByteArray("dSASignature");
         public string EmployeeNumber { get => Attributes.GetString("employeeNumber"); set => AttributeSave("employeeNumber", value.TrimOrNull()); }
         public string GivenName { get => Attributes.GetString("givenName"); set => AttributeSave("givenName", value.TrimOrNull()); }
-
+        public string UID { get => Attributes.GetString("uid"); set => AttributeSave("uid", value.TrimOrNull()); }
         public string GroupType => Attributes.GetString("groupType");
 
         public ActiveDirectoryGroupType? GroupTypeEnum
