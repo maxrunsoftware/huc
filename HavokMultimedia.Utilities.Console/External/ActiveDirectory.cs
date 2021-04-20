@@ -403,6 +403,22 @@ namespace HavokMultimedia.Utilities.Console.External
 
         #region Methods Static
 
+        public static bool MatchesDN(string dn1, string dn2)
+        {
+            dn1 = dn1.TrimOrNull();
+            dn2 = dn2.TrimOrNull();
+            if (dn1 == null || dn2 == null) return false;
+            var dn1Parts = dn1.Split(",").TrimOrNull().WhereNotNull().ToArray();
+            var dn2Parts = dn2.Split(",").TrimOrNull().WhereNotNull().ToArray();
+            if (dn1Parts.Length != dn2Parts.Length) return false;
+            if (dn1Parts.Length == 0) return false; // No DN to match
+            for (int i = 0; i < dn1Parts.Length; i++)
+            {
+                if (!string.Equals(dn1Parts[i], dn2Parts[i], StringComparison.OrdinalIgnoreCase)) return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// Gets the domain controllers associated with a specific Active Directory site from the Active Directory's DNS SRV records.
         /// </summary>

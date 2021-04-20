@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -51,5 +52,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
             return new ActiveDirectory(server: host, userName: username, password: password, ldapPort: port, domainName: domainName);
         }
+
+        protected ActiveDirectoryObject FindUser(ActiveDirectory ad, string samAccountName, string ou) => ad.GetUsers()
+                .Where(o => samAccountName.EqualsCaseInsensitive(o.SAMAccountName))
+                .Where(o => ActiveDirectory.MatchesDN(o.OU, ou))
+                .FirstOrDefault();
     }
 }
