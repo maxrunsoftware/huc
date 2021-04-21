@@ -64,17 +64,38 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (remoteFiles.IsEmpty()) throw new ArgsException("remoteFiles", "No remote files provided");
             for (var i = 0; i < remoteFiles.Count; i++) log.Debug($"remoteFile[{i}]: {remoteFiles[i]}");
 
-
             var localPath = Path.GetFullPath(GetArgParameterOrConfig("localPath", null, Environment.CurrentDirectory));
             var ignoreMissingFiles = GetArgParameterOrConfigBool("ignoreMissingFiles", null, false);
             var search = GetArgParameterOrConfigBool("search", null, false);
 
             using (var c = OpenClient())
             {
-                foreach (var rfp in remoteFiles)
+                var queue = new Queue<string>();
+                foreach (var rfp in remoteFiles) queue.Enqueue(rfp);
+                while (queue.Count > 0)
                 {
+                    var rfp = queue.Dequeue();
                     var remoteFilePath = rfp;
                     var remoteFileName = ParseFileNameFromPath(remoteFilePath);
+                    if (remoteFileName.Contains("*") || remoteFileName.Contains("?"))
+                    {
+                        var remoteFileDirectoryParts = remoteFilePath.Split('/', '\\').ToList();
+                        remoteFileDirectoryParts.PopTail();
+                        var remoteFileDirectory = remoteFileDirectoryParts.ToStringDelimited("/");
+                        if (remoteFileDirectory.TrimOrNull() == null) remoteFileDirectory = ".";
+                        log.Debug($"Found wildcard '{remoteFileName}' searching directory '{remoteFileDirectory}'");
+                        var remoteFileDirectoryFiles = c.ListFiles(remoteFileDirectory).Where(o => o.Type == FtpClientFileType.File).ToList();
+                        log.Debug($"Found {remoteFileDirectoryFiles.Count} files in remote directory, pattern matching");
+                        foreach (var rf in c.ListFiles(remoteFileDirectory))
+                        {
+                            if (rf.Name.EqualsWildcard(remoteFileName))
+                            {
+                                log.Debug("Found pattern match " + rf.FullName);
+                                queue.Enqueue(rf.FullName);
+                            }
+                        }
+                        continue;
+                    }
                     var localFileName = remoteFileName;
                     var localFilePath = Path.GetFullPath(Path.Combine(localPath, localFileName));
 
