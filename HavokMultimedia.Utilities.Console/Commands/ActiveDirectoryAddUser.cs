@@ -19,6 +19,7 @@ using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
+    [HideCommand]
     public class ActiveDirectoryAddUser : ActiveDirectoryBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)

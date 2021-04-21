@@ -19,6 +19,7 @@ using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
+    [HideCommand]
     public class ActiveDirectoryDeleteUser : ActiveDirectoryBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)

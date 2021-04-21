@@ -28,7 +28,10 @@ namespace HavokMultimedia.Utilities.Console
         void Execute(string[] args);
         string HelpSummary { get; }
         string HelpDetails { get; }
+        bool IsHidden { get; }
     }
+
+    public sealed class HideCommandAttribute : Attribute { }
 
     public abstract class Command : ICommand
     {
@@ -36,6 +39,7 @@ namespace HavokMultimedia.Utilities.Console
         private ConfigFile config;
         protected readonly ILogger log;
 
+        public bool IsHidden => GetType().GetCustomAttributes(true).Where(o => o is HideCommandAttribute).Any();
         public CommandHelpBuilder Help { get; }
         public string Name => Help.Name;
         public string HelpSummary => Name.PadRight(Program.CommandObjects.Select(o => o.Name).MaxLength() + 2) + Help.Summary;

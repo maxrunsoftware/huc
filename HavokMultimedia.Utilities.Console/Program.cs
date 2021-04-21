@@ -77,7 +77,7 @@ namespace HavokMultimedia.Utilities.Console
                 ShowBanner(a, null);
                 log.Info("No command specified");
                 log.Info("Commands: ");
-                foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
+                foreach (var c in CommandObjects) if (a.IsShowHidden || !c.IsHidden) log.Info((c.IsHidden ? "* " : "  ") + c.HelpSummary);
                 return 2;
             }
             var command = commandTypes.Where(o => o.Name.Equals(a.Command, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
@@ -86,7 +86,7 @@ namespace HavokMultimedia.Utilities.Console
                 ShowBanner(a, null);
                 log.Info($"Command '{a.Command}' does not exist");
                 log.Info("Commands: ");
-                foreach (var c in CommandObjects) log.Info("  " + c.HelpSummary);
+                foreach (var c in CommandObjects) if (a.IsShowHidden || !c.IsHidden) log.Info((c.IsHidden ? "* " : "  ") + c.HelpSummary);
                 return 3;
             }
             if (a.IsHelp)
