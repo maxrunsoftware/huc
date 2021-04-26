@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -26,6 +27,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Same as WGET command for getting web resources");
+            help.AddParameter("username", "u", "Basic authentication username");
+            help.AddParameter("password", "p", "Basic authentication password");
             help.AddValue("<source URL> <output file>");
             help.AddExample("https://github.com/Steven-D-Foster/huc/releases/download/v1.3.0/huc-linux.zip");
             help.AddExample("https://github.com github.txt");
@@ -33,6 +36,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void Execute()
         {
+            var username = GetArgParameterOrConfig("username", "u").TrimOrNull();
+            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
+
             var sourceURL = GetArgValueTrimmed(0);
             log.Debug($"{nameof(sourceURL)}: {sourceURL}");
             if (sourceURL == null) throw new ArgsException(nameof(sourceURL), $"{nameof(sourceURL)} not provided");
@@ -52,8 +58,28 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             using (var cli = new WebClient())
             {
-                cli.DownloadFile(sourceURL, outputFile);
-
+                bool unauthorized = false;
+                try
+                {
+                    cli.DownloadFile(sourceURL, outputFile);
+                }
+                catch (WebException we)
+                {
+                    if (username != null && password != null)
+                    {
+                        if (we.Message.Contains("(401)"))
+                        {
+                            unauthorized = true;
+                        }
+                    }
+                }
+                if (unauthorized)
+                {
+                    // https://stackoverflow.com/a/26016919
+                    string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
+                    cli.Headers[HttpRequestHeader.Authorization] = string.Format("Basic {0}", credentials);
+                    cli.DownloadFile(sourceURL, outputFile);
+                }
                 log.Info(sourceURL + "  ->  " + outputFile);
 
             }
