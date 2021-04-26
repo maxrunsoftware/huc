@@ -273,6 +273,17 @@ namespace HavokMultimedia.Utilities.Console
             return o;
         }
 
+        public ushort GetArgParameterOrConfigUShort(string key1, string key2, ushort defaultValue)
+        {
+            var v = GetArgParameter(key1, key2);
+            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
+            log.Debug($"{key1}String: {v}");
+            var o = defaultValue;
+            if (v.TrimOrNull() != null) o = v.ToUShort();
+            log.Debug($"{key1}: {o}");
+            return o;
+        }
+
         public bool GetArgParameterOrConfigBool(string key1, string key2, bool defaultValue)
         {
             var v = GetArgParameter(key1, key2);

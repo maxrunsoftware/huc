@@ -15,106 +15,54 @@ limitations under the License.
 */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using EmbedIO;
-using EmbedIO.Files;
-using Swan.Logging;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class WebServer : Command
     {
-        private class SwanLogger : Swan.Logging.ILogger
-        {
-            public Swan.Logging.LogLevel LogLevel { get; init; }
-            private readonly ILogger log;
-            private SwanLogger(Swan.Logging.LogLevel logLevel, ILogger log)
-            {
-                this.LogLevel = logLevel;
-                this.log = log;
-            }
-
-            public static IEnumerable<Swan.Logging.ILogger> CreateLoggers(ILogger log)
-            {
-                foreach (var type in Util.GetEnumItems<Swan.Logging.LogLevel>())
-                {
-                    yield return new SwanLogger(type, log);
-                }
-            }
-
-            public void Dispose() { }
-
-            public void Log(LogMessageReceivedEventArgs logEvent)
-            {
-                if (logEvent.MessageType != LogLevel) return;
-                switch (LogLevel)
-                {
-                    case Swan.Logging.LogLevel.None:
-                        break;
-                    case Swan.Logging.LogLevel.Trace:
-                        if (logEvent.Exception == null) log.Trace(logEvent.Message); else log.Trace(logEvent.Message, logEvent.Exception);
-                        break;
-                    case Swan.Logging.LogLevel.Debug:
-                        if (logEvent.Exception == null) log.Debug(logEvent.Message); else log.Debug(logEvent.Message, logEvent.Exception);
-                        break;
-                    case Swan.Logging.LogLevel.Info:
-                        if (logEvent.Exception == null) log.Info(logEvent.Message); else log.Info(logEvent.Message, logEvent.Exception);
-                        break;
-                    case Swan.Logging.LogLevel.Warning:
-                        if (logEvent.Exception == null) log.Warn(logEvent.Message); else log.Warn(logEvent.Message, logEvent.Exception);
-                        break;
-                    case Swan.Logging.LogLevel.Error:
-                        if (logEvent.Exception == null) log.Error(logEvent.Message); else log.Error(logEvent.Message, logEvent.Exception);
-                        break;
-                    case Swan.Logging.LogLevel.Fatal:
-                        if (logEvent.Exception == null) log.Critical(logEvent.Message); else log.Critical(logEvent.Message, logEvent.Exception);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Creates a web server to host static html files");
             help.AddParameter("ipaddress", "ip", "IP address to bind to (localhost)");
             help.AddParameter("port", "o", "Port to bind to (8080)");
+            help.AddParameter("username", "u", "Require a username to access this resource (user)");
+            help.AddParameter("password", "p", "Require a password to access this resource");
             help.AddDetail("You can use an index.html file in the root of the directory to display a page rather then a directory listing");
+            help.AddDetail("If you specify a password, the default username is 'user' but can be changed");
             help.AddValue("<directory to serve>");
             help.AddExample(".");
             help.AddExample("-o=80 c:\\www");
         }
 
-
         protected override void Execute()
         {
-            var ipaddress = GetArgParameterOrConfig("ipaddress", "ip").TrimOrNull() ?? "localhost";
-            var port = GetArgParameterOrConfigInt("port", "o", 8080);
+            var ipaddress = GetArgParameterOrConfig("ipaddress", "ip").TrimOrNull();
+            var port = GetArgParameterOrConfigUShort("port", "o", 8080);
+            var username = GetArgParameterOrConfig("username", "u", "user").TrimOrNull();
+            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
+
             var directoryToServe = GetArgValueTrimmed(0) ?? Environment.CurrentDirectory;
             log.Debug($"{nameof(directoryToServe)}: {directoryToServe}");
             directoryToServe = Path.GetFullPath(directoryToServe);
             if (!Directory.Exists(directoryToServe)) throw new DirectoryNotFoundException("Directory was not found " + directoryToServe);
             log.Debug($"{nameof(directoryToServe)}: {directoryToServe}");
 
-            Logger.NoLogging();
-            foreach (var logger in SwanLogger.CreateLoggers(log)) Logger.RegisterLogger(logger);
-
-            var server = new EmbedIO.WebServer(o => o.WithUrlPrefix($"http://{ipaddress}:{port}").WithMode(HttpListenerMode.EmbedIO));
-            server = server.WithLocalSessionManager();
-            server = server.WithStaticFolder("/", directoryToServe, false, (o) => o.DirectoryLister = DirectoryLister.Html);
-            //BasicAuthenticationModule b = new BasicAuthenticationModule("/", "myrealm");
-            //b.Accounts["user"] = "pass";
-            //server = server.WithModule(b);
-
-            server.StateChanged += (s, e) => log.Debug($"WebServer New State - {e.NewState}");
-
-            using (server)
+            var config = new External.WebServerConfig();
+            if (ipaddress != null)
             {
-                log.Debug("WebServer starting...");
-                server.RunAsync();
-                log.Debug("WebServer started");
+                config.Hostnames.Clear();
+                config.Hostnames.Add(ipaddress);
+            }
+            config.Port = port;
+            config.DirectoryToServe = directoryToServe;
+            if (username != null && password != null) config.Users.Add((username, password));
+            using (var server = new External.WebServer())
+            {
+                server.Start(config);
+                log.Info("Webserver started");
+                foreach (var ipa in config.UrlPrefixes) log.Info("  " + ipa);
                 log.Info("Server running, press ESC or Q to quit, serving files from " + directoryToServe);
                 while (true)
                 {
@@ -125,8 +73,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 }
             }
 
-            log.Debug("WebServer shutdown");
+            log.Info("WebServer shutdown");
         }
-
     }
 }
