@@ -65,7 +65,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var inputFileStrings = values.otherValues;
             log.Debug($"inputFileStrings: " + string.Join(", ", inputFileStrings));
-            var inputFiles = Util.ParseInputFiles(inputFileStrings);
+            var inputFiles = new List<string>();
+            foreach (var inputFileString in inputFileStrings)
+            {
+                var ifs = Path.GetFullPath(inputFileString);
+                if (ifs.ContainsAny("*", "?")) inputFiles.AddRange(Util.ParseFileName(ifs, r));
+                else inputFiles.Add(ifs);
+            }
             for (var i = 0; i < inputFiles.Count; i++) log.Debug($"inputFile[{i}]: {inputFiles[i]}");
             if (inputFiles.IsEmpty()) throw new ArgsException("inputFiles", "No <inputFiles> specified or no files exist");
 
