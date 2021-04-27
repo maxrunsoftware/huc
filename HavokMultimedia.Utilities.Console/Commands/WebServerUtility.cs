@@ -16,41 +16,40 @@ limitations under the License.
 
 using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
+using EmbedIO;
+using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class WebServer : WebServerBase
+    public class WebServerUtility : WebServerBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
 
-            help.AddSummary("Creates a web server to host static html files");
-            help.AddDetail("You can use an index.html file in the root of the directory to display a page rather then a directory listing");
-            help.AddValue("<directory to serve>");
-            help.AddExample(".");
-            help.AddExample("-o=80 c:\\www");
+            help.AddSummary("Creates a web server that provides various utilities");
+            help.AddParameter("randomDisable", "rd", "Disables the /random utility");
+            help.AddExample("");
         }
 
         protected override void Execute()
         {
             base.Execute();
-
-            var directoryToServe = GetArgValueTrimmed(0) ?? Environment.CurrentDirectory;
-            log.Debug($"{nameof(directoryToServe)}: {directoryToServe}");
-            directoryToServe = Path.GetFullPath(directoryToServe);
-            if (!Directory.Exists(directoryToServe)) throw new DirectoryNotFoundException("Directory was not found " + directoryToServe);
-            log.Debug($"{nameof(directoryToServe)}: {directoryToServe}");
-
             var config = GetConfig();
-            config.DirectoryToServe = directoryToServe;
-            config.DirectoryToServeUrlPath = "/";
+
+            var disableRandom = GetArgParameterOrConfigBool("randomDisable", "rd", false);
+            if (!disableRandom) config.AddPathHandler("/random", HttpVerbs.Get, HandleRandom);
+
+
+
 
             using (var server = GetWebServer(config))
             {
                 foreach (var ipa in config.UrlPrefixes) log.Info("  " + ipa);
-                log.Info("WebServer running, press ESC or Q to quit, serving files from " + directoryToServe);
+                log.Info("WebServer running, press ESC or Q to quit");
                 while (true)
                 {
                     Thread.Sleep(50);
@@ -61,6 +60,26 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
 
             log.Info("WebServer shutdown");
+        }
+
+        private object HandleRandom(IHttpContext context)
+        {
+            var sb = new StringBuilder();
+            using (var srandom = RandomNumberGenerator.Create())
+            {
+                var length = context.GetParameterInt("length", 100);
+
+                var chars = context.GetParameterString("chars", Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9);
+
+                for (int i = 0; i < length; i++)
+                {
+                    var c = chars[srandom.Next(chars.Length)];
+                    sb.Append(c);
+                }
+
+            }
+            return sb.ToString();
+
         }
     }
 }

@@ -1,23 +1,24 @@
-﻿// /*
-// Copyright (c) 2021 Steven Foster (steven.d.foster@gmail.com)
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-// */
+﻿/*
+Copyright (c) 2021 Steven Foster (steven.d.foster@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using EmbedIO;
 using EmbedIO.Actions;
 using EmbedIO.Authentication;
@@ -26,39 +27,6 @@ using Swan.Logging;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
-    public class WebServerConfig
-    {
-        public IList<string> Hostnames { get; } = new List<string>();
-        public ushort Port { get; set; } = 8080;
-        public string DirectoryToServe { get; set; }
-        public string DirectoryToServeUrlPath { get; set; } = "/";
-        public IDictionary<string, (HttpVerbs verbs, Func<IHttpContext, object> handler)> PathHandlers { get; } = new Dictionary<string, (HttpVerbs, Func<IHttpContext, object>)>(StringComparer.OrdinalIgnoreCase);
-        public IList<(string username, string password)> Users { get; } = new List<(string username, string password)>();
-        public IReadOnlyList<string> UrlPrefixes => Hostnames.OrderBy(o => o, StringComparer.OrdinalIgnoreCase).Select(o => $"http://{o}:{Port}").ToList().AsReadOnly();
-
-        public WebServerConfig()
-        {
-            foreach (var ip in Util.NetGetIPAddresses().Where(o => o.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
-            {
-                Hostnames.Add(ip.ToString());
-            }
-            if (!Hostnames.Contains("localhost")) Hostnames.Add("localhost");
-            if (!Hostnames.Contains("127.0.0.1")) Hostnames.Add("127.0.0.1");
-        }
-        private WebServerConfig(WebServerConfig config)
-        {
-            foreach (var hostname in config.Hostnames) this.Hostnames.Add(hostname);
-            this.Port = config.Port;
-            this.DirectoryToServe = config.DirectoryToServe;
-            this.DirectoryToServeUrlPath = config.DirectoryToServeUrlPath;
-            foreach (var kvp in config.PathHandlers) this.PathHandlers.Add(kvp.Key, (kvp.Value.verbs, kvp.Value.handler));
-            foreach (var item in config.Users) this.Users.Add((item.username, item.password));
-        }
-        public WebServerConfig Copy()
-        {
-            return new WebServerConfig(this);
-        }
-    }
     public class WebServer : IDisposable
     {
         private class SwanLogger : Swan.Logging.ILogger
@@ -131,6 +99,19 @@ namespace HavokMultimedia.Utilities.Console.External
             RegisterLoggers();
         }
 
+        private async Task ProcessAction(IHttpContext context, Func<IHttpContext, object> handler)
+        {
+            var o = handler(context);
+            if (o == null) o = string.Empty;
+            if (o is string s)
+            {
+                await context.SendStringAsync(s, "text/html", Encoding.UTF8);
+            }
+            else
+            {
+                await context.SendDataAsync(o);
+            }
+        }
 
 
         public void Start(WebServerConfig config)
@@ -138,8 +119,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
             if (!started.TryUse()) throw new Exception("Start() already called");
             config = config.Copy();
-
-            for (int i = 0; i < config.UrlPrefixes.Count; i++) log.Debug(nameof(config.UrlPrefixes) + "[" + i + "]: " + config.UrlPrefixes[i]);
+            log.Debug(config.ToString());
             server = new EmbedIO.WebServer(o => o.WithUrlPrefixes(config.UrlPrefixes).WithMode(HttpListenerMode.EmbedIO));
 
             if (config.Users.Count > 0)
@@ -159,7 +139,8 @@ namespace HavokMultimedia.Utilities.Console.External
                 var path = pathHandler.Key;
                 if (!path.StartsWith("/")) path = "/" + path;
                 log.Debug(nameof(pathHandler) + "[" + path + "]: " + pathHandler.Value.Item1);
-                server = server.WithModule(new ActionModule(path, pathHandler.Value.Item1, ctx => ctx.SendDataAsync(pathHandler.Value.Item2(ctx))));
+                var am = new ActionModule(path, pathHandler.Value.Item1, ctx => ProcessAction(ctx, pathHandler.Value.handler));
+                server = server.WithModule(am);
             }
             if (config.DirectoryToServe != null && config.DirectoryToServeUrlPath != null)
             {
@@ -230,24 +211,6 @@ namespace HavokMultimedia.Utilities.Console.External
             sb.AppendLine($"  </body>");
             sb.AppendLine($"</html>");
             return sb.ToString();
-        }
-    }
-
-    public static class WebServerExtensions
-    {
-        public static SortedDictionary<string, string> GetParameters(this IHttpContext context)
-        {
-            var d = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var parameters = context.GetRequestQueryData();
-            foreach (var key in parameters.AllKeys)
-            {
-                var k = key.TrimOrNull();
-                if (k == null) continue;
-                var v = parameters[key].TrimOrNull();
-                if (v == null) continue;
-                d[k] = v;
-            }
-            return d;
         }
     }
 }
