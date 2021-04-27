@@ -164,7 +164,7 @@ namespace HavokMultimedia.Utilities.Console.External
                         await context.SendStringAsync(HtmlMessage("404 - Not Found", $"Path {context.RequestedPath} not found"), "text/html", Encoding.UTF8);
                         break;
                     case 401:
-                        context.Response.Headers.Add("WWW-Authenticate: Basic");
+                        context.AddHeader("WWW-Authenticate", "Basic");
                         await context.SendStringAsync(HtmlMessage("401 - Unauthorized", $"Please login to continue"), "text/html", Encoding.UTF8);
                         break;
                     default:

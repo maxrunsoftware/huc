@@ -68,7 +68,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             using (var srandom = RandomNumberGenerator.Create())
             {
                 var length = context.GetParameterInt("length", 100);
-
                 var chars = context.GetParameterString("chars", Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9);
 
                 for (int i = 0; i < length; i++)
@@ -79,7 +78,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             }
             return sb.ToString();
+        }
 
+        private object HandleRandomFile(IHttpContext context)
+        {
+            var randomString = HandleRandom(context);
+            context.AddHeader("Content-Disposition", "attachment", "filename=\"random.txt\"");
+            return "Generated Random File";
         }
     }
 }
