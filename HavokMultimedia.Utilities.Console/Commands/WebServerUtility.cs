@@ -52,7 +52,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private IList<Handler> GetHandlers() => new List<Handler>
             {
                 new Handler(GenerateRandom, HttpVerbs.Get),
-                new Handler(GenerateRandomFile, HttpVerbs.Get)
+                new Handler(GenerateRandomFile, HttpVerbs.Get),
+                new Handler(Sql, HttpVerbs.Get),
             };
 
         protected override void CreateHelp(CommandHelpBuilder help)
@@ -140,6 +141,50 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 stream.Write(bytes, 0, bytes.Length);
             }
             return "Generated Random File";
+        }
+
+        private static string HtmlLabel(string forId, string label) => $"<label for=\"{forId}\">{label}</label>";
+        private static string HtmlInputText(string id, string label) => HtmlLabel(id, label) + $"<input type=\"text\" id=\"{id}\" name=\"{id}\">";
+        private static string HtmlSelect(string id, string label, params string[] options)
+        {
+            var sb = new StringBuilder();
+            sb.Append(HtmlLabel(id, label));
+            sb.Append($"<select id=\"{id}\" name=\"{id}\">");
+            foreach (var option in options) sb.Append($"<option value=\"{option}\">{option}</option>");
+            sb.Append($"</select>");
+            return sb.ToString();
+        }
+        private static string HtmlTextArea(string id, int rows, int cols) => $"<textarea id=\"{id}\" name=\"{id}\" rows=\"{rows}\" cols=\"{cols}\"></textarea>";
+
+        private object Sql(IHttpContext context)
+        {
+            var connectionString = context.GetParameterString("connectionString");
+            var commandTimeout = context.GetParameterInt("commandTimeout");
+            var serverType = context.GetParameterString("serverType");
+            var sqlStatement = context.GetParameterString("sqlStatement");
+
+            /*
+            var paramValues = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
+                paramValues.Add("Product", product);
+                paramValues.Add("PropertyNames", string.Join(";", props));
+                uriBuilder.Query = paramValues.ToString();
+            */
+
+            if (connectionString == null || serverType == null || sqlStatement == null)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("<p>");
+                sb.AppendLine(HtmlInputText("connectionString", "Connection String") + "<br><br>");
+                sb.AppendLine(HtmlInputText("commandTimeout", "Command Timeout") + "<br><br>");
+                sb.AppendLine(HtmlSelect("serverType", "Server Type", "MSSQL", "MySQL") + "<br><br>");
+                sb.AppendLine(HtmlTextArea("sql", 24, 80) + "<br><br>");
+                sb.AppendLine("</p>");
+                return sb.ToString();
+            }
+
+            return null;
+
+
         }
     }
 }
