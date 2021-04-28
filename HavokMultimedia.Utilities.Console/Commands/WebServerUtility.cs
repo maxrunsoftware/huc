@@ -35,17 +35,22 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("");
         }
 
+        private bool disableRandom;
+        private bool disableRandomFile;
+
         protected override void Execute()
         {
             base.Execute();
             var config = GetConfig();
 
-            var disableRandom = GetArgParameterOrConfigBool("randomDisable", "rd", false);
+
+            disableRandom = GetArgParameterOrConfigBool("randomDisable", "rd", false);
             if (!disableRandom) config.AddPathHandler("/random", HttpVerbs.Get, HandleRandom);
 
-            var disableRandomFile = GetArgParameterOrConfigBool("randomFileDisable", "rfd", false);
+            disableRandomFile = GetArgParameterOrConfigBool("randomFileDisable", "rfd", false);
             if (!disableRandomFile) config.AddPathHandler("/randomFile", HttpVerbs.Get, HandleRandomFile);
 
+            config.AddPathHandler("/", HttpVerbs.Get, HandleIndex);
 
 
             using (var server = GetWebServer(config))
@@ -62,6 +67,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
 
             log.Info("WebServer shutdown");
+        }
+
+        private object HandleIndex(IHttpContext context)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("<br />");
+            if (!disableRandom) sb.AppendLine($"<p><a href=\"/random\">Random</a></p>");
+            if (!disableRandomFile) sb.AppendLine($"<p><a href=\"/randomFile\">RandomFile</a></p>");
+            return External.WebServer.HtmlMessage("Utilities", sb.ToString());
         }
 
         private object HandleRandom(IHttpContext context)

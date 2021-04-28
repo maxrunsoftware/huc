@@ -161,11 +161,11 @@ namespace HavokMultimedia.Utilities.Console.External
                 switch (exception.StatusCode)
                 {
                     case 404:
-                        await context.SendStringAsync(HtmlMessage("404 - Not Found", $"Path {context.RequestedPath} not found"), "text/html", Encoding.UTF8);
+                        await context.SendStringAsync(HtmlMessage("404 - Not Found", $"<p>Path {context.RequestedPath} not found</p>"), "text/html", Encoding.UTF8);
                         break;
                     case 401:
                         context.AddHeader("WWW-Authenticate", "Basic");
-                        await context.SendStringAsync(HtmlMessage("401 - Unauthorized", $"Please login to continue"), "text/html", Encoding.UTF8);
+                        await context.SendStringAsync(HtmlMessage("401 - Unauthorized", $"<p>Please login to continue</p>"), "text/html", Encoding.UTF8);
                         break;
                     default:
                         await HttpExceptionHandler.Default(context, exception);
@@ -203,11 +203,11 @@ namespace HavokMultimedia.Utilities.Console.External
             sb.AppendLine($"<html>");
             sb.AppendLine($"  <head>");
             sb.AppendLine($"    <meta charset=\"utf - 8\">");
-            sb.AppendLine($"    <title>{title}</title>");
+            if (title != null) sb.AppendLine($"    <title>{title}</title>");
             sb.AppendLine($"  </head>");
             sb.AppendLine($"  <body>");
-            sb.AppendLine($"    <h1>{title}</h1>");
-            sb.AppendLine($"    <p>{msg}</p>");
+            if (title != null) sb.AppendLine($"    <h1>{title}</h1>");
+            if (msg != null) sb.AppendLine($"    {msg}");
             sb.AppendLine($"  </body>");
             sb.AppendLine($"</html>");
             return sb.ToString();
