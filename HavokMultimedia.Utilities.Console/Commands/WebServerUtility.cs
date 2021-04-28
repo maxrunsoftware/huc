@@ -32,6 +32,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             help.AddSummary("Creates a web server that provides various utilities");
             help.AddParameter("randomDisable", "rd", "Disables the /random utility");
+            help.AddParameter("randomFileDisable", "rfd", "Disables the /randomFile utility");
             help.AddExample("");
         }
 
