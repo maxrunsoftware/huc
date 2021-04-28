@@ -2586,28 +2586,10 @@ namespace HavokMultimedia.Utilities
 
         public static string ToStringTotalSeconds(this TimeSpan timeSpan, int numberOfDecimalDigits = 0) => timeSpan.TotalSeconds.ToString(MidpointRounding.AwayFromZero, Math.Max(0, numberOfDecimalDigits));
 
-        private static readonly string[] ToStringBase16Cache = ToStringBase16Populate();
-        private static string[] ToStringBase16Populate()
-        {
-            var array = new string[256];
-            for (int i = 0; i < 256; i++)
-            {
-                array[i] = BitConverter.ToString(new byte[] { (byte)i });
-            }
-            return array;
-        }
+        private static readonly string[] ToStringBase16Cache = Enumerable.Range(0, 256).Select(o => BitConverter.ToString(new byte[] { (byte)o })).ToArray();
         public static string ToStringBase16(this byte b) => ToStringBase16Cache[b];
 
-        private static readonly string[] ToStringBase64Cache = ToStringBase64Populate();
-        private static string[] ToStringBase64Populate()
-        {
-            var array = new string[256];
-            for (int i = 0; i < 256; i++)
-            {
-                array[i] = Convert.ToBase64String(new byte[] { (byte)i });
-            }
-            return array;
-        }
+        private static readonly string[] ToStringBase64Cache = Enumerable.Range(0, 256).Select(o => Convert.ToBase64String(new byte[] { (byte)o }).Substring(0, 2)).ToArray();
         public static string ToStringBase64(this byte b) => ToStringBase64Cache[b];
 
         #region string.To*()
