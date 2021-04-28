@@ -506,6 +506,22 @@ namespace HavokMultimedia.Utilities
             return false;
         }
 
+        public static string[] SplitOnCamelCase(this string str)
+        {
+            if (str == null) return Array.Empty<string>();
+            if (str.Length == 0) return new string[] { str };
+
+            // https://stackoverflow.com/a/37532157
+            string[] words = Regex.Matches(str, "(^[a-z]+|[A-Z]+(?![a-z])|[A-Z][a-z]+|[0-9]+|[a-z]+)")
+            .OfType<Match>()
+            .Select(m => m.Value)
+            .ToArray();
+
+            return words;
+        }
+
+
+
         #region Equals
 
         public static bool Equals(this string str, string other, StringComparer comparer)

@@ -15,7 +15,9 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -26,32 +28,60 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class WebServerUtility : WebServerBase
     {
+        public class Handler
+        {
+            public string Name => HandlerMethod.Method.Name;
+            public string NameWithSpaces => Name.SplitOnCamelCase().Select(o => Upper(o)).ToStringDelimited(" ");
+            public bool IsEnabled { get; set; } = false;
+            public Func<IHttpContext, object> HandlerMethod { get; }
+            public HttpVerbs HttpVerbs { get; }
+            public string URL => "/" + Upper(Name);
+            public string HelpP1 => Lower(Name) + "Disable";
+            public string HelpP2 => Name.SplitOnCamelCase().Select(o => Lower(o[0].ToString())).ToStringDelimited("") + "d";
+            public string HelpDescription => $"Disables the {URL} utility";
+
+            private static string Upper(string str) => str.First().ToString().ToUpper() + str.Substring(1);
+            private static string Lower(string str) => str.First().ToString().ToLower() + str.Substring(1);
+            public Handler(Func<IHttpContext, object> handlerMethod, HttpVerbs httpVerbs)
+            {
+                HandlerMethod = handlerMethod;
+                HttpVerbs = httpVerbs;
+            }
+        }
+
+        private IList<Handler> GetHandlers() => new List<Handler>
+            {
+                new Handler(GenerateRandom, HttpVerbs.Get),
+                new Handler(GenerateRandomFile, HttpVerbs.Get)
+            };
+
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
 
             help.AddSummary("Creates a web server that provides various utilities");
-            help.AddParameter("randomDisable", "rd", "Disables the /random utility");
-            help.AddParameter("randomFileDisable", "rfd", "Disables the /randomFile utility");
+            foreach (var handler in GetHandlers()) help.AddParameter(handler.HelpP1, handler.HelpP2, handler.HelpDescription);
             help.AddExample("");
         }
 
-        private bool disableRandom;
-        private bool disableRandomFile;
-
+        private IList<Handler> handlers;
         protected override void Execute()
         {
             base.Execute();
             var config = GetConfig();
+            handlers = GetHandlers();
 
+            foreach (var handler in handlers)
+            {
+                handler.IsEnabled = !GetArgParameterOrConfigBool(handler.HelpP1, handler.HelpP2, false);
+            }
 
-            disableRandom = GetArgParameterOrConfigBool("randomDisable", "rd", false);
-            if (!disableRandom) config.AddPathHandler("/random", HttpVerbs.Get, HandleRandom);
+            foreach (var handler in handlers)
+            {
+                if (handler.IsEnabled) config.AddPathHandler(handler.URL, handler.HttpVerbs, handler.HandlerMethod);
+            }
 
-            disableRandomFile = GetArgParameterOrConfigBool("randomFileDisable", "rfd", false);
-            if (!disableRandomFile) config.AddPathHandler("/randomFile", HttpVerbs.Get, HandleRandomFile);
-
-            config.AddPathHandler("/", HttpVerbs.Get, HandleIndex);
+            config.AddPathHandler("/", HttpVerbs.Get, Index);
 
 
             using (var server = GetWebServer(config))
@@ -70,16 +100,19 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Info("WebServer shutdown");
         }
 
-        private object HandleIndex(IHttpContext context)
+        private object Index(IHttpContext context)
         {
             var sb = new StringBuilder();
             sb.AppendLine("<br />");
-            if (!disableRandom) sb.AppendLine($"<p><a href=\"/random\">Random</a></p>");
-            if (!disableRandomFile) sb.AppendLine($"<p><a href=\"/randomFile\">RandomFile</a></p>");
+            foreach (var handler in handlers)
+            {
+                if (handler.IsEnabled) sb.AppendLine($"<p><a href=\"" + handler.URL + "\">" + handler.NameWithSpaces + "</a></p>");
+            }
+
             return External.WebServer.HtmlMessage("Utilities", sb.ToString());
         }
 
-        private object HandleRandom(IHttpContext context)
+        private object GenerateRandom(IHttpContext context)
         {
             var sb = new StringBuilder();
             using (var srandom = RandomNumberGenerator.Create())
@@ -97,9 +130,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return sb.ToString();
         }
 
-        private object HandleRandomFile(IHttpContext context)
+        private object GenerateRandomFile(IHttpContext context)
         {
-            var randomString = (string)HandleRandom(context);
+            var randomString = (string)GenerateRandom(context);
             context.AddHeader("Content-Disposition", "attachment", "filename=\"random.txt\"");
             var bytes = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(randomString);
             using (var stream = context.OpenResponseStream())
