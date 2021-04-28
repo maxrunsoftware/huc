@@ -2524,7 +2524,7 @@ namespace HavokMultimedia.Utilities
                     filePattern = fileName.Substring(idx2 + 1);
                 }
 
-                foreach (var f in Util.FileListFiles(workingDirectory))
+                foreach (var f in Util.FileListFiles(workingDirectory, recursive))
                 {
                     var n = Path.GetFileName(f);
                     if (n.EqualsWildcard(filePattern, true))

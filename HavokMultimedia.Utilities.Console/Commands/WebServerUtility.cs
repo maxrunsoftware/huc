@@ -43,6 +43,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var disableRandom = GetArgParameterOrConfigBool("randomDisable", "rd", false);
             if (!disableRandom) config.AddPathHandler("/random", HttpVerbs.Get, HandleRandom);
 
+            var disableRandomFile = GetArgParameterOrConfigBool("randomFileDisable", "rfd", false);
+            if (!disableRandomFile) config.AddPathHandler("/randomFile", HttpVerbs.Get, HandleRandomFile);
 
 
 
@@ -82,8 +84,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         private object HandleRandomFile(IHttpContext context)
         {
-            var randomString = HandleRandom(context);
+            var randomString = (string)HandleRandom(context);
             context.AddHeader("Content-Disposition", "attachment", "filename=\"random.txt\"");
+            var bytes = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(randomString);
+            using (var stream = context.OpenResponseStream())
+            {
+                stream.Write(bytes, 0, bytes.Length);
+            }
             return "Generated Random File";
         }
     }
