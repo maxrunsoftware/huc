@@ -143,19 +143,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return "Generated Random File";
         }
 
-        private static string HtmlLabel(string forId, string label) => $"<label for=\"{forId}\">{label}</label>";
-        private static string HtmlInputText(string id, string label) => HtmlLabel(id, label) + $"<input type=\"text\" id=\"{id}\" name=\"{id}\">";
-        private static string HtmlSelect(string id, string label, params string[] options)
-        {
-            var sb = new StringBuilder();
-            sb.Append(HtmlLabel(id, label));
-            sb.Append($"<select id=\"{id}\" name=\"{id}\">");
-            foreach (var option in options) sb.Append($"<option value=\"{option}\">{option}</option>");
-            sb.Append($"</select>");
-            return sb.ToString();
-        }
-        private static string HtmlTextArea(string id, int rows, int cols) => $"<textarea id=\"{id}\" name=\"{id}\" rows=\"{rows}\" cols=\"{cols}\"></textarea>";
-
         private object Sql(IHttpContext context)
         {
             var connectionString = context.GetParameterString("connectionString");
@@ -170,17 +157,49 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 uriBuilder.Query = paramValues.ToString();
             */
 
-            if (connectionString == null || serverType == null || sqlStatement == null)
+            if (context.Request.HttpVerb.NotIn(HttpVerbs.Post) || connectionString == null || serverType == null || sqlStatement == null)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine("<p>");
-                sb.AppendLine(HtmlInputText("connectionString", "Connection String") + "<br><br>");
-                sb.AppendLine(HtmlInputText("commandTimeout", "Command Timeout") + "<br><br>");
-                sb.AppendLine(HtmlSelect("serverType", "Server Type", "MSSQL", "MySQL") + "<br><br>");
-                sb.AppendLine(HtmlTextArea("sql", 24, 80) + "<br><br>");
-                sb.AppendLine("</p>");
-                return sb.ToString();
+                var html = $@"
+<form>
+<p>
+    <label for='connectionString'>Connection String </label>
+    <input type='text' id='connectionString' name='connectionString' size='80' value='Server=;Database=;User Id=;Password=;'>
+    < br><br>
+
+    <label for='commandTimeout'>Command Timeout </label>
+    <input type='text' id='commandTimeout' name='commandTimeout' value='60'>
+    <br><br>
+
+    <label for='serverType'>Server Type </label>
+    <select id='serverType' name='serverType'>
+    <option value='mssql'>MSSQL</option>
+    <option value='mysql'>MySQL</option>
+    </select>
+    <br><br>
+
+    <input type='submit' value='Execute'>
+    <br><br>
+
+    <label for='sql'>SQL </label>
+    <textarea id='sql' name='sql' rows='24' cols='80'></textarea>
+</p>
+</form>                   
+";
+
+                return External.WebServer.HtmlMessage("SQL", html.Replace("'", "\""));
             }
+            else if (context.Request.HttpVerb.In(HttpVerbs.Post))
+            {
+                try
+                {
+
+                }
+                catch (Exception e)
+                {
+                    return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString());
+                }
+            }
+
 
             return null;
 
