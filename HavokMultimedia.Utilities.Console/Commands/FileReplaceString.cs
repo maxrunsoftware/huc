@@ -80,7 +80,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("`Person` `Steve` mydoc.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
             var caseInsensitive = GetArgParameterOrConfigBool("caseInsensitive", "i", false);

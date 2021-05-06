@@ -27,9 +27,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser newpassword");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var samAccountName = GetArgValueTrimmed(0);
             log.Debug(nameof(samAccountName) + ": " + samAccountName);

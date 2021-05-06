@@ -37,7 +37,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private string password;
         private string domainName;
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             if (!Constant.OS_WINDOWS) throw new Exception("This function is only supported on Windows clients");
             host = GetArgParameterOrConfigRequired("host", "h");

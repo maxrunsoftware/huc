@@ -292,9 +292,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             #region Initialization
 

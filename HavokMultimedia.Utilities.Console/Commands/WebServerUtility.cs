@@ -22,7 +22,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using EmbedIO;
-using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -30,7 +29,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         public class Handler
         {
-            public string Name => HandlerMethod.Method.Name;
+            public string Name => HandlerType.NameFormatted().Substring(nameof(WebServerUtility).Length);
             public string NameWithSpaces => Name.SplitOnCamelCase().Select(o => Upper(o)).ToStringDelimited(" ");
             public bool IsEnabled { get; set; } = false;
             public Func<IHttpContext, object> HandlerMethod { get; }
@@ -39,38 +38,44 @@ namespace HavokMultimedia.Utilities.Console.Commands
             public string HelpP1 => Lower(Name) + "Disable";
             public string HelpP2 => Name.SplitOnCamelCase().Select(o => Lower(o[0].ToString())).ToStringDelimited("") + "d";
             public string HelpDescription => $"Disables the {URL} utility";
-
+            private Type HandlerType { get; set; }
             private static string Upper(string str) => str.First().ToString().ToUpper() + str.Substring(1);
             private static string Lower(string str) => str.First().ToString().ToLower() + str.Substring(1);
-            public Handler(Func<IHttpContext, object> handlerMethod, HttpVerbs httpVerbs)
+            public Handler(Type type)
             {
-                HandlerMethod = handlerMethod;
-                HttpVerbs = httpVerbs;
+                HandlerType = type;
+                var o = (WebServerUtilityBase)Activator.CreateInstance(type);
+                HandlerMethod = o.Handle;
+                HttpVerbs = o.Verbs;
             }
         }
 
-        private IList<Handler> GetHandlers() => new List<Handler>
-            {
-                new Handler(GenerateRandom, HttpVerbs.Get),
-                new Handler(GenerateRandomFile, HttpVerbs.Get),
-                new Handler(Sql, HttpVerbs.Get),
-            };
+        public static List<Type> HandlerTypes => typeof(WebServerUtilityBase).Assembly
+            .GetTypesOf<WebServerUtilityBase>(requireNoArgConstructor: true)
+            .OrderBy(o => o.FullNameFormatted())
+            .ToList();
+
+        public static List<Handler> Handlers => HandlerTypes
+            .Select(o => new Handler(o))
+            .ToList();
+
+
 
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
 
             help.AddSummary("Creates a web server that provides various utilities");
-            foreach (var handler in GetHandlers()) help.AddParameter(handler.HelpP1, handler.HelpP2, handler.HelpDescription);
+            foreach (var handler in Handlers) help.AddParameter(handler.HelpP1, handler.HelpP2, handler.HelpDescription);
             help.AddExample("");
         }
 
         private IList<Handler> handlers;
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
             var config = GetConfig();
-            handlers = GetHandlers();
+            handlers = Handlers;
 
             foreach (var handler in handlers)
             {
@@ -113,97 +118,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return External.WebServer.HtmlMessage("Utilities", sb.ToString());
         }
 
-        private object GenerateRandom(IHttpContext context)
-        {
-            var sb = new StringBuilder();
-            using (var srandom = RandomNumberGenerator.Create())
-            {
-                var length = context.GetParameterInt("length", 100);
-                var chars = context.GetParameterString("chars", Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9);
-
-                for (int i = 0; i < length; i++)
-                {
-                    var c = chars[srandom.Next(chars.Length)];
-                    sb.Append(c);
-                }
-
-            }
-            return sb.ToString();
-        }
-
-        private object GenerateRandomFile(IHttpContext context)
-        {
-            var randomString = (string)GenerateRandom(context);
-            context.AddHeader("Content-Disposition", "attachment", "filename=\"random.txt\"");
-            var bytes = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(randomString);
-            using (var stream = context.OpenResponseStream())
-            {
-                stream.Write(bytes, 0, bytes.Length);
-            }
-            return "Generated Random File";
-        }
-
-        private object Sql(IHttpContext context)
-        {
-            var connectionString = context.GetParameterString("connectionString");
-            var commandTimeout = context.GetParameterInt("commandTimeout");
-            var serverType = context.GetParameterString("serverType");
-            var sqlStatement = context.GetParameterString("sqlStatement");
-
-            /*
-            var paramValues = System.Web.HttpUtility.ParseQueryString(uriBuilder.Query);
-                paramValues.Add("Product", product);
-                paramValues.Add("PropertyNames", string.Join(";", props));
-                uriBuilder.Query = paramValues.ToString();
-            */
-
-            if (context.Request.HttpVerb.NotIn(HttpVerbs.Post) || connectionString == null || serverType == null || sqlStatement == null)
-            {
-                var html = $@"
-<form>
-<p>
-    <label for='connectionString'>Connection String </label>
-    <input type='text' id='connectionString' name='connectionString' size='80' value='Server=;Database=;User Id=;Password=;'>
-    < br><br>
-
-    <label for='commandTimeout'>Command Timeout </label>
-    <input type='text' id='commandTimeout' name='commandTimeout' value='60'>
-    <br><br>
-
-    <label for='serverType'>Server Type </label>
-    <select id='serverType' name='serverType'>
-    <option value='mssql'>MSSQL</option>
-    <option value='mysql'>MySQL</option>
-    </select>
-    <br><br>
-
-    <input type='submit' value='Execute'>
-    <br><br>
-
-    <label for='sql'>SQL </label>
-    <textarea id='sql' name='sql' rows='24' cols='80'></textarea>
-</p>
-</form>                   
-";
-
-                return External.WebServer.HtmlMessage("SQL", html.Replace("'", "\""));
-            }
-            else if (context.Request.HttpVerb.In(HttpVerbs.Post))
-            {
-                try
-                {
-
-                }
-                catch (Exception e)
-                {
-                    return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString());
-                }
-            }
 
 
-            return null;
 
-
-        }
     }
 }

@@ -56,9 +56,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return null;
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var remoteFiles = GetArgValuesTrimmed();
             if (remoteFiles.IsEmpty()) throw new ArgsException("remoteFiles", "No remote files provided");

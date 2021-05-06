@@ -25,7 +25,8 @@ namespace HavokMultimedia.Utilities.Console
     public interface ICommand
     {
         string Name { get; }
-        void Execute(string[] args);
+        string[] Args { get; set; }
+        void Execute();
         string HelpSummary { get; }
         string HelpDetails { get; }
         bool IsHidden { get; }
@@ -36,7 +37,16 @@ namespace HavokMultimedia.Utilities.Console
     public abstract class Command : ICommand
     {
         private Args args;
+        public string[] Args { get { return args.ArgsString; } set { args = new Args(value); } }
         private ConfigFile config;
+        private ConfigFile Config
+        {
+            get
+            {
+                if (config == null) config = new ConfigFile();
+                return config;
+            }
+        }
         protected readonly ILogger log;
 
         public bool IsHidden => GetType().GetCustomAttributes(true).Where(o => o is HideCommandAttribute).Any();
@@ -89,17 +99,16 @@ namespace HavokMultimedia.Utilities.Console
             CreateHelp(Help);
         }
 
-        public void Execute(string[] args)
+        public void Execute()
         {
+            if (args == null) throw new Exception("Args not set");
             using (var diag = Util.Diagnostic(log.Debug))
             {
-                this.args = new Args(args);
-                this.config = new ConfigFile();
-                Execute();
+                ExecuteInternal();
             }
         }
 
-        protected abstract void Execute();
+        protected abstract void ExecuteInternal();
         protected abstract void CreateHelp(CommandHelpBuilder help);
 
         #region File
@@ -311,7 +320,7 @@ namespace HavokMultimedia.Utilities.Console
             return o;
         }
 
-        public string GetArgParameterConfig(string key) => config[Name + "." + key];
+        public string GetArgParameterConfig(string key) => Config[Name + "." + key];
 
         public IReadOnlyList<string> GetArgValues() => args.Values;
 

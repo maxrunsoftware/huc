@@ -31,9 +31,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` Orders.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
             var sheetName = GetArgParameterOrConfig("sheetName", "s");
             var columns = GetArgParameterOrConfig("columns", "c").TrimOrNull();
             var characterThreshold = GetArgParameterOrConfigInt("characterThreshold", "ct", 1000000);

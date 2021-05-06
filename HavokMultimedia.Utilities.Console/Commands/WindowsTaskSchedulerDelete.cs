@@ -29,9 +29,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-h=`localhost` -u=`administrator` -p=`password` MyTask");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var taskPath = GetArgValueTrimmed(0);
             if (taskPath == null) throw new ArgsException(nameof(taskPath), "No task path specified");

@@ -35,9 +35,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -f=`mssqlscript.sql` OrdersFromScript.txt");
         }
 
-        protected override void Execute()
+        public Utilities.Table[] ExecuteTables()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var s = GetArgParameterOrConfig("sqlStatement", "s");
 
@@ -53,6 +53,23 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (sql == null) throw new ArgsException("sqlStatement", "No SQL provided to execute");
             log.Debug($"sql: {sql}");
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var c = GetSqlHelper();
+            var tables = c.ExecuteQuery(sql);
+
+            stopwatch.Stop();
+            var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
+            log.Info($"Completed SQL execution in {stopwatchtime} seconds");
+
+            log.Debug($"Successfully retrieved {tables.Length} results from SQL");
+
+            return tables;
+        }
+
+        protected override void ExecuteInternal()
+        {
             var resultFiles = GetArgValuesTrimmed();
             for (var i = 0; i < resultFiles.Count; i++)
             {
@@ -62,29 +79,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
             for (var i = 0; i < resultFiles.Count; i++) log.Debug($"resultFiles[{i}]: {resultFiles[i]}");
 
+            var tables = ExecuteTables();
 
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            Utilities.Table[] tables = Array.Empty<Utilities.Table>();
-
-            var c = GetSqlHelper();
-
-            if (resultFiles.WhereNotNull().IsEmpty())
-            {
-                c.ExecuteNonQuery(sql);
-            }
-            else
-            {
-                tables = c.ExecuteQuery(sql);
-            }
-
-
-            stopwatch.Stop();
-            var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
-            log.Info($"Completed SQL execution in {stopwatchtime} seconds");
-
-            log.Debug($"Successfully retrieved {tables.Length} results from SQL");
             for (var i = 0; i < tables.Length; i++)
             {
                 var table = tables[i];

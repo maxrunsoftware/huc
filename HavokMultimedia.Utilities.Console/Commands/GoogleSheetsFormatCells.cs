@@ -49,9 +49,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` -width=100 -b -fc=Red -bc=Blue");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
             var sheetName = GetArgParameterOrConfig("sheetName", "s");
 
             var xPosition = GetArgParameterOrConfigInt("xPosition", "x", 0);

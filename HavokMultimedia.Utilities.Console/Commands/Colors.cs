@@ -59,7 +59,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         }
 
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var colorRequested = GetArgValueTrimmed(0);
             log.Debug(nameof(colorRequested) + ": " + colorRequested);

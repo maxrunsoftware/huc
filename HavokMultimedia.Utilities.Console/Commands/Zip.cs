@@ -38,7 +38,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("myOuputFile.zip *.txt *.csv");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var bs = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10);
             bs = bs * (int)Constant.BYTES_MEGA;

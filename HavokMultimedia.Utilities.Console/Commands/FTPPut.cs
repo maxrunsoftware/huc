@@ -35,9 +35,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var localFiles = GetArgValuesTrimmed();
             if (localFiles.IsEmpty()) throw new ArgsException("localFiles", "No local files provided");

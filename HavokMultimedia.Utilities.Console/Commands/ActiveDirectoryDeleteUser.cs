@@ -32,9 +32,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser CN=Users,DC=testdomain,DC=test,DC=org");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
             var values = GetArgValues().TrimOrNull().WhereNotNull();
 
             var samAccountName = values.GetAtIndexOrDefault(0);

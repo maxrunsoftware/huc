@@ -49,9 +49,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return true;
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var all = GetArgParameterOrConfigBool("all", "a", false);
             var detail = GetArgParameterOrConfigBool("detail", "d", false);

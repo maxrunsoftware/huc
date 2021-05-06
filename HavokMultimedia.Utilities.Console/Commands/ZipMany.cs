@@ -97,7 +97,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             bufferSize = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10);
             bufferSize = bufferSize * (int)Constant.BYTES_MEGA;

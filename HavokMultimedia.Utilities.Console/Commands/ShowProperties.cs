@@ -31,7 +31,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-a");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var showUndefined = GetArgParameterOrConfigBool("showUndefined", "s", false);
             var fileLocation = GetArgValueTrimmed(0);

@@ -30,9 +30,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             using (var ad = GetActiveDirectory())
             {

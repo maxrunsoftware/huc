@@ -31,9 +31,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass adlist.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
             var includeExpensiveProperties = GetArgParameterOrConfigBool("includeExpensiveProperties", "e", false);
             var outputFile = GetArgValueTrimmed(0);
             log.Debug(nameof(outputFile) + ": " + outputFile);

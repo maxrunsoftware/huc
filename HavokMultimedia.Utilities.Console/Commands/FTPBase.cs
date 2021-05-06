@@ -112,7 +112,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private string privateKey3File;
         private string privateKey3Password;
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
 
 

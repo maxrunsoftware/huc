@@ -48,7 +48,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private bool forceV1;
 
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             host = GetArgParameterOrConfigRequired("host", "h").TrimOrNull();
 

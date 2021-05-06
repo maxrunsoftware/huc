@@ -34,7 +34,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private string username;
         private string password;
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             ipaddress = GetArgParameterOrConfig("ipaddress", "ip").TrimOrNull();
             port = GetArgParameterOrConfigUShort("port", "o", 8080);

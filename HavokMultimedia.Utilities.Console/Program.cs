@@ -98,7 +98,8 @@ namespace HavokMultimedia.Utilities.Console
 
             ShowBanner(a, command);
             var cmd = CreateCommand(command);
-            cmd.Execute(args);
+            cmd.Args = args;
+            cmd.Execute();
             return 0;
         }
 

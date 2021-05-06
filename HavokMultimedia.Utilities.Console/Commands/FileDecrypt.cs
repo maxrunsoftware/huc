@@ -33,7 +33,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-pk=MyPrivateKey.txt data.encrypted dataDecrypted.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
             var privateKeyFile = GetArgParameterOrConfig("privateKey", "pk");

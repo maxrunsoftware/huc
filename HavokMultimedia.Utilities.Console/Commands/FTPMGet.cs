@@ -32,9 +32,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("filePattern", "Pattern to match files using * and ? as wildcards");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var remotePath = GetArgParameterOrConfig("remotePath", null);
             if (remotePath != null && remotePath.Last() != '/') remotePath = remotePath + "/";

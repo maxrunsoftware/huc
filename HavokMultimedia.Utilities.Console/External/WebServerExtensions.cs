@@ -39,7 +39,6 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static string GetParameterString(this IHttpContext context, string parameterName) => GetParameters(context).GetValueNullable(parameterName);
         public static string GetParameterString(this IHttpContext context, string parameterName, string defaultValue) => GetParameterString(context, parameterName) ?? defaultValue;
-
         public static int? GetParameterInt(this IHttpContext context, string parameterName)
         {
             var s = GetParameterString(context, parameterName);

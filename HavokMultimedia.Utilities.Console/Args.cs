@@ -31,10 +31,11 @@ namespace HavokMultimedia.Utilities.Console
         public bool IsNoBanner { get; init; }
         public bool IsHelp { get; init; }
         public bool IsShowHidden { get; init; }
-
+        public string[] ArgsString => args.Copy();
+        private readonly string[] args;
         public Args(params string[] args)
         {
-
+            this.args = args;
             var list = new Queue<string>(args);
             var values = new List<string>();
             var d = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);

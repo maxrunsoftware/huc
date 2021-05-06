@@ -32,9 +32,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var filesToDelete = GetArgValuesTrimmed();
             if (filesToDelete.IsEmpty()) throw new ArgsException("fileToDelete", "No files to delete provided");

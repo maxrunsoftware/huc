@@ -30,9 +30,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` AA null CC");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
             var sheetName = GetArgParameterOrConfig("sheetName", "s");
 
             var values = GetArgValues().TrimOrNull().ToList();

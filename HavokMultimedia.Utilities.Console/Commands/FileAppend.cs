@@ -29,7 +29,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("mainfile.txt file1.txt file2.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             //var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
             var values = GetArgValuesTrimmed1N();

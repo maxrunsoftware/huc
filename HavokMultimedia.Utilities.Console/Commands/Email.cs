@@ -47,7 +47,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         }
 
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var smtphost = GetArgParameterOrConfigRequired("host", "h");
             var smtpport = GetArgParameterOrConfigInt("port", "o", 25);

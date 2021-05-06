@@ -41,7 +41,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private int commandTimeout;
         protected SqlServerType SqlServerType { get; private set; }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             connectionString = GetArgParameterOrConfigRequired("connectionString", "c");
             commandTimeout = GetArgParameterOrConfigInt("commandTimeout", "ct", 60 * 60 * 24);

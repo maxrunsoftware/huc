@@ -40,9 +40,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var r = GetArgParameterOrConfigBool("recursive", "r", false);
             var path = GetArgValueTrimmed(0);

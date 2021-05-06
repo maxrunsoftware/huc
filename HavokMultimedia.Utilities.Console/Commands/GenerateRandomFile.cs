@@ -35,7 +35,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-l=1000000 testdata1.txt testdata2.txt testdata3.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var b = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10);
             b = b * (int)Constant.BYTES_MEGA;

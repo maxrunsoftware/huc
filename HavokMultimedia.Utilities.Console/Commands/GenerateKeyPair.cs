@@ -30,7 +30,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-l=4096 MyPublicKey.txt MyPrivateKey.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var length = GetArgParameterOrConfigInt("length", "l", 1024);
 

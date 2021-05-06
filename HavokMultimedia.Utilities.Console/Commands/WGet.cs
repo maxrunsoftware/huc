@@ -34,7 +34,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("https://github.com github.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var username = GetArgParameterOrConfig("username", "u").TrimOrNull();
             var password = GetArgParameterOrConfig("password", "p").TrimOrNull();

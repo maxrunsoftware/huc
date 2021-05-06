@@ -34,7 +34,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private string applicationName;
         private string spreadsheetId;
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var securityKeyFile = GetArgParameterOrConfigRequired("securityKeyFile", "k");
             securityKeyFileData = ReadFile(securityKeyFile);

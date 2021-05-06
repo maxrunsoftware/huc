@@ -44,7 +44,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass `cd someDirectory; ls -la;`");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var host = GetArgParameterOrConfigRequired("host", "h");
             var port = GetArgParameterOrConfigInt("port", "o", 22).ToString().ToUShort();

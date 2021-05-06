@@ -29,7 +29,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-d");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var drift = GetArgParameterOrConfigBool("drift", "d", false);
 

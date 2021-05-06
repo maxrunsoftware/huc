@@ -123,7 +123,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Info("Delimited file with " + table.Columns.Count + " columns, " + table.Count + " rows created: " + outputFile);
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var includedItems = Util.ParseInputFiles(GetArgValuesTrimmed());
             if (includedItems.Count < 1) throw new ArgsException("inputFiles", "No input files supplied");

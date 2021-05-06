@@ -33,7 +33,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected abstract void ProcessStreams(Stream inputStream, Stream outputStream);
         protected Encoding encoding;
         protected int bufferSize;
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             encoding = GetArgParameterOrConfigEncoding("encoding", "en");
             var bufferSizeMegabytes = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10).ToString().ToUInt();

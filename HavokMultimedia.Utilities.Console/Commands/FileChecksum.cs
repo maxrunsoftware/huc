@@ -45,7 +45,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-t=SHA512 *.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
             var checksumType = GetArgParameterOrConfigEnum("checksumType", "t", ChecksumType.MD5);
             var recursive = GetArgParameterOrConfigBool("recursive", "r", false);

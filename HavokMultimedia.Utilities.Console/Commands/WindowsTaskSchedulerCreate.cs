@@ -55,9 +55,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-h=`localhost` -u=`administrator` -p=`password` -taskUsername=`system` -tw=`c:\\temp` -t1=`MONDAY 19:12` -t2=`WEDNESDAY 19:12` -tn=`MyTask` `C:\\temp\\RunMe.bat`");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var taskUsername = GetArgParameterOrConfigRequired("taskUsername", "tu").TrimOrNull();
             var taskPassword = GetArgParameterOrConfig("taskPassword", "tp").TrimOrNull();

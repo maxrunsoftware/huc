@@ -213,9 +213,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var drop = GetArgParameterOrConfigBool("drop", "dp", false);
             var detectColumnTypes = GetArgParameterOrConfigBool("detectColumnTypes", "dct", false);

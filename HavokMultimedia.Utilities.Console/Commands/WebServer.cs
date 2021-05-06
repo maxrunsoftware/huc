@@ -33,9 +33,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-o=80 c:\\www");
         }
 
-        protected override void Execute()
+        protected override void ExecuteInternal()
         {
-            base.Execute();
+            base.ExecuteInternal();
 
             var directoryToServe = GetArgValueTrimmed(0) ?? Environment.CurrentDirectory;
             log.Debug($"{nameof(directoryToServe)}: {directoryToServe}");
