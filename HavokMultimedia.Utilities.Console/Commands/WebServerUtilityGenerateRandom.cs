@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using EmbedIO;
@@ -24,29 +25,88 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class WebServerUtilityGenerateRandom : WebServerUtilityBase
     {
-        public string Handle()
+        private string HtmlPage()
         {
-            var sb = new StringBuilder();
-            using (var srandom = RandomNumberGenerator.Create())
-            {
-                var length = GetParameterInt("length", 100);
-                var chars = GetParameterString("chars", Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9);
+            var html = $@"
+<form>
+<p>
+    <label for='length'>Length </label>
+    <input type='text' id='length' name='length' size='80' value='100'>
+    <br><br>
 
-                for (int i = 0; i < length; i++)
+    <label for='characters'>Characters </label>
+    <input type='text' id='characters' name='characters' size='80' value='{Constant.CHARS_0_9 + Constant.CHARS_A_Z_LOWER}'>
+    <br><br>
+
+    <label for='count'>Count </label>
+    <input type='text' id='count' name='count' size='80' value='1'>
+    <br><br>
+
+    <input type='submit' value='Generate'>
+    <br><br>
+
+</p>
+</form>
+";
+            return html.Replace("'", "\"");
+        }
+        public string[] Handle()
+        {
+            var lengthN = GetParameterInt("length");
+            if (lengthN == null) return null;
+            var length = lengthN.Value;
+            var chars = GetParameterString("characters");
+            if (chars == null) return null;
+
+            var countN = GetParameterInt("count");
+            if (countN == null) return null;
+            var count = countN.Value;
+
+            var list = new List<string>();
+            for (int i = 0; i < count; i++)
+            {
+                var sb = new StringBuilder();
+                using (var srandom = RandomNumberGenerator.Create())
                 {
-                    var c = chars[srandom.Next(chars.Length)];
-                    sb.Append(c);
+
+                    for (int j = 0; j < length; j++)
+                    {
+                        var c = chars[srandom.Next(chars.Length)];
+                        sb.Append(c);
+                    }
+
                 }
+                list.Add(sb.ToString());
 
             }
-            return sb.ToString();
+
+            return list.ToArray();
         }
 
-        public override string HandleHtml() => Handle();
-
-        public override string HandleJson()
+        public override string HandleHtml()
         {
-            return base.HandleJson();
+            try
+            {
+                var result = Handle();
+                if (result == null)
+                {
+                    return External.WebServer.HtmlMessage("Generate Random", HtmlPage());
+                }
+                var body = new StringBuilder();
+                for (int i = 0; i < result.Length; i++)
+                {
+                    body.Append("<p>");
+                    body.Append(result[i]);
+                    body.Append("</p>");
+                }
+                return External.WebServer.HtmlMessage("Random Data", body.ToString());
+            }
+            catch (Exception e)
+            {
+                return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString());
+            }
         }
+
+
     }
 }

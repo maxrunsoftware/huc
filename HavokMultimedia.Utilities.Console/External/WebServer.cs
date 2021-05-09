@@ -197,13 +197,19 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug("Web server shut down");
         }
 
-        public static string HtmlMessage(string title, string msg)
+        public static string HtmlMessage(string title, string msg, string css = null)
         {
             var sb = new StringBuilder();
             sb.AppendLine($"<html>");
             sb.AppendLine($"  <head>");
             sb.AppendLine($"    <meta charset=\"utf - 8\">");
             if (title != null) sb.AppendLine($"    <title>{title}</title>");
+            if (css != null)
+            {
+                sb.AppendLine($"    <style>");
+                sb.AppendLine($"    {css}");
+                sb.AppendLine($"    </style>");
+            }
             sb.AppendLine($"  </head>");
             sb.AppendLine($"  <body>");
             if (title != null) sb.AppendLine($"    <h1>{title}</h1>");
