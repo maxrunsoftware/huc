@@ -47,6 +47,10 @@ cp Orders.txt Orders.csv
 cp Orders100.txt Orders100.csv
 ./huc table -hd=pipe -hq=none -he=true -dd=pipe -dq=none -he=false Orders100.csv
 
+echo --- TABLEHTML ---
+cp Orders.txt Orders.html
+./huc tablehtml Orders.html
+
 echo --- FTP ---
 ./huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
 ./huc ftpput -h=$ip -u=testuser -p=testpass testdata1.txt

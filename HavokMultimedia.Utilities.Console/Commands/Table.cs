@@ -133,6 +133,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             {
                 if (!File.Exists(includedItem)) throw new FileNotFoundException("Input file " + includedItem + " does not exist", includedItem);
             }
+            for (var i = 0; i < includedItems.Count; i++) log.Debug($"inputFile[{i}]: {includedItems[i]}");
 
             hd = ParseOption(GetArgParameterOrConfig("headerDelimiter", "hd", "comma"));
 
@@ -150,7 +151,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             en = GetArgParameterOrConfigEncoding("encoding", "en");
 
-            for (var i = 0; i < includedItems.Count; i++) log.Debug($"inputFile[{i}]: {includedItems[i]}");
             foreach (var includedItem in includedItems)
             {
                 log.Debug($"Reading table file: {includedItem}");
