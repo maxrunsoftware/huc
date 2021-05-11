@@ -27,9 +27,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary("Converts a tab delimited data file to a nice html table file");
             help.AddParameter("cssFile", "css", "CSS file to embed in generated HTML file");
+            help.AddParameter("javascriptFile", "js", "Javascript file to embed in generated HTML file");
+            help.AddParameter("noJavascript", "nj", "Exclude the default javascript from the generated file (false)");
+            help.AddParameter("noCSS", "nc", "Exclude the default CSS from the generated file (false)");
             help.AddValue("<tab delimited input file 1> <tab delimited input file 2> <etc>");
             help.AddExample("Orders.html");
+            help.AddExample("css=MyStyleSheet.css js=MyJavascriptFile.js Orders.html");
         }
+
         private static readonly string JS = @"
 window.onload=function(){
 
@@ -81,8 +86,22 @@ tr:nth-child(even){background-color: #f2f2f2;}
 tr:hover {background-color: #ddd;}
 ".Replace("'", "\"");
 
-
         private static string HtmlEscape(string unescaped) => WebUtility.HtmlEncode(unescaped);
+
+        private string ReadFileContent(string fileName)
+        {
+            fileName = fileName.TrimOrNull();
+            if (fileName == null) return null;
+            var files = Util.ParseInputFiles(fileName.Yield());
+            var content = new StringBuilder();
+            foreach (var cssFil in files)
+            {
+                if (!File.Exists(cssFil)) throw new FileNotFoundException("CSS file " + cssFil + " does not exist", cssFil);
+                content.AppendLine(ReadFile(cssFil));
+            }
+            var s = content.ToString().TrimOrNull();
+            return s;
+        }
 
         protected override void ExecuteInternal()
         {
@@ -95,16 +114,13 @@ tr:hover {background-color: #ddd;}
             }
             for (var i = 0; i < includedItems.Count; i++) log.Debug($"inputFile[{i}]: {includedItems[i]}");
 
-            var cssFile = GetArgParameterOrConfig("cssFile", "css").TrimOrNull();
-            var cssFiles = new List<string>();
-            if (cssFile != null) cssFiles = Util.ParseInputFiles(cssFile.Yield());
-            var cssContent = new StringBuilder();
-            foreach (var cssFil in cssFiles)
-            {
-                if (!File.Exists(cssFil)) throw new FileNotFoundException("CSS file " + cssFil + " does not exist", cssFil);
-                cssContent.AppendLine(ReadFile(cssFil));
-            }
-            var css = cssContent.ToString().TrimOrNull();
+            var noCss = GetArgParameterOrConfigBool("noCSS", "nc", false);
+            var css = ReadFileContent(GetArgParameterOrConfig("cssFile", "css"));
+            if (css == null && !noCss) css = CSS;
+
+            var noJavascript = GetArgParameterOrConfigBool("noJavascript", "nj", false);
+            var js = ReadFileContent(GetArgParameterOrConfig("javascriptFile", "js"));
+            if (js == null && !noJavascript) js = JS;
 
             foreach (var includedItem in includedItems)
             {
@@ -123,18 +139,24 @@ tr:hover {background-color: #ddd;}
                     sw.WriteLine($"  <head>");
                     sw.WriteLine($"    <meta charset=\"utf - 8\">");
                     sw.WriteLine($"    <title>{HtmlEscape(Path.GetFileName(outputFile))}</title>");
-                    sw.WriteLine($"    <script type = \"text/javascript\">");
-                    sw.WriteLine(JS);
-                    sw.WriteLine($"    </script>");
-                    sw.WriteLine($"    <style>");
-                    sw.WriteLine(css ?? CSS);
-                    sw.WriteLine($"    </style>");
+                    if (js != null)
+                    {
+                        sw.WriteLine($"    <script type = \"text/javascript\">");
+                        sw.WriteLine(js);
+                        sw.WriteLine($"    </script>");
+                    }
+                    if (css != null)
+                    {
+                        sw.WriteLine($"    <style>");
+                        sw.WriteLine(css);
+                        sw.WriteLine($"    </style>");
+                    }
                     sw.WriteLine($"  </head>");
                     sw.WriteLine($"  <body>");
                     sw.WriteLine($"    <table>");
                     sw.WriteLine($"      <thead>");
-                    sw.WriteLine($"        <tr>");
-                    foreach (var c in table.Columns) sw.WriteLine("<th>" + HtmlEscape(c.Name) + "</th>");
+                    sw.Write($"        <tr>");
+                    foreach (var c in table.Columns) sw.Write("<th>" + HtmlEscape(c.Name) + "</th>");
                     sw.WriteLine($"        </tr>");
                     sw.WriteLine($"      </thead>");
                     sw.WriteLine($"      <tbody>");
