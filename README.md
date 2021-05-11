@@ -87,6 +87,18 @@ Convert tab delimited file to csv delimited file using specific delimiters and e
 cp Orders.txt Orders.csv
 huc table -hd=pipe -hq=single -he=true -dd=pipe -dq=single -de=false Orders.csv
 ```
+
+Convert tab delimited file to HTML table using defaults
+```sh
+cp Orders.txt Orders.html
+huc tablehtml Orders.html
+```
+
+Convert tab delimited file to HTML table embeddeding a custom CSS file and Javascript file
+```sh
+cp Orders.txt Orders.html
+huc tablehtml css=MyStyleSheet.css js=MyJavascriptFile.js Orders.html
+```
 &nbsp;
 ### FTP FTPS SFTP
 List files in default directory
