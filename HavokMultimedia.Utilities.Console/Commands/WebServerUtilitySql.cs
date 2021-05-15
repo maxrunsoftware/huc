@@ -48,103 +48,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return ToJson(objs);
         }
 
-        private string HtmlPage()
-        {
-            var html = $@"
-<form>
-<p>
-    <label for='connectionString'>Connection String </label>
-    <input type='text' id='connectionString' name='connectionString' size='80' value='Server=192.168.42.2;Database=NorthWind;User Id=testuser;Password=testpass;'>
-    <br><br>
 
-    <label for='commandTimeout'>Command Timeout </label>
-    <input type='text' id='commandTimeout' name='commandTimeout' value='60'>
-    <br><br>
 
-    <label for='serverType'>Server Type </label>
-    <select id='serverType' name='serverType'>
-    <option value='mssql'>MSSQL</option>
-    <option value='mysql'>MySQL</option>
-    </select>
-    <br><br>
-
-    <input type='submit' value='Execute'>
-    <br><br>
-
-    <textarea id='sqlStatement' name='sqlStatement' rows='24' cols='80'>SELECT * FROM Orders</textarea>
-</p>
-</form>
-";
-            return html.Replace("'", "\"");
-        }
-
-        private string HtmlResponse(Utilities.Table[] tables)
-        {
-            var body = new StringBuilder();
-
-            int index = 0;
-            if (tables.IsEmpty())
-            {
-                body.Append("<h2>No result sets</h2>");
-            }
-            foreach (var table in tables)
-            {
-
-                body.Append("<table>");
-                body.Append("<thead>");
-                if (tables.Length > 1) body.Append($"<tr><th colspan=\"{table.Columns.Count}\">Result {index + 1}</th></tr>");
-                body.Append("<tr>");
-                foreach (var c in table.Columns) body.Append("<th>" + c.Name + "</th>");
-                body.Append("</tr>");
-                body.Append("</thead>");
-                body.Append("<tbody>");
-                foreach (var r in table)
-                {
-                    body.Append("<tr>");
-                    foreach (var cell in r)
-                    {
-                        body.Append("<td>" + cell + "</td>");
-                    }
-                    body.Append("</tr>");
-                }
-                body.Append("</tbody>");
-                body.Append("</table>");
-
-                if (index < tables.Length) body.Append("<br><br>");
-                index++;
-
-            }
-
-            return body.ToString();
-        }
-        private static readonly string CSS = @"
-table {
-  font-family: Arial, Helvetica, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-th {
-  border: 1px solid #ddd;
-  padding: 8px;
-  width: 1px;
-  white-space: nowrap;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  text-align: left;
-  background-color: #4CAF50;
-  color: white;
-}
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  width: 1px;
-  white-space: nowrap;
-}
-
-tr:nth-child(even){background-color: #f2f2f2;}
-
-tr:hover {background-color: #ddd;}
-".Replace("'", "\"");
 
         public (bool success, string totalSeconds, Utilities.Table[] tables) Handle()
         {
@@ -207,23 +112,45 @@ tr:hover {background-color: #ddd;}
 
         public override string HandleHtml()
         {
-
+            var html = new HtmlBuilder();
+            html.Title = "SQL";
+            html.CSS(HtmlBuilder.CSS_TABLE);
+            html.Javascript(HtmlBuilder.JS_TABLE);
             try
             {
                 var result = Handle();
+
                 if (!result.success)
                 {
-                    return External.WebServer.HtmlMessage("SQL", HtmlPage(), css: CSS);
+                    html.Form();
+                    html.P();
+                    html.InputText("connectionString", label: "Connection String ", size: 80, value: "Server=192.168.42.2;Database=NorthWind;User Id=testuser;Password=testpass;");
+                    html.BR(2);
+                    html.InputText("commandTimeout", label: "Command Timeout ", value: "60");
+                    html.BR(2);
+                    html.Select<SqlServerType>("serverType");
+                    html.BR(2);
+                    html.InputSubmit("Execute");
+                    html.BR(2);
+                    html.TextArea("sqlStatement", rows: 24, cols: 80, text: "SELECT * FROM Orders");
+                    html.PEnd();
+                    html.FormEnd();
+                }
+                else
+                {
+                    foreach (var table in result.tables)
+                    {
+                        html.Table(table);
+                        html.BR(2);
+                    }
                 }
 
-                var body = HtmlResponse(result.tables);
-                return External.WebServer.HtmlMessage("SQL executed in " + result.totalSeconds + " seconds", body.ToString(), css: CSS);
             }
             catch (Exception e)
             {
-                return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString());
+                html.Exception(e);
             }
-
+            return html.ToString();
         }
     }
 }

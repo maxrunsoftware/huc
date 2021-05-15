@@ -44,29 +44,28 @@ namespace HavokMultimedia.Utilities.Console.Commands
             public Handler(Type type)
             {
                 HandlerType = type;
-                var o = (WebServerUtilityBase)Activator.CreateInstance(type);
+                var o = (WebServerUtilityBase)Util.CreateInstance(type);
                 HandlerMethod = o.Handle;
                 HttpVerbs = o.Verbs;
             }
-        }
 
-        public static List<Type> HandlerTypes => typeof(WebServerUtilityBase).Assembly
+            public static List<Type> HandlerTypes => typeof(WebServerUtilityBase).Assembly
             .GetTypesOf<WebServerUtilityBase>(requireNoArgConstructor: true)
             .OrderBy(o => o.FullNameFormatted())
             .ToList();
 
-        public static List<Handler> Handlers => HandlerTypes
+            public static List<Handler> Handlers => HandlerTypes
             .Select(o => new Handler(o))
             .ToList();
 
-
+        }
 
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
 
             help.AddSummary("Creates a web server that provides various utilities");
-            foreach (var handler in Handlers) help.AddParameter(handler.HelpP1, handler.HelpP2, handler.HelpDescription);
+            foreach (var handler in Handler.Handlers) help.AddParameter(handler.HelpP1, handler.HelpP2, handler.HelpDescription);
             help.AddExample("");
         }
 
@@ -75,7 +74,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.ExecuteInternal();
             var config = GetConfig();
-            handlers = Handlers;
+
+            foreach (var handlerType in Handler.HandlerTypes) log.Debug("Found Handler: " + handlerType.FullNameFormatted());
+
+            handlers = Handler.Handlers;
 
             foreach (var handler in handlers)
             {

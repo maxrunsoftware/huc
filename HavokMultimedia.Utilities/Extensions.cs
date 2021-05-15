@@ -520,7 +520,7 @@ namespace HavokMultimedia.Utilities
             return words;
         }
 
-
+        public static string EscapeHtml(this string unescaped) => unescaped == null ? null : WebUtility.HtmlEncode(unescaped);
 
         #region Equals
 

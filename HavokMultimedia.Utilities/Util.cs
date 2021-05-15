@@ -2372,7 +2372,7 @@ namespace HavokMultimedia.Utilities
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static Func<object> CreateNewFactory(Type type)
+        public static Func<object> CreateInstanceFactory(Type type)
         {
             // https://stackoverflow.com/a/29972767
             //public static readonly Func<T> New = Expression.Lambda<Func<T>>(Expression.New(typeof(T).GetConstructor(Type.EmptyTypes))).Compile();
@@ -2382,6 +2382,14 @@ namespace HavokMultimedia.Utilities
             var c = Expression.Lambda<Func<object>>(Expression.New(type)).Compile();
             return c;
         }
+
+        private static readonly IBucketReadOnly<Type, Func<object>> CreateInstanceCache = new BucketCacheCopyOnWrite<Type, Func<object>>(o => CreateInstanceFactory(o));
+
+        public static object CreateInstance(Type type)
+        {
+            return CreateInstanceCache[type]();
+        }
+
 
         public static List<T> CreateList<T, TEnumerable>(params TEnumerable[] enumerables) where TEnumerable : IEnumerable<T>
         {
