@@ -26,6 +26,7 @@
     <PackageReference Include="Inferno" Version="1.6.4" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="5.0.0" />
     <PackageReference Include="System.DirectoryServices.Protocols" Version="5.0.0" />
+    <PackageReference Include="HttpMultipartParser" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HavokMultimedia.Utilities\HavokMultimedia.Utilities.csproj" />

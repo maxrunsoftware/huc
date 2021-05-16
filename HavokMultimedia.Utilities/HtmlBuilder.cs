@@ -135,6 +135,14 @@ tr:hover {background-color: #ddd;}
             if (value != null) element.Add("value", value);
             body.AppendLine(element.ToString());
         }
+        public void InputPassword(string id, string label = null, int size = 0)
+        {
+            if (label != null) body.AppendLine(Element("label").Add("for", id).ToString() + label.EscapeHtml() + "</label>");
+            var element = Element("input", id);
+            element.Add("type", "password");
+            if (size > 0) element.Add("size", size);
+            body.AppendLine(element.ToString());
+        }
 
         public void Select<TEnum>(string id, string label = null) where TEnum : struct, IConvertible, IComparable, IFormattable
         {
@@ -149,13 +157,17 @@ tr:hover {background-color: #ddd;}
             body.AppendLine("</select>");
         }
 
-        public void InputSubmit(string value)
-        {
-            body.AppendLine(Element("input").Add("type", "submit").Add("value", value).ToString());
-        }
+        public void InputSubmit(string value) => body.AppendLine(Element("input").Add("type", "submit").Add("value", value).ToString());
+        public void InputFile(string id) => body.AppendLine(Element("input", id).Add("type", "file").ToString());
         public void Form() => body.AppendLine("<form>");
         public void FormEnd() => body.AppendLine("</form>");
         public void P() => body.AppendLine("<p>");
+        public void P(string text)
+        {
+            P();
+            Text(text);
+            PEnd();
+        }
         public void PEnd() => body.AppendLine("</p>");
         public void TextArea(string id, int rows = 0, int cols = 0, string text = null)
         {
@@ -165,6 +177,10 @@ tr:hover {background-color: #ddd;}
             body.Append(element.ToString());
             if (text != null) body.Append(text.EscapeHtml());
             body.AppendLine("</textarea>");
+        }
+        public void Text(string text)
+        {
+            body.Append(text);
         }
         public void H1(string text)
         {

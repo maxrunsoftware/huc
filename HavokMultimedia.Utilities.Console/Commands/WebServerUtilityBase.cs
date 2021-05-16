@@ -16,9 +16,11 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using EmbedIO;
 using HavokMultimedia.Utilities.Console.External;
+using HttpMultipartParser;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -31,6 +33,64 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected int? GetParameterInt(string name) => Context.GetParameterInt(name);
         protected int GetParameterInt(string name, int defaultValue) => Context.GetParameterInt(name, defaultValue);
         protected Format ResponseFormat { get; private set; }
+
+        private MultipartFormDataParser FormParser
+        {
+            get
+            {
+                var context = Context;
+                if (context == null) return null;
+                var request = context.Request;
+                if (request == null) return null;
+                var inputStream = request.InputStream;
+                if (inputStream == null) return null;
+
+                try
+                {
+                    var parser = MultipartFormDataParser.Parse(inputStream);
+                    return parser;
+                }
+                catch (Exception e)
+                {
+                    log.Warn("Error creating MultipartFormDataParser", e);
+                    return null;
+                }
+            }
+        }
+
+        protected IReadOnlyDictionary<string, byte[]> Files
+        {
+            get
+            {
+                var d = new Dictionary<string, byte[]>();
+                var parser = FormParser;
+                if (parser == null) return d;
+                foreach (var file in parser.Files)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        file.Data.CopyTo(ms);
+                        d[file.FileName] = ms.ToArray();
+                    }
+                }
+                return d;
+            }
+        }
+
+        protected IReadOnlyDictionary<string, string> FormValues
+        {
+            get
+            {
+                var d = new Dictionary<string, string>();
+                var parser = FormParser;
+                if (parser == null) return d;
+                foreach (var p in parser.Parameters)
+                {
+                    d[p.Name] = p.Data;
+                }
+                return d;
+            }
+        }
 
         public object Handle(IHttpContext context)
         {
@@ -57,21 +117,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log = Program.LogFactory.GetLogger(GetType());
         }
 
-        public void WriteResponseFile(byte[] bytes, string fileName)
-        {
-            Context.AddHeader("Content-Disposition", "attachment", "filename=\"" + fileName + "\"");
 
-            using (var stream = Context.OpenResponseStream())
-            {
-                stream.Write(bytes, 0, bytes.Length);
-            }
-        }
-        public void WriteResponseFile(string data, string fileName, Encoding encoding = null)
-        {
-            if (encoding == null) encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
-            var bytes = encoding.GetBytes(data);
-            WriteResponseFile(bytes, fileName);
-        }
 
         public string ToJson(object o) => Swan.Formatters.Json.Serialize(o, format: true);
     }

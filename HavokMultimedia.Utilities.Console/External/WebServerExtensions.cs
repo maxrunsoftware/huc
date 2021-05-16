@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using EmbedIO;
 
 namespace HavokMultimedia.Utilities.Console.External
@@ -49,5 +50,21 @@ namespace HavokMultimedia.Utilities.Console.External
         public static int GetParameterInt(this IHttpContext context, string parameterName, int defaultValue) => GetParameterInt(context, parameterName) ?? defaultValue;
 
         public static void AddHeader(this IHttpContext context, string name, params string[] values) => context.Response.Headers.Add(name + ": " + values.ToStringDelimited("; "));
+
+        public static void SendFile(this IHttpContext context, byte[] bytes, string fileName)
+        {
+            context.AddHeader("Content-Disposition", "attachment", "filename=\"" + fileName + "\"");
+
+            using (var stream = context.OpenResponseStream())
+            {
+                stream.Write(bytes, 0, bytes.Length);
+            }
+        }
+        public static void SendFile(this IHttpContext context, string data, string fileName, Encoding encoding = null)
+        {
+            if (encoding == null) encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
+            var bytes = encoding.GetBytes(data);
+            SendFile(context, bytes, fileName);
+        }
     }
 }

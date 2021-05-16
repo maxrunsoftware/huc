@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using HavokMultimedia.Utilities.Console.External;
+
 namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class WebServerUtilityGenerateRandomFile : WebServerUtilityBase
@@ -22,7 +24,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var wsugr = new WebServerUtilityGenerateRandom();
             var randomString = (string)wsugr.Handle(Context);
-            WriteResponseFile(randomString, "random.txt");
+            Context.SendFile(randomString, "random.txt");
             return "Generated Random File";
         }
 
