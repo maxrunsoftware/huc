@@ -48,6 +48,15 @@ namespace HavokMultimedia.Utilities.Console.External
             return null;
         }
         public static int GetParameterInt(this IHttpContext context, string parameterName, int defaultValue) => GetParameterInt(context, parameterName) ?? defaultValue;
+        public static bool HasParameter(this IHttpContext context, string parameterName)
+        {
+            var parameters = context.GetRequestQueryData();
+            foreach (var key in parameters.AllKeys)
+            {
+                if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase)) return true;
+            }
+            return false;
+        }
 
         public static void AddHeader(this IHttpContext context, string name, params string[] values) => context.Response.Headers.Add(name + ": " + values.ToStringDelimited("; "));
 
