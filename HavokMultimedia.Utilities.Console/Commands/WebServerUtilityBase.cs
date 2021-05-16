@@ -47,6 +47,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
                 try
                 {
+                    if (!inputStream.CanRead) return null;
+                    if (inputStream.Length < 1) return null;
                     var parser = MultipartFormDataParser.Parse(inputStream);
                     return parser;
                 }

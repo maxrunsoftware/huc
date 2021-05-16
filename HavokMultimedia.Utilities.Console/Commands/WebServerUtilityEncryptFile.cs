@@ -32,9 +32,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var password = GetParameterString("password").TrimOrNull();
             if (files.Count == 0 || password == null)
             {
-                html.Form();
+                html.Form(action: "?");
                 html.P();
-                html.InputPassword("password");
+                html.InputPassword("password", label: "Password ");
                 html.PEnd();
                 html.P("Click on the 'Choose File' button to upload a file");
                 html.InputFile("file");

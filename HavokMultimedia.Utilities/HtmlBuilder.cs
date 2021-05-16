@@ -159,7 +159,12 @@ tr:hover {background-color: #ddd;}
 
         public void InputSubmit(string value) => body.AppendLine(Element("input").Add("type", "submit").Add("value", value).ToString());
         public void InputFile(string id) => body.AppendLine(Element("input", id).Add("type", "file").ToString());
-        public void Form() => body.AppendLine("<form>");
+        public void Form(string action = null)
+        {
+            var element = Element("form");
+            if (action != null) element.Add("action", action);
+            body.AppendLine(element.ToString());
+        }
         public void FormEnd() => body.AppendLine("</form>");
         public void P() => body.AppendLine("<p>");
         public void P(string text)
