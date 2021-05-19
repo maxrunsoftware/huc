@@ -97,7 +97,7 @@ huc tablehtml Orders.html
 Convert tab delimited file to HTML table embeddeding a custom CSS file and Javascript file
 ```sh
 cp Orders.txt Orders.html
-huc tablehtml css=MyStyleSheet.css js=MyJavascriptFile.js Orders.html
+huc tablehtml -css=MyStyleSheet.css -js=MyJavascriptFile.js Orders.html
 ```
 
 Convert tab delimited file to XML
