@@ -47,7 +47,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
             for (int i = 0; i < targetFiles.Count; i++) log.Debug(nameof(targetFiles) + "[" + i + "]: " + targetFiles[i]);
 
             var sourceFileData = Util.FileRead(sourceFile, Constant.ENCODING_UTF8_WITHOUT_BOM);
-            var parts = sourceFileData.SplitOnNewline().SplitIntoParts(targetFiles.Count);
+            var sourceFileDataLines = sourceFileData.SplitOnNewline();
+            sourceFileData = null;
+            GC.Collect();
+
+            var parts = sourceFileDataLines.SplitIntoParts(targetFiles.Count);
+            sourceFileDataLines = null;
+            GC.Collect();
+
             for (int i = 0; i < parts.Length; i++)
             {
                 var part = parts[i];
