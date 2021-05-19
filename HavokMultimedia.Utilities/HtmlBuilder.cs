@@ -72,6 +72,7 @@ tr:hover {background-color: #ddd;}
         private readonly StringBuilder body = new StringBuilder();
         public void Javascript(string javascript) => javascripts.Add(javascript);
         public void CSS(string css) => csss.Add(css);
+
         public void Table(Table table)
         {
             var s = new StringBuilder();
