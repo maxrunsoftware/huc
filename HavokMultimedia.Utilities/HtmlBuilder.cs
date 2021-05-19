@@ -74,21 +74,24 @@ tr:hover {background-color: #ddd;}
         public void CSS(string css) => csss.Add(css);
         public void Table(Table table)
         {
-            body.AppendLine($"<table>");
-            body.AppendLine($"<thead>");
-            body.Append($"<tr>");
-            foreach (var c in table.Columns) body.Append("<th>" + c.Name.EscapeHtml() + "</th>");
-            body.AppendLine($"</tr>");
-            body.AppendLine($"</thead>");
-            body.AppendLine($"<tbody>");
+            var s = new StringBuilder();
+            s.AppendLine($"<table>");
+            s.AppendLine($"<thead>");
+            s.Append($"<tr>");
+            foreach (var c in table.Columns) s.Append("<th>" + c.Name + "</th>");
+            s.AppendLine($"</tr>");
+            s.AppendLine($"</thead>");
+            s.AppendLine($"<tbody>");
             foreach (var r in table)
             {
-                body.Append("<tr>");
-                foreach (var cell in r) body.Append("<td>" + cell.EscapeHtml() + "</td>");
-                body.AppendLine("</tr>");
+                s.Append("<tr>");
+                foreach (var cell in r) s.Append("<td>" + cell + "</td>");
+                s.AppendLine("</tr>");
             }
-            body.AppendLine("</tbody>");
-            body.AppendLine("</table>");
+            s.AppendLine("</tbody>");
+            s.AppendLine("</table>");
+
+            Body(s);
         }
 
         public void BR() => BR(1);
@@ -99,7 +102,7 @@ tr:hover {background-color: #ddd;}
             private readonly string name;
             public AttributeBuilder(string name) => this.name = name;
 
-            private readonly List<(string name, string value)> attributes = new List<(string name, string value)>();
+            private readonly List<(string name, string value)> attributes = new();
             public AttributeBuilder Add(string name, object value)
             {
                 attributes.Add((name, value?.ToString() ?? string.Empty));
@@ -128,96 +131,96 @@ tr:hover {background-color: #ddd;}
 
         public void InputText(string id, string label = null, int size = 0, string value = null)
         {
-            if (label != null) body.AppendLine(Element("label").Add("for", id).ToString() + label.EscapeHtml() + "</label>");
+            BodyLabel(id, label);
             var element = Element("input", id);
             element.Add("type", "text");
             if (size > 0) element.Add("size", size);
             if (value != null) element.Add("value", value);
-            body.AppendLine(element.ToString());
+            Body(element);
         }
         public void InputPassword(string id, string label = null, int size = 0)
         {
-            if (label != null) body.AppendLine(Element("label").Add("for", id).ToString() + label.EscapeHtml() + "</label>");
-            var element = Element("input", id);
-            element.Add("type", "password");
+            BodyLabel(id, label);
+            var element = Element("input", id).Add("type", "password");
             if (size > 0) element.Add("size", size);
-            body.AppendLine(element.ToString());
+            Body(element);
         }
-
+        public void BodyLabel(string forId, string labelText)
+        {
+            if (forId == null) return;
+            if (labelText == null) return;
+            Body(Element("label").Add("for", forId).ToString() + labelText + "</label>");
+        }
         public void Select<TEnum>(string id, string label = null) where TEnum : struct, IConvertible, IComparable, IFormattable
         {
-            if (label != null) body.AppendLine(Element("label").Add("for", id).ToString() + label.EscapeHtml() + "</label>");
-            body.AppendLine(Element("select", id).ToString());
+            BodyLabel(id, label);
+            Body(Element("select", id));
             foreach (var enumItem in Util.GetEnumItems<TEnum>())
             {
-                body.Append(Element("option").Add("value", enumItem).ToString());
-                body.Append(enumItem.ToString().EscapeHtml());
-                body.AppendLine("</option>");
+                Body(Element("option").Add("value", enumItem).ToString() + enumItem + "</option>");
             }
-            body.AppendLine("</select>");
+            Body("</select>");
         }
 
-        public void InputSubmit(string value) => body.AppendLine(Element("input").Add("type", "submit").Add("value", value).ToString());
-        public void InputFile(string id) => body.AppendLine(Element("input", id).Add("type", "file").ToString());
+        public void InputSubmit(string value) => Body(Element("input").Add("type", "submit").Add("value", value));
+        public void InputFile(string id) => Body(Element("input", id).Add("type", "file"));
         public void Form(string action = null)
         {
             var element = Element("form");
             if (action != null) element.Add("action", action);
-            body.AppendLine(element.ToString());
+            Body(element);
         }
-        public void FormEnd() => body.AppendLine("</form>");
-        public void P() => body.AppendLine("<p>");
+        public void FormEnd() => Body("</form>");
+        public void P() => Body("<p>");
         public void P(string text)
         {
             P();
-            Text(text);
+            Body(text);
             PEnd();
         }
-        public void PEnd() => body.AppendLine("</p>");
+        public void PEnd() => Body("</p>");
         public void TextArea(string id, int rows = 0, int cols = 0, string text = null)
         {
             var element = Element("textarea", id);
             if (rows > 0) element.Add("rows", rows);
             if (cols > 0) element.Add("cols", cols);
-            body.Append(element.ToString());
-            if (text != null) body.Append(text.EscapeHtml());
-            body.AppendLine("</textarea>");
+            Body(element);
+            Body(text);
+            Body("</textarea>");
         }
-        public void Text(string text)
+        public void Body(object text) => Body(text?.ToString());
+        public void Body(string text)
         {
-            body.Append(text);
+            if (text == null) return;
+            if (text.Length == 0) return;
+            body.AppendLine(text);
         }
-        public void H1(string text)
-        {
-            body.AppendLine("<h1>" + text + "</h1>");
-        }
-        public void Pre(string text)
-        {
-            body.AppendLine("<pre>" + text + "</pre>");
-        }
+        public void H1(string text) => Body("<h1>" + text + "</h1>");
+        public void Pre(string text) => Body("<pre>" + text + "</pre>");
         public void Exception(Exception e)
         {
             H1(e.GetType().NameFormatted().EscapeHtml() + ": " + e.Message.EscapeHtml());
             Pre(e.ToString().EscapeHtml());
         }
+
         public override string ToString()
         {
             var sb = new StringBuilder();
             sb.AppendLine($"<html>");
             sb.AppendLine($"<head>");
-            sb.AppendLine($"<meta charset=\"utf-8\">");
+            sb.AppendLine($"<meta charset=\"UTF-8\">");
             var title = Title ?? "(Title)";
             sb.AppendLine($"<title>{title}</title>");
-            foreach (var javascript in javascripts.TrimOrNull().WhereNotNull())
+            foreach (var str in javascripts.TrimOrNull().WhereNotNull())
             {
                 sb.AppendLine($"<script type=\"text/javascript\">");
-                sb.AppendLine(javascript);
+                sb.AppendLine(str);
                 sb.AppendLine($"</script>");
             }
-            foreach (var css in csss.TrimOrNull().WhereNotNull())
+            foreach (var str in csss.TrimOrNull().WhereNotNull())
             {
                 sb.AppendLine($"<style>");
-                sb.AppendLine(css);
+                sb.AppendLine(str);
                 sb.AppendLine($"</style>");
             }
             sb.AppendLine($"</head>");
