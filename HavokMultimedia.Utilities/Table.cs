@@ -18,9 +18,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json;
+using System.Xml;
 
 namespace HavokMultimedia.Utilities
 {
@@ -594,6 +597,75 @@ namespace HavokMultimedia.Utilities
 
     public static class TableExtensions
     {
+        public static string ToXml(this Table table, bool format = true)
+        {
+            var sb = new StringBuilder();
+            var settings = new XmlWriterSettings();
+            settings.Encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
+            settings.Indent = format;
+            settings.NewLineOnAttributes = false;
+            settings.OmitXmlDeclaration = true;
+
+            using (XmlWriter writer = XmlWriter.Create(sb, settings))
+            {
+                writer.WriteStartElement("table");
+                foreach (var c in table.Columns)
+                {
+                    writer.WriteStartElement("column");
+                    writer.WriteAttributeString("index", c.Index.ToString());
+                    writer.WriteString(c.Name);
+                    writer.WriteEndElement();
+                }
+                for (int i = 0; i < table.Count; i++)
+                {
+                    var r = table[i];
+                    writer.WriteStartElement("row");
+                    writer.WriteAttributeString("index", r.RowIndex.ToString());
+                    for (int j = 0; j < r.Count; j++)
+                    {
+                        writer.WriteStartElement("cell");
+                        writer.WriteAttributeString("index", j.ToString());
+                        writer.WriteString(r[j] ?? string.Empty);
+                        writer.WriteEndElement();
+                    }
+
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                writer.Flush();
+            }
+            return sb.ToString();
+        }
+
+        public static string ToJson(this Table table, bool format = true)
+        {
+            var options = new JsonWriterOptions();
+            options.Indented = format;
+
+            using (var stream = new MemoryStream())
+            {
+                using (var writer = new Utf8JsonWriter(stream, options))
+                {
+                    writer.WriteStartObject();
+                    writer.WriteStartArray("columns");
+                    foreach (var c in table.Columns) writer.WriteStringValue(c.Name);
+                    writer.WriteEndArray();
+                    writer.WriteStartArray("rows");
+                    foreach (var r in table)
+                    {
+                        writer.WriteStartArray();
+                        foreach (var cell in r) writer.WriteStringValue(cell ?? string.Empty);
+                        writer.WriteEndArray();
+                    }
+                    writer.WriteEndArray();
+                    writer.WriteEndObject();
+                    writer.Flush();
+
+                    return Encoding.UTF8.GetString(stream.ToArray());
+                }
+            }
+        }
+
         public static Table SetColumnsListTo(this Table table, params string[] columnNames)
         {
             var columnsToKeep = new HashSet<TableColumn>();
