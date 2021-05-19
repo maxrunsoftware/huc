@@ -99,6 +99,23 @@ Convert tab delimited file to HTML table embeddeding a custom CSS file and Javas
 cp Orders.txt Orders.html
 huc tablehtml css=MyStyleSheet.css js=MyJavascriptFile.js Orders.html
 ```
+
+Convert tab delimited file to XML
+```sh
+cp Orders.txt Orders.xml
+huc tablexml Orders.xml
+```
+
+Convert tab delimited file to JSON
+```sh
+cp Orders.txt Orders.json
+huc tablejson Orders.json
+```
+
+Convert tab delimited file to fixed width file
+```sh
+huc tableFixedWidth Orders.txt 10 20 15 9 6 0 4 200
+```
 &nbsp;
 ### FTP FTPS SFTP
 List files in default directory
