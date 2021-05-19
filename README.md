@@ -11,6 +11,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [Windows Task Scheduler Management](#windows-task-scheduler)
 - [File String Replacement](#file-replacement)
 - [File Appending](#file-appending)
+- [File Split](#file-split)
 - [File Checksums](#file-checksum)
 - [Web Server](#web-server)
 - [SSH](#ssh)
@@ -202,6 +203,12 @@ huc FileReplaceSting "Person" "Steve" mydoc.txt
 Append files file1.txt and file2.txt to mainfile.txt
 ```sh
 huc FileAppend mainfile.txt file1.txt file2.txt
+```
+&nbsp;
+### File Split
+Split a file on the new line character into 3 other files
+```sh
+huc FileSplit Orders.txt Orders1.txt Orders2.txt Orders3.txt
 ```
 &nbsp;
 ### File Checksum
