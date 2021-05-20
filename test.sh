@@ -51,6 +51,22 @@ echo --- TABLEHTML ---
 cp Orders.txt Orders.html
 ./huc tablehtml Orders.html
 
+echo --- TABLEXML ---
+cp Orders.txt Orders.xml
+./huc tablexml Orders.xml
+
+echo --- TABLEJSON ---
+cp Orders.txt Orders.json
+./huc tablejson Orders.json
+
+echo --- DIRECTORYFLATTEN ---
+mkdir subdir1
+mkdir subdir2
+cp Orders.txt ./subdir1
+mv Orders.xml ./subdir2
+mv Orders.json ./subdir2
+./huc directoryFlatten -c=KeepNewest .
+
 echo --- FTP ---
 ./huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
 ./huc ftpput -h=$ip -u=testuser -p=testpass testdata1.txt
@@ -102,8 +118,8 @@ echo --- FTP SSH ---
 ./huc ftpget -h=$ip -u=testuser -p=testpass testdata1.txt
 ./huc ftpput -h=$ip -u=testuser -p=testpass testdata1.txt testdata2.txt testdata3.txt
 rm -f testdata*.txt
-./huc ftpget -e=SSH -h=$ip -u=testuser -p=testpass te*.txt -debug
-./huc ftpget -e=SSH -h=$ip -u=testuser -p=testpass testdata?.txt -debug
+./huc ftpget -e=SSH -h=$ip -u=testuser -p=testpass te*.txt
+./huc ftpget -e=SSH -h=$ip -u=testuser -p=testpass testdata?.txt
 
 echo --- ZIP ---
 ./huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
