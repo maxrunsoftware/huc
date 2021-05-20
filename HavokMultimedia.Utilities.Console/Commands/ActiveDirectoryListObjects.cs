@@ -15,7 +15,9 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -23,11 +25,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
     public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
     {
         protected abstract string Summary { get; }
+        protected virtual string Example => "-h=192.168.1.5 -u=administrator -p=testpass";
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
             help.AddSummary(Summary);
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass");
+            help.AddExample(Example);
         }
 
         protected override void ExecuteInternal()
@@ -39,10 +42,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 var objects = ad.GetAll().OrEmpty();
                 foreach (var obj in objects.OrderBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase))
                 {
-                    if (IsValidObject(obj)) log.Info((obj.LogonNamePreWindows2000 ?? obj.LogonName ?? obj.Name) + "  -->  " + obj.DistinguishedName);
+                    if (IsValidObject(obj)) log.Info(Display(obj));
                 }
             }
 
+        }
+
+        protected virtual string Display(ActiveDirectoryObject obj)
+        {
+            return (obj.LogonNamePreWindows2000 ?? obj.LogonName ?? obj.Name) + "  -->  " + obj.DistinguishedName;
         }
 
         protected abstract bool IsValidObject(ActiveDirectoryObject obj);
@@ -58,6 +66,32 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override string Summary => "Lists all user names in an ActiveDirectory";
         protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser;
+    }
+
+    public class ActiveDirectoryListUsersOfGroup : ActiveDirectoryListBase
+    {
+        protected override string Summary => "Lists all user names that are members of the specified group in an ActiveDirectory";
+        protected override string Example => base.Example + " M?Group*";
+        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser && obj.MemberOfNames.Any(o => o.EqualsWildcard(group, true));
+        private string group;
+        protected override void ExecuteInternal()
+        {
+            group = GetArgValueTrimmed(0);
+            log.Debug($"{nameof(group)}: {group}");
+            if (group == null) throw new ArgsException(nameof(group), $"No {nameof(group)} specified");
+
+            base.ExecuteInternal();
+        }
+
+        protected override string Display(ActiveDirectoryObject obj)
+        {
+            var matchedGroups = new List<string>();
+            foreach (var m in obj.MemberOfNames)
+            {
+                if (m.EqualsWildcard(group, true)) matchedGroups.Add(m);
+            }
+            return (obj.LogonNamePreWindows2000 ?? obj.LogonName ?? obj.Name) + "," + obj.DistinguishedName + "," + matchedGroups.ToStringDelimited("|");
+        }
     }
 
     public class ActiveDirectoryListGroups : ActiveDirectoryListBase

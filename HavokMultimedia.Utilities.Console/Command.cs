@@ -336,6 +336,8 @@ namespace HavokMultimedia.Utilities.Console
             return (firstItem, list);
         }
         #endregion Parameters
+
+        public string DisplayEnumOptions<TEnum>() where TEnum : struct, IConvertible, IComparable, IFormattable => "[ " + Util.GetEnumItems<TEnum>().Select(o => o.ToString()).ToStringDelimited(" | ") + " ]";
     }
 
     public class CommandHelpBuilder

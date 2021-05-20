@@ -394,8 +394,12 @@ namespace HavokMultimedia.Utilities.Console.External
             }
             return null;
         }
-        public string MemberOfNames => "[" + MemberOf.Select(o => ParseFirstCN(o)).WhereNotNull().ToStringDelimited(", ") + "]";
-        public string MemberNames => "[" + Member.Select(o => ParseFirstCN(o)).WhereNotNull().ToStringDelimited(", ") + "]";
+
+        public IEnumerable<string> MemberOfNames => MemberOf.Select(o => ParseFirstCN(o)).TrimOrNull().WhereNotNull().OrderBy(o => o, StringComparer.OrdinalIgnoreCase);
+        public string MemberOfNamesString => "[" + MemberOfNames.ToStringDelimited(", ") + "]";
+
+        public IEnumerable<string> MemberNames => Member.Select(o => ParseFirstCN(o)).TrimOrNull().WhereNotNull().OrderBy(o => o, StringComparer.OrdinalIgnoreCase);
+        public string MemberNamesString => "[" + MemberNames.ToStringDelimited(", ") + "]";
 
         #endregion Properties Custom
 

@@ -809,6 +809,8 @@ namespace HavokMultimedia.Utilities
 
         public static bool EqualsWildcard(this string text, string wildcardString, bool ignoreCase)
         {
+            if (text == null) return wildcardString == null;
+
             // https://bitbucket.org/hasullivan/fast-wildcard-matching/src/7457d0dc1aee5ecd373f7c8a7785d5891b416201/FastWildcardMatching/WildcardMatch.cs?at=master&fileviewer=file-view-default
 
             if (ignoreCase == true)
