@@ -244,6 +244,11 @@ Start webserver on port 80 and host files out of c:\www directory
 ```sh
 huc WebServer -o=80 c:\www
 ```
+
+Start webserver on port 80 and host files out of c:\www directory and require a username and password
+```sh
+huc WebServer -o=80 -u=user -p=testpass c:\www
+```
 &nbsp;
 ### SSH
 Issue LS command
