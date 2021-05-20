@@ -46,10 +46,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (w < 1) w = int.MaxValue;
 
             var outputFiles = GetArgValuesTrimmed();
-            for (var i = 0; i < outputFiles.Count; i++) log.Debug($"outputFile[{i}]: {outputFiles[i]}");
-            if (outputFiles.IsEmpty()) throw new ArgsException("outputFiles", "No <outputFile> specified");
+            log.Debug(outputFiles, nameof(outputFiles));
+            if (outputFiles.IsEmpty()) throw new ArgsException(nameof(outputFiles), $"No <{nameof(outputFiles)}> specified");
 
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var chars = (Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9).ToCharArray();
             var random = new Random();
             var srandom = RandomNumberGenerator.Create();
             foreach (var outputFile in outputFiles)

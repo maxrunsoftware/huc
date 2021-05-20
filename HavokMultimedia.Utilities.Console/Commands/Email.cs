@@ -66,7 +66,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (b != null) b = b.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
 
             var attachmentFiles = Util.ParseInputFiles(GetArgValuesTrimmed()).ToArray();
-            for (var i = 0; i < attachmentFiles.Length; i++) log.Debug($"Attachment[{i}]: {attachmentFiles[i]}");
+            log.Debug(attachmentFiles, nameof(attachmentFiles));
+            CheckFileExists(attachmentFiles);
 
             using (var client = new SmtpClient())
             {

@@ -42,7 +42,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var fileToEncrypt = GetArgValueTrimmed(0);
             log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
-            if (fileToEncrypt == null) throw new ArgsException(nameof(fileToEncrypt), $"No {nameof(fileToEncrypt)} specified to encrypt");
+            if (fileToEncrypt == null) throw new ArgsException(nameof(fileToEncrypt), $"No <{nameof(fileToEncrypt)}> specified to encrypt");
             fileToEncrypt = Path.GetFullPath(fileToEncrypt);
             CheckFileExists(fileToEncrypt);
             log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");

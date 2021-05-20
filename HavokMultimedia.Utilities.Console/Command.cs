@@ -126,6 +126,10 @@ namespace HavokMultimedia.Utilities.Console
         {
             if (!File.Exists(file)) throw new FileNotFoundException("File " + file + " does not exist", file);
         }
+        protected void CheckFileExists(IEnumerable<string> files)
+        {
+            foreach (var file in files) CheckFileExists(file);
+        }
 
         protected string ReadFile(string path, Encoding encoding = null)
         {

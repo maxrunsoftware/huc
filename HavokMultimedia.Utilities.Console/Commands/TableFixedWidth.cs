@@ -41,17 +41,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            var colWidths = GetArgValuesTrimmed();
-            var inputFile = colWidths.PopHead();
-            log.Debug($"inputFile: {inputFile}");
-            for (int i = 0; i < colWidths.Count; i++) log.Debug($"columnWidth[{i}]: {colWidths[i]}");
-            var widths = colWidths.Select(o => o.ToUInt()).ToArray();
-            for (int i = 0; i < widths.Length; i++) log.Debug($"widths[{i}]: {widths[i]}");
-
+            var columnWidths = GetArgValuesTrimmed();
+            var inputFile = columnWidths.PopHead();
+            log.Debug($"{nameof(inputFile)}: {inputFile}");
+            log.Debug(columnWidths, nameof(columnWidths));
+            var widths = columnWidths.Select(o => o.ToUInt()).ToArray();
+            log.Debug(widths, nameof(widths));
 
             inputFile = Util.ParseInputFiles(inputFile.Yield()).FirstOrDefault();
-            log.Debug($"inputFile: {inputFile}");
-            if (!File.Exists(inputFile)) throw new FileNotFoundException("Input file " + inputFile + " does not exist", inputFile);
+            log.Debug($"{nameof(inputFile)}: {inputFile}");
+            CheckFileExists(inputFile);
 
             var headerInclude = GetArgParameterOrConfigBool("headerInclude", "h", false);
             var newline = Table.ParseOption(GetArgParameterOrConfig("newline", "n", "WIN"));
@@ -59,15 +58,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             log.Debug($"Reading table file: {inputFile}");
             var table = ReadTableTab(inputFile, encoding);
-            if (colWidths.Count > table.Columns.Count)
+            if (columnWidths.Count > table.Columns.Count)
             {
-                var msg = $"Too many columns specified, file only contains {table.Columns.Count} columns but {colWidths.Count} were provided";
+                var msg = $"Too many columns specified, file only contains {table.Columns.Count} columns but {columnWidths.Count} were provided";
                 throw new ArgsException("inputFile", msg);
             }
 
-            if (colWidths.Count < table.Columns.Count)
+            if (columnWidths.Count < table.Columns.Count)
             {
-                var msg = $"Not enough columns specified, file contains {table.Columns.Count} columns but only {colWidths.Count} were provided";
+                var msg = $"Not enough columns specified, file contains {table.Columns.Count} columns but only {columnWidths.Count} were provided";
                 throw new ArgsException("inputFile", msg);
             }
 

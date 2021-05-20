@@ -41,9 +41,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             targetFile = Path.GetFullPath(targetFile);
             log.Debug($"{nameof(targetFile)}: {targetFile}");
 
-            var sourceFiles = Util.ParseInputFiles(values.otherValues).Select(o => Path.GetFullPath(o)).ToList();
-            foreach (var sourceFile in sourceFiles) CheckFileExists(sourceFile);
-            for (int i = 0; i < sourceFiles.Count; i++) log.Debug(nameof(sourceFiles) + "[" + i + "]: " + sourceFiles[i]);
+            var sourceFiles = Util.ParseInputFiles(values.otherValues);
+            log.Debug(sourceFiles, nameof(sourceFiles));
+            CheckFileExists(sourceFiles);
+
             using (var targetFileStream = Util.FileOpenWrite(targetFile))
             {
                 targetFileStream.Seek(targetFileStream.Length, SeekOrigin.Begin); // Set the stream position to the end of the file. 

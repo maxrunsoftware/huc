@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System;
-using System.Linq;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -50,24 +49,17 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var checksumType = GetArgParameterOrConfigEnum("checksumType", "t", ChecksumType.MD5);
             var recursive = GetArgParameterOrConfigBool("recursive", "r", false);
 
-            var values = GetArgValuesTrimmed();
-            if (values.IsEmpty()) throw new ArgsException("sourceFiles", "No source files specified");
-            for (int i = 0; i < values.Count; i++) log.Debug("sourceFiles[" + i + "]: " + values[i]);
+            var sourceFiles = Util.ParseInputFiles(GetArgValuesTrimmed());
+            if (sourceFiles.IsEmpty()) throw new ArgsException("sourceFiles", "No source files specified");
+            log.Debug(sourceFiles, nameof(sourceFiles));
 
-            var inputFiles = Util.ParseInputFiles(values, recursive: recursive)
-                .OrderBy(o => o, Constant.OS_WINDOWS ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
-                .ToList();
-            if (inputFiles.IsEmpty()) throw new ArgsException("sourceFiles", "No source files specified");
-
-            for (int i = 0; i < inputFiles.Count; i++) log.Debug("inputFiles[" + i + "]: " + inputFiles[i]);
-
-            foreach (var inputFile in inputFiles)
+            foreach (var sourceFile in sourceFiles)
             {
                 var checksumFunction = GetHashMethod(checksumType);
-                string checksum = checksumFunction(inputFile);
+                string checksum = checksumFunction(sourceFile);
 
-                if (inputFiles.Count == 1) log.Info(checksum);
-                else log.Info(checksum + "  <--  " + inputFile);
+                if (sourceFiles.Count == 1) log.Info(checksum);
+                else log.Info(checksum + "  <--  " + sourceFile);
             }
 
         }

@@ -44,7 +44,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             CheckFileExists(sourceFile);
 
             var targetFiles = values.otherValues.Select(o => Path.GetFullPath(o)).ToList();
-            for (int i = 0; i < targetFiles.Count; i++) log.Debug(nameof(targetFiles) + "[" + i + "]: " + targetFiles[i]);
+            log.Debug(targetFiles, nameof(targetFiles));
 
             var sourceFileData = Util.FileRead(sourceFile, Constant.ENCODING_UTF8_WITHOUT_BOM);
             var sourceFileDataLines = sourceFileData.SplitOnNewline();

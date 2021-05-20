@@ -29,16 +29,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            var includedItems = Util.ParseInputFiles(GetArgValuesTrimmed());
-            if (includedItems.Count < 1) throw new ArgsException("inputFiles", "No input files supplied");
-            for (int i = 0; i < includedItems.Count; i++) log.Debug($"inputFile[{i}]: {includedItems[i]}");
-            foreach (var includedItem in includedItems)
-            {
-                if (!File.Exists(includedItem)) throw new FileNotFoundException("Input file " + includedItem + " does not exist", includedItem);
-            }
-            for (var i = 0; i < includedItems.Count; i++) log.Debug($"inputFile[{i}]: {includedItems[i]}");
+            var inputFiles = Util.ParseInputFiles(GetArgValuesTrimmed());
+            if (inputFiles.Count < 1) throw new ArgsException(nameof(inputFiles), $"No <{nameof(inputFiles)}> supplied");
+            log.Debug(inputFiles, nameof(inputFiles));
+            CheckFileExists(inputFiles);
 
-            foreach (var includedItem in includedItems)
+            foreach (var includedItem in inputFiles)
             {
                 log.Debug($"Reading table file: {includedItem}");
                 var table = ReadTableTab(includedItem);

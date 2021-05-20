@@ -2502,6 +2502,7 @@ namespace HavokMultimedia.Utilities
             .TrimOrNull()
             .WhereNotNull()
             .SelectMany(o => ParseFileName(o, recursive: recursive))
+            .Select(o => Path.GetFullPath(o))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
             .ToList();

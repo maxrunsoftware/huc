@@ -42,7 +42,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var fileToDecrypt = GetArgValueTrimmed(0);
             log.Debug($"{nameof(fileToDecrypt)}: {fileToDecrypt}");
-            if (fileToDecrypt == null) throw new ArgsException(nameof(fileToDecrypt), $"No {nameof(fileToDecrypt)} specified to decrypt");
+            if (fileToDecrypt == null) throw new ArgsException(nameof(fileToDecrypt), $"No <{nameof(fileToDecrypt)}> specified to decrypt");
             fileToDecrypt = Path.GetFullPath(fileToDecrypt);
             CheckFileExists(fileToDecrypt);
             log.Debug($"{nameof(fileToDecrypt)}: {fileToDecrypt}");
