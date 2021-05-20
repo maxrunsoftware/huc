@@ -63,10 +63,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 var targetFile = Path.GetFullPath(Path.Combine(targetDirectory, sourceFileName));
                 if (File.Exists(targetFile))
                 {
-                    log.Info("Conflict: " + sourceFile);
+                    log.Debug("Conflict: " + sourceFile);
                     if (conflictResolution == ConflictResolution.LeaveAsIs)
                     {
-                        log.Debug("Leaving file " + sourceFile + " as is");
+                        log.Info("Leaving file " + sourceFile + " as is");
                     }
                     else if (conflictResolution == ConflictResolution.KeepNewest)
                     {
@@ -74,12 +74,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
                         var targetFileTimestamp = File.GetLastWriteTimeUtc(targetFile);
                         if (sourceFileTimestamp >= targetFileTimestamp)
                         {
-                            log.Debug("Moving: " + sourceFile + "  -->  " + targetFile);
+                            log.Info("Moving: " + sourceFile + "  -->  " + targetFile);
                             File.Move(sourceFile, targetFile, true);
                         }
                         else
                         {
-                            log.Debug("Deleting: " + sourceFile);
+                            log.Info("Deleting: " + sourceFile);
                             File.Delete(sourceFile);
                         }
                     }
@@ -87,6 +87,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     {
                         throw new NotImplementedException(nameof(conflictResolution) + " [" + conflictResolution + "] has not been implemented yet");
                     }
+                }
+                else
+                {
+                    log.Info("Moving: " + sourceFile + "  -->  " + targetFile);
+                    File.Move(sourceFile, targetFile, false);
                 }
             }
 
