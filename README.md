@@ -197,7 +197,7 @@ huc WindowsTaskSchedulerDelete -h="localhost" -u="administrator" -p="password" M
 ### File Replacement
 Replace all instances of Person with Steve in the file mydoc.txt
 ```sh
-huc FileReplaceSting "Person" "Steve" mydoc.txt
+huc FileReplaceString "Person" "Steve" mydoc.txt
 ```
 &nbsp;
 ### File Appending
