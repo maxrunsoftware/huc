@@ -14,15 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Text;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-
-    public class ActiveDirectoryListObjects : ActiveDirectoryListBase
+    public class ActiveDirectoryListComputers : ActiveDirectoryListBase
     {
-        protected override string Summary => "Lists all object names in an ActiveDirectory";
-        protected override bool IsValidObject(ActiveDirectoryObject obj) => true;
+        protected override string Summary => "Lists all computer names in an ActiveDirectory";
+        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsComputer;
     }
 }
