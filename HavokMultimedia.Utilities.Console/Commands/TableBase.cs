@@ -22,6 +22,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
+            help.AddParameter("encoding", "en", "Encoding of the input table (" + nameof(Encoding.UTF8) + ")  " + DisplayEnumOptions<Encoding>());
             help.AddValue("<tab delimited input file 1> <tab delimited input file 2> <etc>");
         }
 
@@ -29,7 +30,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            var inputFiles = Util.ParseInputFiles(GetArgValuesTrimmed());
+            var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
+
+            var inputFiles = ParseInputFiles(GetArgValuesTrimmed());
             if (inputFiles.Count < 1) throw new ArgsException(nameof(inputFiles), $"No <{nameof(inputFiles)}> supplied");
             log.Debug(inputFiles, nameof(inputFiles));
             CheckFileExists(inputFiles);
@@ -37,7 +40,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             foreach (var includedItem in inputFiles)
             {
                 log.Debug($"Reading table file: {includedItem}");
-                var table = ReadTableTab(includedItem);
+                var table = ReadTableTab(includedItem, encoding: encoding);
                 var outputFile = includedItem;
                 log.Debug(nameof(outputFile) + ": " + outputFile);
                 CurrentOutputFile = outputFile;

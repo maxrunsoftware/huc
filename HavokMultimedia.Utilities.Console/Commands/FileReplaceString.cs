@@ -74,7 +74,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Replaces a string with a different string in a file");
-            help.AddParameter("encoding", "en", "Encoding of the input file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
+            help.AddParameter("encoding", "en", "Encoding of the input file (" + nameof(Encoding.UTF8) + ")  " + DisplayEnumOptions<Encoding>());
             help.AddParameter("caseInsensitive", "i", "Ignore case when searching for the string to replace (false)");
             help.AddValue("<old string> <new string> <file to replace in>");
             help.AddExample("`Person` `Steve` mydoc.txt");
@@ -101,7 +101,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug($"file: {file}");
             if (file == null) throw new ArgsException(nameof(file), "No file specified");
 
-            file = Util.ParseInputFile(file);
+            file = ParseInputFile(file);
             if (file == null) throw new FileNotFoundException($"Could not find file {file}", file);
             if (!File.Exists(file)) throw new FileNotFoundException($"Could not find file {file}", file);
 

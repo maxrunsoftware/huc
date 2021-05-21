@@ -34,7 +34,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("dataQuoting", "dq", "Quoting character(s) for each data row, single/double/none/etc (double)");
             help.AddParameter("dataExclude", "de", "Exclude the data rows from the output file (false)");
             help.AddParameter("newline", "nl", "The type of newline character to use, win/unix/mac (win)");
-            help.AddParameter("encoding", "en", "Encoding of the output file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
+            help.AddParameter("encoding", "en", "Encoding of the output file (" + nameof(Encoding.UTF8) + ")  " + DisplayEnumOptions<Encoding>());
             help.AddExample("Orders.csv");
             help.AddExample("-hd=pipe -hq=single -he=true -dd=pipe -dq=single -de=false Orders.csv");
         }

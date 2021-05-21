@@ -37,7 +37,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             fileName = fileName.TrimOrNull();
             if (fileName == null) return null;
-            var files = Util.ParseInputFiles(fileName.Yield());
+            var files = ParseInputFiles(fileName.Yield());
             var content = new StringBuilder();
             foreach (var file in files)
             {

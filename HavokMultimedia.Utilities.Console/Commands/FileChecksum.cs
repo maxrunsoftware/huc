@@ -49,7 +49,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var checksumType = GetArgParameterOrConfigEnum("checksumType", "t", ChecksumType.MD5);
             var recursive = GetArgParameterOrConfigBool("recursive", "r", false);
 
-            var sourceFiles = Util.ParseInputFiles(GetArgValuesTrimmed());
+            var sourceFiles = ParseInputFiles(GetArgValuesTrimmed());
             if (sourceFiles.IsEmpty()) throw new ArgsException("sourceFiles", "No source files specified");
             log.Debug(sourceFiles, nameof(sourceFiles));
 

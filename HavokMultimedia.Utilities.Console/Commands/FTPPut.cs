@@ -49,7 +49,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var ignoreMissingFiles = GetArgParameterOrConfigBool("ignoreMissingFiles", null, false);
 
-            localFiles = Util.ParseInputFiles(localFiles);
+            localFiles = ParseInputFiles(localFiles);
             var localFiles2 = new List<string>();
 
             foreach (var localFile in localFiles)

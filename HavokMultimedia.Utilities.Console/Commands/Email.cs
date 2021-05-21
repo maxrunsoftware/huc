@@ -65,7 +65,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var b = GetArgParameterOrConfig("body", "b");
             if (b != null) b = b.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
 
-            var attachmentFiles = Util.ParseInputFiles(GetArgValuesTrimmed()).ToArray();
+            var attachmentFiles = ParseInputFiles(GetArgValuesTrimmed()).ToArray();
             log.Debug(attachmentFiles, nameof(attachmentFiles));
             CheckFileExists(attachmentFiles);
 

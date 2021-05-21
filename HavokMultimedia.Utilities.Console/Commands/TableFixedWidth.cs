@@ -48,7 +48,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var widths = columnWidths.Select(o => o.ToUInt()).ToArray();
             log.Debug(widths, nameof(widths));
 
-            inputFile = Util.ParseInputFiles(inputFile.Yield()).FirstOrDefault();
+            inputFile = ParseInputFiles(inputFile.Yield()).FirstOrDefault();
             log.Debug($"{nameof(inputFile)}: {inputFile}");
             CheckFileExists(inputFile);
 

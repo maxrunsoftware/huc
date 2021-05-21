@@ -113,7 +113,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var inputFileStrings = GetArgValuesTrimmed();
             log.Debug($"inputFileStrings: " + string.Join(", ", inputFileStrings));
-            var inputFiles = Util.ParseInputFiles(inputFileStrings);
+            var inputFiles = ParseInputFiles(inputFileStrings);
             for (var i = 0; i < inputFiles.Count; i++) log.Debug($"inputFile[{i}]: {inputFiles[i]}");
             if (inputFiles.IsEmpty()) throw new ArgsException("inputFiles", "No <inputFiles> specified");
 

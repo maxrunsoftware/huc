@@ -2496,77 +2496,7 @@ namespace HavokMultimedia.Utilities
 
         }
 
-        public static string ParseInputFile(string inputFile) => ParseInputFiles(inputFile.Yield()).FirstOrDefault();
 
-        public static List<string> ParseInputFiles(IEnumerable<string> inputFiles, bool recursive = false) => inputFiles.OrEmpty()
-            .TrimOrNull()
-            .WhereNotNull()
-            .SelectMany(o => ParseFileName(o, recursive: recursive))
-            .Select(o => Path.GetFullPath(o))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        public static List<string> ParseFileName(string fileName, bool recursive = false)
-        {
-            var l = new List<string>();
-            fileName = fileName.TrimOrNull();
-            if (fileName == null) return l;
-            if (fileName.IndexOf('*') >= 0 || fileName.IndexOf('?') >= 0) // wildcard
-            {
-                var idx1 = fileName.LastIndexOf(Path.DirectorySeparatorChar);
-                var idx2 = fileName.LastIndexOf(Path.AltDirectorySeparatorChar);
-                var workingDirectory = System.Environment.CurrentDirectory;
-                var filePattern = fileName;
-                if (idx1 == -1 && idx2 == -1)
-                {
-                    // No directory prefix
-                }
-                else if (idx1 == idx2 || idx1 > idx2)
-                {
-                    workingDirectory = fileName.Substring(0, idx1);
-                    filePattern = fileName.Substring(idx1 + 1);
-                }
-                else
-                {
-                    workingDirectory = fileName.Substring(0, idx2);
-                    filePattern = fileName.Substring(idx2 + 1);
-                }
-
-                foreach (var f in Util.FileListFiles(workingDirectory, recursive))
-                {
-                    var n = Path.GetFileName(f);
-                    if (n.EqualsWildcard(filePattern, true))
-                    {
-                        l.Add(f);
-                    }
-                }
-            }
-            else
-            {
-                fileName = Path.GetFullPath(fileName);
-                if (Util.IsDirectory(fileName))
-                {
-                    l.AddRange(Util.FileListFiles(fileName, recursive));
-                }
-                else if (Util.IsFile(fileName))
-                {
-                    l.Add(fileName);
-                }
-            }
-
-            return l;
-        }
-
-        public static List<string> ParseFileNames(IEnumerable<string> fileNames)
-        {
-            var l = new List<string>();
-            foreach (var fileName in fileNames.OrEmpty())
-            {
-                l.AddRange(ParseFileName(fileName));
-            }
-            return l.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-        }
 
         #region Encryption
 

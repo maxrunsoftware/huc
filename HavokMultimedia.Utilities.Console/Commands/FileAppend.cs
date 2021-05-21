@@ -41,7 +41,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             targetFile = Path.GetFullPath(targetFile);
             log.Debug($"{nameof(targetFile)}: {targetFile}");
 
-            var sourceFiles = Util.ParseInputFiles(values.otherValues);
+            var sourceFiles = ParseInputFiles(values.otherValues);
             log.Debug(sourceFiles, nameof(sourceFiles));
             CheckFileExists(sourceFiles);
 

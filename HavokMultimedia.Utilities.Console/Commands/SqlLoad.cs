@@ -231,7 +231,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var inputFile = GetArgValueTrimmed(0);
             if (inputFile == null) throw new ArgsException("inputFile", "No input file provided to load");
             log.Debug($"inputFile: {inputFile}");
-            var inputFile2 = Util.ParseInputFiles(inputFile.Yield()).FirstOrDefault();
+            var inputFile2 = ParseInputFiles(inputFile.Yield()).FirstOrDefault();
             if (!File.Exists(inputFile2)) throw new FileNotFoundException($"inputFile {inputFile} does not exist", inputFile);
             inputFile = inputFile2;
             var t = ReadTableTab(inputFile, headerRow: !noHeader);

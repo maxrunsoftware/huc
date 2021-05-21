@@ -69,7 +69,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             foreach (var inputFileString in inputFileStrings)
             {
                 var ifs = Path.GetFullPath(inputFileString);
-                if (ifs.ContainsAny("*", "?")) inputFiles.AddRange(Util.ParseFileName(ifs, r));
+                if (ifs.ContainsAny("*", "?")) inputFiles.AddRange(ParseFileName(ifs, r));
                 else inputFiles.Add(ifs);
             }
             log.Debug(inputFiles, nameof(inputFiles));

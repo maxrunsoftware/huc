@@ -25,7 +25,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary(Summary);
             help.AddParameter("bufferSizeMegabytes", "b", "SFTP buffer size in megabytes (10)");
-            help.AddParameter("encoding", "en", "Encoding of the output file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
+            help.AddParameter("encoding", "en", "Encoding of the output file (" + nameof(Encoding.UTF8) + ")  " + DisplayEnumOptions<Encoding>());
             help.AddValue("<input file> <output file>");
         }
 
@@ -41,7 +41,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var inputFile = GetArgValueTrimmed(0);
             log.Debug($"{nameof(inputFile)}: {inputFile}");
-            inputFile = Util.ParseInputFile(inputFile);
+            inputFile = ParseInputFile(inputFile);
             if (!File.Exists(inputFile)) throw new FileNotFoundException($"{nameof(inputFile)} {inputFile} does not exist");
             log.Debug($"{nameof(inputFile)}: {inputFile}");
 
