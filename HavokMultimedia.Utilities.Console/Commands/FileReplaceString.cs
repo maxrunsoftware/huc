@@ -74,7 +74,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Replaces a string with a different string in a file");
-            help.AddParameter("encoding", "en", "Encoding of the input file (" + nameof(Encoding.UTF8) + ")  " + DisplayEnumOptions<Encoding>());
+            help.AddParameter("encoding", "en", "Encoding of the input file (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
             help.AddParameter("caseInsensitive", "i", "Ignore case when searching for the string to replace (false)");
             help.AddValue("<old string> <new string> <file to replace in>");
             help.AddExample("`Person` `Steve` mydoc.txt");

@@ -25,7 +25,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary(Summary);
             help.AddParameter("bufferSizeMegabytes", "b", "SFTP buffer size in megabytes (10)");
-            help.AddParameter("encoding", "en", "Encoding of the output file (" + nameof(Encoding.UTF8) + ")  " + DisplayEnumOptions<Encoding>());
+            help.AddParameter("encoding", "en", "Encoding of the output file (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
             help.AddValue("<input file> <output file>");
         }
 

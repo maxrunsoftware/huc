@@ -16,5 +16,5 @@ limitations under the License.
 
 namespace HavokMultimedia.Utilities.Console
 {
-    public enum Encoding { ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF8, UTF8BOM }
+    public enum FileEncoding { ASCII, BigEndianUnicode, Default, Unicode, UTF32, UTF8, UTF8BOM }
 }

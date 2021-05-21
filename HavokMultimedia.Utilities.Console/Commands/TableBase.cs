@@ -22,7 +22,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
-            help.AddParameter("encoding", "en", "Encoding of the input table (" + nameof(Encoding.UTF8) + ")  " + DisplayEnumOptions<Encoding>());
+            help.AddParameter("encoding", "en", "Encoding of the input table (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
             help.AddValue("<tab delimited input file 1> <tab delimited input file 2> <etc>");
         }
 

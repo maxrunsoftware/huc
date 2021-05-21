@@ -131,7 +131,7 @@ namespace HavokMultimedia.Utilities.Console
             foreach (var file in files) CheckFileExists(file);
         }
 
-        protected string ReadFile(string path, Encoding encoding = null)
+        protected string ReadFile(string path, System.Text.Encoding encoding = null)
         {
             string data;
             path = Path.GetFullPath(path);
@@ -159,7 +159,7 @@ namespace HavokMultimedia.Utilities.Console
             return data;
         }
 
-        protected void WriteFile(string path, string data, Encoding encoding = null)
+        protected void WriteFile(string path, string data, System.Text.Encoding encoding = null)
         {
             path = Path.GetFullPath(path);
             log.Debug($"Writing text file {path}   {data.Length} characters");
@@ -183,7 +183,7 @@ namespace HavokMultimedia.Utilities.Console
             log.Debug($"Wrote binary file {path}   {data.Length} bytes");
         }
 
-        protected Utilities.Table ReadTableTab(string path, Encoding encoding = null, bool headerRow = true)
+        protected Utilities.Table ReadTableTab(string path, System.Text.Encoding encoding = null, bool headerRow = true)
         {
             var data = ReadFile(path, encoding);
             log.Debug($"Read {data.Length} characters from file {path}");
@@ -264,12 +264,12 @@ namespace HavokMultimedia.Utilities.Console
             throw new ArgsException(key1, msg);
         }
 
-        public Encoding GetArgParameterOrConfigEncoding(string key1, string key2)
+        public System.Text.Encoding GetArgParameterOrConfigEncoding(string key1, string key2)
         {
             var v = GetArgParameter(key1, key2);
             if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
             log.Debug($"{key1}String: {v}");
-            Encoding encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
+            var encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
             if (v.TrimOrNull() != null) encoding = Util.ParseEncoding(v);
             log.Debug($"{key1}: {encoding}");
             return encoding;

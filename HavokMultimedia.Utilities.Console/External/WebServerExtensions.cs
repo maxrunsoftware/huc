@@ -69,7 +69,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 stream.Write(bytes, 0, bytes.Length);
             }
         }
-        public static void SendFile(this IHttpContext context, string data, string fileName, Encoding encoding = null)
+        public static void SendFile(this IHttpContext context, string data, string fileName, System.Text.Encoding encoding = null)
         {
             if (encoding == null) encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
             var bytes = encoding.GetBytes(data);

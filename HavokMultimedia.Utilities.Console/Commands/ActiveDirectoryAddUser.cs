@@ -68,7 +68,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
 
                 log.Debug("Adding user: " + samAccountName + "   " + ou);
-                ado = ad.AddUser(samAccountName, ou);
+                ado = ad.AddUser2(samAccountName, userpassword, ou);
                 log.Info("Successfully added user " + samAccountName + "   " + ou);
 
                 //log.Debug("Changing password for user " + samAccountName + "   " + ou);
