@@ -116,6 +116,18 @@ namespace HavokMultimedia.Utilities.Console.External
         /// </summary>
         public string DomainUsersGroupDN => "CN=Domain Users,CN=Users," + DistinguishedName;
 
+        public string DomainUsersDN
+        {
+            get
+            {
+                var ou = DomainUsersGroupDN;
+                var ouList = ou.Split(",").ToList();
+                ouList.PopHead();
+                ou = ouList.ToStringDelimited(",");
+                return ou;
+            }
+        }
+
         /// <summary>
         /// The distinguished name of the Enterprise Administrators group for this domain.
         /// </summary>
@@ -390,14 +402,34 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <returns>The newly created user object.</returns>
         public ActiveDirectoryObject AddUser(string sAMAccountName, string ouDistinguishedName) => AddObject(sAMAccountName, ouDistinguishedName, null);
 
-        public ActiveDirectoryObject AddUser2(string username, string password, string ouDistinguishedName)
+
+
+        private PrincipalContext OpenPrincipalContext(string ouDistinguishedName)
+        {
+            return new PrincipalContext(ContextType.Domain, ipaddress, ouDistinguishedName, ContextOptions.Negotiate, this.username, this.password);
+        }
+
+        public ActiveDirectoryObject AddUser2(
+            string username,
+            string password,
+            string ouDistinguishedName,
+            string displayName = null,
+            string firstName = null,
+            string lastName = null
+            )
         {
             // https://stackoverflow.com/a/2305871
-            using (PrincipalContext pc = new PrincipalContext(ContextType.Domain, ipaddress, ouDistinguishedName, ContextOptions.Negotiate, this.username, this.password))
+            using (PrincipalContext pc = OpenPrincipalContext(ouDistinguishedName))
             {
                 using (var up = new UserPrincipal(pc))
                 {
+
                     up.SamAccountName = username;
+                    up.DisplayName = displayName ?? username;
+                    up.GivenName = firstName ?? username; // first name
+                    up.Surname = lastName ?? username; // last name
+                    up.Name = username;
+
                     //up.EmailAddress = email;
                     up.SetPassword(password);
                     up.Enabled = true;
