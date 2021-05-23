@@ -447,7 +447,6 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public void AddUser(
             string samAccountName,
-            string password,
             string displayName = null,
             string firstName = null,
             string lastName = null,
@@ -466,12 +465,14 @@ namespace HavokMultimedia.Utilities.Console.External
                     up.Surname = lastName ?? samAccountName;
                     up.Name = name ?? samAccountName;
                     if (emailAddress != null) up.EmailAddress = emailAddress;
-                    up.SetPassword(password);
                     up.Enabled = true;
                     //up.ExpirePasswordNow();
                     up.Save();
                 }
             }
+
+            var adobj = GetObjectBySAMAccountName(samAccountName);
+            MoveObject(adobj, DomainUsersDN);
         }
 
         public void AddGroup(string samAccountName, ActiveDirectoryGroupType groupType = ActiveDirectoryGroupType.GlobalSecurityGroup)
@@ -531,7 +532,6 @@ namespace HavokMultimedia.Utilities.Console.External
 
                 p.Delete();
             }
-
         }
 
         public void RemoveGroup(string samAccountName)
@@ -543,7 +543,23 @@ namespace HavokMultimedia.Utilities.Console.External
 
                 p.Delete();
             }
+        }
 
+        public string GetUserOU(string samAccountName)
+        {
+            using (var context = OpenPrincipalContext())
+            {
+                var user = context.FindUserBySamAccountName(samAccountName);
+                if (user == null) throw new Exception($"User '{samAccountName}' not found");
+
+                var de = user.GetUnderlyingObject() as System.DirectoryServices.DirectoryEntry;
+                if (de == null) return null;
+
+                var deParent = de.Parent;
+                if (deParent == null) return null;
+
+                return deParent?.Properties["distinguishedName"]?.Value?.ToString();
+            }
         }
 
         /// <summary>

@@ -25,14 +25,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Adds a new user to ActiveDirectory");
-            help.AddDetail("Requires LDAPS configured on the server");
             help.AddParameter("firstname", "fn", "The firstname of the new user");
             help.AddParameter("lastname", "ln", "The lastname of the new user");
             help.AddParameter("displayname", "dn", "The displayname of the new user");
             help.AddParameter("emailaddress", "ea", "The email address of the new user");
-            help.AddValue("<SAMAccountName> <password>");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser secretPassword");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass -fn=First -fn=Last -dn=MyUser testuser secretPassword");
+            help.AddValue("<SAMAccountName>");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass -fn=First -fn=Last -dn=MyUser testuser");
         }
 
         protected override void ExecuteInternal()
@@ -48,16 +47,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug(nameof(samAccountName) + ": " + samAccountName);
             if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
 
-            var userpassword = GetArgValueTrimmed(1);
-            log.Debug(nameof(userpassword) + ": " + userpassword);
-            if (userpassword == null) throw new ArgsException(nameof(userpassword), $"No {nameof(userpassword)} specified");
-
             using (var ad = GetActiveDirectory())
             {
                 log.Debug("Adding user: " + samAccountName);
                 ad.AddUser(
                     samAccountName,
-                    userpassword,
                     displayName: displayname,
                     firstName: firstname,
                     lastName: lastname,
