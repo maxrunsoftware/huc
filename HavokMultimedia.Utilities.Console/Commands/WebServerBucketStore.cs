@@ -27,6 +27,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class WebServerBucketStore : WebServerBase
     {
+        protected override void CreateHelp(CommandHelpBuilder help)
+        {
+            base.CreateHelp(help);
+
+            help.AddSummary("Creates a web server to host a name+key+value store");
+            help.AddExample("-o=80");
+        }
+
         private static string GenerateRandomData(int length)
         {
             var chars = "abcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
@@ -47,6 +55,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.ExecuteInternal();
             var config = GetConfig();
 
+            /*
             store["store1"][GenerateRandomData(3)] = GenerateRandomData(20);
             store["store1"][GenerateRandomData(3)] = GenerateRandomData(20);
             store["store2"][GenerateRandomData(3)] = GenerateRandomData(20);
@@ -54,6 +63,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             store["store2"][GenerateRandomData(3)] = GenerateRandomData(20);
             store["store3"][GenerateRandomData(3)] = GenerateRandomData(20);
             store["store3"][GenerateRandomData(3)] = GenerateRandomData(20);
+            */
 
             config.AddPathHandler("/", HttpVerbs.Any, Index);
 
