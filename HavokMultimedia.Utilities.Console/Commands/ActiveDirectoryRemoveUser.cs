@@ -19,17 +19,15 @@ using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    [HideCommand]
-    public class ActiveDirectoryDeleteUser : ActiveDirectoryBase
+    public class ActiveDirectoryRemoveUser : ActiveDirectoryBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
-            help.AddSummary("Deletes a user from ActiveDirectory");
+            help.AddSummary("Removes a user from ActiveDirectory");
             //help.AddDetail("Requires LDAPS configured on the server");
-            help.AddValue("<SAMAccountName> <Optional OU>");
+            help.AddValue("<SAMAccountName>");
             help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser CN=Users,DC=testdomain,DC=test,DC=org");
         }
 
         protected override void ExecuteInternal()
@@ -37,31 +35,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.ExecuteInternal();
             var values = GetArgValues().TrimOrNull().WhereNotNull();
 
-            var samAccountName = values.GetAtIndexOrDefault(0);
+            var samAccountName = values.GetAtIndexOrDefault(0).TrimOrNull();
             log.Debug(nameof(samAccountName) + ": " + samAccountName);
             if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
 
-            var ou = values.GetAtIndexOrDefault(1);
-            log.Debug(nameof(ou) + ": " + ou);
-
             using (var ad = GetActiveDirectory())
             {
-                if (ou == null)
-                {
-                    ou = ad.DomainUsersGroupDN;
-                    log.Debug(nameof(ou) + ": " + ou);
-                }
-
-                var ado = FindUser(ad, samAccountName, ou);
-                if (ado == null)
-                {
-                    log.Warn("User does not exist " + samAccountName + "   " + ou);
-                    return;
-                }
-
-                log.Debug("Deleting user " + samAccountName + "   " + ou);
-                ad.DeleteObject(ado);
-                log.Info("Successfully deleted user " + samAccountName + "   " + ou);
+                log.Debug("Removing user " + samAccountName);
+                ad.RemoveUser(samAccountName);
+                log.Info("Successfully removed user " + samAccountName);
 
             }
 

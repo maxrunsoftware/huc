@@ -19,57 +19,51 @@ using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    [HideCommand]
     public class ActiveDirectoryAddUser : ActiveDirectoryBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
             help.AddSummary("Adds a new user to ActiveDirectory");
-            //help.AddDetail("Requires LDAPS configured on the server");
-            help.AddValue("<SAMAccountName> <password> <Optional OU>");
+            help.AddDetail("Requires LDAPS configured on the server");
+            help.AddParameter("firstname", "fn", "The firstname of the new user");
+            help.AddParameter("lastname", "ln", "The lastname of the new user");
+            help.AddParameter("displayname", "dn", "The displayname of the new user");
+            help.AddParameter("emailaddress", "ea", "The email address of the new user");
+            help.AddValue("<SAMAccountName> <password>");
             help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser secretPassword");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser secretPassword CN=Users,DC=testdomain,DC=test,DC=org");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass -fn=First -fn=Last -dn=MyUser testuser secretPassword");
         }
 
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
-            var values = GetArgValues().TrimOrNull().WhereNotNull();
 
-            var samAccountName = values.GetAtIndexOrDefault(0);
+            var firstname = GetArgParameterOrConfig("firstname", "fn").TrimOrNull();
+            var lastname = GetArgParameterOrConfig("lastname", "ln").TrimOrNull();
+            var displayname = GetArgParameterOrConfig("displayname", "dn").TrimOrNull();
+            var emailaddress = GetArgParameterOrConfig("emailaddress", "ea").TrimOrNull();
+
+            var samAccountName = GetArgValueTrimmed(0);
             log.Debug(nameof(samAccountName) + ": " + samAccountName);
             if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
 
-            var userpassword = values.GetAtIndexOrDefault(1);
+            var userpassword = GetArgValueTrimmed(1);
             log.Debug(nameof(userpassword) + ": " + userpassword);
             if (userpassword == null) throw new ArgsException(nameof(userpassword), $"No {nameof(userpassword)} specified");
 
-            var ou = values.GetAtIndexOrDefault(2);
-            log.Debug(nameof(ou) + ": " + ou);
-
             using (var ad = GetActiveDirectory())
             {
-                if (ou == null)
-                {
-                    ou = ad.DomainUsersGroupDN;
-                    var ouList = ou.Split(",").ToList();
-                    ouList.PopHead();
-                    ou = ouList.ToStringDelimited(",");
-                    log.Debug(nameof(ou) + ": " + ou);
-                }
-
-                var ado = FindUser(ad, samAccountName, ou);
-                if (ado != null)
-                {
-                    log.Warn("User " + samAccountName + " already exists in OU " + ado.OU);
-                    return;
-                }
-
-
-                log.Debug("Adding user: " + samAccountName + "   " + ou);
-                ado = ad.AddUser2(samAccountName, userpassword, ou);
-                log.Info("Successfully added user " + samAccountName + "   " + ou);
+                log.Debug("Adding user: " + samAccountName);
+                ad.AddUser(
+                    samAccountName,
+                    userpassword,
+                    displayName: displayname,
+                    firstName: firstname,
+                    lastName: lastname,
+                    emailAddress: emailaddress
+                    );
+                log.Info("Successfully added user " + samAccountName);
 
                 //log.Debug("Changing password for user " + samAccountName + "   " + ou);
                 //ado.Password = userpassword;

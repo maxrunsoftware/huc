@@ -394,50 +394,156 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <returns>The newly created group object.</returns>
         public ActiveDirectoryObject AddGroup(string sAMAccountName, string ouDistinguishedName, ActiveDirectoryGroupType groupType) => AddObject(sAMAccountName, ouDistinguishedName, (int)groupType);
 
-        /// <summary>
-        /// Creates a new user within Active Directory given it's proposed name, the distinguished name of the OU to place it in, and other optional attributes.
-        /// </summary>
-        /// <param name="sAMAccountName">The proposed SAM Account name for the user.</param>
-        /// <param name="ouDistinguishedName">The distinguished name for the OU to place the user within.</param>
-        /// <returns>The newly created user object.</returns>
-        public ActiveDirectoryObject AddUser(string sAMAccountName, string ouDistinguishedName) => AddObject(sAMAccountName, ouDistinguishedName, null);
-
-
-
-        private PrincipalContext OpenPrincipalContext(string ouDistinguishedName)
+        private PrincipalContext OpenPrincipalContext()
         {
-            return new PrincipalContext(ContextType.Domain, ipaddress, ouDistinguishedName, ContextOptions.Negotiate, this.username, this.password);
+            return new PrincipalContext(ContextType.Domain, ipaddress, null, ContextOptions.Negotiate, username, password);
         }
 
-        public ActiveDirectoryObject AddUser2(
-            string username,
+        public void AddUserToGroup(string userSamAccountName, string groupSamAccountName)
+        {
+            using (var context = OpenPrincipalContext())
+            {
+                var user = context.FindUserBySamAccountName(userSamAccountName);
+                if (user == null) throw new Exception($"User '{userSamAccountName}' not found");
+
+                var group = context.FindGroupBySamAccountName(groupSamAccountName);
+                if (group == null) throw new Exception($"Group '{groupSamAccountName}' not found");
+
+                if (group.Members.Contains(context, IdentityType.SamAccountName, user.SamAccountName))
+                {
+                    log.Debug($"User {userSamAccountName} is already a member of group {groupSamAccountName}");
+                }
+                else
+                {
+                    group.Members.Add(user);
+                    group.Save();
+                }
+
+            }
+        }
+
+        public void RemoveUserFromGroup(string userSamAccountName, string groupSamAccountName)
+        {
+            using (var context = OpenPrincipalContext())
+            {
+                var user = context.FindUserBySamAccountName(userSamAccountName);
+                if (user == null) throw new Exception($"User '{userSamAccountName}' not found");
+
+                var group = context.FindGroupBySamAccountName(groupSamAccountName);
+                if (group == null) throw new Exception($"Group '{groupSamAccountName}' not found");
+
+                if (group.Members.Contains(context, IdentityType.SamAccountName, user.SamAccountName))
+                {
+                    group.Members.Remove(user);
+                    group.Save();
+                }
+                else
+                {
+                    log.Debug($"User {userSamAccountName} is not a member of group {groupSamAccountName}");
+                }
+
+            }
+        }
+
+        public void AddUser(
+            string samAccountName,
             string password,
-            string ouDistinguishedName,
             string displayName = null,
             string firstName = null,
-            string lastName = null
+            string lastName = null,
+            string name = null,
+            string emailAddress = null
             )
         {
             // https://stackoverflow.com/a/2305871
-            using (PrincipalContext pc = OpenPrincipalContext(ouDistinguishedName))
+            using (var pc = OpenPrincipalContext())
             {
                 using (var up = new UserPrincipal(pc))
                 {
-
-                    up.SamAccountName = username;
-                    up.DisplayName = displayName ?? username;
-                    up.GivenName = firstName ?? username; // first name
-                    up.Surname = lastName ?? username; // last name
-                    up.Name = username;
-
-                    //up.EmailAddress = email;
+                    up.SamAccountName = samAccountName;
+                    up.DisplayName = displayName ?? samAccountName;
+                    up.GivenName = firstName ?? samAccountName;
+                    up.Surname = lastName ?? samAccountName;
+                    up.Name = name ?? samAccountName;
+                    if (emailAddress != null) up.EmailAddress = emailAddress;
                     up.SetPassword(password);
                     up.Enabled = true;
                     //up.ExpirePasswordNow();
                     up.Save();
                 }
             }
-            return null;
+        }
+
+        public void AddGroup(string samAccountName, ActiveDirectoryGroupType groupType = ActiveDirectoryGroupType.GlobalSecurityGroup)
+        {
+            // https://stackoverflow.com/a/2305871
+            using (var pc = OpenPrincipalContext())
+            {
+                using (var up = new GroupPrincipal(pc))
+                {
+                    up.SamAccountName = samAccountName;
+                    if (groupType == ActiveDirectoryGroupType.GlobalDistributionGroup)
+                    {
+                        up.IsSecurityGroup = false;
+                        up.GroupScope = GroupScope.Global;
+                    }
+                    else if (groupType == ActiveDirectoryGroupType.GlobalSecurityGroup)
+                    {
+                        up.IsSecurityGroup = true;
+                        up.GroupScope = GroupScope.Global;
+                    }
+                    else if (groupType == ActiveDirectoryGroupType.LocalDistributionGroup)
+                    {
+                        up.IsSecurityGroup = false;
+                        up.GroupScope = GroupScope.Local;
+                    }
+                    else if (groupType == ActiveDirectoryGroupType.LocalSecurityGroup)
+                    {
+                        up.IsSecurityGroup = true;
+                        up.GroupScope = GroupScope.Local;
+                    }
+                    else if (groupType == ActiveDirectoryGroupType.UniversalDistributionGroup)
+                    {
+                        up.IsSecurityGroup = false;
+                        up.GroupScope = GroupScope.Universal;
+                    }
+                    else if (groupType == ActiveDirectoryGroupType.UniversalSecurityGroup)
+                    {
+                        up.IsSecurityGroup = true;
+                        up.GroupScope = GroupScope.Universal;
+                    }
+                    else
+                    {
+                        throw new Exception("Unsupported " + nameof(groupType) + " " + groupType);
+                    }
+
+                    up.Save();
+                }
+            }
+        }
+
+        public void RemoveUser(string samAccountName)
+        {
+            using (var context = OpenPrincipalContext())
+            {
+                var p = context.FindUserBySamAccountName(samAccountName);
+                if (p == null) throw new Exception($"User '{samAccountName}' not found");
+
+                p.Delete();
+            }
+
+        }
+
+        public void RemoveGroup(string samAccountName)
+        {
+            using (var context = OpenPrincipalContext())
+            {
+                var p = context.FindGroupBySamAccountName(samAccountName);
+                if (p == null) throw new Exception($"Group '{samAccountName}' not found");
+
+                p.Delete();
+            }
+
         }
 
         /// <summary>
@@ -596,6 +702,24 @@ namespace HavokMultimedia.Utilities.Console.External
             }
             return list;
         }
+
+        private static T FindBySamAccountName<T>(T principal, string samAccountName) where T : Principal
+        {
+            PrincipalSearcher s = new PrincipalSearcher();
+            principal.SamAccountName = samAccountName;
+            s.QueryFilter = principal;
+            foreach (Principal p in s.FindAll())
+            {
+                if (p is T pp) return pp;
+            }
+            return null;
+        }
+
+        public static UserPrincipal FindUserBySamAccountName(this PrincipalContext context, string samAccountName) => FindBySamAccountName(new UserPrincipal(context), samAccountName);
+
+        public static GroupPrincipal FindGroupBySamAccountName(this PrincipalContext context, string samAccountName) => FindBySamAccountName(new GroupPrincipal(context), samAccountName);
+
+        public static ComputerPrincipal FindComputerBySamAccountName(this PrincipalContext context, string samAccountName) => FindBySamAccountName(new ComputerPrincipal(context), samAccountName);
     }
 
 
