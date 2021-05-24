@@ -21,7 +21,6 @@ using System.DirectoryServices.Protocols;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Principal;
-using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
