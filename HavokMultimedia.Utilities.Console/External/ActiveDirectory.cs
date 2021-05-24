@@ -607,6 +607,32 @@ namespace HavokMultimedia.Utilities.Console.External
             }
         }
 
+        public void MoveGroup(string samAccountName, string newOUSAMAccountName)
+        {
+            string groupDN;
+            using (var context = OpenPrincipalContext())
+            {
+                var group = context.FindGroupBySamAccountNameRequired(samAccountName);
+                groupDN = group.DistinguishedName;
+            }
+
+            var groupobj = GetObjectBySAMAccountName(samAccountName);
+            if (groupobj == null) throw new Exception($"Could not locate group object for {groupDN}");
+
+            if (newOUSAMAccountName.EqualsCaseInsensitive("Users"))
+            {
+                MoveObject(groupobj, DomainUsersDN);
+            }
+            else
+            {
+                var ou = GetOUs().Where(o => newOUSAMAccountName.EqualsCaseInsensitive(o.Name)).FirstOrDefault();
+                if (ou == null) throw new Exception($"Could not find OU named {newOUSAMAccountName}");
+
+                log.Debug($"Moving group {groupobj.DistinguishedName} to {ou.DistinguishedName}");
+                MoveObject(groupobj, ou.DistinguishedName);
+            }
+        }
+
         #endregion PrincipalContext methods
 
         /// <summary>
