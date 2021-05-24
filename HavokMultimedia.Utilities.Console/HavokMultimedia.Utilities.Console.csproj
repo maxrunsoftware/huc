@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <ReleaseVersion>1.9.1</ReleaseVersion>
+    <ReleaseVersion>1.9.2</ReleaseVersion>
     <Description>Misc command line helper utilities</Description>
     <StartupObject>HavokMultimedia.Utilities.Console.Program</StartupObject>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
