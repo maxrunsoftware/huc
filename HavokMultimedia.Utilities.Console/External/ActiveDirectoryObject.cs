@@ -31,7 +31,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         private static readonly DateTime JAN_01_1800 = new DateTime(1800, 1, 1);
 
-        private readonly ActiveDirectory activeDirectory;
+        private readonly ActiveDirectoryCore activeDirectory;
 
         private System.DirectoryServices.DirectoryEntry directoryEntry;
 
@@ -407,18 +407,18 @@ namespace HavokMultimedia.Utilities.Console.External
 
         #region Constructor
 
-        private ActiveDirectoryObject(ActiveDirectory activeDirectory, LdapEntryAttributeCollection attributes)
+        private ActiveDirectoryObject(ActiveDirectoryCore activeDirectory, LdapEntryAttributeCollection attributes)
         {
             this.activeDirectory = activeDirectory.CheckNotNull(nameof(activeDirectory));
             Attributes = attributes.CheckNotNull(nameof(attributes));
         }
 
-        public static ActiveDirectoryObject Create(ActiveDirectory activeDirectory, LdapEntryAttributeCollection attributes)
+        public static ActiveDirectoryObject Create(ActiveDirectoryCore activeDirectory, LdapEntryAttributeCollection attributes)
         {
             return new ActiveDirectoryObject(activeDirectory, attributes);
         }
 
-        public static IEnumerable<ActiveDirectoryObject> Create(ActiveDirectory activeDirectory, IEnumerable<LdapEntryAttributeCollection> attributes)
+        public static IEnumerable<ActiveDirectoryObject> Create(ActiveDirectoryCore activeDirectory, IEnumerable<LdapEntryAttributeCollection> attributes)
         {
             activeDirectory.CheckNotNull(nameof(activeDirectory));
             int i = 0;

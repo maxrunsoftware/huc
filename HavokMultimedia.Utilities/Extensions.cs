@@ -2089,6 +2089,22 @@ namespace HavokMultimedia.Utilities
 
         #endregion Pop
 
+        public static IEnumerable<T> MinusHead<T>(this IEnumerable<T> enumerable)
+        {
+            var first = true;
+            foreach (var item in enumerable)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    yield return item;
+                }
+            }
+        }
+
         #region Dictionary
 
         public static ReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) => new ReadOnlyDictionary<TKey, TValue>(dictionary);
