@@ -392,7 +392,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             const int ldapErrorInvalidCredentials = 0x31;
 
-            server = server = server.CheckNotNullTrimmed(nameof(server));
+            server = server.CheckNotNullTrimmed(nameof(server));
             portNumber = portNumber.CheckNotZeroNotNegative(nameof(portNumber));
             userName = userName.CheckNotNullTrimmed(nameof(userName));
             password = password.CheckNotNull(nameof(password));
@@ -528,40 +528,22 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public static class LdapExtensions
     {
-        public static string ToStringDebug(this System.DirectoryServices.DirectoryEntry entry)
+        private static string ToStringDebugOutput(object o)
         {
             var sb = new StringBuilder();
-            foreach (var prop in entry.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
+            foreach (var prop in o.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
             {
                 var getter = prop.GetGetMethod();
                 if (getter == null) continue;
-                sb.AppendLine("    " + prop.Name + ": " + getter.Invoke(entry, null));
+                sb.AppendLine("    " + prop.Name + ": " + getter.Invoke(o, null));
             }
             return sb.ToString();
         }
 
-        public static string ToStringDebug(this System.DirectoryServices.DirectorySearcher searcher)
-        {
-            var sb = new StringBuilder();
-            foreach (var prop in searcher.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
-            {
-                var getter = prop.GetGetMethod();
-                if (getter == null) continue;
-                sb.AppendLine("    " + prop.Name + ": " + getter.Invoke(searcher, null));
-            }
-            return sb.ToString();
-        }
+        public static string ToStringDebug(this System.DirectoryServices.DirectoryEntry entry) => ToStringDebugOutput(entry);
 
-        public static string ToStringDebug(this System.DirectoryServices.AccountManagement.PrincipalContext context)
-        {
-            var sb = new StringBuilder();
-            foreach (var prop in context.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
-            {
-                var getter = prop.GetGetMethod();
-                if (getter == null) continue;
-                sb.AppendLine("    " + prop.Name + ": " + getter.Invoke(context, null));
-            }
-            return sb.ToString();
-        }
+        public static string ToStringDebug(this System.DirectoryServices.DirectorySearcher searcher) => ToStringDebugOutput(searcher);
+
+        public static string ToStringDebug(this System.DirectoryServices.AccountManagement.PrincipalContext context) => ToStringDebugOutput(context);
     }
 }
