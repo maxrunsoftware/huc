@@ -16,15 +16,14 @@ limitations under the License.
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class ActiveDirectoryChangePassword : ActiveDirectoryBase
+    public class ActiveDirectoryMoveUser : ActiveDirectoryBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
-            help.AddSummary("Changes the password of a user in ActiveDirectory");
-            help.AddDetail("Requires LDAPS configured on the server");
-            help.AddValue("<SAMAccountName> <new password>");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser newpassword");
+            help.AddSummary("Moves a user from one OU to another OU in ActiveDirectory");
+            help.AddValue("<SAMAccountName> <new OU samAccountName>");
+            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser MyNewOU");
         }
 
         protected override void ExecuteInternal()
@@ -35,15 +34,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug(nameof(samAccountName) + ": " + samAccountName);
             if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
 
-            var newPassword = GetArgValueTrimmed(1);
-            log.Debug(nameof(newPassword) + ": " + newPassword);
-            if (newPassword == null) throw new ArgsException(nameof(newPassword), $"No {nameof(newPassword)} specified");
+            var newOUSAMAccountName = GetArgValueTrimmed(1);
+            log.Debug(nameof(newOUSAMAccountName) + ": " + newOUSAMAccountName);
+            if (newOUSAMAccountName == null) throw new ArgsException(nameof(newOUSAMAccountName), $"No {nameof(newOUSAMAccountName)} specified");
 
             using (var ad = GetActiveDirectory())
             {
-                log.Debug($"Changing password for user {samAccountName} to {newPassword}");
-                ad.ChangePassword(samAccountName, newPassword);
-                log.Info($"Password changed successfully");
+                log.Debug($"Changing OU of user {samAccountName} to {newOUSAMAccountName}");
+                ad.MoveUser(samAccountName, newOUSAMAccountName);
+                log.Info($"User {samAccountName} successfully moved to {newOUSAMAccountName}");
             }
 
 

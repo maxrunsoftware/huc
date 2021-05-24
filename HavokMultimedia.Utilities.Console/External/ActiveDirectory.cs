@@ -63,7 +63,7 @@ namespace HavokMultimedia.Utilities.Console.External
         /// </summary>
         public Ldap Ldap { get; }
 
-        public bool FilterAttributes { get; set; }
+        public bool FilterAttributes { get; set; } = false;
 
         /// <summary>
         /// The base distinguished name (DN) of Active Directory.
@@ -187,6 +187,16 @@ namespace HavokMultimedia.Utilities.Console.External
                 throw;
             }
             log.Debug($"Success LDAP connection to {domainControllers.FirstOrDefault()}:{ldapPort} with user {userName}");
+
+            log.Debug($"{nameof(DistinguishedName)}: {DistinguishedName}");
+            log.Debug($"{nameof(Name)}: {Name}");
+            log.Debug($"{nameof(NTName)}: {NTName}");
+            log.Debug($"{nameof(WellKnownSid_System)}: {WellKnownSid_System}");
+            log.Debug($"{nameof(AdministratorsGroupDN)}: {AdministratorsGroupDN}");
+            log.Debug($"{nameof(DomainAdminsGroupDN)}: {DomainAdminsGroupDN}");
+            log.Debug($"{nameof(DomainUsersGroupDN)}: {DomainUsersGroupDN}");
+            log.Debug($"{nameof(DomainUsersDN)}: {DomainUsersDN}");
+            log.Debug($"{nameof(EnterpriseAdminsGroupDN)}: {EnterpriseAdminsGroupDN}");
         }
 
         #region Methods Instance
@@ -280,7 +290,7 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <summary>
         /// Gets all objects in the Active Directory.
         /// </summary>
-        /// <returns>A list of all users in the Active Directory.</returns>
+        /// <returns>A list of all objects in the Active Directory.</returns>
         public List<ActiveDirectoryObject> GetAll(LdapQueryConfig queryConfig = null, bool useCache = false) => GetObjects(null, queryConfig: queryConfig, useCache: useCache);
 
         /// <summary>
@@ -288,6 +298,12 @@ namespace HavokMultimedia.Utilities.Console.External
         /// </summary>
         /// <returns>A list of all users in the Active Directory.</returns>
         public List<ActiveDirectoryObject> GetUsers(LdapQueryConfig queryConfig = null, bool useCache = false) => GetObjects("(&(objectCategory=person)(objectClass=user))", queryConfig: queryConfig, useCache: useCache);
+
+        /// <summary>
+        /// Gets all OUs in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all OUs in the Active Directory.</returns>
+        public List<ActiveDirectoryObject> GetOUs(LdapQueryConfig queryConfig = null, bool useCache = false) => GetObjects("(objectCategory=organizationalUnit)", queryConfig: queryConfig, useCache: useCache);
 
         /// <summary>
         /// Gets of all user accounts that were modified within the specified time frame.
@@ -394,6 +410,8 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <returns>The newly created group object.</returns>
         public ActiveDirectoryObject AddGroup(string sAMAccountName, string ouDistinguishedName, ActiveDirectoryGroupType groupType) => AddObject(sAMAccountName, ouDistinguishedName, (int)groupType);
 
+        #region PrincipalContext methods
+
         private PrincipalContext OpenPrincipalContext()
         {
             return new PrincipalContext(ContextType.Domain, ipaddress, null, ContextOptions.Negotiate, username, password);
@@ -403,11 +421,8 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             using (var context = OpenPrincipalContext())
             {
-                var user = context.FindUserBySamAccountName(userSamAccountName);
-                if (user == null) throw new Exception($"User '{userSamAccountName}' not found");
-
-                var group = context.FindGroupBySamAccountName(groupSamAccountName);
-                if (group == null) throw new Exception($"Group '{groupSamAccountName}' not found");
+                var user = context.FindUserBySamAccountNameRequired(userSamAccountName);
+                var group = context.FindGroupBySamAccountNameRequired(groupSamAccountName);
 
                 if (group.Members.Contains(context, IdentityType.SamAccountName, user.SamAccountName))
                 {
@@ -426,11 +441,8 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             using (var context = OpenPrincipalContext())
             {
-                var user = context.FindUserBySamAccountName(userSamAccountName);
-                if (user == null) throw new Exception($"User '{userSamAccountName}' not found");
-
-                var group = context.FindGroupBySamAccountName(groupSamAccountName);
-                if (group == null) throw new Exception($"Group '{groupSamAccountName}' not found");
+                var user = context.FindUserBySamAccountNameRequired(userSamAccountName);
+                var group = context.FindGroupBySamAccountNameRequired(groupSamAccountName);
 
                 if (group.Members.Contains(context, IdentityType.SamAccountName, user.SamAccountName))
                 {
@@ -441,7 +453,6 @@ namespace HavokMultimedia.Utilities.Console.External
                 {
                     log.Debug($"User {userSamAccountName} is not a member of group {groupSamAccountName}");
                 }
-
             }
         }
 
@@ -477,6 +488,8 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public void AddGroup(string samAccountName, ActiveDirectoryGroupType groupType = ActiveDirectoryGroupType.GlobalSecurityGroup)
         {
+            if (!IsGroupNameValid(samAccountName)) throw new Exception($"Groupname {samAccountName} is an invalid name");
+
             // https://stackoverflow.com/a/2305871
             using (var pc = OpenPrincipalContext())
             {
@@ -527,9 +540,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             using (var context = OpenPrincipalContext())
             {
-                var p = context.FindUserBySamAccountName(samAccountName);
-                if (p == null) throw new Exception($"User '{samAccountName}' not found");
-
+                var p = context.FindUserBySamAccountNameRequired(samAccountName);
                 p.Delete();
             }
         }
@@ -538,9 +549,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             using (var context = OpenPrincipalContext())
             {
-                var p = context.FindGroupBySamAccountName(samAccountName);
-                if (p == null) throw new Exception($"Group '{samAccountName}' not found");
-
+                var p = context.FindGroupBySamAccountNameRequired(samAccountName);
                 p.Delete();
             }
         }
@@ -549,9 +558,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             using (var context = OpenPrincipalContext())
             {
-                var user = context.FindUserBySamAccountName(samAccountName);
-                if (user == null) throw new Exception($"User '{samAccountName}' not found");
-
+                var user = context.FindUserBySamAccountNameRequired(samAccountName);
                 var de = user.GetUnderlyingObject() as System.DirectoryServices.DirectoryEntry;
                 if (de == null) return null;
 
@@ -561,6 +568,47 @@ namespace HavokMultimedia.Utilities.Console.External
                 return deParent?.Properties["distinguishedName"]?.Value?.ToString();
             }
         }
+
+        public void ChangePassword(string samAccountName, string password)
+        {
+            using (var context = OpenPrincipalContext())
+            {
+                var user = context.FindUserBySamAccountNameRequired(samAccountName);
+
+                user.SetPassword(password);
+                user.Enabled = true;
+                user.UnlockAccount();
+                user.Save();
+            }
+        }
+
+        public void MoveUser(string samAccountName, string newOUSAMAccountName)
+        {
+            string userDN;
+            using (var context = OpenPrincipalContext())
+            {
+                var user = context.FindUserBySamAccountNameRequired(samAccountName);
+                userDN = user.DistinguishedName;
+            }
+
+            var userobj = GetObjectBySAMAccountName(samAccountName);
+            if (userobj == null) throw new Exception($"Could not locate user object for {userDN}");
+
+            if (newOUSAMAccountName.EqualsCaseInsensitive("Users"))
+            {
+                MoveObject(userobj, DomainUsersDN);
+            }
+            else
+            {
+                var ou = GetOUs().Where(o => newOUSAMAccountName.EqualsCaseInsensitive(o.Name)).FirstOrDefault();
+                if (ou == null) throw new Exception($"Could not find OU named {newOUSAMAccountName}");
+
+                log.Debug($"Moving user {userobj.DistinguishedName} to {ou.DistinguishedName}");
+                MoveObject(userobj, ou.DistinguishedName);
+            }
+        }
+
+        #endregion PrincipalContext methods
 
         /// <summary>
         /// Moves and / or renames an object in Active Directory.
@@ -694,48 +742,6 @@ namespace HavokMultimedia.Utilities.Console.External
         public void Dispose() => Ldap.Dispose();
 
         #endregion IDisposable
-    }
-
-    public static class ActiveDirectoryExtensions
-    {
-        public static void Add(this List<DirectoryAttribute> list, string name, params string[] values)
-        {
-            var attrValues = new List<string>();
-            foreach (var value in values.OrEmpty()) attrValues.Add(value);
-            attrValues = attrValues.TrimOrNull().WhereNotNull().ToList();
-            DirectoryAttribute a;
-            if (attrValues.Count < 2) a = new DirectoryAttribute(name, attrValues.First());
-            else a = new DirectoryAttribute(name, attrValues.ToArray());
-            list.Add(a);
-        }
-
-        public static List<DirectoryAttribute> ToDirectoryAttributes(this IDictionary<string, List<string>> directoryAttributes)
-        {
-            var list = new List<DirectoryAttribute>();
-            foreach (var kvp in directoryAttributes)
-            {
-                list.Add(kvp.Key, kvp.Value.ToArray());
-            }
-            return list;
-        }
-
-        private static T FindBySamAccountName<T>(T principal, string samAccountName) where T : Principal
-        {
-            PrincipalSearcher s = new PrincipalSearcher();
-            principal.SamAccountName = samAccountName;
-            s.QueryFilter = principal;
-            foreach (Principal p in s.FindAll())
-            {
-                if (p is T pp) return pp;
-            }
-            return null;
-        }
-
-        public static UserPrincipal FindUserBySamAccountName(this PrincipalContext context, string samAccountName) => FindBySamAccountName(new UserPrincipal(context), samAccountName);
-
-        public static GroupPrincipal FindGroupBySamAccountName(this PrincipalContext context, string samAccountName) => FindBySamAccountName(new GroupPrincipal(context), samAccountName);
-
-        public static ComputerPrincipal FindComputerBySamAccountName(this PrincipalContext context, string samAccountName) => FindBySamAccountName(new ComputerPrincipal(context), samAccountName);
     }
 
 
