@@ -223,7 +223,7 @@ namespace HavokMultimedia.Utilities.Console.External
             }
             else
             {
-                var ou = GetOUs().Where(o => newOUSAMAccountName.EqualsCaseInsensitive(o.Name)).FirstOrDefault();
+                var ou = this.GetOUByName(newOUSAMAccountName);
                 if (ou == null) throw new Exception($"Could not find OU named {newOUSAMAccountName}");
 
                 log.Debug($"Moving user {userobj.DistinguishedName} to {ou.DistinguishedName}");
@@ -246,7 +246,7 @@ namespace HavokMultimedia.Utilities.Console.External
             }
             else
             {
-                var ou = GetOUs().Where(o => newOUSAMAccountName.EqualsCaseInsensitive(o.Name)).FirstOrDefault();
+                var ou = this.GetOUByName(newOUSAMAccountName);
                 if (ou == null) throw new Exception($"Could not find OU named {newOUSAMAccountName}");
 
                 log.Debug($"Moving group {groupobj.DistinguishedName} to {ou.DistinguishedName}");

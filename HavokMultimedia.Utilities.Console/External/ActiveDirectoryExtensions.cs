@@ -81,6 +81,77 @@ namespace HavokMultimedia.Utilities.Console.External
             return p;
         }
 
+        /// <summary>
+        /// Gets all objects in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all objects in the Active Directory.</returns>
+        public static List<ActiveDirectoryObject> GetAll(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects(null, queryConfig: queryConfig, useCache: useCache);
+
+        /// <summary>
+        /// Gets all users in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all users in the Active Directory.</returns>
+        public static List<ActiveDirectoryObject> GetUsers(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(&(objectCategory=person)(objectClass=user))", queryConfig: queryConfig, useCache: useCache);
+
+
+
+        /// <summary>
+        /// Gets all OUs in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all OUs in the Active Directory.</returns>
+        public static List<ActiveDirectoryObject> GetOUs(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(objectCategory=organizationalUnit)", queryConfig: queryConfig, useCache: useCache);
+
+        /// <summary>
+        /// Gets a specific OU in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all OUs in the Active Directory.</returns>
+        public static ActiveDirectoryObject GetOUByName(this ActiveDirectoryCore ad, string ouName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.Name.TrimOrNull() != null).Where(o => o.Name.TrimOrNull().EqualsCaseInsensitive(ouName)).FirstOrDefault();
+
+        /// <summary>
+        /// Gets a specific OU in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all OUs in the Active Directory.</returns>
+        public static ActiveDirectoryObject GetOUByDistinguishedName(this ActiveDirectoryCore ad, string ouDistinguishedName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.DistinguishedName.TrimOrNull() != null).Where(o => o.Name.TrimOrNull().EqualsCaseInsensitive(ouDistinguishedName)).FirstOrDefault();
+
+        /// <summary>
+        /// Gets of all user accounts that were modified within the specified time frame.
+        /// </summary>
+        /// <param name="startDate">The lower boundary of the time frame.</param>
+        /// <param name="endDate">The upper boundary of the time frame.</param>
+        /// <returns>Returns a list of all users that were during the specified period of time.</returns>
+        public static List<ActiveDirectoryObject> GetUsersByModified(this ActiveDirectoryCore ad, DateTime startDate, DateTime endDate, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects(string.Format("(&(objectCategory=person)(objectClass=user)(whenChanged>={0})(whenChanged<={1}))", startDate.ToUniversalTime().ToString("yyyyMMddHHmmss.s") + "Z", endDate.ToUniversalTime().ToString("yyyyMMddHHmmss.s") + "Z"), queryConfig: queryConfig, useCache: useCache);
+
+        /// <summary>
+        /// Gets of all user accounts that lastLogonTimestamp is between a specific date
+        /// </summary>
+        /// <param name="startDate">The lower boundary of the time frame.</param>
+        /// <param name="endDate">The upper boundary of the time frame.</param>
+        /// <returns>Returns a list of all users that were during the specified period of time.</returns>
+        public static List<ActiveDirectoryObject> GetUsersByLastLogonTimestamp(this ActiveDirectoryCore ad, DateTime startDate, DateTime endDate, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects(string.Format("(&(objectCategory=person)(objectClass=user)(lastLogonTimestamp>={0})(lastLogonTimestamp<={1}))", startDate.ToFileTimeUtc(), endDate.ToFileTimeUtc()), queryConfig: queryConfig, useCache: useCache);
+
+        /// <summary>
+        /// Gets of all user accounts that lastLogonTimestamp is between a specific date
+        /// </summary>
+        /// <returns>Returns a list of all users that were during the specified period of time.</returns>
+        public static List<ActiveDirectoryObject> GetUsersByLastLogonTimestampNull(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(&(objectCategory=person)(objectClass=user)(!lastlogontimestamp=*))", queryConfig: queryConfig, useCache: useCache);
+
+        /// <summary>
+        /// Gets all computers in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all computers in the Active Directory.</returns>
+        public static List<ActiveDirectoryObject> GetComputers(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(&(objectCategory=computer)(objectClass=computer))", queryConfig: queryConfig, useCache: useCache);
+
+        /// <summary>
+        /// Gets all groups in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all groups in the Active Directory.</returns>
+        public static List<ActiveDirectoryObject> GetGroups(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(objectClass=group)", queryConfig: queryConfig, useCache: useCache);
+
+        /// <summary>
+        /// Gets all empty groups in the Active Directory.
+        /// </summary>
+        /// <returns>A list of all groups in the Active Directory.</returns>
+        public static List<ActiveDirectoryObject> GetGroupsEmpty(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(&(objectClass=group)(!member=*))", queryConfig: queryConfig, useCache: useCache);
 
 
     }
