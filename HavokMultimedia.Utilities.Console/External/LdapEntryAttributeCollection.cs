@@ -25,8 +25,8 @@ namespace HavokMultimedia.Utilities.Console.External
 {
     public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<LdapEntryAttributeValue>>
     {
-        private static readonly ILogger log = Program.LogFactory.GetLogger<LdapEntryAttributeCollection>();
-        private static readonly List<LdapEntryAttributeValue> EMPTY = new List<LdapEntryAttributeValue>();
+        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly IReadOnlyList<LdapEntryAttributeValue> EMPTY = new List<LdapEntryAttributeValue>();
         private readonly Dictionary<string, List<LdapEntryAttributeValue>> dictionary = new Dictionary<string, List<LdapEntryAttributeValue>>(StringComparer.OrdinalIgnoreCase);
         public Guid ObjectGUID { get; }
         public string DistinguishedName { get; }
