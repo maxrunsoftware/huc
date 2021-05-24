@@ -16,7 +16,7 @@ limitations under the License.
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class ActiveDirectoryMoveUser : ActiveDirectoryBase
+    public class ActiveDirectoryMoveGroup : ActiveDirectoryBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
