@@ -42,7 +42,7 @@ namespace HavokMultimedia.Utilities.Console.External
         private readonly ushort port;
         private readonly string userName;
         private readonly string password;
-        private readonly string domainName;
+        //private readonly string domainName;
 
         private readonly System.DirectoryServices.DirectoryEntry searchRoot;
         private readonly System.DirectoryServices.DirectorySearcher searcher;
@@ -136,7 +136,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 }
             }
             this.userName = userName = userName.TrimOrNull();
-            this.domainName = domainName = domainName.TrimOrNull();
+            domainName = domainName.TrimOrNull();
             this.password = password;
             this.searchBaseDNdefault = searchBaseDNdefault.TrimOrNull();
 
