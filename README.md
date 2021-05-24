@@ -280,9 +280,40 @@ huc ActiveDirectoryListObjectDetails -h=192.168.1.5 -u=administrator -p=testpass
 huc ActiveDirectoryListObjectDetails -h=192.168.1.5 -u=administrator -p=testpass Users
 ```
 
-Change a user's password (note: requires LDAPS certificate to be installed on AD server)
+Change a user's password (note: requires LDAPS certificate to be installed on AD server or running HUC on the AD server itself)
 ```sh
 huc ActiveDirectoryChangePassword -h=192.168.1.5 -u=administrator -p=testpass testuser newpassword
+```
+
+Add User
+```sh
+huc ActiveDirectoryAddUser -h=192.168.1.5 -u=administrator -p=testpass testuser
+huc ActiveDirectoryAddUser -h=192.168.1.5 -u=administrator -p=testpass -firstname="steve" -lastname="foster" testuser
+```
+
+Add Group
+```sh
+huc ActiveDirectoryAddGroup -h=192.168.1.5 -u=administrator -p=testpass testgroup
+```
+
+Delete User
+```sh
+huc ActiveDirectoryRemoveUser -h=192.168.1.5 -u=administrator -p=testpass testuser
+```
+
+Delete Group
+```sh
+huc ActiveDirectoryRemoveGroup -h=192.168.1.5 -u=administrator -p=testpass testgroup
+```
+
+Move User
+```sh
+huc ActiveDirectoryMoveUser -h=192.168.1.5 -u=administrator -p=testpass testuser MyNewOU
+```
+
+Move Group
+```sh
+huc ActiveDirectoryMoveGroup -h=192.168.1.5 -u=administrator -p=testpass testgroup MyNewOU
 ```
 &nbsp;
 ### Google Sheets
