@@ -93,8 +93,6 @@ namespace HavokMultimedia.Utilities.Console.External
         /// <returns>A list of all users in the Active Directory.</returns>
         public static List<ActiveDirectoryObject> GetUsers(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(&(objectCategory=person)(objectClass=user))", queryConfig: queryConfig, useCache: useCache);
 
-
-
         /// <summary>
         /// Gets all OUs in the Active Directory.
         /// </summary>

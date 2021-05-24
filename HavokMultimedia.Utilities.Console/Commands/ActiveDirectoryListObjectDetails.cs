@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 
@@ -37,16 +38,36 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug(nameof(objectName) + ": " + objectName);
             if (objectName == null) throw new ArgsException(nameof(objectName), "No <" + nameof(objectName) + "> specified to search for");
 
-            var adobjs = ad.GetAll().OrEmpty()
-                .Where(o => objectName.EqualsCaseInsensitive(new string[] {
-                        o.SAMAccountName,
-                        o.LogonName,
-                        o.LogonNamePreWindows2000,
-                        o.DistinguishedName,
-                        o.Name
-                }))
-                .ToList();
+            var adobjs = new List<ActiveDirectoryObject>();
+            foreach (var adobj in ad.GetAll())
+            {
+                var propertiesToMatch = new List<string>
+                {
+                    adobj.SAMAccountName,
+                    adobj.LogonName,
+                    adobj.LogonNamePreWindows2000,
+                    //adobj.DistinguishedName,
+                    adobj.Name,
+                    adobj.DisplayName,
+                    adobj.DisplayNamePrintable
+                };
 
+                if (!objectName.Contains('*') && !objectName.Contains("?"))
+                {
+                    // don't search DistinguishedName on wildcard
+                    propertiesToMatch.Add(adobj.DistinguishedName);
+                }
+
+                foreach (var propertyToMatch in propertiesToMatch.TrimOrNull().WhereNotNull())
+                {
+                    if (propertyToMatch.EqualsWildcard(objectName, true))
+                    {
+                        adobjs.Add(adobj);
+                        break;
+                    }
+                }
+
+            }
 
             if (adobjs.IsEmpty())
             {
