@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Linq;
+using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -26,55 +27,50 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Lists object details of an object in an ActiveDirectory");
             help.AddValue("<object name>");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass Administrator");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass Users");
+            help.AddExample(HelpExamplePrefix + " Administrator");
+            help.AddExample(HelpExamplePrefix + " Users");
         }
 
-        protected override void ExecuteInternal()
+        protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            base.ExecuteInternal();
-
             var objectName = GetArgValueTrimmed(0);
             log.Debug(nameof(objectName) + ": " + objectName);
             if (objectName == null) throw new ArgsException(nameof(objectName), "No <" + nameof(objectName) + "> specified to search for");
 
-            using (var ad = GetActiveDirectory())
-            {
-                var adobjs = ad.GetAll().OrEmpty()
-                    .Where(o => objectName.EqualsCaseInsensitive(new string[] {
+            var adobjs = ad.GetAll().OrEmpty()
+                .Where(o => objectName.EqualsCaseInsensitive(new string[] {
                         o.SAMAccountName,
                         o.LogonName,
                         o.LogonNamePreWindows2000,
                         o.DistinguishedName,
                         o.Name
-                    }))
-                    .ToList();
+                }))
+                .ToList();
 
 
-                if (adobjs.IsEmpty())
+            if (adobjs.IsEmpty())
+            {
+                log.Info("Object " + objectName + " not found");
+            }
+            else
+            {
+                if (adobjs.Count > 1)
                 {
-                    log.Info("Object " + objectName + " not found");
+                    log.Info("Found " + adobjs.Count + " objects with name " + objectName);
+                    log.Info("");
                 }
-                else
+                foreach (var adobj in adobjs)
                 {
-                    if (adobjs.Count > 1)
+                    if (adobjs.Count > 1) log.Info(" ---  " + adobj.DistinguishedName + "  --- ");
+                    foreach (var kvp in adobj.GetPropertiesStrings().OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase))
                     {
-                        log.Info("Found " + adobjs.Count + " objects with name " + objectName);
-                        log.Info("");
+                        log.Info(kvp.Key + ": " + kvp.Value);
                     }
-                    foreach (var adobj in adobjs)
-                    {
-                        if (adobjs.Count > 1) log.Info(" ---  " + adobj.DistinguishedName + "  --- ");
-                        foreach (var kvp in adobj.GetPropertiesStrings().OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase))
-                        {
-                            log.Info(kvp.Key + ": " + kvp.Value);
-                        }
-                        log.Info("");
-                    }
-
+                    log.Info("");
                 }
 
             }
+
         }
     }
 }

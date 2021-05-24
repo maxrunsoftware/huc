@@ -45,8 +45,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
             username = GetArgParameterOrConfig("username", "u");
             password = GetArgParameterOrConfig("password", "p");
             domainName = GetArgParameterOrConfig("domainName", "d");
+
+            using (var ad = GetActiveDirectory())
+            {
+                ExecuteInternal(ad);
+            }
         }
 
+        protected abstract void ExecuteInternal(ActiveDirectory ad);
+        protected string HelpExamplePrefix => "-h = 192.168.1.5 -u=administrator -p=testpass";
         protected ActiveDirectory GetActiveDirectory()
         {
             if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());

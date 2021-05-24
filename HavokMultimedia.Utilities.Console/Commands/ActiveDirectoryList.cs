@@ -26,23 +26,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Lists all objects and their attributes in an ActiveDirectory to the specified tab delimited file");
             help.AddParameter("includeExpensiveProperties", "e", "Whether to include expensive properties or not (false)");
             help.AddValue("<output tab delimited file>");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass adlist.txt");
+            help.AddExample(HelpExamplePrefix + " adlist.txt");
         }
 
-        protected override void ExecuteInternal()
+        protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            base.ExecuteInternal();
             var includeExpensiveProperties = GetArgParameterOrConfigBool("includeExpensiveProperties", "e", false);
             var outputFile = GetArgValueTrimmed(0);
             log.Debug(nameof(outputFile) + ": " + outputFile);
             if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
 
-            using (var ad = GetActiveDirectory())
-            {
-                var ados = ad.GetAll();
-                var t = ActiveDirectoryObject.CreateTable(ados, includeExpensiveProperties);
-                WriteTableTab(outputFile, t);
-            }
+            var ados = ad.GetAll();
+            var t = ActiveDirectoryObject.CreateTable(ados, includeExpensiveProperties);
+            WriteTableTab(outputFile, t);
+
         }
     }
 }

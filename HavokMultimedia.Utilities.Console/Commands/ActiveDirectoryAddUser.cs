@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using HavokMultimedia.Utilities.Console.External;
+
 namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ActiveDirectoryAddUser : ActiveDirectoryBase
@@ -27,14 +29,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("displayname", "dn", "The displayname of the new user");
             help.AddParameter("emailaddress", "ea", "The email address of the new user");
             help.AddValue("<SAMAccountName>");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass -fn=First -fn=Last -dn=MyUser testuser");
+            help.AddExample(HelpExamplePrefix + " testuser");
+            help.AddExample(HelpExamplePrefix + " -fn=First -fn=Last -dn=MyUser testuser");
         }
 
-        protected override void ExecuteInternal()
+        protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            base.ExecuteInternal();
-
             var firstname = GetArgParameterOrConfig("firstname", "fn").TrimOrNull();
             var lastname = GetArgParameterOrConfig("lastname", "ln").TrimOrNull();
             var displayname = GetArgParameterOrConfig("displayname", "dn").TrimOrNull();
@@ -44,23 +44,22 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug(nameof(samAccountName) + ": " + samAccountName);
             if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
 
-            using (var ad = GetActiveDirectory())
-            {
-                log.Debug("Adding user: " + samAccountName);
-                ad.AddUser(
-                    samAccountName,
-                    displayName: displayname,
-                    firstName: firstname,
-                    lastName: lastname,
-                    emailAddress: emailaddress
-                    );
-                log.Info("Successfully added user " + samAccountName);
 
-                //log.Debug("Changing password for user " + samAccountName + "   " + ou);
-                //ado.Password = userpassword;
-                //log.Info("Successfully set password for user " + samAccountName + "   " + ou);
+            log.Debug("Adding user: " + samAccountName);
+            ad.AddUser(
+                samAccountName,
+                displayName: displayname,
+                firstName: firstname,
+                lastName: lastname,
+                emailAddress: emailaddress
+                );
+            log.Info("Successfully added user " + samAccountName);
 
-            }
+            //log.Debug("Changing password for user " + samAccountName + "   " + ou);
+            //ado.Password = userpassword;
+            //log.Info("Successfully set password for user " + samAccountName + "   " + ou);
+
+
 
 
         }

@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using HavokMultimedia.Utilities.Console.External;
+
 namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ActiveDirectoryRemoveUser : ActiveDirectoryBase
@@ -24,27 +26,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Removes a user from ActiveDirectory");
             //help.AddDetail("Requires LDAPS configured on the server");
             help.AddValue("<SAMAccountName>");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser");
+            help.AddExample(HelpExamplePrefix + " testuser");
         }
 
-        protected override void ExecuteInternal()
+        protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            base.ExecuteInternal();
             var values = GetArgValues().TrimOrNull().WhereNotNull();
 
             var samAccountName = values.GetAtIndexOrDefault(0).TrimOrNull();
             log.Debug(nameof(samAccountName) + ": " + samAccountName);
             if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
 
-            using (var ad = GetActiveDirectory())
-            {
-                log.Debug("Removing user " + samAccountName);
-                ad.RemoveUser(samAccountName);
-                log.Info("Successfully removed user " + samAccountName);
-
-            }
-
-
+            log.Debug("Removing user " + samAccountName);
+            ad.RemoveUser(samAccountName);
+            log.Info("Successfully removed user " + samAccountName);
         }
     }
 }

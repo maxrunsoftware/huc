@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using HavokMultimedia.Utilities.Console.External;
+
 namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ActiveDirectoryRemoveUserFromGroup : ActiveDirectoryBase
@@ -23,13 +25,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Removes a user from the specified group in ActiveDirectory");
             help.AddValue("<SAMAccountName> <group1> <group2> <etc>");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser MyGroup1 SomeOtherGroup");
+            help.AddExample(HelpExamplePrefix + " testuser MyGroup1 SomeOtherGroup");
         }
 
-        protected override void ExecuteInternal()
+        protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            base.ExecuteInternal();
-
             var values = GetArgValuesTrimmed1N();
             var samAccountName = values.firstValue;
             log.Debug(nameof(samAccountName) + ": " + samAccountName);
@@ -39,20 +39,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug(groups, nameof(groups));
             if (groups.IsEmpty()) throw new ArgsException(nameof(groups), $"No {nameof(groups)} specified");
 
-            using (var ad = GetActiveDirectory())
+            log.Debug("Removing user " + samAccountName + " from groups " + groups.ToStringDelimited(", "));
+            foreach (var group in groups)
             {
-                log.Debug("Removing user " + samAccountName + " from groups " + groups.ToStringDelimited(", "));
-
-                foreach (var group in groups)
-                {
-                    log.Debug("Removing user " + samAccountName + " from group " + group);
-                    ad.RemoveUserFromGroup(samAccountName, group);
-                }
-
-                log.Info("Successfully removed user " + samAccountName + " from groups " + groups.ToStringDelimited(", "));
+                log.Debug("Removing user " + samAccountName + " from group " + group);
+                ad.RemoveUserFromGroup(samAccountName, group);
             }
-
-
+            log.Info("Successfully removed user " + samAccountName + " from groups " + groups.ToStringDelimited(", "));
         }
     }
 }

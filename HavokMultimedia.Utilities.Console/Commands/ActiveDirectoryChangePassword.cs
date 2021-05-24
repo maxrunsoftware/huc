@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using HavokMultimedia.Utilities.Console.External;
+
 namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ActiveDirectoryChangePassword : ActiveDirectoryBase
@@ -22,15 +24,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Changes the password of a user in ActiveDirectory");
-            help.AddDetail("Requires LDAPS configured on the server");
+            help.AddDetail("Requires LDAPS configured on the server or running on the AD server itself");
             help.AddValue("<SAMAccountName> <new password>");
-            help.AddExample("-h=192.168.1.5 -u=administrator -p=testpass testuser newpassword");
+            help.AddExample(HelpExamplePrefix + " testuser newpassword");
         }
 
-        protected override void ExecuteInternal()
+        protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            base.ExecuteInternal();
-
             var samAccountName = GetArgValueTrimmed(0);
             log.Debug(nameof(samAccountName) + ": " + samAccountName);
             if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
@@ -39,14 +39,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug(nameof(newPassword) + ": " + newPassword);
             if (newPassword == null) throw new ArgsException(nameof(newPassword), $"No {nameof(newPassword)} specified");
 
-            using (var ad = GetActiveDirectory())
-            {
-                log.Debug($"Changing password for user {samAccountName} to {newPassword}");
-                ad.ChangePassword(samAccountName, newPassword);
-                log.Info($"Password changed successfully");
-            }
-
-
+            log.Debug($"Changing password for user {samAccountName} to {newPassword}");
+            ad.ChangePassword(samAccountName, newPassword);
+            log.Info($"Password changed successfully");
         }
     }
 }

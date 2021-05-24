@@ -24,7 +24,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected enum Format { Display, TAB }
         protected abstract string Summary { get; }
-        protected virtual string Example => "-h=192.168.1.5 -u=administrator -p=testpass";
+        protected virtual string Example => HelpExamplePrefix;
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
@@ -33,23 +33,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("format", "f", "Format of the data (" + nameof(Format.Display) + ")  " + DisplayEnumOptions<Format>());
         }
 
-
-
-        protected override void ExecuteInternal()
+        protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            base.ExecuteInternal();
             var format = GetArgParameterOrConfigEnum("format", "f", Format.Display);
-
-            using (var ad = GetActiveDirectory())
+            ParseParameters();
+            var objects = ad.GetAll().OrEmpty();
+            foreach (var obj in objects.OrderBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase))
             {
-                var objects = ad.GetAll().OrEmpty();
-                foreach (var obj in objects.OrderBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase))
-                {
-                    if (IsValidObject(obj)) log.Info(Display(obj, format));
-                }
+                if (IsValidObject(obj)) log.Info(Display(obj, format));
             }
-
         }
+
+        protected virtual void ParseParameters() { }
 
         protected virtual string Display(ActiveDirectoryObject obj, Format format)
         {

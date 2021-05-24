@@ -26,14 +26,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override string Example => base.Example + " M?Group*";
         protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser && obj.MemberOfNames.Any(o => o.EqualsWildcard(group, true));
         private string group;
-        protected override void ExecuteInternal()
+
+        protected override void ParseParameters()
         {
+            base.ParseParameters();
             group = GetArgValueTrimmed(0);
             log.Debug($"{nameof(group)}: {group}");
             if (group == null) throw new ArgsException(nameof(group), $"No {nameof(group)} specified");
-
-            base.ExecuteInternal();
         }
+
         protected override string Display(ActiveDirectoryObject obj, Format format)
         {
             var matchedGroups = new List<string>();
