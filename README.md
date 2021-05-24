@@ -278,6 +278,7 @@ List additional details for an Active Directory object
 ```sh
 huc ActiveDirectoryListObjectDetails -h=192.168.1.5 -u=administrator -p=testpass Administrator
 huc ActiveDirectoryListObjectDetails -h=192.168.1.5 -u=administrator -p=testpass Users
+huc ActiveDirectoryListObjectDetails -h=192.168.1.5 -u=administrator -p=testpass ?teve*
 ```
 
 Change a user's password (note: requires LDAPS certificate to be installed on AD server or running HUC on the AD server itself)
