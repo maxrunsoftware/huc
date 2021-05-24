@@ -295,6 +295,7 @@ huc ActiveDirectoryAddUser -h=192.168.1.5 -u=administrator -p=testpass -firstnam
 Add Group
 ```sh
 huc ActiveDirectoryAddGroup -h=192.168.1.5 -u=administrator -p=testpass testgroup
+huc ActiveDirectoryAddGroup -h=192.168.1.5 -u=administrator -p=testpass -gt=GlobalSecurityGroup testgroup
 ```
 
 Delete User
