@@ -315,6 +315,16 @@ Move Group
 ```sh
 huc ActiveDirectoryMoveGroup -h=192.168.1.5 -u=administrator -p=testpass testgroup MyNewOU
 ```
+
+Add user to group
+```sh
+huc ActiveDirectoryAddUserToGroup -h=192.168.1.5 -u=administrator -p=testpass testuser MyGroup1 SomeOtherGroup
+```
+
+Remove user from group
+```sh
+huc ActiveDirectoryRemoveUserFromGroup -h=192.168.1.5 -u=administrator -p=testpass testuser MyGroup1
+```
 &nbsp;
 ### Google Sheets
 For setting up the Google account see...\
