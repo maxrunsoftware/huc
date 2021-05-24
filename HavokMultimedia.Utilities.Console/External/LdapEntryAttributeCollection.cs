@@ -56,6 +56,7 @@ namespace HavokMultimedia.Utilities.Console.External
             Guid? ObjectGUID = null;
             var objectGuidBytes = GetByteArray("objectGUID");
             if (objectGuidBytes != null && objectGuidBytes.Length > 0) ObjectGUID = Ldap.Bytes2Guid(objectGuidBytes);
+            if (ObjectGUID != null) this.ObjectGUID = ObjectGUID.Value;
             DistinguishedName = GetString("distinguishedName");
 
             // Parsing ranged attributes
