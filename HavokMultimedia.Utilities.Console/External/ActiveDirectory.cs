@@ -113,6 +113,7 @@ namespace HavokMultimedia.Utilities.Console.External
             using (var up = new UserPrincipal(context))
             {
                 up.SamAccountName = samAccountName;
+                up.UserPrincipalName = samAccountName + "@" + DomainName;
                 up.DisplayName = displayName ?? samAccountName;
                 up.GivenName = firstName ?? samAccountName;
                 up.Surname = lastName ?? samAccountName;

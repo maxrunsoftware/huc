@@ -20,6 +20,7 @@ using System.DirectoryServices.Protocols;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Principal;
+using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
@@ -63,6 +64,34 @@ namespace HavokMultimedia.Utilities.Console.External
         /// The base distinguished name (DN) of Active Directory.
         /// </summary>
         public string DistinguishedName => Ldap?.DefaultNamingContext;
+
+        public string DomainName
+        {
+            get
+            {
+                var dn = DistinguishedName.TrimOrNull();
+                if (dn == null) return null;
+                var dnParts = dn.Split(",");
+                var sb = new StringBuilder();
+                foreach (var dnPart in dnParts.TrimOrNull().WhereNotNull())
+                {
+                    if (dnPart.Contains('='))
+                    {
+                        var segmentParts = dnPart.Split('=', 2);
+                        var namePart = segmentParts[1].TrimOrNull();
+                        if (namePart == null) continue;
+                        if (sb.Length > 0) sb.Append(".");
+                        sb.Append(namePart);
+                    }
+                    else
+                    {
+                        if (sb.Length > 0) sb.Append(".");
+                        sb.Append(dnPart);
+                    }
+                }
+                return sb.ToString();
+            }
+        }
 
         /// <summary>
         /// The domain name of the Active Directory.
