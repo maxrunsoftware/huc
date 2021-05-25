@@ -30,9 +30,14 @@ namespace HavokMultimedia.Utilities.Console
         string HelpSummary { get; }
         string HelpDetails { get; }
         bool IsHidden { get; }
+        bool SuppressBanner { get; }
     }
 
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
     public sealed class HideCommandAttribute : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public sealed class SuppressBannerAttribute : Attribute { }
 
     public abstract class Command : ICommand
     {
@@ -50,6 +55,8 @@ namespace HavokMultimedia.Utilities.Console
         protected readonly ILogger log;
 
         public bool IsHidden => GetType().GetCustomAttributes(true).Where(o => o is HideCommandAttribute).Any();
+        public bool SuppressBanner => GetType().GetCustomAttributes(true).Where(o => o is SuppressBannerAttribute).Any();
+
         public CommandHelpBuilder Help { get; }
         public string Name => Help.Name;
         public string HelpSummary => Name.PadRight(Program.CommandObjects.Select(o => o.Name).MaxLength() + 2) + Help.Summary;

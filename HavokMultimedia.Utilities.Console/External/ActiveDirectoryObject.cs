@@ -171,7 +171,22 @@ namespace HavokMultimedia.Utilities.Console.External
         public string OperatingSystemServicePack => Attributes.GetString("operatingSystemServicePack");
         public string OperatingSystemVersion => Attributes.GetString("operatingSystemVersion");
         public string OtherWellKnownObjects => Attributes.GetString("otherWellKnownObjects");
-        public string OU => Attributes.GetString("ou");
+        //public string OU => Attributes.GetString("ou");
+        public string OU
+        {
+            get
+            {
+                // https://stackoverflow.com/a/10136634
+                var p = DirectoryEntry.Parent;
+                if (p == null) return null;
+                var propCol = p.Properties["distinguishedName"];
+                if (propCol == null) return null;
+                var val = propCol.Value;
+                if (val == null) return null;
+
+                return val.ToString();
+            }
+        }
         public string PhysicalDeliveryOfficeName { get => Attributes.GetString("physicalDeliveryOfficeName"); set => AttributeSave("physicalDeliveryOfficeName", value.TrimOrNull()); }
         public long? PrimaryGroupID => Attributes.GetLong("primaryGroupID");
         public long? Priority => Attributes.GetLong("priority");
@@ -210,6 +225,61 @@ namespace HavokMultimedia.Utilities.Console.External
         #endregion Properties
 
         #region Properties Custom
+
+        public string ObjectName
+        {
+            get
+            {
+                if (SAMAccountName != null) return SAMAccountName;
+
+                if (LogonName != null)
+                {
+                    if (LogonName.Contains("@"))
+                    {
+                        var name = LogonName.Split("@").FirstOrDefault().TrimOrNull();
+                        if (name != null) return name;
+                    }
+                    else
+                    {
+                        return LogonName;
+                    }
+                }
+
+                if (LogonNamePreWindows2000 != null)
+                {
+                    if (LogonNamePreWindows2000.Contains("\\"))
+                    {
+                        var name = LogonNamePreWindows2000.Split("\\").LastOrDefault().TrimOrNull();
+                        if (name != null) return name;
+                    }
+                    else
+                    {
+                        return LogonNamePreWindows2000;
+                    }
+                }
+
+                if (Name != null) return Name;
+                if (DisplayName != null) return DisplayName;
+                if (DistinguishedName != null)
+                {
+                    var dnPart = DistinguishedName.Split(",").FirstOrDefault();
+                    if (dnPart != null)
+                    {
+                        if (dnPart.Contains("="))
+                        {
+                            var dnPartPart = dnPart.Split("=", 2).GetAtIndexOrDefault(1).TrimOrNull();
+                            if (dnPartPart != null) return dnPartPart;
+                            else return DistinguishedName; // just in case something goes wacky
+                        }
+                        else
+                        {
+                            return dnPart;
+                        }
+                    }
+                }
+                return DistinguishedName;
+            }
+        }
 
         public string FirstName { get => GivenName; set => GivenName = value; }
         public string LastName { get => Sn; set => Sn = value; }
@@ -402,8 +472,6 @@ namespace HavokMultimedia.Utilities.Console.External
         public string MemberNamesString => "[" + MemberNames.ToStringDelimited(", ") + "]";
 
         #endregion Properties Custom
-
-
 
         #region Constructor
 
@@ -674,15 +742,13 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             var d = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var prop in GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+            foreach (var prop in GetPropertyInfos(includeExpensiveObjects: true))
             {
-                if (!prop.CanRead) continue;
                 if (!includeExpensiveObjects && ExpensiveProperties.Contains(prop.Name))
                 {
                     d[prop.Name] = "[SKIPPED]";
                     continue;
                 }
-                if (string.Equals(prop.Name, nameof(Attributes), StringComparison.OrdinalIgnoreCase)) continue;
                 d[prop.Name] = Util.GetPropertyValue(this, prop.Name);
             }
 
@@ -691,7 +757,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public IDictionary<string, string> GetPropertiesStrings()
         {
-            var d = new Dictionary<string, string>();
+            var d = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var kvp in GetProperties())
             {
@@ -705,7 +771,9 @@ namespace HavokMultimedia.Utilities.Console.External
                 {
                     var list = enumerableObjects.ToList();
                     if (list.Count == 0) continue;
-                    val = "[" + list.Select(o => o.SAMAccountName).ToStringDelimited(", ") + "]";
+                    var multipleValues = list.Select(o => o.ObjectName).ToStringDelimited(",").TrimOrNull();
+                    if (multipleValues == null) continue;
+                    val = "[" + multipleValues + "]";
                 }
 
                 d[propKey] = val;
@@ -766,6 +834,21 @@ namespace HavokMultimedia.Utilities.Console.External
             log.Debug("Creating table with header " + header.ToStringDelimited(",") + " and " + data.Count + " rows");
             return Table.Create(data, header);
         }
+
+        private static PropertyInfo[] GetPropertyInfos(bool includeExpensiveObjects = false)
+        {
+            var list = new List<PropertyInfo>();
+            foreach (var prop in typeof(ActiveDirectoryObject).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+            {
+                if (!prop.CanRead) continue;
+                if (!includeExpensiveObjects && ExpensiveProperties.Contains(prop.Name)) continue;
+                if (string.Equals(prop.Name, nameof(Attributes), StringComparison.OrdinalIgnoreCase)) continue;
+                list.Add(prop);
+            }
+            return list.ToArray();
+        }
+
+        public static string[] GetPropertyNames(bool includeExpensiveObjects = false) => GetPropertyInfos(includeExpensiveObjects: includeExpensiveObjects).Select(o => o.Name).ToArray();
 
         #endregion Methods Static
 

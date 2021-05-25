@@ -1897,6 +1897,8 @@ namespace HavokMultimedia.Utilities
             return d;
         }
 
+        public static T[] Add<T>(this T[] array, params T[] itemsToAdd) => array.Concat(itemsToAdd).ToArray();
+
         #region In
 
         public static bool In<T>(this T value, T possibleValue1) => In(value, EqualityComparer<T>.Default, possibleValue1);

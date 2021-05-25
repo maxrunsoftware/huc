@@ -15,14 +15,16 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
+    [SuppressBanner]
     public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
     {
-        protected enum Format { Display, TAB }
         protected abstract string Summary { get; }
         protected virtual string Example => HelpExamplePrefix;
         protected override void CreateHelp(CommandHelpBuilder help)
@@ -30,30 +32,63 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary(Summary);
             help.AddExample(Example);
-            help.AddParameter("format", "f", "Format of the data (" + nameof(Format.Display) + ")  " + DisplayEnumOptions<Format>());
+            help.AddParameter("propertiesToInclude", "pi", "Comma seperated list of which LDAP properties to include (" + DefaultColumnsToInclude.ToStringDelimited(",") + ")");
+            help.AddDetail("Output is tab delimited");
+            help.AddDetail("LDAP Properties Available:");
+            var lines = ActiveDirectoryObject.GetPropertyNames(includeExpensiveObjects: false)
+                .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
+                .ToStringsColumns(4);
+            foreach (var line in lines) help.AddDetail("  " + line);
         }
 
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            var format = GetArgParameterOrConfigEnum("format", "f", Format.Display);
-            ParseParameters();
+            var propertiesToInclude = GetArgParameterOrConfig("propertiesToInclude", "pi", DefaultColumnsToInclude.ToStringDelimited(","))
+                .Split(",").TrimOrNull().WhereNotNull();
+            log.Debug(propertiesToInclude, nameof(propertiesToInclude));
+            var allPropertyNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in ActiveDirectoryObject.GetPropertyNames()) allPropertyNames[p] = p;
+
+            var properties = new List<string>();
+            foreach (var propertyToInclude in propertiesToInclude)
+            {
+                if (allPropertyNames.TryGetValue(propertyToInclude, out var p))
+                {
+                    properties.Add(p);
+                }
+                else
+                {
+                    throw new ArgsException(nameof(propertiesToInclude), $"Property [{propertyToInclude}] is not a valid LDAP property");
+                }
+            }
+
             var objects = ad.GetAll().OrEmpty();
+            log.Info(properties.ToStringDelimited("\t"));
             foreach (var obj in objects.OrderBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase))
             {
-                if (IsValidObject(obj)) log.Info(Display(obj, format));
+                if (IsValidObject(obj))
+                {
+                    var propValues = obj.GetPropertiesStrings();
+                    var sb = new StringBuilder();
+                    var first = true;
+                    foreach (var property in properties)
+                    {
+                        if (first) first = false;
+                        else sb.Append("\t");
+                        if (propValues.TryGetValue(property, out var val)) sb.Append(val ?? string.Empty);
+                    }
+
+                    log.Info(sb.ToString());
+                }
             }
         }
 
-        protected virtual void ParseParameters() { }
+        public virtual string[] DefaultColumnsToInclude => new string[] {
+        nameof(ActiveDirectoryObject.ObjectName),
+        nameof(ActiveDirectoryObject.DistinguishedName)
+        };
 
-        protected virtual string Display(ActiveDirectoryObject obj, Format format)
-        {
-            if (format == Format.Display) return ObjName(obj) + "  -->  " + obj.DistinguishedName;
-            if (format == Format.TAB) return ObjName(obj) + "\t" + obj.DistinguishedName;
-            throw new NotImplementedException($"format [{format}] is not implemented");
-        }
 
-        protected string ObjName(ActiveDirectoryObject obj) => obj.LogonNamePreWindows2000 ?? obj.LogonName ?? obj.Name;
 
         protected abstract bool IsValidObject(ActiveDirectoryObject obj);
     }
