@@ -21,17 +21,21 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ActiveDirectoryListUsersOfGroup : ActiveDirectoryListBase
     {
-        protected override string Summary => "Lists all user names that are members of the specified group in an ActiveDirectory";
-        protected override string Example => base.Example + " M?Group*";
-        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser && obj.MemberOfNames.Any(o => o.EqualsWildcard(group, true));
-        private string group;
-
+        protected override void CreateHelp(CommandHelpBuilder help)
+        {
+            help.AddSummary("Lists all user names that are members of the specified group in an ActiveDirectory");
+            help.AddValue("<group or group pattern>");
+            help.AddExample(HelpExamplePrefix + " M?Group*");
+            base.CreateHelp(help);
+        }
+        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser && obj.MemberOfNames.Any(o => o.EqualsWildcard(groupPattern, true));
+        private string groupPattern;
         public override string[] DefaultColumnsToInclude => base.DefaultColumnsToInclude.Add(nameof(ActiveDirectoryObject.MemberOfNamesString));
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            group = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(group)}: {group}");
-            if (group == null) throw new ArgsException(nameof(group), $"No {nameof(group)} specified");
+            groupPattern = GetArgValueTrimmed(0);
+            log.Debug($"{nameof(groupPattern)}: {groupPattern}");
+            if (groupPattern == null) throw new ArgsException(nameof(groupPattern), $"No {nameof(groupPattern)} specified");
 
             base.ExecuteInternal(ad);
         }

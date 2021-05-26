@@ -25,13 +25,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
     [SuppressBanner]
     public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
     {
-        protected abstract string Summary { get; }
-        protected virtual string Example => HelpExamplePrefix;
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
-            help.AddSummary(Summary);
-            help.AddExample(Example);
             help.AddParameter("propertiesToInclude", "pi", "Comma seperated list of which LDAP properties to include (" + DefaultColumnsToInclude.ToStringDelimited(",") + ")");
             help.AddDetail("Output is tab delimited");
             help.AddDetail("LDAP Properties Available:");

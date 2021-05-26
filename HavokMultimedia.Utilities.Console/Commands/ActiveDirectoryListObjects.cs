@@ -18,10 +18,30 @@ using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-
     public class ActiveDirectoryListObjects : ActiveDirectoryListBase
     {
-        protected override string Summary => "Lists all object names in an ActiveDirectory";
-        protected override bool IsValidObject(ActiveDirectoryObject obj) => true;
+        protected override void CreateHelp(CommandHelpBuilder help)
+        {
+            help.AddSummary("Lists all or pattern matched objects in an ActiveDirectory");
+            help.AddExample(HelpExamplePrefix);
+            help.AddExample(HelpExamplePrefix + " ?teve*");
+            help.AddValue("<Optional object name or pattern to match on>");
+            base.CreateHelp(help);
+        }
+
+        protected override bool IsValidObject(ActiveDirectoryObject obj)
+        {
+            if (objectPattern == null) return true;
+            return obj.ObjectName.EqualsWildcard(objectPattern, true);
+        }
+
+        private string objectPattern;
+
+        protected override void ExecuteInternal(ActiveDirectory ad)
+        {
+            objectPattern = GetArgValueTrimmed(0);
+            log.Debug($"{nameof(objectPattern)}: {objectPattern}");
+            base.ExecuteInternal(ad);
+        }
     }
 }

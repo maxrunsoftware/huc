@@ -20,7 +20,29 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ActiveDirectoryListGroups : ActiveDirectoryListBase
     {
-        protected override string Summary => "Lists all group names in an ActiveDirectory";
-        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsGroup;
+        protected override void CreateHelp(CommandHelpBuilder help)
+        {
+            help.AddSummary("Lists all or pattern matched groups in an ActiveDirectory");
+            help.AddExample(HelpExamplePrefix);
+            help.AddExample(HelpExamplePrefix + " ?yGroup*");
+            help.AddValue("<Optional group name or pattern to match on>");
+            base.CreateHelp(help);
+        }
+
+        protected override bool IsValidObject(ActiveDirectoryObject obj)
+        {
+            if (!obj.IsGroup) return false;
+            if (groupPattern == null) return true;
+            return obj.ObjectName.EqualsWildcard(groupPattern, true);
+        }
+
+        private string groupPattern;
+
+        protected override void ExecuteInternal(ActiveDirectory ad)
+        {
+            groupPattern = GetArgValueTrimmed(0);
+            log.Debug($"{nameof(groupPattern)}: {groupPattern}");
+            base.ExecuteInternal(ad);
+        }
     }
 }

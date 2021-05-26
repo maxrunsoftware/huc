@@ -20,7 +20,29 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ActiveDirectoryListComputers : ActiveDirectoryListBase
     {
-        protected override string Summary => "Lists all computer names in an ActiveDirectory";
-        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsComputer;
+        protected override void CreateHelp(CommandHelpBuilder help)
+        {
+            help.AddSummary("Lists all or pattern matched computers in an ActiveDirectory");
+            help.AddExample(HelpExamplePrefix);
+            help.AddExample(HelpExamplePrefix + " ?yComputer*");
+            help.AddValue("<Optional computer name or pattern to match on>");
+            base.CreateHelp(help);
+        }
+
+        protected override bool IsValidObject(ActiveDirectoryObject obj)
+        {
+            if (!obj.IsComputer) return false;
+            if (computerPattern == null) return true;
+            return obj.ObjectName.EqualsWildcard(computerPattern, true);
+        }
+
+        private string computerPattern;
+
+        protected override void ExecuteInternal(ActiveDirectory ad)
+        {
+            computerPattern = GetArgValueTrimmed(0);
+            log.Debug($"{nameof(computerPattern)}: {computerPattern}");
+            base.ExecuteInternal(ad);
+        }
     }
 }

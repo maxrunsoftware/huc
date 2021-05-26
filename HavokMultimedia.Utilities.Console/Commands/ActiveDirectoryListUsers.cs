@@ -20,7 +20,29 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ActiveDirectoryListUsers : ActiveDirectoryListBase
     {
-        protected override string Summary => "Lists all user names in an ActiveDirectory";
-        protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser;
+        protected override void CreateHelp(CommandHelpBuilder help)
+        {
+            help.AddSummary("Lists all or pattern matched users in an ActiveDirectory");
+            help.AddExample(HelpExamplePrefix);
+            help.AddExample(HelpExamplePrefix + " ?teve*");
+            help.AddValue("<Optional user name or pattern to match on>");
+            base.CreateHelp(help);
+        }
+
+        protected override bool IsValidObject(ActiveDirectoryObject obj)
+        {
+            if (!obj.IsUser) return false;
+            if (userPattern == null) return true;
+            return obj.ObjectName.EqualsWildcard(userPattern, true);
+        }
+
+        private string userPattern;
+
+        protected override void ExecuteInternal(ActiveDirectory ad)
+        {
+            userPattern = GetArgValueTrimmed(0);
+            log.Debug($"{nameof(userPattern)}: {userPattern}");
+            base.ExecuteInternal(ad);
+        }
     }
 }

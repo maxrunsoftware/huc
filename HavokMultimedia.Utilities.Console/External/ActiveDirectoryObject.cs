@@ -176,6 +176,8 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             get
             {
+                if (ObjectClass.Any(o => string.Equals(o, "top", StringComparison.OrdinalIgnoreCase))) return null;
+
                 // https://stackoverflow.com/a/10136634
                 var p = DirectoryEntry.Parent;
                 if (p == null) return null;
@@ -749,7 +751,15 @@ namespace HavokMultimedia.Utilities.Console.External
                     d[prop.Name] = "[SKIPPED]";
                     continue;
                 }
-                d[prop.Name] = Util.GetPropertyValue(this, prop.Name);
+                try
+                {
+                    d[prop.Name] = Util.GetPropertyValue(this, prop.Name);
+                }
+                catch (Exception e)
+                {
+                    log.Warn("Error getting property [" + prop.Name + "] for object " + DistinguishedName);
+                    log.Debug("Error getting property [" + prop.Name + "] for object " + DistinguishedName, e);
+                }
             }
 
             return d;
