@@ -46,18 +46,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
             foreach (var p in ActiveDirectoryObject.GetPropertyNames()) allPropertyNames[p] = p;
 
             var properties = new List<string>();
-            foreach (var propertyToInclude in propertiesToInclude)
+            foreach (var allPropertyName in allPropertyNames.Keys)
             {
-                if (allPropertyNames.TryGetValue(propertyToInclude, out var p))
+                foreach (var propertyToInclude in propertiesToInclude)
                 {
-                    properties.Add(p);
-                }
-                else
-                {
-                    throw new ArgsException(nameof(propertiesToInclude), $"Property [{propertyToInclude}] is not a valid LDAP property");
+                    if (allPropertyName.EqualsWildcard(propertyToInclude, true)) properties.Add(allPropertyName);
                 }
             }
-
+            properties = properties.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             var objects = ad.GetAll().OrEmpty();
             log.Info(properties.ToStringDelimited("\t"));
             foreach (var obj in objects.OrderBy(o => o.DistinguishedName, StringComparer.OrdinalIgnoreCase))
