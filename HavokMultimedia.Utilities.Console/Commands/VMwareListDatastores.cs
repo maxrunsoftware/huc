@@ -14,24 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.Dynamic;
+using HavokMultimedia.Utilities.Console.External;
 
-namespace HavokMultimedia.Utilities.Console
+namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public static class Extensions
+    [SuppressBanner]
+    public class VMwareListDatastores : VMwareBase
     {
-        public static void Debug<T>(this ILogger log, IEnumerable<T> enumerable, string name)
+        protected override void CreateHelp(CommandHelpBuilder help)
         {
-            if (enumerable == null) return;
-            var list = new List<T>(enumerable);
-            for (int i = 0; i < list.Count; i++)
-            {
-                log.Debug(name + "[" + i + "]: " + list[i]);
-            }
+            base.CreateHelp(help);
+            help.AddSummary("Lists the Datastores in a VMware VCenter");
         }
 
-
+        protected override void ExecuteInternal(VMware vmware)
+        {
+            foreach (var o in vmware.Datastores)
+            {
+                log.Info(o.ToString());
+            }
+        }
     }
 }

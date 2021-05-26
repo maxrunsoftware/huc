@@ -16,22 +16,14 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
+using System.Linq;
+using HavokMultimedia.Utilities;
+using HavokMultimedia.Utilities.Console.External;
 
-namespace HavokMultimedia.Utilities.Console
+namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public static class Extensions
+    public abstract class VMwareListBase : VMwareBase
     {
-        public static void Debug<T>(this ILogger log, IEnumerable<T> enumerable, string name)
-        {
-            if (enumerable == null) return;
-            var list = new List<T>(enumerable);
-            for (int i = 0; i < list.Count; i++)
-            {
-                log.Debug(name + "[" + i + "]: " + list[i]);
-            }
-        }
-
 
     }
 }
