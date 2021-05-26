@@ -269,9 +269,18 @@ huc ActiveDirectoryList -h=192.168.1.5 -u=administrator -p=testpass adlist.txt
 
 List various object types
 ```sh
+huc ActiveDirectoryListObjects -h=192.168.1.5 -u=administrator -p=testpass ?teve*
 huc ActiveDirectoryListUsers -h=192.168.1.5 -u=administrator -p=testpass
-huc ActiveDirectoryListGroups -h=192.168.1.5 -u=administrator -p=testpass
+huc ActiveDirectoryListGroups -h=192.168.1.5 -u=administrator -p=testpass Group*
 huc ActiveDirectoryListComputers -h=192.168.1.5 -u=administrator -p=testpass
+```
+
+List various object types and display specific LDAP fields
+```sh
+huc ActiveDirectoryListObjects -h=192.168.1.5 -u=administrator -p=testpass -pi=*Name
+huc ActiveDirectoryListUsers -h=192.168.1.5 -u=administrator -p=testpass -pi=DistinguishedName,OganizationalUnit,ObjectName,ObjectGuid ?teve*
+huc ActiveDirectoryListGroups -h=192.168.1.5 -u=administrator -p=testpass -pi=*Name,Object*
+huc ActiveDirectoryListComputers -h=192.168.1.5 -u=administrator -p=testpass -pi=* MyComputer?
 ```
 
 List additional details for an Active Directory object
