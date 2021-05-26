@@ -67,12 +67,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var users = ad.GetUsers();
             var ado = users
                 .Where(o => samAccountName.EqualsCaseInsensitive(o.SAMAccountName))
-                .Where(o => ActiveDirectory.MatchesDN(o.OU, ou))
+                .Where(o => ActiveDirectory.MatchesDN(o.OrganizationalUnit, ou))
                 .FirstOrDefault();
 
             if (ado == null) ado = users
                 .Where(o => samAccountName.EqualsCaseInsensitive(o.UID))
-                .Where(o => ActiveDirectory.MatchesDN(o.OU, ou))
+                .Where(o => ActiveDirectory.MatchesDN(o.OrganizationalUnit, ou))
                 .FirstOrDefault();
 
             if (ado == null) ado = users

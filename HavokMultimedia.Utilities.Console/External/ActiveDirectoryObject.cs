@@ -171,24 +171,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public string OperatingSystemServicePack => Attributes.GetString("operatingSystemServicePack");
         public string OperatingSystemVersion => Attributes.GetString("operatingSystemVersion");
         public string OtherWellKnownObjects => Attributes.GetString("otherWellKnownObjects");
-        //public string OU => Attributes.GetString("ou");
-        public string OU
-        {
-            get
-            {
-                if (ObjectClass.Any(o => string.Equals(o, "top", StringComparison.OrdinalIgnoreCase))) return null;
 
-                // https://stackoverflow.com/a/10136634
-                var p = DirectoryEntry.Parent;
-                if (p == null) return null;
-                var propCol = p.Properties["distinguishedName"];
-                if (propCol == null) return null;
-                var val = propCol.Value;
-                if (val == null) return null;
-
-                return val.ToString();
-            }
-        }
         public string PhysicalDeliveryOfficeName { get => Attributes.GetString("physicalDeliveryOfficeName"); set => AttributeSave("physicalDeliveryOfficeName", value.TrimOrNull()); }
         public long? PrimaryGroupID => Attributes.GetLong("primaryGroupID");
         public long? Priority => Attributes.GetLong("priority");
