@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System;
-using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
