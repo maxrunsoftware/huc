@@ -405,7 +405,7 @@ huc FileDecrypt -pk=MyPrivateKey.txt data.encrypted dataDecrypted.txt
 ```
 &nbsp;
 ### VMware
-Query various information in a VCenter 6.5+ infrastructure
+Query various information in a VCenter 6.7+ infrastructure
 ```sh
 huc VMwareListDatacenters    -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
 huc VMwareListDatastores     -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
@@ -416,7 +416,7 @@ huc VMwareListResourcePools  -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass
 huc VMwareListVMs            -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
 ```
 
-Query raw REST data from VCenter 6.5+ infrastructure
+Query raw REST data from VCenter 6.7+ infrastructure
 ```sh
 huc VMwareQuery -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass  /rest/vcenter/host
 huc VMwareQuery -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass  /rest/vcenter/vm
