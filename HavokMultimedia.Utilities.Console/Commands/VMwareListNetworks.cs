@@ -20,23 +20,9 @@ using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public abstract class VMwareListBase<T> : VMwareBase where T : VMwareObject
+    public class VMwareListNetworks : VMwareListBase<VMwareNetwork>
     {
-        protected override void CreateHelp(CommandHelpBuilder help)
-        {
-            base.CreateHelp(help);
-            help.AddSummary("Lists the " + typeof(T).NameFormatted().Substring(6) + "s in a VMware VCenter");
-        }
-
-        protected abstract Func<VMware, IEnumerable<T>> GetObjectsFunc { get; }
-        protected override void ExecuteInternal(VMware vmware)
-        {
-            foreach (var o in GetObjectsFunc(vmware))
-            {
-                log.Info(o.ToString());
-                log.Info("");
-            }
-        }
+        protected override Func<VMware, IEnumerable<VMwareNetwork>> GetObjectsFunc => VMwareNetwork.Query;
     }
 
 }

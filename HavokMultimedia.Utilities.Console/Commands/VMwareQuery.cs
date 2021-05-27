@@ -40,7 +40,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (path == null) throw new ArgsException(nameof(path), $"No <{nameof(path)}> specified");
 
             var obj = vmware.Query(path);
-            var json = VMware.ToJson(obj);
+            var json = VMware.FormatJson(obj);
             log.Info(json);
         }
     }

@@ -22,12 +22,26 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
     public abstract class VMwareObject
     {
-        public static bool HasValue(dynamic obj, string propertyName) => Util.DynamicHasProperty(obj, propertyName);
+        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        public JObject QueryValueObjectSafe(VMware vmware, string path)
+        {
+            try
+            {
+                return vmware.QueryValueObject(path);
+            }
+            catch (Exception e)
+            {
+                log.Warn("Error querying " + path, e);
+            }
+            return null;
+        }
 
         protected PropertyInfo[] GetProperties()
         {
@@ -47,34 +61,30 @@ namespace HavokMultimedia.Utilities.Console.External
             foreach (var property in GetProperties())
             {
                 var val = Util.GetPropertyValue(this, property.Name);
-                if (val is IEnumerable)
+                if (val == null)
                 {
-                    var list = new List<VMwareObject>();
-                    foreach (var item in (IEnumerable)val)
-                    {
-                        var vitem = (VMwareObject)item;
-                        list.Add(vitem);
-                    }
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        var item = list[i];
-                        sb.AppendLine("  " + item.GetType().NameFormatted() + "[" + i + "]");
-                        foreach (var prop in item.GetProperties())
-                        {
-                            sb.AppendLine("    " + prop.Name + ": " + Util.GetPropertyValue(item, prop.Name).ToStringGuessFormat());
-                        }
-                    }
+                    sb.AppendLine("  " + property.Name + ": ");
+                }
+                else if (val is string)
+                {
+                    sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
                 }
                 else
                 {
-                    sb.Append("  " + property.Name);
-                    sb.Append(": ");
-                    sb.Append(val.ToStringGuessFormat());
-                    sb.AppendLine();
+                    int count = 0;
+                    foreach (var item in (IEnumerable)val)
+                    {
+                        var vitem = item as VMwareObject;
+                        sb.AppendLine("  " + vitem.GetType().NameFormatted() + "[" + count + "]");
+                        foreach (var prop in vitem.GetProperties())
+                        {
+                            sb.AppendLine("    " + prop.Name + ": " + Util.GetPropertyValue(vitem, prop.Name).ToStringGuessFormat());
+                        }
+                        count++;
+                    }
                 }
-
             }
-            sb.Append("]");
+
             return sb.ToString();
         }
     }
@@ -99,42 +109,25 @@ namespace HavokMultimedia.Utilities.Console.External
             public string ScsiBus { get; }
             public string ScsiUnit { get; }
 
-            public CDROM(dynamic obj)
+            public CDROM(JObject obj)
             {
-                if (HasValue(obj, "key")) Key = obj.key;
-                obj = obj.value;
-                if (HasValue(obj, "start_connected")) StartConnected = obj.start_connected;
-                if (HasValue(obj, "allow_guest_control")) AllowGuestControl = obj.allow_guest_control;
-                if (HasValue(obj, "label")) Label = obj.label;
-                if (HasValue(obj, "state")) State = obj.state;
-                if (HasValue(obj, "type")) Type = obj.type;
+                Key = obj["key"]?.ToString();
+                Label = obj["value"]?["label"]?.ToString();
+                Type = obj["value"]?["type"]?.ToString();
+                StartConnected = obj["value"]?["start_connected"]?.ToString();
+                AllowGuestControl = obj["value"]?["allow_guest_control"]?.ToString();
+                State = obj["value"]?["state"]?.ToString();
 
-                if (HasValue(obj, "backing"))
-                {
-                    var obj2 = obj.backing;
-                    if (HasValue(obj2, "iso_file")) BackingIsoFile = obj2.iso_file;
-                    if (HasValue(obj2, "type")) BackingType = obj2.type;
-                    if (HasValue(obj2, "device_access_type")) BackingDeviceAccessType = obj2.device_access_type;
-                }
+                BackingIsoFile = obj["value"]?["backing"]?["iso_file"]?.ToString();
+                BackingType = obj["value"]?["backing"]?["type"]?.ToString();
+                BackingDeviceAccessType = obj["value"]?["backing"]?["device_access_type"]?.ToString();
 
-                if (HasValue(obj, "ide"))
-                {
-                    var obj2 = obj.ide;
-                    if (HasValue(obj2, "primary")) IdePrimary = obj2.primary;
-                    if (HasValue(obj2, "master")) IdeMaster = obj2.master;
-                }
-                if (HasValue(obj, "sata"))
-                {
-                    var obj2 = obj.sata;
-                    if (HasValue(obj2, "bus")) SataBus = obj2.bus;
-                    if (HasValue(obj2, "unit")) SataUnit = obj2.unit;
-                }
-                if (HasValue(obj, "scsi"))
-                {
-                    var obj2 = obj.scsi;
-                    if (HasValue(obj2, "bus")) ScsiBus = obj2.bus;
-                    if (HasValue(obj2, "unit")) ScsiUnit = obj2.unit;
-                }
+                IdePrimary = obj["value"]?["ide"]?["primary"]?.ToString();
+                IdeMaster = obj["value"]?["ide"]?["master"]?.ToString();
+                ScsiBus = obj["value"]?["scsi"]?["bus"]?.ToString();
+                ScsiUnit = obj["value"]?["scsi"]?["unit"]?.ToString();
+                SataBus = obj["value"]?["sata"]?["bus"]?.ToString();
+                SataUnit = obj["value"]?["sata"]?["unit"]?.ToString();
             }
         }
 
@@ -153,39 +146,21 @@ namespace HavokMultimedia.Utilities.Console.External
             public string BackingVmdkFile { get; }
             public string BackingType { get; }
 
-            public Disk(dynamic obj)
+            public Disk(JObject obj)
             {
-                if (HasValue(obj, "key")) Key = obj.key;
-                obj = obj.value;
-                if (HasValue(obj, "label")) Label = obj.label;
-                if (HasValue(obj, "type")) Type = obj.type;
-                if (HasValue(obj, "capacity")) Capacity = obj.capacity;
+                Key = obj["key"]?.ToString();
+                Label = obj["value"]?["label"]?.ToString();
+                Type = obj["value"]?["type"]?.ToString();
+                Capacity = obj["value"]?["capacity"]?.ToString();
 
-                if (HasValue(obj, "ide"))
-                {
-                    var obj2 = obj.ide;
-                    if (HasValue(obj2, "primary")) IdePrimary = obj2.primary;
-                    if (HasValue(obj2, "master")) IdeMaster = obj2.master;
-                }
-                if (HasValue(obj, "sata"))
-                {
-                    var obj2 = obj.sata;
-                    if (HasValue(obj2, "bus")) SataBus = obj2.bus;
-                    if (HasValue(obj2, "unit")) SataUnit = obj2.unit;
-                }
-                if (HasValue(obj, "scsi"))
-                {
-                    var obj2 = obj.scsi;
-                    if (HasValue(obj2, "bus")) ScsiBus = obj2.bus;
-                    if (HasValue(obj2, "unit")) ScsiUnit = obj2.unit;
-                }
-
-                if (HasValue(obj, "backing"))
-                {
-                    var obj2 = obj.sata;
-                    if (HasValue(obj2, "vmdk_file")) BackingVmdkFile = obj2.vmdk_file;
-                    if (HasValue(obj2, "type")) BackingType = obj2.type;
-                }
+                IdePrimary = obj["value"]?["ide"]?["primary"]?.ToString();
+                IdeMaster = obj["value"]?["ide"]?["master"]?.ToString();
+                ScsiBus = obj["value"]?["scsi"]?["bus"]?.ToString();
+                ScsiUnit = obj["value"]?["scsi"]?["unit"]?.ToString();
+                SataBus = obj["value"]?["sata"]?["bus"]?.ToString();
+                SataUnit = obj["value"]?["sata"]?["unit"]?.ToString();
+                BackingVmdkFile = obj["value"]?["backing"]?["vmdk_file"]?.ToString();
+                BackingType = obj["value"]?["backing"]?["type"]?.ToString();
             }
         }
 
@@ -199,21 +174,16 @@ namespace HavokMultimedia.Utilities.Console.External
             public string Type { get; }
             public string Sharing { get; }
 
-            public ScsiAdapter(dynamic obj)
+            public ScsiAdapter(JObject obj)
             {
-                if (HasValue(obj, "key")) Key = obj.key;
-                obj = obj.value;
-                if (HasValue(obj, "pci_slot_number")) PciSlotNumber = obj.pci_slot_number;
-                if (HasValue(obj, "label")) Label = obj.label;
-                if (HasValue(obj, "type")) Type = obj.type;
-                if (HasValue(obj, "sharing")) Sharing = obj.sharing;
+                Key = obj["key"]?.ToString();
+                PciSlotNumber = obj["value"]?["pci_slot_number"]?.ToString();
+                PciSlotNumber = obj["value"]?["label"]?.ToString();
+                PciSlotNumber = obj["value"]?["type"]?.ToString();
+                PciSlotNumber = obj["value"]?["sharing"]?.ToString();
 
-                if (HasValue(obj, "scsi"))
-                {
-                    var obj2 = obj.scsi;
-                    if (HasValue(obj2, "bus")) ScsiBus = obj2.bus;
-                    if (HasValue(obj2, "unit")) ScsiUnit = obj2.unit;
-                }
+                ScsiBus = obj["value"]?["scsi"]?["bus"]?.ToString();
+                ScsiUnit = obj["value"]?["scsi"]?["unit"]?.ToString();
             }
         }
 
@@ -227,12 +197,11 @@ namespace HavokMultimedia.Utilities.Console.External
 
             public SataAdapter(dynamic obj)
             {
-                if (HasValue(obj, "key")) Key = obj.key;
-                obj = obj.value;
-                if (HasValue(obj, "bus")) Bus = obj.bus;
-                if (HasValue(obj, "pci_slot_number")) PciSlotNumber = obj.pci_slot_number;
-                if (HasValue(obj, "label")) Label = obj.label;
-                if (HasValue(obj, "type")) Type = obj.type;
+                Key = obj["key"]?.ToString();
+                Bus = obj["value"]?["bus"]?.ToString();
+                PciSlotNumber = obj["value"]?["pci_slot_number"]?.ToString();
+                Label = obj["value"]?["label"]?.ToString();
+                Type = obj["value"]?["type"]?.ToString();
             }
         }
 
@@ -245,20 +214,14 @@ namespace HavokMultimedia.Utilities.Console.External
             public string Label { get; }
             public string State { get; }
 
-            public Floppy(dynamic obj)
+            public Floppy(JObject obj)
             {
-                if (HasValue(obj, "key")) Key = obj.key;
-                obj = obj.value;
-                if (HasValue(obj, "start_connected")) Key = obj.key; StartConnected = obj.start_connected;
-                if (HasValue(obj, "label")) Key = obj.key; Label = obj.label;
-                if (HasValue(obj, "allow_guest_control")) Key = obj.key; AllowGuestControl = obj.allow_guest_control;
-                if (HasValue(obj, "state")) Key = obj.key; State = obj.state;
-
-                if (HasValue(obj, "backing"))
-                {
-                    var obj2 = obj.scsi;
-                    if (HasValue(obj2, "type")) BackingType = obj2.type;
-                }
+                Key = obj["key"]?.ToString();
+                StartConnected = obj["value"]?["start_connected"]?.ToString();
+                Label = obj["value"]?["label"]?.ToString();
+                AllowGuestControl = obj["value"]?["allow_guest_control"]?.ToString();
+                State = obj["value"]?["state"]?.ToString();
+                BackingType = obj["value"]?["backing"]?["type"]?.ToString();
             }
         }
 
@@ -280,29 +243,24 @@ namespace HavokMultimedia.Utilities.Console.External
             public string BackingType { get; }
             public string BackingNetwork { get; }
 
-            public Nic(dynamic obj)
+            public Nic(JObject obj)
             {
-                if (HasValue(obj, "key")) Key = obj.key;
-                obj = obj.value;
-                if (HasValue(obj, "start_connected")) StartConnected = obj.start_connected;
-                if (HasValue(obj, "pci_slot_number")) PciSlotNumber = obj.pci_slot_number;
-                if (HasValue(obj, "mac_address")) MacAddress = obj.mac_address;
-                if (HasValue(obj, "mac_type")) MacType = obj.mac_type;
-                if (HasValue(obj, "allow_guest_control")) AllowGuestControl = obj.allow_guest_control;
-                if (HasValue(obj, "wake_on_lan_enabled")) WakeOnLanEnabled = obj.wake_on_lan_enabled;
-                if (HasValue(obj, "label")) Label = obj.label;
-                if (HasValue(obj, "state")) State = obj.state;
-                if (HasValue(obj, "type")) Type = obj.type;
+                Key = obj["key"]?.ToString();
+                StartConnected = obj["value"]?["start_connected"]?.ToString();
+                PciSlotNumber = obj["value"]?["pci_slot_number"]?.ToString();
+                MacAddress = obj["value"]?["mac_address"]?.ToString();
+                MacType = obj["value"]?["mac_type"]?.ToString();
+                AllowGuestControl = obj["value"]?["allow_guest_control"]?.ToString();
+                WakeOnLanEnabled = obj["value"]?["wake_on_lan_enabled"]?.ToString();
+                Label = obj["value"]?["label"]?.ToString();
+                State = obj["value"]?["state"]?.ToString();
+                Type = obj["value"]?["type"]?.ToString();
 
-                if (HasValue(obj, "backing"))
-                {
-                    var obj2 = obj.scsi;
-                    if (HasValue(obj2, "connection_cookie")) BackingConnectionCookie = obj2.connection_cookie;
-                    if (HasValue(obj2, "distributed_switch_uuid")) BackingDistributedSwitchUUID = obj2.distributed_switch_uuid;
-                    if (HasValue(obj2, "distributed_port")) BackingDistributedPort = obj2.distributed_port;
-                    if (HasValue(obj2, "type")) BackingType = obj2.type;
-                    if (HasValue(obj2, "network")) BackingNetwork = obj2.network;
-                }
+                BackingConnectionCookie = obj["value"]?["backing"]?["connection_cookie"]?.ToString();
+                BackingDistributedSwitchUUID = obj["value"]?["backing"]?["distributed_switch_uuid"]?.ToString();
+                BackingDistributedPort = obj["value"]?["backing"]?["distributed_port"]?.ToString();
+                BackingType = obj["value"]?["backing"]?["type"]?.ToString();
+                BackingNetwork = obj["value"]?["backing"]?["network"]?.ToString();
             }
         }
 
@@ -337,115 +295,54 @@ namespace HavokMultimedia.Utilities.Console.External
         public IReadOnlyList<ScsiAdapter> ScsiAdapters { get; }
         public IReadOnlyList<Nic> Nics { get; }
 
-        public VMwareVM(VMware vmware, dynamic obj)
+        public VMwareVM(VMware vmware, JObject obj)
         {
-            if (HasValue(obj, "vm")) VM = obj.vm;
-            if (HasValue(obj, "name")) Name = obj.name;
-            if (HasValue(obj, "memory_size_MiB")) MemorySizeMB = obj.memory_size_MiB;
-            if (HasValue(obj, "cpu_count")) CpuCount = obj.cpu_count;
-            if (HasValue(obj, "power_state")) PowerState = obj.power_state;
+            VM = obj["vm"]?.ToString();
+            Name = obj["name"]?.ToString();
+            MemorySizeMB = obj["memory_size_MiB"]?.ToString();
+            CpuCount = obj["cpu_count"]?.ToString();
+            PowerState = obj["power_state"]?.ToString();
+            obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM);
+            if (obj == null) return;
+            GuestOS = obj["guest_OS"]?.ToString();
 
-            obj = vmware.Query("/rest/vcenter/vm/" + VM).value;
-            if (HasValue(obj, "memory"))
-            {
-                var obj2 = obj.memory;
-                if (HasValue(obj2, "hot_add_enabled")) MemoryHotAddEnabled = obj2.hot_add_enabled;
-            }
+            MemoryHotAddEnabled = obj["memory"]?["hot_add_enabled"]?.ToString();
+            CpuHotRemoveEnabled = obj["cpu"]?["hot_remove_enabled"]?.ToString();
+            CpuHotAddEnabled = obj["cpu"]?["hot_add_enabled"]?.ToString();
+            CpuCoresPerSocket = obj["cpu"]?["cores_per_socket"]?.ToString();
 
-            var cdroms = new List<CDROM>();
-            if (HasValue(obj, "cdroms"))
-            {
-                foreach (var o in obj.cdroms)
-                {
-                    cdroms.Add(new CDROM(o));
-                }
-            }
-            CDRoms = cdroms;
+            CDRoms = obj["cdroms"].OrEmpty().Select(o => new CDROM((JObject)o)).ToList();
+            Disks = obj["disks"].OrEmpty().Select(o => new Disk((JObject)o)).ToList();
+            ScsiAdapters = obj["scsi_adapters"].OrEmpty().Select(o => new ScsiAdapter((JObject)o)).ToList();
+            Nics = obj["nics"].OrEmpty().Select(o => new Nic((JObject)o)).ToList();
 
-            var disks = new List<Disk>();
-            if (HasValue(obj, "disks"))
-            {
-                foreach (var o in obj.disks)
-                {
-                    disks.Add(new Disk(o));
-                }
-            }
-            Disks = disks;
+            BootDelay = obj["boot"]?["delay"]?.ToString();
+            BootRetryDelay = obj["boot"]?["retry_delay"]?.ToString();
+            BootEnterSetupMode = obj["boot"]?["enter_setup_mode"]?.ToString();
+            BootType = obj["boot"]?["type"]?.ToString();
+            BootRetry = obj["boot"]?["retry"]?.ToString();
+            BootEfiLegacyBoot = obj["boot"]?["efi_legacy_boot"]?.ToString();
+            BootNetworkProtocol = obj["boot"]?["network_protocol"]?.ToString();
 
-            if (HasValue(obj, "cpu"))
-            {
-                var obj2 = obj.cpu;
-                if (HasValue(obj2, "hot_remove_enabled")) CpuHotRemoveEnabled = obj2.hot_remove_enabled;
-                if (HasValue(obj2, "hot_add_enabled")) CpuHotAddEnabled = obj2.hot_add_enabled;
-                if (HasValue(obj2, "cores_per_socket")) CpuCoresPerSocket = obj2.cores_per_socket;
-            }
+            HardwareUpgradePolicy = obj["hardware"]?["upgrade_policy"]?.ToString();
+            HardwareUpgradeStatus = obj["hardware"]?["upgrade_status"]?.ToString();
+            HardwareVersion = obj["hardware"]?["version"]?.ToString();
 
-            var scsiAdapters = new List<ScsiAdapter>();
-            if (HasValue(obj, "scsi_adapters"))
-            {
-                foreach (var o in obj.cdroms)
-                {
-                    scsiAdapters.Add(new ScsiAdapter(o));
-                }
-            }
-            ScsiAdapters = scsiAdapters;
-
-            var nics = new List<Nic>();
-            if (HasValue(obj, "nics"))
-            {
-                foreach (var o in obj.nics)
-                {
-                    nics.Add(new Nic(o));
-                }
-            }
-            Nics = nics;
-
-            if (HasValue(obj, "boot"))
-            {
-                var obj2 = obj.boot;
-                if (HasValue(obj2, "delay")) BootDelay = obj2.delay;
-                if (HasValue(obj2, "retry_delay")) BootRetryDelay = obj2.retry_delay;
-                if (HasValue(obj2, "enter_setup_mode")) BootEnterSetupMode = obj2.enter_setup_mode;
-                if (HasValue(obj2, "type")) BootType = obj2.type;
-                if (HasValue(obj2, "retry")) BootRetry = obj2.retry;
-                if (HasValue(obj2, "efi_legacy_boot")) BootEfiLegacyBoot = obj2.efi_legacy_boot;
-                if (HasValue(obj2, "network_protocol")) BootNetworkProtocol = obj2.network_protocol;
-            }
-
-            if (HasValue(obj, "guest_OS")) GuestOS = obj.guest_OS;
-
-            if (HasValue(obj, "hardware"))
-            {
-                var obj2 = obj.hardware;
-                if (HasValue(obj2, "upgrade_policy")) HardwareUpgradePolicy = obj2.upgrade_policy;
-                if (HasValue(obj2, "upgrade_status")) HardwareUpgradeStatus = obj2.upgrade_status;
-                if (HasValue(obj2, "version")) HardwareVersion = obj2.version;
-            }
-
-            obj = vmware.QuerySafe("/rest/vcenter/vm/" + VM + "/guest/identity");
+            obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM + "/guest/identity");
             if (obj != null)
             {
-                if (HasValue(obj, "value"))
-                {
-                    obj = obj.value;
-                    if (HasValue(obj, "full_name"))
-                    {
-                        var obj2 = obj.full_name;
-                        if (HasValue(obj2, "default_message")) IdentityFullNameDefaultMessage = obj2.default_message;
-                        if (HasValue(obj2, "id")) IdentityFullNameId = obj2.id;
-                    }
-                    if (HasValue(obj, "name")) IdentityName = obj.name;
-                    // Only 1 IP supported: https://github.com/vmware-archive/vsphere-automation-sdk-rest/issues/21
-                    if (HasValue(obj, "ip_address")) IdentityIpAddress = obj.ip_address;
-                    if (HasValue(obj, "family")) IdentityFamily = obj.family;
-                    if (HasValue(obj, "host_name")) IdentityHostName = obj.host_name;
-                }
+                IdentityFullNameDefaultMessage = obj["full_name"]?["default_message"]?.ToString();
+                IdentityFullNameId = obj["full_name"]?["id"]?.ToString();
+                IdentityName = obj["name"]?.ToString();
+                IdentityIpAddress = obj["ip_address"]?.ToString(); // Only 1 IP supported: https://github.com/vmware-archive/vsphere-automation-sdk-rest/issues/21
+                IdentityFamily = obj["family"]?.ToString();
+                IdentityHostName = obj["host_name"]?.ToString();
             }
         }
 
         public static IEnumerable<VMwareVM> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryEnumerable("/rest/vcenter/vm"))
+            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/vm"))
             {
                 yield return new VMwareVM(vmware, obj);
             }
@@ -461,28 +358,24 @@ namespace HavokMultimedia.Utilities.Console.External
         public string NetworkFolder { get; }
         public string VMFolder { get; }
 
-        public VMwareDatacenter(VMware vmware, dynamic obj)
+        public VMwareDatacenter(VMware vmware, JObject obj)
         {
-            if (HasValue(obj, "name")) Name = obj.name;
-            if (HasValue(obj, "datacenter")) Datacenter = obj.datacenter;
+            Name = obj["name"]?.ToString();
+            Datacenter = obj["datacenter"]?.ToString();
 
-            obj = vmware.QuerySafe("/rest/vcenter/datacenter/" + Datacenter);
+            obj = QueryValueObjectSafe(vmware, "/rest/vcenter/datacenter/" + Datacenter);
             if (obj != null)
             {
-                if (HasValue(obj, "value"))
-                {
-                    obj = obj.value;
-                    if (HasValue(obj, "datastore_folder")) DatastoreFolder = obj.datastore_folder;
-                    if (HasValue(obj, "host_folder")) HostFolder = obj.host_folder;
-                    if (HasValue(obj, "network_folder")) NetworkFolder = obj.network_folder;
-                    if (HasValue(obj, "vm_folder")) VMFolder = obj.vm_folder;
-                }
+                DatastoreFolder = obj["datastore_folder"]?.ToString();
+                HostFolder = obj["host_folder"]?.ToString();
+                NetworkFolder = obj["network_folder"]?.ToString();
+                VMFolder = obj["vm_folder"]?.ToString();
             }
         }
 
         public static IEnumerable<VMwareDatacenter> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryEnumerable("/rest/vcenter/datacenter"))
+            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/datacenter"))
             {
                 yield return new VMwareDatacenter(vmware, obj);
             }
@@ -500,23 +393,26 @@ namespace HavokMultimedia.Utilities.Console.External
         public string MultipleHostAccess { get; }
         public string ThinProvisioningSupported { get; }
 
-        public VMwareDatastore(VMware vmware, dynamic obj)
+        public VMwareDatastore(VMware vmware, JObject obj)
         {
-            if (HasValue(obj, "name")) Name = obj.name;
-            if (HasValue(obj, "datastore")) Datastore = obj.datastore;
-            if (HasValue(obj, "type")) Type = obj.type;
-            if (HasValue(obj, "free_space")) FreeSpace = obj.free_space;
-            if (HasValue(obj, "capacity")) Capacity = obj.capacity;
+            Name = obj["name"]?.ToString();
+            Datastore = obj["datastore"]?.ToString();
+            Type = obj["type"]?.ToString();
+            FreeSpace = obj["free_space"]?.ToString();
+            Capacity = obj["capacity"]?.ToString();
 
-            obj = vmware.Query("/rest/vcenter/datastore/" + Datastore).value;
-            if (HasValue(obj, "accessible")) Accessible = obj.accessible;
-            if (HasValue(obj, "multiple_host_access")) MultipleHostAccess = obj.multiple_host_access;
-            if (HasValue(obj, "thin_provisioning_supported")) ThinProvisioningSupported = obj.thin_provisioning_supported;
+            obj = QueryValueObjectSafe(vmware, "/rest/vcenter/datastore/" + Datastore);
+            if (obj != null)
+            {
+                Accessible = obj["accessible"]?.ToString();
+                MultipleHostAccess = obj["multiple_host_access"]?.ToString();
+                ThinProvisioningSupported = obj["thin_provisioning_supported"]?.ToString();
+            }
         }
 
         public static IEnumerable<VMwareDatastore> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryEnumerable("/rest/vcenter/datastore"))
+            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/datastore"))
             {
                 yield return new VMwareDatastore(vmware, obj);
             }
@@ -529,16 +425,16 @@ namespace HavokMultimedia.Utilities.Console.External
         public string Folder { get; }
         public string Type { get; }
 
-        public VMwareFolder(VMware vmware, dynamic obj)
+        public VMwareFolder(VMware vmware, JObject obj)
         {
-            if (HasValue(obj, "name")) Name = obj.name;
-            if (HasValue(obj, "folder")) Folder = obj.folder;
-            if (HasValue(obj, "type")) Type = obj.type;
+            Name = obj["name"]?.ToString();
+            Folder = obj["folder"]?.ToString();
+            Type = obj["type"]?.ToString();
         }
 
         public static IEnumerable<VMwareFolder> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryEnumerable("/rest/vcenter/folder"))
+            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/folder"))
             {
                 yield return new VMwareFolder(vmware, obj);
             }
@@ -552,17 +448,17 @@ namespace HavokMultimedia.Utilities.Console.External
         public string ConnectionState { get; }
         public string PowerState { get; }
 
-        public VMwareHost(VMware vmware, dynamic obj)
+        public VMwareHost(VMware vmware, JObject obj)
         {
-            if (HasValue(obj, "name")) Name = obj.name;
-            if (HasValue(obj, "host")) Host = obj.host;
-            if (HasValue(obj, "connection_state")) ConnectionState = obj.connection_state;
-            if (HasValue(obj, "power_state")) PowerState = obj.power_state;
+            Name = obj["name"]?.ToString();
+            Host = obj["host"]?.ToString();
+            ConnectionState = obj["connection_state"]?.ToString();
+            PowerState = obj["power_state"]?.ToString();
         }
 
         public static IEnumerable<VMwareHost> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryEnumerable("/rest/vcenter/host"))
+            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/host"))
             {
                 yield return new VMwareHost(vmware, obj);
             }
@@ -577,14 +473,14 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareNetwork(VMware vmware, dynamic obj)
         {
-            if (HasValue(obj, "name")) Name = obj.name;
-            if (HasValue(obj, "network")) Network = obj.network;
-            if (HasValue(obj, "type")) Type = obj.type;
+            Name = obj["name"]?.ToString();
+            Network = obj["network"]?.ToString();
+            Type = obj["type"]?.ToString();
         }
 
         public static IEnumerable<VMwareNetwork> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryEnumerable("/rest/vcenter/network"))
+            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/network"))
             {
                 yield return new VMwareNetwork(vmware, obj);
             }
@@ -598,13 +494,13 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareResourcePool(VMware vmware, dynamic obj)
         {
-            if (HasValue(obj, "name")) Name = obj.name;
-            if (HasValue(obj, "resource_pool")) ResourcePool = obj.resource_pool;
+            Name = obj["name"]?.ToString();
+            ResourcePool = obj["resource_pool"]?.ToString();
         }
 
         public static IEnumerable<VMwareResourcePool> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryEnumerable("/rest/vcenter/resource-pool"))
+            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/resource-pool"))
             {
                 yield return new VMwareResourcePool(vmware, obj);
             }

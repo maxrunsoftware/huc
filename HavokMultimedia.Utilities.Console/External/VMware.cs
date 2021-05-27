@@ -22,6 +22,7 @@ using System.Net.Http;
 using System.Text;
 using System.Web;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
@@ -38,6 +39,10 @@ namespace HavokMultimedia.Utilities.Console.External
         public IEnumerable<VMwareDatacenter> Datacenters => VMwareDatacenter.Query(this);
         public IEnumerable<VMwareDatastore> Datastores => VMwareDatastore.Query(this);
         public IEnumerable<VMwareVM> VMs => VMwareVM.Query(this);
+        public IEnumerable<VMwareFolder> Folders => VMwareFolder.Query(this);
+        public IEnumerable<VMwareHost> Hosts => VMwareHost.Query(this);
+        public IEnumerable<VMwareNetwork> Network => VMwareNetwork.Query(this);
+        public IEnumerable<VMwareResourcePool> ResourcePools => VMwareResourcePool.Query(this);
 
         public VMware(string hostname, string username, string password)
         {
@@ -54,7 +59,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         private Uri Uri(string path) => new Uri("https://" + hostname + (path.StartsWith("/") ? path : ("/" + path)));
 
-        public dynamic Query(string path, IDictionary<string, string> parameters = null)
+        public string Query(string path, IDictionary<string, string> parameters = null)
         {
             var builder = new UriBuilder(Uri(path));
             builder.Port = -1;
@@ -74,24 +79,33 @@ namespace HavokMultimedia.Utilities.Console.External
             return result;
         }
 
-        public dynamic QuerySafe(string path, IDictionary<string, string> parameters = null)
+
+
+        public JObject QueryValueObject(string path, IDictionary<string, string> parameters = null)
         {
-            try
-            {
-                return Query(path, parameters);
-            }
-            catch (Exception e)
-            {
-                log.Warn("Error calling " + path, e);
-                return null;
-            }
+            var json = Query(path, parameters);
+            var obj = JObject.Parse(json);
+            if (!obj.ContainsKey("value")) return null;
+            return (JObject)obj["value"];
         }
 
-        public IEnumerable<dynamic> QueryEnumerable(string path, IDictionary<string, string> parameters = null)
+        public IEnumerable<JObject> QueryValueArray(string path, IDictionary<string, string> parameters = null)
         {
-            foreach (var obj in Query(path, parameters).value)
+            var json = Query(path, parameters);
+            var obj = JObject.Parse(json);
+            if (!obj.ContainsKey("value"))
             {
-                yield return obj;
+                foreach (var objj in Array.Empty<JObject>())
+                {
+                    yield return objj;
+                }
+            }
+            else
+            {
+                foreach (var objj in obj["value"])
+                {
+                    yield return (JObject)objj;
+                }
             }
         }
 
@@ -103,15 +117,16 @@ namespace HavokMultimedia.Utilities.Console.External
             message.Headers.Add(HttpRequestHeader.Accept.ToString(), "application/json");
 
             var result = Send(message);
-            if (Util.DynamicHasProperty(result, "type"))
+            var obj = JObject.Parse(result);
+            if (obj.ContainsKey("type"))
             {
-                string type = result.type;
+                string type = obj["type"].ToString();
                 if (type.EndsWith("unauthenticated", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new Exception("Invalid host, username, or password");
                 }
             }
-            authToken = result.value;
+            authToken = obj["value"].ToString();
             log.Debug("Login: " + authToken);
         }
 
@@ -123,23 +138,20 @@ namespace HavokMultimedia.Utilities.Console.External
             message.Headers.Add(HttpRequestHeader.Accept.ToString(), "application/json");
 
             var result = Send(message);
-            var val = result;
-            log.Debug("Logout: " + ToJson(val));
+            log.Debug("Logout: " + result);
             authToken = null;
         }
 
-        public static string ToJson(dynamic obj, bool formatted = true) => JsonConvert.SerializeObject(obj, formatted ? Formatting.Indented : Formatting.None);
+        public static string FormatJson(string json, bool formatted = true) => JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), formatted ? Formatting.Indented : Formatting.None);
 
-        private dynamic Send(HttpRequestMessage message)
+        private string Send(HttpRequestMessage message)
         {
-
             var response = client.SendAsync(message)?.Result?.Content?.ReadAsStringAsync()?.Result;
             if (response == null) return null;
 
-            var obj = JsonConvert.DeserializeObject(response);
             log.Debug(message.RequestUri.ToString());
-            log.Debug(ToJson(obj));
-            return obj;
+            log.Debug(FormatJson(response));
+            return response;
         }
 
         public void Dispose()
