@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -37,6 +38,44 @@ namespace HavokMultimedia.Utilities.Console.External
                 list.Add(prop);
             }
             return list.OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToArray();
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine(GetType().NameFormatted());
+            foreach (var property in GetProperties())
+            {
+                var val = Util.GetPropertyValue(this, property.Name);
+                if (val is IEnumerable)
+                {
+                    var list = new List<VMwareObject>();
+                    foreach (var item in (IEnumerable)val)
+                    {
+                        var vitem = (VMwareObject)item;
+                        list.Add(vitem);
+                    }
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        var item = list[i];
+                        sb.AppendLine("  " + item.GetType().NameFormatted() + "[" + i + "]");
+                        foreach (var prop in item.GetProperties())
+                        {
+                            sb.AppendLine("    " + prop.Name + ": " + Util.GetPropertyValue(item, prop.Name).ToStringGuessFormat());
+                        }
+                    }
+                }
+                else
+                {
+                    sb.Append("  " + property.Name);
+                    sb.Append(": ");
+                    sb.Append(val.ToStringGuessFormat());
+                    sb.AppendLine();
+                }
+
+            }
+            sb.Append("]");
+            return sb.ToString();
         }
     }
 
@@ -481,27 +520,6 @@ namespace HavokMultimedia.Utilities.Console.External
             {
                 yield return new VMwareDatastore(vmware, obj);
             }
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append(GetType().NameFormatted());
-            sb.Append("[");
-            bool first = true;
-            foreach (var property in GetProperties())
-            {
-                if (first) first = false;
-                else sb.Append(", ");
-
-                var val = Util.GetPropertyValue(this, property.Name);
-                sb.Append(property.Name);
-                sb.Append(":");
-                sb.Append(val.ToStringGuessFormat());
-
-            }
-            sb.Append("]");
-            return sb.ToString();
         }
     }
 

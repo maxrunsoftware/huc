@@ -37,6 +37,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public IEnumerable<VMwareDatacenter> Datacenters => VMwareDatacenter.Query(this);
         public IEnumerable<VMwareDatastore> Datastores => VMwareDatastore.Query(this);
+        public IEnumerable<VMwareVM> VMs => VMwareVM.Query(this);
 
         public VMware(string hostname, string username, string password)
         {
