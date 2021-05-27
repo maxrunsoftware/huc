@@ -16,6 +16,7 @@ limitations under the License.
 
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 
@@ -23,13 +24,7 @@ namespace HavokMultimedia.Utilities.Console.External
 {
     public abstract class VMwareObject
     {
-        public static bool HasValue(dynamic settings, string name)
-        {
-            if (settings is ExpandoObject)
-                return ((IDictionary<string, object>)settings).ContainsKey(name);
-
-            return settings.GetType().GetProperty(name) != null;
-        }
+        public static bool HasValue(dynamic obj, string propertyName) => Util.DynamicHasProperty(obj, propertyName);
 
         protected PropertyInfo[] GetProperties()
         {
@@ -486,8 +481,8 @@ namespace HavokMultimedia.Utilities.Console.External
         public string Name { get; }
         public string Datastore { get; }
         public string Type { get; }
-        public string FreeSpace { get; }
-        public string Capacity { get; }
+        public BigInteger FreeSpace { get; }
+        public BigInteger Capacity { get; }
 
         public string Accessible { get; }
         public string MultipleHostAccess { get; }
@@ -499,9 +494,8 @@ namespace HavokMultimedia.Utilities.Console.External
             Name = obj.name;
             Datastore = obj.datastore;
             Type = obj.type;
-            FreeSpace = obj.free_space;
-            Capacity = obj.capacity;
-
+            FreeSpace = BigInteger.Parse((string)obj.free_space);
+            Capacity = BigInteger.Parse((string)obj.capacity);
 
             obj = vmware.Query("/rest/vcenter/datastore/" + Datastore).value;
             Accessible = obj.accessible;

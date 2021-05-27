@@ -89,7 +89,7 @@ namespace HavokMultimedia.Utilities.Console.External
             message.Headers.Add(HttpRequestHeader.Accept.ToString(), "application/json");
 
             var result = Send(message);
-            if (VMwareObject.HasValue(result, "type"))
+            if (Util.DynamicHasProperty(result, "type"))
             {
                 string type = result.type;
                 if (type.EndsWith("unauthenticated", StringComparison.OrdinalIgnoreCase))

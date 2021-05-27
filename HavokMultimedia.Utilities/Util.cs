@@ -140,6 +140,14 @@ namespace HavokMultimedia.Utilities
 
     public static class Util
     {
+        #region Dynamic
+
+        public static bool DynamicHasProperty(dynamic obj, string propertyName) => obj is System.Dynamic.ExpandoObject
+                ? ((IDictionary<string, object>)obj).ContainsKey(propertyName)
+                : (bool)(obj.GetType().GetProperty(propertyName) != null);
+
+        #endregion Dynamic
+
         #region ConsoleColorChanger
 
         private readonly struct ConsoleColorChanger : IDisposable
