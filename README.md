@@ -20,6 +20,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [Google Sheets Interaction](#google-sheets)
 - [Generation of public and private keys](#generate-public-and-private-keys)
 - [File encryption and decryption](#file-encryption-and-decryption)
+- [VMware Querying](#vmware)
 - [Can use a properties file](#using-a-properties-file)
 - [Helper Utility Functions](#helper-functions)
 
@@ -401,6 +402,25 @@ huc FileEncrypt -pk=MyPublicKey.txt data.txt data.encrypted
 Decrypt file with private key
 ```sh
 huc FileDecrypt -pk=MyPrivateKey.txt data.encrypted dataDecrypted.txt
+```
+&nbsp;
+### VMware
+Query various information in a VCenter 6.5+ infrastructure
+```sh
+huc VMwareListDatacenters    -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
+huc VMwareListDatastores     -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
+huc VMwareListFolders        -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
+huc VMwareListHosts          -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
+huc VMwareListNetworks       -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
+huc VMwareListResourcePools  -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
+huc VMwareListVMs            -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
+```
+
+Query raw REST data from VCenter 6.5+ infrastructure
+```sh
+huc VMwareQuery -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass  /rest/vcenter/host
+huc VMwareQuery -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass  /rest/vcenter/vm
+huc VMwareQuery -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass  /rest/vcenter/vm/vm-1692
 ```
 &nbsp;
 &nbsp;
