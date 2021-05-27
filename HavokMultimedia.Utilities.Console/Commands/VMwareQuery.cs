@@ -35,7 +35,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug($"{nameof(path)}: {path}");
             if (path == null) throw new ArgsException(nameof(path), $"No <{nameof(path)}> specified");
 
-            var obj = vmware.Query(path);
+            var obj = vmware.Get(path);
             var json = VMware.FormatJson(obj);
             log.Info(json);
         }

@@ -33,7 +33,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             try
             {
-                return vmware.QueryValue(path);
+                return vmware.GetValue(path);
             }
             catch (Exception e)
             {
@@ -46,7 +46,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             try
             {
-                return vmware.QueryValueArray(path);
+                return vmware.GetValueArray(path);
             }
             catch (Exception e)
             {
@@ -103,6 +103,10 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public class VMwareVM : VMwareObject
     {
+        public void GuestShutdown(VMware vMware)
+        {
+
+        }
         public class GuestLocalFilesystem : VMwareObject
         {
             public string Key { get; }
@@ -371,7 +375,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static IEnumerable<VMwareVM> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/vm"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/vm"))
             {
                 yield return new VMwareVM(vmware, obj);
             }
@@ -404,7 +408,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static IEnumerable<VMwareDatacenter> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/datacenter"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/datacenter"))
             {
                 yield return new VMwareDatacenter(vmware, obj);
             }
@@ -439,12 +443,12 @@ namespace HavokMultimedia.Utilities.Console.External
             Description = obj["description"]?.ToString();
             Policy = obj["policy"]?.ToString();
 
-            Disks = vmware.QueryValueArray($"/rest/vcenter/storage/policies/{Policy}/vm").OrEmpty().Select(o => new Disk(o)).ToList();
+            Disks = vmware.GetValueArray($"/rest/vcenter/storage/policies/{Policy}/vm").OrEmpty().Select(o => new Disk(o)).ToList();
         }
 
         public static IEnumerable<VMwareStoragePolicy> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/storage/policies"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/storage/policies"))
             {
                 yield return new VMwareStoragePolicy(vmware, obj);
             }
@@ -481,7 +485,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static IEnumerable<VMwareDatastore> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/datastore"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/datastore"))
             {
                 yield return new VMwareDatastore(vmware, obj);
             }
@@ -503,7 +507,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static IEnumerable<VMwareFolder> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/folder"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/folder"))
             {
                 yield return new VMwareFolder(vmware, obj);
             }
@@ -527,7 +531,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static IEnumerable<VMwareHost> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/host"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/host"))
             {
                 yield return new VMwareHost(vmware, obj);
             }
@@ -549,7 +553,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static IEnumerable<VMwareNetwork> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/network"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/network"))
             {
                 yield return new VMwareNetwork(vmware, obj);
             }
@@ -569,7 +573,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static IEnumerable<VMwareResourcePool> Query(VMware vmware)
         {
-            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/resource-pool"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/resource-pool"))
             {
                 yield return new VMwareResourcePool(vmware, obj);
             }

@@ -60,7 +60,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         private Uri Uri(string path) => new Uri("https://" + hostname + (path.StartsWith("/") ? path : ("/" + path)));
 
-        public string Query(string path, IDictionary<string, string> parameters = null)
+        private string Action(string path, HttpMethod method, IDictionary<string, string> parameters = null)
         {
             var builder = new UriBuilder(Uri(path));
             builder.Port = -1;
@@ -72,7 +72,7 @@ namespace HavokMultimedia.Utilities.Console.External
             builder.Query = query.ToString();
             string url = builder.ToString();
 
-            var message = new HttpRequestMessage(HttpMethod.Get, url);
+            var message = new HttpRequestMessage(method, url);
             message.Headers.Add(HttpRequestHeader.Authorization.ToString(), "Bearer " + authToken);
             message.Headers.Add(HttpRequestHeader.Accept.ToString(), "application/json");
 
@@ -80,9 +80,13 @@ namespace HavokMultimedia.Utilities.Console.External
             return result;
         }
 
-        public JToken QueryValue(string path, IDictionary<string, string> parameters = null)
+        public string Post(string path, IDictionary<string, string> parameters = null) => Action(path, HttpMethod.Post, parameters);
+
+        public string Get(string path, IDictionary<string, string> parameters = null) => Action(path, HttpMethod.Get, parameters);
+
+        public JToken GetValue(string path, IDictionary<string, string> parameters = null)
         {
-            var json = Query(path, parameters);
+            var json = Get(path, parameters);
             var obj = JObject.Parse(json);
             var type = obj["type"]?.ToString();
             if (type != null)
@@ -113,9 +117,9 @@ namespace HavokMultimedia.Utilities.Console.External
             return obj["value"];
         }
 
-        public IEnumerable<JToken> QueryValueArray(string path, IDictionary<string, string> parameters = null)
+        public IEnumerable<JToken> GetValueArray(string path, IDictionary<string, string> parameters = null)
         {
-            var obj = QueryValue(path, parameters);
+            var obj = GetValue(path, parameters);
             foreach (var o in obj.OrEmpty())
             {
                 yield return o;
