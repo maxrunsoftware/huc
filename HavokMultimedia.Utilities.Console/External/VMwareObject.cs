@@ -14,8 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
@@ -34,7 +36,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 if (!prop.CanRead) continue;
                 list.Add(prop);
             }
-            return list.ToArray();
+            return list.OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToArray();
         }
     }
 
@@ -48,29 +50,25 @@ namespace HavokMultimedia.Utilities.Console.External
             public string Label { get; }
             public string State { get; }
             public string Type { get; }
-
             public string BackingDeviceAccessType { get; }
             public string BackingType { get; }
             public string BackingIsoFile { get; }
-
             public string IdePrimary { get; }
             public string IdeMaster { get; }
-
             public string SataBus { get; }
             public string SataUnit { get; }
-
             public string ScsiBus { get; }
             public string ScsiUnit { get; }
 
             public CDROM(dynamic obj)
             {
-                Key = obj.key;
+                if (HasValue(obj, "key")) Key = obj.key;
                 obj = obj.value;
-                StartConnected = obj.start_connected;
-                AllowGuestControl = obj.allow_guest_control;
-                Label = obj.label;
-                State = obj.state;
-                Type = obj.type;
+                if (HasValue(obj, "start_connected")) StartConnected = obj.start_connected;
+                if (HasValue(obj, "allow_guest_control")) AllowGuestControl = obj.allow_guest_control;
+                if (HasValue(obj, "label")) Label = obj.label;
+                if (HasValue(obj, "state")) State = obj.state;
+                if (HasValue(obj, "type")) Type = obj.type;
 
                 if (HasValue(obj, "backing"))
                 {
@@ -104,30 +102,25 @@ namespace HavokMultimedia.Utilities.Console.External
         public class Disk : VMwareObject
         {
             public string Key { get; }
-
             public string Label { get; }
             public string Type { get; }
             public string Capacity { get; }
-
             public string IdePrimary { get; }
             public string IdeMaster { get; }
-
             public string SataBus { get; }
             public string SataUnit { get; }
-
             public string ScsiBus { get; }
             public string ScsiUnit { get; }
-
             public string BackingVmdkFile { get; }
             public string BackingType { get; }
 
             public Disk(dynamic obj)
             {
-                Key = obj.key;
+                if (HasValue(obj, "key")) Key = obj.key;
                 obj = obj.value;
-                Label = obj.label;
-                Type = obj.type;
-                Capacity = obj.capacity;
+                if (HasValue(obj, "label")) Label = obj.label;
+                if (HasValue(obj, "type")) Type = obj.type;
+                if (HasValue(obj, "capacity")) Capacity = obj.capacity;
 
                 if (HasValue(obj, "ide"))
                 {
@@ -154,36 +147,27 @@ namespace HavokMultimedia.Utilities.Console.External
                     if (HasValue(obj2, "vmdk_file")) BackingVmdkFile = obj2.vmdk_file;
                     if (HasValue(obj2, "type")) BackingType = obj2.type;
                 }
-
             }
         }
-
-
-
-
 
         public class ScsiAdapter : VMwareObject
         {
             public string Key { get; }
-
             public string ScsiBus { get; }
             public string ScsiUnit { get; }
-
             public string PciSlotNumber { get; }
             public string Label { get; }
-
             public string Type { get; }
             public string Sharing { get; }
 
             public ScsiAdapter(dynamic obj)
             {
-                Key = obj.key;
+                if (HasValue(obj, "key")) Key = obj.key;
                 obj = obj.value;
-                PciSlotNumber = obj.pci_slot_number;
-                Label = obj.label;
-                Type = obj.type;
-                Sharing = obj.sharing;
-
+                if (HasValue(obj, "pci_slot_number")) PciSlotNumber = obj.pci_slot_number;
+                if (HasValue(obj, "label")) Label = obj.label;
+                if (HasValue(obj, "type")) Type = obj.type;
+                if (HasValue(obj, "sharing")) Sharing = obj.sharing;
 
                 if (HasValue(obj, "scsi"))
                 {
@@ -191,9 +175,6 @@ namespace HavokMultimedia.Utilities.Console.External
                     if (HasValue(obj2, "bus")) ScsiBus = obj2.bus;
                     if (HasValue(obj2, "unit")) ScsiUnit = obj2.unit;
                 }
-
-
-
             }
         }
 
@@ -207,54 +188,44 @@ namespace HavokMultimedia.Utilities.Console.External
 
             public SataAdapter(dynamic obj)
             {
-                Key = obj.key;
+                if (HasValue(obj, "key")) Key = obj.key;
                 obj = obj.value;
-                Bus = obj.bus;
-                PciSlotNumber = obj.pci_slot_number;
-                Label = obj.label;
-                Type = obj.type;
-
-
-
+                if (HasValue(obj, "bus")) Bus = obj.bus;
+                if (HasValue(obj, "pci_slot_number")) PciSlotNumber = obj.pci_slot_number;
+                if (HasValue(obj, "label")) Label = obj.label;
+                if (HasValue(obj, "type")) Type = obj.type;
             }
         }
 
         public class Floppy : VMwareObject
         {
             public string Key { get; }
-
             public string StartConnected { get; }
             public string BackingType { get; }
-
             public string AllowGuestControl { get; }
             public string Label { get; }
-
             public string State { get; }
 
             public Floppy(dynamic obj)
             {
-                Key = obj.key;
+                if (HasValue(obj, "key")) Key = obj.key;
                 obj = obj.value;
-                StartConnected = obj.start_connected;
-                Label = obj.label;
-                AllowGuestControl = obj.allow_guest_control;
-                State = obj.state;
+                if (HasValue(obj, "start_connected")) Key = obj.key; StartConnected = obj.start_connected;
+                if (HasValue(obj, "label")) Key = obj.key; Label = obj.label;
+                if (HasValue(obj, "allow_guest_control")) Key = obj.key; AllowGuestControl = obj.allow_guest_control;
+                if (HasValue(obj, "state")) Key = obj.key; State = obj.state;
 
                 if (HasValue(obj, "backing"))
                 {
                     var obj2 = obj.scsi;
                     if (HasValue(obj2, "type")) BackingType = obj2.type;
                 }
-
-
-
             }
         }
 
         public class Nic : VMwareObject
         {
             public string Key { get; }
-
             public string StartConnected { get; }
             public string PciSlotNumber { get; }
             public string MacAddress { get; }
@@ -264,27 +235,25 @@ namespace HavokMultimedia.Utilities.Console.External
             public string Label { get; }
             public string State { get; }
             public string Type { get; }
-
             public string BackingConnectionCookie { get; }
             public string BackingDistributedSwitchUUID { get; }
             public string BackingDistributedPort { get; }
             public string BackingType { get; }
             public string BackingNetwork { get; }
 
-
             public Nic(dynamic obj)
             {
-                Key = obj.key;
+                if (HasValue(obj, "key")) Key = obj.key;
                 obj = obj.value;
-                StartConnected = obj.start_connected;
-                PciSlotNumber = obj.pci_slot_number;
-                MacAddress = obj.mac_address;
-                MacType = obj.mac_type;
-                AllowGuestControl = obj.allow_guest_control;
-                WakeOnLanEnabled = obj.wake_on_lan_enabled;
-                Label = obj.label;
-                State = obj.state;
-                Type = obj.type;
+                if (HasValue(obj, "start_connected")) StartConnected = obj.start_connected;
+                if (HasValue(obj, "pci_slot_number")) PciSlotNumber = obj.pci_slot_number;
+                if (HasValue(obj, "mac_address")) MacAddress = obj.mac_address;
+                if (HasValue(obj, "mac_type")) MacType = obj.mac_type;
+                if (HasValue(obj, "allow_guest_control")) AllowGuestControl = obj.allow_guest_control;
+                if (HasValue(obj, "wake_on_lan_enabled")) WakeOnLanEnabled = obj.wake_on_lan_enabled;
+                if (HasValue(obj, "label")) Label = obj.label;
+                if (HasValue(obj, "state")) State = obj.state;
+                if (HasValue(obj, "type")) Type = obj.type;
 
                 if (HasValue(obj, "backing"))
                 {
@@ -295,11 +264,9 @@ namespace HavokMultimedia.Utilities.Console.External
                     if (HasValue(obj2, "type")) BackingType = obj2.type;
                     if (HasValue(obj2, "network")) BackingNetwork = obj2.network;
                 }
-
-
-
             }
         }
+
         public string VM { get; }
         public string Name { get; }
         public string MemorySizeMB { get; }
@@ -309,41 +276,35 @@ namespace HavokMultimedia.Utilities.Console.External
         public string CpuHotRemoveEnabled { get; }
         public string CpuHotAddEnabled { get; }
         public string PowerState { get; }
-
         public string BootDelay { get; }
         public string BootRetryDelay { get; }
         public string BootEnterSetupMode { get; }
         public string BootType { get; }
         public string BootRetry { get; }
-
         public string BootEfiLegacyBoot { get; }
         public string BootNetworkProtocol { get; }
-
         public string GuestOS { get; }
-
         public string HardwareUpgradePolicy { get; }
         public string HardwareUpgradeStatus { get; }
         public string HardwareVersion { get; }
-
-
         public string IdentityFullNameDefaultMessage { get; }
         public string IdentityFullNameId { get; }
         public string IdentityName { get; }
         public string IdentityIpAddress { get; }
         public string IdentityFamily { get; }
         public string IdentityHostName { get; }
-
         public IReadOnlyList<CDROM> CDRoms { get; }
         public IReadOnlyList<Disk> Disks { get; }
         public IReadOnlyList<ScsiAdapter> ScsiAdapters { get; }
         public IReadOnlyList<Nic> Nics { get; }
+
         public VMwareVM(VMware vmware, dynamic obj)
         {
-            VM = obj.vm;
-            Name = obj.name;
-            MemorySizeMB = obj.memory_size_MiB;
-            CpuCount = obj.cpu_count;
-            PowerState = obj.power_state;
+            if (HasValue(obj, "vm")) VM = obj.vm;
+            if (HasValue(obj, "name")) Name = obj.name;
+            if (HasValue(obj, "memory_size_MiB")) MemorySizeMB = obj.memory_size_MiB;
+            if (HasValue(obj, "cpu_count")) CpuCount = obj.cpu_count;
+            if (HasValue(obj, "power_state")) PowerState = obj.power_state;
 
             obj = vmware.Query("/rest/vcenter/vm/" + VM).value;
             if (HasValue(obj, "memory"))
@@ -412,7 +373,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 if (HasValue(obj2, "network_protocol")) BootNetworkProtocol = obj2.network_protocol;
             }
 
-            GuestOS = obj.guest_OS;
+            if (HasValue(obj, "guest_OS")) GuestOS = obj.guest_OS;
 
             if (HasValue(obj, "hardware"))
             {
@@ -422,18 +383,25 @@ namespace HavokMultimedia.Utilities.Console.External
                 if (HasValue(obj2, "version")) HardwareVersion = obj2.version;
             }
 
-            obj = vmware.Query("/rest/vcenter/vm/" + VM + "/guest/identity").value;
-            if (HasValue(obj, "full_name"))
+            obj = vmware.QuerySafe("/rest/vcenter/vm/" + VM + "/guest/identity");
+            if (obj != null)
             {
-                var obj2 = obj.full_name;
-                if (HasValue(obj2, "default_message")) IdentityFullNameDefaultMessage = obj2.default_message;
-                if (HasValue(obj2, "id")) IdentityFullNameId = obj2.id;
+                if (HasValue(obj, "value"))
+                {
+                    obj = obj.value;
+                    if (HasValue(obj, "full_name"))
+                    {
+                        var obj2 = obj.full_name;
+                        if (HasValue(obj2, "default_message")) IdentityFullNameDefaultMessage = obj2.default_message;
+                        if (HasValue(obj2, "id")) IdentityFullNameId = obj2.id;
+                    }
+                    if (HasValue(obj, "name")) IdentityName = obj.name;
+                    // Only 1 IP supported: https://github.com/vmware-archive/vsphere-automation-sdk-rest/issues/21
+                    if (HasValue(obj, "ip_address")) IdentityIpAddress = obj.ip_address;
+                    if (HasValue(obj, "family")) IdentityFamily = obj.family;
+                    if (HasValue(obj, "host_name")) IdentityHostName = obj.host_name;
+                }
             }
-            IdentityName = obj.name;
-            // Only 1 IP supported: https://github.com/vmware-archive/vsphere-automation-sdk-rest/issues/21
-            IdentityIpAddress = obj.ip_address;
-            IdentityFamily = obj.family;
-            IdentityHostName = obj.host_name;
         }
 
         public static IEnumerable<VMwareVM> Query(VMware vmware)
@@ -449,7 +417,6 @@ namespace HavokMultimedia.Utilities.Console.External
     {
         public string Name { get; }
         public string Datacenter { get; }
-
         public string DatastoreFolder { get; }
         public string HostFolder { get; }
         public string NetworkFolder { get; }
@@ -457,14 +424,21 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareDatacenter(VMware vmware, dynamic obj)
         {
-            Name = obj.name;
-            Datacenter = obj.datacenter;
+            if (HasValue(obj, "name")) Name = obj.name;
+            if (HasValue(obj, "datacenter")) Datacenter = obj.datacenter;
 
-            obj = vmware.Query("/rest/vcenter/datacenter/" + Datacenter).value;
-            DatastoreFolder = obj.datastore_folder;
-            HostFolder = obj.host_folder;
-            NetworkFolder = obj.network_folder;
-            VMFolder = obj.vm_folder;
+            obj = vmware.QuerySafe("/rest/vcenter/datacenter/" + Datacenter);
+            if (obj != null)
+            {
+                if (HasValue(obj, "value"))
+                {
+                    obj = obj.value;
+                    if (HasValue(obj, "datastore_folder")) DatastoreFolder = obj.datastore_folder;
+                    if (HasValue(obj, "host_folder")) HostFolder = obj.host_folder;
+                    if (HasValue(obj, "network_folder")) NetworkFolder = obj.network_folder;
+                    if (HasValue(obj, "vm_folder")) VMFolder = obj.vm_folder;
+                }
+            }
         }
 
         public static IEnumerable<VMwareDatacenter> Query(VMware vmware)
@@ -481,26 +455,24 @@ namespace HavokMultimedia.Utilities.Console.External
         public string Name { get; }
         public string Datastore { get; }
         public string Type { get; }
-        public BigInteger FreeSpace { get; }
-        public BigInteger Capacity { get; }
-
+        public string FreeSpace { get; }
+        public string Capacity { get; }
         public string Accessible { get; }
         public string MultipleHostAccess { get; }
         public string ThinProvisioningSupported { get; }
 
-
         public VMwareDatastore(VMware vmware, dynamic obj)
         {
-            Name = obj.name;
-            Datastore = obj.datastore;
-            Type = obj.type;
-            FreeSpace = BigInteger.Parse((string)obj.free_space);
-            Capacity = BigInteger.Parse((string)obj.capacity);
+            if (HasValue(obj, "name")) Name = obj.name;
+            if (HasValue(obj, "datastore")) Datastore = obj.datastore;
+            if (HasValue(obj, "type")) Type = obj.type;
+            if (HasValue(obj, "free_space")) FreeSpace = obj.free_space;
+            if (HasValue(obj, "capacity")) Capacity = obj.capacity;
 
             obj = vmware.Query("/rest/vcenter/datastore/" + Datastore).value;
-            Accessible = obj.accessible;
-            MultipleHostAccess = obj.multiple_host_access;
-            ThinProvisioningSupported = obj.thin_provisioning_supported;
+            if (HasValue(obj, "accessible")) Accessible = obj.accessible;
+            if (HasValue(obj, "multiple_host_access")) MultipleHostAccess = obj.multiple_host_access;
+            if (HasValue(obj, "thin_provisioning_supported")) ThinProvisioningSupported = obj.thin_provisioning_supported;
         }
 
         public static IEnumerable<VMwareDatastore> Query(VMware vmware)
@@ -541,9 +513,9 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareFolder(VMware vmware, dynamic obj)
         {
-            Name = obj.name;
-            Folder = obj.folder;
-            Type = obj.type;
+            if (HasValue(obj, "name")) Name = obj.name;
+            if (HasValue(obj, "folder")) Folder = obj.folder;
+            if (HasValue(obj, "type")) Type = obj.type;
         }
 
         public static IEnumerable<VMwareFolder> Query(VMware vmware)
@@ -564,10 +536,10 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareHost(VMware vmware, dynamic obj)
         {
-            Name = obj.name;
-            Host = obj.host;
-            ConnectionState = obj.connection_state;
-            PowerState = obj.power_state;
+            if (HasValue(obj, "name")) Name = obj.name;
+            if (HasValue(obj, "host")) Host = obj.host;
+            if (HasValue(obj, "connection_state")) ConnectionState = obj.connection_state;
+            if (HasValue(obj, "power_state")) PowerState = obj.power_state;
         }
 
         public static IEnumerable<VMwareHost> Query(VMware vmware)
@@ -587,9 +559,9 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareNetwork(VMware vmware, dynamic obj)
         {
-            Name = obj.name;
-            Network = obj.network;
-            Type = obj.type;
+            if (HasValue(obj, "name")) Name = obj.name;
+            if (HasValue(obj, "network")) Network = obj.network;
+            if (HasValue(obj, "type")) Type = obj.type;
         }
 
         public static IEnumerable<VMwareNetwork> Query(VMware vmware)
@@ -608,8 +580,8 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareResourcePool(VMware vmware, dynamic obj)
         {
-            Name = obj.name;
-            ResourcePool = obj.resource_pool;
+            if (HasValue(obj, "name")) Name = obj.name;
+            if (HasValue(obj, "resource_pool")) ResourcePool = obj.resource_pool;
         }
 
         public static IEnumerable<VMwareResourcePool> Query(VMware vmware)
@@ -620,4 +592,5 @@ namespace HavokMultimedia.Utilities.Console.External
             }
         }
     }
+
 }

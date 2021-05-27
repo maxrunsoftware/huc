@@ -73,6 +73,19 @@ namespace HavokMultimedia.Utilities.Console.External
             return result;
         }
 
+        public dynamic QuerySafe(string path, IDictionary<string, string> parameters = null)
+        {
+            try
+            {
+                return Query(path, parameters);
+            }
+            catch (Exception e)
+            {
+                log.Warn("Error calling " + path, e);
+                return null;
+            }
+        }
+
         public IEnumerable<dynamic> QueryEnumerable(string path, IDictionary<string, string> parameters = null)
         {
             foreach (var obj in Query(path, parameters).value)
