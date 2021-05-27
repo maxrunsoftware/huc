@@ -43,6 +43,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public IEnumerable<VMwareHost> Hosts => VMwareHost.Query(this);
         public IEnumerable<VMwareNetwork> Network => VMwareNetwork.Query(this);
         public IEnumerable<VMwareResourcePool> ResourcePools => VMwareResourcePool.Query(this);
+        public IEnumerable<VMwareStoragePolicy> StoragePolicies => VMwareStoragePolicy.Query(this);
 
         public VMware(string hostname, string username, string password)
         {
@@ -79,33 +80,45 @@ namespace HavokMultimedia.Utilities.Console.External
             return result;
         }
 
-
-
-        public JObject QueryValueObject(string path, IDictionary<string, string> parameters = null)
+        public JToken QueryValue(string path, IDictionary<string, string> parameters = null)
         {
             var json = Query(path, parameters);
             var obj = JObject.Parse(json);
-            if (!obj.ContainsKey("value")) return null;
-            return (JObject)obj["value"];
-        }
-
-        public IEnumerable<JObject> QueryValueArray(string path, IDictionary<string, string> parameters = null)
-        {
-            var json = Query(path, parameters);
-            var obj = JObject.Parse(json);
-            if (!obj.ContainsKey("value"))
+            var type = obj["type"]?.ToString();
+            if (type != null)
             {
-                foreach (var objj in Array.Empty<JObject>())
+                if (type.EndsWith("service_unavailable", StringComparison.OrdinalIgnoreCase))
                 {
-                    yield return objj;
+                    log.Warn("Service Unavailable: " + path);
+
+                    try
+                    {
+                        foreach (var message in obj["value"]?["messages"].OrEmpty())
+                        {
+                            var defaultMessage = message["default_message"]?.ToString().TrimOrNull();
+                            var id = message["id"]?.ToString().TrimOrNull();
+                            if (id != null && message != null) log.Warn(id + "  -->  " + defaultMessage);
+                            else if (id != null) log.Warn(id);
+                            else if (defaultMessage != null) log.Warn(defaultMessage);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        log.Debug("Error trying to parse error message", e);
+                    }
+                    return null;
                 }
             }
-            else
+            if (!obj.ContainsKey("value")) return null;
+            return obj["value"];
+        }
+
+        public IEnumerable<JToken> QueryValueArray(string path, IDictionary<string, string> parameters = null)
+        {
+            var obj = QueryValue(path, parameters);
+            foreach (var o in obj.OrEmpty())
             {
-                foreach (var objj in obj["value"])
-                {
-                    yield return (JObject)objj;
-                }
+                yield return o;
             }
         }
 

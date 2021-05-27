@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HavokMultimedia.Utilities.Console.External
@@ -28,17 +29,30 @@ namespace HavokMultimedia.Utilities.Console.External
     {
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public JObject QueryValueObjectSafe(VMware vmware, string path)
+        public JToken QueryValueObjectSafe(VMware vmware, string path)
         {
             try
             {
-                return vmware.QueryValueObject(path);
+                return vmware.QueryValue(path);
             }
             catch (Exception e)
             {
                 log.Warn("Error querying " + path, e);
             }
             return null;
+        }
+
+        public IEnumerable<JToken> QueryValueArraySafe(VMware vmware, string path)
+        {
+            try
+            {
+                return vmware.QueryValueArray(path);
+            }
+            catch (Exception e)
+            {
+                log.Warn("Error querying " + path, e);
+            }
+            return Array.Empty<JObject>();
         }
 
         protected PropertyInfo[] GetProperties()
@@ -89,6 +103,20 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public class VMwareVM : VMwareObject
     {
+        public class GuestLocalFilesystem : VMwareObject
+        {
+            public string Key { get; }
+            public string FreeSpace { get; }
+            public string Capacity { get; }
+
+            public GuestLocalFilesystem(JToken obj)
+            {
+                Key = obj["key"]?.ToString();
+                FreeSpace = obj["value"]?["free_space"]?.ToString();
+                Capacity = obj["value"]?["capacity"]?.ToString();
+            }
+        }
+
         public class CDROM : VMwareObject
         {
             public string Key { get; }
@@ -107,7 +135,7 @@ namespace HavokMultimedia.Utilities.Console.External
             public string ScsiBus { get; }
             public string ScsiUnit { get; }
 
-            public CDROM(JObject obj)
+            public CDROM(JToken obj)
             {
                 Key = obj["key"]?.ToString();
                 Label = obj["value"]?["label"]?.ToString();
@@ -144,7 +172,7 @@ namespace HavokMultimedia.Utilities.Console.External
             public string BackingVmdkFile { get; }
             public string BackingType { get; }
 
-            public Disk(JObject obj)
+            public Disk(JToken obj)
             {
                 Key = obj["key"]?.ToString();
                 Label = obj["value"]?["label"]?.ToString();
@@ -172,7 +200,7 @@ namespace HavokMultimedia.Utilities.Console.External
             public string Type { get; }
             public string Sharing { get; }
 
-            public ScsiAdapter(JObject obj)
+            public ScsiAdapter(JToken obj)
             {
                 Key = obj["key"]?.ToString();
                 PciSlotNumber = obj["value"]?["pci_slot_number"]?.ToString();
@@ -193,7 +221,7 @@ namespace HavokMultimedia.Utilities.Console.External
             public string Label { get; }
             public string Type { get; }
 
-            public SataAdapter(dynamic obj)
+            public SataAdapter(JToken obj)
             {
                 Key = obj["key"]?.ToString();
                 Bus = obj["value"]?["bus"]?.ToString();
@@ -212,7 +240,7 @@ namespace HavokMultimedia.Utilities.Console.External
             public string Label { get; }
             public string State { get; }
 
-            public Floppy(JObject obj)
+            public Floppy(JToken obj)
             {
                 Key = obj["key"]?.ToString();
                 StartConnected = obj["value"]?["start_connected"]?.ToString();
@@ -241,7 +269,7 @@ namespace HavokMultimedia.Utilities.Console.External
             public string BackingType { get; }
             public string BackingNetwork { get; }
 
-            public Nic(JObject obj)
+            public Nic(JToken obj)
             {
                 Key = obj["key"]?.ToString();
                 StartConnected = obj["value"]?["start_connected"]?.ToString();
@@ -292,8 +320,9 @@ namespace HavokMultimedia.Utilities.Console.External
         public IReadOnlyList<Disk> Disks { get; }
         public IReadOnlyList<ScsiAdapter> ScsiAdapters { get; }
         public IReadOnlyList<Nic> Nics { get; }
+        public IReadOnlyList<GuestLocalFilesystem> GuestLocalFilesystems { get; }
 
-        public VMwareVM(VMware vmware, JObject obj)
+        public VMwareVM(VMware vmware, JToken obj)
         {
             VM = obj["vm"]?.ToString();
             Name = obj["name"]?.ToString();
@@ -326,7 +355,7 @@ namespace HavokMultimedia.Utilities.Console.External
             HardwareUpgradeStatus = obj["hardware"]?["upgrade_status"]?.ToString();
             HardwareVersion = obj["hardware"]?["version"]?.ToString();
 
-            obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM + "/guest/identity");
+            obj = QueryValueObjectSafe(vmware, $"/rest/vcenter/vm/{VM}/guest/identity");
             if (obj != null)
             {
                 IdentityFullNameDefaultMessage = obj["full_name"]?["default_message"]?.ToString();
@@ -336,6 +365,8 @@ namespace HavokMultimedia.Utilities.Console.External
                 IdentityFamily = obj["family"]?.ToString();
                 IdentityHostName = obj["host_name"]?.ToString();
             }
+
+            GuestLocalFilesystems = QueryValueArraySafe(vmware, $"/rest/vcenter/vm/{VM}/guest/local-filesystem").Select(o => new GuestLocalFilesystem(o)).ToList();
         }
 
         public static IEnumerable<VMwareVM> Query(VMware vmware)
@@ -356,7 +387,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public string NetworkFolder { get; }
         public string VMFolder { get; }
 
-        public VMwareDatacenter(VMware vmware, JObject obj)
+        public VMwareDatacenter(VMware vmware, JToken obj)
         {
             Name = obj["name"]?.ToString();
             Datacenter = obj["datacenter"]?.ToString();
@@ -380,6 +411,46 @@ namespace HavokMultimedia.Utilities.Console.External
         }
     }
 
+    public class VMwareStoragePolicy : VMwareObject
+    {
+        public class Disk : VMwareObject
+        {
+            public string Key { get; }
+            public string VmHome { get; }
+            public IReadOnlyList<string> Disks { get; }
+
+            public Disk(JToken obj)
+            {
+                Key = obj["key"]?.ToString();
+                VmHome = obj["value"]?["vm_home"]?.ToString();
+                Disks = obj["value"]?["disks"].OrEmpty().Select(o => o?.ToString()).WhereNotNull().ToList();
+            }
+
+        }
+
+        public string Name { get; }
+        public string Description { get; }
+        public string Policy { get; }
+        public IReadOnlyList<Disk> Disks { get; }
+
+        public VMwareStoragePolicy(VMware vmware, JToken obj)
+        {
+            Name = obj["name"]?.ToString();
+            Description = obj["description"]?.ToString();
+            Policy = obj["policy"]?.ToString();
+
+            Disks = vmware.QueryValueArray($"/rest/vcenter/storage/policies/{Policy}/vm").OrEmpty().Select(o => new Disk(o)).ToList();
+        }
+
+        public static IEnumerable<VMwareStoragePolicy> Query(VMware vmware)
+        {
+            foreach (var obj in vmware.QueryValueArray("/rest/vcenter/storage/policies"))
+            {
+                yield return new VMwareStoragePolicy(vmware, obj);
+            }
+        }
+    }
+
     public class VMwareDatastore : VMwareObject
     {
         public string Name { get; }
@@ -391,7 +462,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public string MultipleHostAccess { get; }
         public string ThinProvisioningSupported { get; }
 
-        public VMwareDatastore(VMware vmware, JObject obj)
+        public VMwareDatastore(VMware vmware, JToken obj)
         {
             Name = obj["name"]?.ToString();
             Datastore = obj["datastore"]?.ToString();
@@ -423,7 +494,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public string Folder { get; }
         public string Type { get; }
 
-        public VMwareFolder(VMware vmware, JObject obj)
+        public VMwareFolder(VMware vmware, JToken obj)
         {
             Name = obj["name"]?.ToString();
             Folder = obj["folder"]?.ToString();
@@ -446,7 +517,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public string ConnectionState { get; }
         public string PowerState { get; }
 
-        public VMwareHost(VMware vmware, JObject obj)
+        public VMwareHost(VMware vmware, JToken obj)
         {
             Name = obj["name"]?.ToString();
             Host = obj["host"]?.ToString();
@@ -469,7 +540,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public string Network { get; }
         public string Type { get; }
 
-        public VMwareNetwork(VMware vmware, dynamic obj)
+        public VMwareNetwork(VMware vmware, JToken obj)
         {
             Name = obj["name"]?.ToString();
             Network = obj["network"]?.ToString();
@@ -490,7 +561,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public string Name { get; }
         public string ResourcePool { get; }
 
-        public VMwareResourcePool(VMware vmware, dynamic obj)
+        public VMwareResourcePool(VMware vmware, JToken obj)
         {
             Name = obj["name"]?.ToString();
             ResourcePool = obj["resource_pool"]?.ToString();
