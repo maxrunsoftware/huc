@@ -94,7 +94,7 @@ namespace HavokMultimedia.Utilities.Console.External
             {
                 if (type.EndsWith("service_unavailable", StringComparison.OrdinalIgnoreCase))
                 {
-                    log.Warn("Service Unavailable: " + path);
+                    log.Debug("Service Unavailable: " + path);
 
                     try
                     {
@@ -102,9 +102,9 @@ namespace HavokMultimedia.Utilities.Console.External
                         {
                             var defaultMessage = message["default_message"]?.ToString().TrimOrNull();
                             var id = message["id"]?.ToString().TrimOrNull();
-                            if (id != null && message != null) log.Warn(id + "  -->  " + defaultMessage);
-                            else if (id != null) log.Warn(id);
-                            else if (defaultMessage != null) log.Warn(defaultMessage);
+                            if (id != null && message != null) log.Debug(id + "  -->  " + defaultMessage);
+                            else if (id != null) log.Debug(id);
+                            else if (defaultMessage != null) log.Debug(defaultMessage);
                         }
                     }
                     catch (Exception e)

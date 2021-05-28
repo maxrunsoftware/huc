@@ -81,12 +81,12 @@ namespace HavokMultimedia.Utilities.Console.External
                 {
                     sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
                 }
-                else
+                else if (val is IEnumerable)
                 {
                     int count = 0;
                     foreach (var item in (IEnumerable)val)
                     {
-                        var vitem = item as VMwareObject;
+                        var vitem = (VMwareObject)item;
                         sb.AppendLine("  " + vitem.GetType().NameFormatted() + "[" + count + "]");
                         foreach (var prop in vitem.GetProperties())
                         {
@@ -94,6 +94,10 @@ namespace HavokMultimedia.Utilities.Console.External
                         }
                         count++;
                     }
+                }
+                else
+                {
+                    sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
                 }
             }
 
@@ -118,6 +122,8 @@ namespace HavokMultimedia.Utilities.Console.External
         public string CpuCount { get; }
         public string PowerState { get; }
 
+        private bool IsPoweredOn => PowerState == null ? false : PowerState.EndsWith("ON", StringComparison.OrdinalIgnoreCase);
+
         public VMwareVMSlim(VMware vmware, JToken obj)
         {
             VM = obj["vm"]?.ToString();
@@ -134,10 +140,67 @@ namespace HavokMultimedia.Utilities.Console.External
                 .OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase);
         }
 
+        public static IEnumerable<VMwareVMSlim> QueryWithoutToolsInstalled(VMware vmware)
+        {
+            var slims = Query(vmware);
+            var d = new Dictionary<string, VMwareVMSlim>(StringComparer.OrdinalIgnoreCase);
+            foreach (var slim in slims) d[slim.VM] = slim;
+
+            foreach (var full in VMwareVM.Query(vmware))
+            {
+                if (!full.IsVMwareToolsInstalled) yield return d[full.VM];
+            }
+        }
+
+        private class SlimDiskSpace : VMwareVMSlim
+        {
+            public IReadOnlyList<VMwareVM.GuestLocalFilesystem> Filesystems { get; set; }
+            public int PercentFreeThreshhold { get; set; }
+            public SlimDiskSpace(VMware vmware, JToken obj) : base(vmware, obj)
+            {
+            }
+            public IEnumerable<VMwareVM.GuestLocalFilesystem> FileSystemsCrossingThreshold => Filesystems.Where(o => o.PercentFree != null && o.PercentFree.Value <= PercentFreeThreshhold).OrderBy(o => o.Key);
+            public override string ToString() => base.ToString() + "  " + FileSystemsCrossingThreshold.Select(o => "(" + o.PercentFree.Value + "% free) " + o.Key).ToStringDelimited("    ");
+        }
+
+        public static IEnumerable<VMwareVMSlim> QueryDiskspace10(VMware vmware) => QueryDiskspace(vmware, 10);
+        public static IEnumerable<VMwareVMSlim> QueryDiskspace25(VMware vmware) => QueryDiskspace(vmware, 25);
+
+        public static IEnumerable<VMwareVMSlim> QueryDiskspace(VMware vmware, int percentFreeThreshhold)
+        {
+            var dsobjs = vmware.GetValueArray("/rest/vcenter/vm")
+                .Select(o => new SlimDiskSpace(vmware, o))
+                .OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase);
+            var d = new Dictionary<string, SlimDiskSpace>(StringComparer.OrdinalIgnoreCase);
+            foreach (var dsobj in dsobjs) d[dsobj.VM] = dsobj;
+
+
+            var fullvms = VMwareVM.Query(vmware);
+
+            foreach (var fullvm in fullvms)
+            {
+                var dsobj = d[fullvm.VM];
+                dsobj.Filesystems = fullvm.GuestLocalFilesystems;
+                dsobj.PercentFreeThreshhold = percentFreeThreshhold;
+            }
+
+            foreach (var dsobj in d.Values.OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                if (dsobj.FileSystemsCrossingThreshold.IsEmpty()) continue;
+                yield return dsobj;
+            }
+        }
+
+        public static IEnumerable<VMwareVMSlim> QueryPoweredOff(VMware vmware) => Query(vmware).Where(o => !o.IsPoweredOn);
+        public static IEnumerable<VMwareVMSlim> QueryPoweredOn(VMware vmware) => Query(vmware).Where(o => o.IsPoweredOn);
+
+
         public override string ToString()
         {
-            return VM.PadRight(10) + Name;
+            return VM.PadRight(10) + (IsPoweredOn ? "   " : "OFF") + "  " + Name;
         }
+
+
 
     }
 
@@ -146,14 +209,26 @@ namespace HavokMultimedia.Utilities.Console.External
         public class GuestLocalFilesystem : VMwareObject
         {
             public string Key { get; }
-            public string FreeSpace { get; }
-            public string Capacity { get; }
+            public long? FreeSpace { get; }
+            public long? Capacity { get; }
+            public long? Used { get; }
+            public byte? PercentFree { get; }
+            public byte? PercentUsed { get; }
 
             public GuestLocalFilesystem(JToken obj)
             {
                 Key = obj["key"]?.ToString();
-                FreeSpace = obj["value"]?["free_space"]?.ToString();
-                Capacity = obj["value"]?["capacity"]?.ToString();
+                var sFreeSpace = obj["value"]?["free_space"]?.ToString();
+                if (sFreeSpace != null) FreeSpace = long.Parse(sFreeSpace);
+
+                var sCapacity = obj["value"]?["capacity"]?.ToString();
+                if (sCapacity != null) Capacity = long.Parse(sCapacity);
+
+                if (FreeSpace == null || Capacity == null) return;
+
+                Used = Capacity.Value - FreeSpace.Value;
+                PercentFree = (byte)((double)FreeSpace.Value / (double)Capacity.Value * (double)100);
+                PercentUsed = (byte)((double)100 - (double)PercentFree.Value);
             }
         }
 
@@ -361,7 +436,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public IReadOnlyList<ScsiAdapter> ScsiAdapters { get; }
         public IReadOnlyList<Nic> Nics { get; }
         public IReadOnlyList<GuestLocalFilesystem> GuestLocalFilesystems { get; }
-
+        public bool IsVMwareToolsInstalled { get; }
         public VMwareVM(VMware vmware, JToken obj)
         {
             VM = obj["vm"]?.ToString();
@@ -407,16 +482,22 @@ namespace HavokMultimedia.Utilities.Console.External
                 IdentityHostName = obj["host_name"]?.ToString();
             }
 
-            GuestLocalFilesystems = QueryValueArraySafe(vmware, $"/rest/vcenter/vm/{VM}/guest/local-filesystem").Select(o => new GuestLocalFilesystem(o)).ToList();
+            var localFilesystem = QueryValueArraySafe(vmware, $"/rest/vcenter/vm/{VM}/guest/local-filesystem").ToArray();
+            GuestLocalFilesystems = localFilesystem.Select(o => new GuestLocalFilesystem(o)).ToList();
+
+            if (obj == null && localFilesystem.Length == 0) IsVMwareToolsInstalled = false;
+            else IsVMwareToolsInstalled = true;
         }
 
         public static IEnumerable<VMwareVM> Query(VMware vmware)
         {
-            foreach (var obj in vmware.GetValueArray("/rest/vcenter/vm"))
+            foreach (var obj in vmware.GetValueArray("/rest/vcenter/vm").OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase))
             {
                 yield return new VMwareVM(vmware, obj);
             }
         }
+
+
     }
 
     public class VMwareDatacenter : VMwareObject

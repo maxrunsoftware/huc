@@ -34,21 +34,26 @@ namespace HavokMultimedia.Utilities.Console.Commands
         }
 
         private IReadOnlyList<string> ObjectTypeNames => Funcs.Keys
-            .OrderBy(o => o.FullNameFormatted())
-            .Select(o => o.Name.Substring("VMware".Length))
+            .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
+            .Select(o => o.Substring("VMware".Length))
             .ToList();
 
-        private Dictionary<Type, Func<VMware, IEnumerable>> Funcs = new()
+        private Dictionary<string, Func<VMware, IEnumerable>> Funcs = new()
         {
-            { typeof(VMwareDatacenter), VMwareDatacenter.Query },
-            { typeof(VMwareDatastore), VMwareDatastore.Query },
-            { typeof(VMwareFolder), VMwareFolder.Query },
-            { typeof(VMwareHost), VMwareHost.Query },
-            { typeof(VMwareNetwork), VMwareNetwork.Query },
-            { typeof(VMwareResourcePool), VMwareResourcePool.Query },
-            { typeof(VMwareStoragePolicy), VMwareStoragePolicy.Query },
-            { typeof(External.VMwareVM), External.VMwareVM.Query },
-            { typeof(VMwareVMSlim), VMwareVMSlim.Query },
+            { nameof(VMwareDatacenter), VMwareDatacenter.Query },
+            { nameof(VMwareDatastore), VMwareDatastore.Query },
+            { nameof(VMwareFolder), VMwareFolder.Query },
+            { nameof(VMwareHost), VMwareHost.Query },
+            { nameof(VMwareNetwork), VMwareNetwork.Query },
+            { nameof(VMwareResourcePool), VMwareResourcePool.Query },
+            { nameof(VMwareStoragePolicy), VMwareStoragePolicy.Query },
+            { nameof(External.VMwareVM), External.VMwareVM.Query },
+            { "VMwareVM_Quick", VMwareVMSlim.Query },
+            { "VMwareVM_WithoutTools", VMwareVMSlim.QueryWithoutToolsInstalled },
+            { "VMwareVM_PoweredOff", VMwareVMSlim.QueryPoweredOff },
+            { "VMwareVM_PoweredOn", VMwareVMSlim.QueryPoweredOn },
+            { "VMwareVM_25%Free", VMwareVMSlim.QueryDiskspace25 },
+            { "VMwareVM_10%Free", VMwareVMSlim.QueryDiskspace10 },
         };
 
         protected override void ExecuteInternal(VMware vmware)
@@ -81,7 +86,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             objectType = "VMware" + objectType;
             foreach (var kvp in Funcs)
             {
-                if (objectType.EqualsCaseInsensitive(kvp.Key.Name)) return kvp.Value;
+                if (objectType.EqualsCaseInsensitive(kvp.Key)) return kvp.Value;
             }
             return null;
         }
