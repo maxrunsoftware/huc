@@ -44,6 +44,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public IEnumerable<VMwareNetwork> Network => VMwareNetwork.Query(this);
         public IEnumerable<VMwareResourcePool> ResourcePools => VMwareResourcePool.Query(this);
         public IEnumerable<VMwareStoragePolicy> StoragePolicies => VMwareStoragePolicy.Query(this);
+        [JsonIgnore] public IEnumerable<VMwareVM> VMsSlim => VMwareVM.Query(this, true);
 
         public VMware(string hostname, string username, string password)
         {
@@ -81,7 +82,7 @@ namespace HavokMultimedia.Utilities.Console.External
         }
 
         public string Post(string path, IDictionary<string, string> parameters = null) => Action(path, HttpMethod.Post, parameters);
-
+        public string Post(string path, string parameterName, string parameterValue) => Action(path, HttpMethod.Post, new Dictionary<string, string> { { parameterName, parameterValue } });
         public string Get(string path, IDictionary<string, string> parameters = null) => Action(path, HttpMethod.Get, parameters);
 
         public JToken GetValue(string path, IDictionary<string, string> parameters = null)

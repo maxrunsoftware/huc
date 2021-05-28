@@ -1,0 +1,92 @@
+﻿/*
+Copyright (c) 2021 Steven Foster (steven.d.foster@gmail.com)
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using HavokMultimedia.Utilities.Console.External;
+
+namespace HavokMultimedia.Utilities.Console.Commands
+{
+    public class VMwareList : VMwareBase
+    {
+        protected override void CreateHelp(CommandHelpBuilder help)
+        {
+            base.CreateHelp(help);
+            help.AddSummary("Lists the objects in a VMware VCenter");
+            help.AddValue("<object type 1> <object type 2> <etc>");
+            help.AddDetail("Valid object types are...");
+            foreach (var name in ObjectTypeNames) help.AddDetail("  " + name);
+        }
+
+        private IReadOnlyList<string> ObjectTypeNames => Funcs.Keys
+            .OrderBy(o => o.FullNameFormatted())
+            .Select(o => o.Name.Substring("VMware".Length))
+            .ToList();
+
+        private Dictionary<Type, Func<VMware, IEnumerable>> Funcs = new()
+        {
+            { typeof(VMwareDatacenter), VMwareDatacenter.Query },
+            { typeof(VMwareDatastore), VMwareDatastore.Query },
+            { typeof(VMwareFolder), VMwareFolder.Query },
+            { typeof(VMwareHost), VMwareHost.Query },
+            { typeof(VMwareNetwork), VMwareNetwork.Query },
+            { typeof(VMwareResourcePool), VMwareResourcePool.Query },
+            { typeof(VMwareStoragePolicy), VMwareStoragePolicy.Query },
+            { typeof(External.VMwareVM), External.VMwareVM.Query },
+        };
+
+        protected override void ExecuteInternal(VMware vmware)
+        {
+            var objectTypes = GetArgValuesTrimmed();
+            if (objectTypes.IsEmpty()) throw new ArgsException(nameof(objectTypes), $"No <{nameof(objectTypes)}> specified");
+
+            var h = new HashSet<string>(ObjectTypeNames, StringComparer.OrdinalIgnoreCase);
+            foreach (var objectType in objectTypes)
+            {
+                if (!h.Contains(objectType)) throw new ArgsException(nameof(objectType), $"Invalid <{nameof(objectType)}> specified: {objectType}");
+            }
+
+            foreach (var objectType in objectTypes)
+            {
+                var func = GetFunc(objectType);
+                if (func == null) throw new NotImplementedException("Object type " + objectType + " has not been implemented");
+                foreach (var obj in func(vmware))
+                {
+                    log.Info(obj.ToString());
+                    log.Info("");
+                }
+            }
+
+        }
+
+        private Func<VMware, IEnumerable> GetFunc(string objectType)
+        {
+            objectType = "VMware" + objectType;
+            foreach (var kvp in Funcs)
+            {
+                if (objectType.EqualsCaseInsensitive(kvp.Key.Name)) return kvp.Value;
+            }
+            return null;
+        }
+    }
+
+
+
+
+
+}

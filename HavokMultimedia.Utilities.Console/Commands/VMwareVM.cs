@@ -14,15 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class VMwareListHosts : VMwareListBase<VMwareHost>
+    public class VMwareVM : VMwareBase
     {
-        protected override Func<VMware, IEnumerable<VMwareHost>> GetObjectsFunc => VMwareHost.Query;
+        protected override void ExecuteInternal(VMware vmware)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public enum Action { }
     }
+
+
 
 }

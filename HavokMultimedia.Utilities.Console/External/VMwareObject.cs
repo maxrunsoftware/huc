@@ -103,10 +103,15 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public class VMwareVM : VMwareObject
     {
-        public void GuestShutdown(VMware vMware)
-        {
+        public void Shutdown(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "shutdown");
+        public void Reboot(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "reboot");
+        public void Standby(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "standby");
 
-        }
+        public void Reset(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/reset");
+        public void Start(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/start");
+        public void Stop(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/stop");
+        public void Suspend(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/suspend");
+
         public class GuestLocalFilesystem : VMwareObject
         {
             public string Key { get; }
@@ -326,13 +331,14 @@ namespace HavokMultimedia.Utilities.Console.External
         public IReadOnlyList<Nic> Nics { get; }
         public IReadOnlyList<GuestLocalFilesystem> GuestLocalFilesystems { get; }
 
-        public VMwareVM(VMware vmware, JToken obj)
+        public VMwareVM(VMware vmware, JToken obj, bool slim = false)
         {
             VM = obj["vm"]?.ToString();
             Name = obj["name"]?.ToString();
             MemorySizeMB = obj["memory_size_MiB"]?.ToString();
             CpuCount = obj["cpu_count"]?.ToString();
             PowerState = obj["power_state"]?.ToString();
+            if (slim) return;
             obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM);
             if (obj == null) return;
             GuestOS = obj["guest_OS"]?.ToString();
@@ -373,11 +379,13 @@ namespace HavokMultimedia.Utilities.Console.External
             GuestLocalFilesystems = QueryValueArraySafe(vmware, $"/rest/vcenter/vm/{VM}/guest/local-filesystem").Select(o => new GuestLocalFilesystem(o)).ToList();
         }
 
-        public static IEnumerable<VMwareVM> Query(VMware vmware)
+        public static IEnumerable<VMwareVM> Query(VMware vmware) => Query(vmware, false);
+
+        public static IEnumerable<VMwareVM> Query(VMware vmware, bool slim)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/vm"))
             {
-                yield return new VMwareVM(vmware, obj);
+                yield return new VMwareVM(vmware, obj, slim: slim);
             }
         }
     }
