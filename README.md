@@ -407,7 +407,10 @@ huc FileDecrypt -pk=MyPrivateKey.txt data.encrypted dataDecrypted.txt
 ### VMware
 Query various information in a VCenter 6.7+ infrastructure
 ```sh
-huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass DataCenter VM StoragePolicy          
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass DataCenter VM StoragePolicy
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_Quick
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_WithoutTools
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_PoweredOff
 ```
 
 Query raw JSON data from VCenter 6.7+ infrastructure
@@ -424,14 +427,14 @@ huc VMwareQueryJSON -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyDataFil
 
 Perform various actions on a VM
 ```sh
-huc VMwareQueryVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM None
-huc VMwareQueryVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Shutdown
-huc VMwareQueryVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Reboot
-huc VMwareQueryVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Standby
-huc VMwareQueryVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Reset
-huc VMwareQueryVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Start
-huc VMwareQueryVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Stop
-huc VMwareQueryVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Suspend
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM None
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Shutdown
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Reboot
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Standby
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Reset
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Start
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Stop
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Suspend
 ```
 &nbsp;
 &nbsp;
