@@ -29,7 +29,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Lists the objects in a VMware VCenter");
             help.AddValue("<object type 1> <object type 2> <etc>");
-            help.AddDetail("Valid object types are...");
+            help.AddDetail("ObjectTypes:");
             foreach (var name in ObjectTypeNames) help.AddDetail("  " + name);
         }
 
