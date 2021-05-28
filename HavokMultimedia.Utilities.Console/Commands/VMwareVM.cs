@@ -27,7 +27,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Interacts with a specific VM");
-            help.AddParameter("wildcard", "w", "Enables wildcard matching on VM Name USE WITH CAUTION (false)");
+            help.AddParameter("wildcard", "w", "Enables wildcard matching on VM Name with * and ?   USE WITH CAUTION (false)");
             help.AddValue("<VM ID or Name> <Action>");
             help.AddDetail("Use EXTREME CAUTION when enabling wildcard mode. Best to test with Action=None to see which VMs will be affected");
             help.AddDetail("Actions:");
