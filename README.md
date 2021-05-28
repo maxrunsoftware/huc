@@ -20,7 +20,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [Google Sheets Interaction](#google-sheets)
 - [Generation of public and private keys](#generate-public-and-private-keys)
 - [File encryption and decryption](#file-encryption-and-decryption)
-- [VMware Querying](#vmware)
+- [VMware Interaction](#vmware)
 - [Can use a properties file](#using-a-properties-file)
 - [Helper Utility Functions](#helper-functions)
 
@@ -407,20 +407,34 @@ huc FileDecrypt -pk=MyPrivateKey.txt data.encrypted dataDecrypted.txt
 ### VMware
 Query various information in a VCenter 6.7+ infrastructure
 ```sh
-huc VMwareListDatacenters    -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
-huc VMwareListDatastores     -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
-huc VMwareListFolders        -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
-huc VMwareListHosts          -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
-huc VMwareListNetworks       -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
-huc VMwareListResourcePools  -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
-huc VMwareListVMs            -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass           
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass DataCenter VM StoragePolicy
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_Quick
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_WithoutTools
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_PoweredOff
 ```
 
-Query raw REST data from VCenter 6.7+ infrastructure
+Query raw JSON data from VCenter 6.7+ infrastructure
 ```sh
 huc VMwareQuery -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass  /rest/vcenter/host
 huc VMwareQuery -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass  /rest/vcenter/vm
 huc VMwareQuery -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass  /rest/vcenter/vm/vm-1692
+```
+
+Query all infrastructure data to a JSON file
+```sh
+huc VMwareQueryJSON -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyDataFile.json
+```
+
+Perform various actions on a VM
+```sh
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM None
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Shutdown
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Reboot
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Standby
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Reset
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Start
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Stop
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Suspend
 ```
 &nbsp;
 &nbsp;
