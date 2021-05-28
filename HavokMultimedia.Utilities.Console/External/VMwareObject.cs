@@ -101,7 +101,7 @@ namespace HavokMultimedia.Utilities.Console.External
         }
     }
 
-    public class VMwareVM : VMwareObject
+    public class VMwareVMSlim : VMwareObject
     {
         public void Shutdown(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "shutdown");
         public void Reboot(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "reboot");
@@ -112,6 +112,37 @@ namespace HavokMultimedia.Utilities.Console.External
         public void Stop(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/stop");
         public void Suspend(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/suspend");
 
+        public string VM { get; }
+        public string Name { get; }
+        public string MemorySizeMB { get; }
+        public string CpuCount { get; }
+        public string PowerState { get; }
+
+        public VMwareVMSlim(VMware vmware, JToken obj)
+        {
+            VM = obj["vm"]?.ToString();
+            Name = obj["name"]?.ToString();
+            MemorySizeMB = obj["memory_size_MiB"]?.ToString();
+            CpuCount = obj["cpu_count"]?.ToString();
+            PowerState = obj["power_state"]?.ToString();
+        }
+
+        public static IEnumerable<VMwareVMSlim> Query(VMware vmware)
+        {
+            return vmware.GetValueArray("/rest/vcenter/vm")
+                .Select(o => new VMwareVMSlim(vmware, o))
+                .OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase);
+        }
+
+        public override string ToString()
+        {
+            return VM.PadRight(10) + Name;
+        }
+
+    }
+
+    public class VMwareVM : VMwareObject
+    {
         public class GuestLocalFilesystem : VMwareObject
         {
             public string Key { get; }
@@ -302,12 +333,12 @@ namespace HavokMultimedia.Utilities.Console.External
         public string VM { get; }
         public string Name { get; }
         public string MemorySizeMB { get; }
-        public string MemoryHotAddEnabled { get; }
         public string CpuCount { get; }
+        public string PowerState { get; }
+        public string MemoryHotAddEnabled { get; }
         public string CpuCoresPerSocket { get; }
         public string CpuHotRemoveEnabled { get; }
         public string CpuHotAddEnabled { get; }
-        public string PowerState { get; }
         public string BootDelay { get; }
         public string BootRetryDelay { get; }
         public string BootEnterSetupMode { get; }
@@ -331,14 +362,14 @@ namespace HavokMultimedia.Utilities.Console.External
         public IReadOnlyList<Nic> Nics { get; }
         public IReadOnlyList<GuestLocalFilesystem> GuestLocalFilesystems { get; }
 
-        public VMwareVM(VMware vmware, JToken obj, bool slim = false)
+        public VMwareVM(VMware vmware, JToken obj)
         {
             VM = obj["vm"]?.ToString();
             Name = obj["name"]?.ToString();
             MemorySizeMB = obj["memory_size_MiB"]?.ToString();
             CpuCount = obj["cpu_count"]?.ToString();
             PowerState = obj["power_state"]?.ToString();
-            if (slim) return;
+
             obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM);
             if (obj == null) return;
             GuestOS = obj["guest_OS"]?.ToString();
@@ -379,13 +410,11 @@ namespace HavokMultimedia.Utilities.Console.External
             GuestLocalFilesystems = QueryValueArraySafe(vmware, $"/rest/vcenter/vm/{VM}/guest/local-filesystem").Select(o => new GuestLocalFilesystem(o)).ToList();
         }
 
-        public static IEnumerable<VMwareVM> Query(VMware vmware) => Query(vmware, false);
-
-        public static IEnumerable<VMwareVM> Query(VMware vmware, bool slim)
+        public static IEnumerable<VMwareVM> Query(VMware vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/vm"))
             {
-                yield return new VMwareVM(vmware, obj, slim: slim);
+                yield return new VMwareVM(vmware, obj);
             }
         }
     }

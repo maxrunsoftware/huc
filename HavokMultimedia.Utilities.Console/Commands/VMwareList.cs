@@ -48,6 +48,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             { typeof(VMwareResourcePool), VMwareResourcePool.Query },
             { typeof(VMwareStoragePolicy), VMwareStoragePolicy.Query },
             { typeof(External.VMwareVM), External.VMwareVM.Query },
+            { typeof(VMwareVMSlim), VMwareVMSlim.Query },
         };
 
         protected override void ExecuteInternal(VMware vmware)
@@ -68,8 +69,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 foreach (var obj in func(vmware))
                 {
                     log.Info(obj.ToString());
-                    log.Info("");
                 }
+
+                log.Info("");
             }
 
         }

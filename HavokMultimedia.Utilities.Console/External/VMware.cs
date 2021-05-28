@@ -44,7 +44,7 @@ namespace HavokMultimedia.Utilities.Console.External
         public IEnumerable<VMwareNetwork> Network => VMwareNetwork.Query(this);
         public IEnumerable<VMwareResourcePool> ResourcePools => VMwareResourcePool.Query(this);
         public IEnumerable<VMwareStoragePolicy> StoragePolicies => VMwareStoragePolicy.Query(this);
-        [JsonIgnore] public IEnumerable<VMwareVM> VMsSlim => VMwareVM.Query(this, true);
+        [JsonIgnore] public IEnumerable<VMwareVMSlim> VMsSlim => VMwareVMSlim.Query(this);
 
         public VMware(string hostname, string username, string password)
         {
