@@ -156,16 +156,12 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             public IReadOnlyList<VMwareVM.GuestLocalFilesystem> Filesystems { get; set; }
             public int PercentFreeThreshhold { get; set; }
-            public SlimDiskSpace(VMware vmware, JToken obj) : base(vmware, obj)
-            {
-            }
+            public SlimDiskSpace(VMware vmware, JToken obj) : base(vmware, obj) { }
             public IEnumerable<VMwareVM.GuestLocalFilesystem> FileSystemsCrossingThreshold => Filesystems.Where(o => o.PercentFree != null && o.PercentFree.Value <= PercentFreeThreshhold).OrderBy(o => o.Key);
             public override string ToString() => base.ToString() + "  " + FileSystemsCrossingThreshold.Select(o => "(" + o.PercentFree.Value + "% free) " + o.Key).ToStringDelimited("    ");
         }
-
         public static IEnumerable<VMwareVMSlim> QueryDiskspace10(VMware vmware) => QueryDiskspace(vmware, 10);
         public static IEnumerable<VMwareVMSlim> QueryDiskspace25(VMware vmware) => QueryDiskspace(vmware, 25);
-
         public static IEnumerable<VMwareVMSlim> QueryDiskspace(VMware vmware, int percentFreeThreshhold)
         {
             var dsobjs = vmware.GetValueArray("/rest/vcenter/vm")
@@ -182,12 +178,37 @@ namespace HavokMultimedia.Utilities.Console.External
                 var dsobj = d[fullvm.VM];
                 dsobj.Filesystems = fullvm.GuestLocalFilesystems;
                 dsobj.PercentFreeThreshhold = percentFreeThreshhold;
+                if (!dsobj.FileSystemsCrossingThreshold.IsEmpty()) yield return dsobj;
             }
+        }
 
-            foreach (var dsobj in d.Values.OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
+        private class SlimIsoFile : VMwareVMSlim
+        {
+            public IReadOnlyList<VMwareVM.CDROM> CDRoms { get; set; }
+            public int PercentFreeThreshhold { get; set; }
+            public SlimIsoFile(VMware vmware, JToken obj) : base(vmware, obj) { }
+            public IEnumerable<string> IsosAttached => CDRoms
+                .Where(o => o.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase))
+                .Select(o => o.BackingIsoFile.Split("/").TrimOrNull().WhereNotNull().LastOrDefault())
+                .WhereNotNull();
+
+            public override string ToString() => base.ToString() + "  " + IsosAttached.ToStringDelimited("    ");
+        }
+        public static IEnumerable<VMwareVMSlim> QueryIsoAttached(VMware vmware)
+        {
+            var dsobjs = vmware.GetValueArray("/rest/vcenter/vm")
+                .Select(o => new SlimIsoFile(vmware, o))
+                .OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase);
+            var d = new Dictionary<string, SlimIsoFile>(StringComparer.OrdinalIgnoreCase);
+            foreach (var dsobj in dsobjs) d[dsobj.VM] = dsobj;
+
+            var fullvms = VMwareVM.Query(vmware);
+
+            foreach (var fullvm in fullvms)
             {
-                if (dsobj.FileSystemsCrossingThreshold.IsEmpty()) continue;
-                yield return dsobj;
+                var dsobj = d[fullvm.VM];
+                dsobj.CDRoms = fullvm.CDRoms;
+                if (!dsobj.IsosAttached.IsEmpty()) yield return dsobj;
             }
         }
 

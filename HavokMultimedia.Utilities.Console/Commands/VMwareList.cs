@@ -54,6 +54,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             { "VMwareVM_PoweredOn", VMwareVMSlim.QueryPoweredOn },
             { "VMwareVM_25%Free", VMwareVMSlim.QueryDiskspace25 },
             { "VMwareVM_10%Free", VMwareVMSlim.QueryDiskspace10 },
+            { "VMwareVM_IsoAttached", VMwareVMSlim.QueryIsoAttached },
         };
 
         protected override void ExecuteInternal(VMware vmware)
