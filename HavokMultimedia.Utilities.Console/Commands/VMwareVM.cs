@@ -47,15 +47,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var wildcard = GetArgParameterOrConfigBool("wildcard", "w", false);
 
-            var vmsAll = vmware.VMsSlim;
+            var vms = vmware.VMsSlim;
 
-            var vms = new List<VMwareVMSlim>();
+            var vmsAction = new List<VMwareVMSlim>();
             if (wildcard && (vm.Contains('*') || vm.Contains('?')))
             {
                 log.Debug("Wildcard matching on " + vm);
-                foreach (var v in vmsAll)
+                foreach (var v in vms)
                 {
-                    if (v.Name.EqualsWildcard(vm)) vms.Add(v);
+                    if (v.Name.EqualsWildcard(vm)) vmsAction.Add(v);
                 }
             }
             else
@@ -63,10 +63,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 var foundVM = vms.Where(o => vm.EqualsCaseInsensitive(o.VM)).FirstOrDefault();
                 if (foundVM == null) foundVM = vms.Where(o => vm.EqualsCaseInsensitive(o.Name)).FirstOrDefault();
                 if (foundVM == null) throw new ArgsException(nameof(vm), "VM not found: " + vm);
-                vms.Add(foundVM);
+                vmsAction.Add(foundVM);
             }
 
-            foreach (var v in vms)
+            foreach (var v in vmsAction)
             {
                 if (action == Action.None) log.Info("Doing nothing for " + v.Name);
                 else if (action == Action.Shutdown) { log.Info("Shutting down guest operating system " + v.Name); v.Shutdown(vmware); }
@@ -76,11 +76,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 else if (action == Action.Start) { log.Info("Starting " + v.Name); v.Start(vmware); }
                 else if (action == Action.Stop) { log.Info("Stopping " + v.Name); v.Stop(vmware); }
                 else if (action == Action.Suspend) { log.Info("Suspending " + v.Name); v.Suspend(vmware); }
+                else if (action == Action.DetachISOs) { log.Info("Detching ISOs " + v.Name); v.DetachISOs(vmware); }
                 else throw new NotImplementedException(nameof(Action) + " [" + action + "] has not been implemented yet");
             }
         }
 
-        public enum Action { None, Shutdown, Reboot, Standby, Reset, Start, Stop, Suspend }
+        public enum Action { None, Shutdown, Reboot, Standby, Reset, Start, Stop, Suspend, DetachISOs }
     }
 
 

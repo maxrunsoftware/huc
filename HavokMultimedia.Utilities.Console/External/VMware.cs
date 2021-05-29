@@ -63,7 +63,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         private Uri Uri(string path) => new Uri("https://" + hostname + (path.StartsWith("/") ? path : ("/" + path)));
 
-        private string Action(string path, HttpMethod method, IDictionary<string, string> parameters = null)
+        private string Action(string path, HttpMethod method, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null)
         {
             var builder = new UriBuilder(Uri(path));
             builder.Port = -1;
@@ -78,12 +78,14 @@ namespace HavokMultimedia.Utilities.Console.External
             var message = new HttpRequestMessage(method, url);
             message.Headers.Add(HttpRequestHeader.Authorization.ToString(), "Bearer " + authToken);
             message.Headers.Add(HttpRequestHeader.Accept.ToString(), "application/json");
-
+            if (contentParameters != null && contentParameters.Count > 0) message.Content = new FormUrlEncodedContent(contentParameters);
+            if (contentJson != null) message.Content = new StringContent(contentJson, Encoding.UTF8, "application/json");
             var result = Send(message);
             return result;
         }
 
-        public string Post(string path, IDictionary<string, string> parameters = null) => Action(path, HttpMethod.Post, parameters);
+        public string Patch(string path, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null) => Action(path, HttpMethod.Patch, parameters, contentParameters, contentJson);
+        public string Post(string path, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null) => Action(path, HttpMethod.Post, parameters, contentParameters, contentJson);
         public string Post(string path, string parameterName, string parameterValue) => Action(path, HttpMethod.Post, new Dictionary<string, string> { { parameterName, parameterValue } });
         public string Get(string path, IDictionary<string, string> parameters = null) => Action(path, HttpMethod.Get, parameters);
 

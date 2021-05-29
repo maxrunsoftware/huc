@@ -17,9 +17,11 @@ limitations under the License.
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -103,6 +105,8 @@ namespace HavokMultimedia.Utilities.Console.External
 
             return sb.ToString();
         }
+
+
     }
 
     public class VMwareVMSlim : VMwareObject
@@ -115,6 +119,82 @@ namespace HavokMultimedia.Utilities.Console.External
         public void Start(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/start");
         public void Stop(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/stop");
         public void Suspend(VMware vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/suspend");
+
+        public void CDRomDisconnect(VMware vmware, string key) => vmware.Post($"/rest/vcenter/vm/{VM}/hardware/cdrom/{key}/disconnect");
+        public void CDRomDelete(VMware vmware, string key)
+        {
+            /*
+              {"cdrom":"1000"}
+            */
+            string json;
+            using (var stream = new MemoryStream())
+            {
+                using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false }))
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("cdrom", key);
+                    writer.WriteEndObject();
+                }
+                json = Encoding.UTF8.GetString(stream.ToArray());
+            }
+
+            vmware.Post($"/rest/com/vmware/vcenter/iso/image/id:{VM}?~action=unmount", contentJson: json);
+        }
+
+        public void CDRomUpdateToClientDevice(VMware vmware, string key)
+        {
+            /*
+            {
+                "spec": {
+                    "allow_guest_control": false,
+                    "backing": {
+                        "device_access_type": "enum",
+                        "host_device": "string",
+                        "iso_file": "string",
+                        "type": "enum"
+                    },
+                    "start_connected": false
+                }
+            }
+            */
+            string json;
+            using (var stream = new MemoryStream())
+            {
+                using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false }))
+                {
+                    writer.WriteStartObject();
+                    writer.WriteStartObject("spec");
+                    writer.WriteString("allow_guest_control", "true");
+                    writer.WriteStartObject("backing");
+                    writer.WriteString("device_access_type", "EMULATION");
+                    //writer.WriteString("host_device", "");
+                    //writer.WriteString("iso_file", "");
+                    writer.WriteString("type", "CLIENT_DEVICE");
+                    writer.WriteEndObject();
+                    writer.WriteString("start_connected", "false");
+                    writer.WriteEndObject();
+                    writer.WriteEndObject();
+                }
+                json = Encoding.UTF8.GetString(stream.ToArray());
+            }
+
+            vmware.Patch($"/rest/vcenter/vm/{VM}/hardware/cdrom/{key}", contentJson: json);
+        }
+
+        public void DetachISOs(VMware vmware)
+        {
+            var vmfull = VMwareVM.QueryByVM(vmware, VM);
+            if (vmfull == null) throw new Exception("Could not find VM: " + VM + "  " + Name); // should not happen
+            foreach (var cdrom in vmfull.CDRoms)
+            {
+                if (!cdrom.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase)) continue;
+                if (cdrom.IsConnected)
+                {
+                    CDRomDisconnect(vmware, cdrom.Key);
+                }
+                CDRomUpdateToClientDevice(vmware, cdrom.Key);
+            }
+        }
 
         public string VM { get; }
         public string Name { get; }
@@ -187,10 +267,24 @@ namespace HavokMultimedia.Utilities.Console.External
             public IReadOnlyList<VMwareVM.CDROM> CDRoms { get; set; }
             public int PercentFreeThreshhold { get; set; }
             public SlimIsoFile(VMware vmware, JToken obj) : base(vmware, obj) { }
-            public IEnumerable<string> IsosAttached => CDRoms
-                .Where(o => o.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase))
-                .Select(o => o.BackingIsoFile.Split("/").TrimOrNull().WhereNotNull().LastOrDefault())
-                .WhereNotNull();
+            public IEnumerable<string> IsosAttached
+            {
+                get
+                {
+                    var list = new List<string>();
+
+                    foreach (var cdrom in CDRoms)
+                    {
+                        if (!cdrom.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase)) continue;
+                        var filename = cdrom.BackingIsoFile.Split("/").TrimOrNull().WhereNotNull().LastOrDefault();
+                        if (filename == null) continue;
+                        if (cdrom.State.EqualsCaseInsensitive("CONNECTED")) filename = filename + " (" + cdrom.State + ")";
+                        list.Add(filename);
+                    }
+
+                    return list;
+                }
+            }
 
             public override string ToString() => base.ToString() + "  " + IsosAttached.ToStringDelimited("    ");
         }
@@ -270,6 +364,8 @@ namespace HavokMultimedia.Utilities.Console.External
             public string SataUnit { get; }
             public string ScsiBus { get; }
             public string ScsiUnit { get; }
+
+            public bool IsConnected => State != null && State.EqualsCaseInsensitive("CONNECTED");
 
             public CDROM(JToken obj)
             {
@@ -517,6 +613,19 @@ namespace HavokMultimedia.Utilities.Console.External
                 yield return new VMwareVM(vmware, obj);
             }
         }
+
+        private static VMwareVM QueryBy(VMware vmware, string fieldName, string fieldValue)
+        {
+            var obj = vmware.GetValueArray("/rest/vcenter/vm")
+                .OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase)
+                .Where(o => o[fieldName]?.ToString() != null && string.Equals(o[fieldName]?.ToString(), fieldValue, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+
+            if (obj == null) return null;
+            return new VMwareVM(vmware, obj);
+        }
+        public static VMwareVM QueryByName(VMware vmware, string name) => QueryBy(vmware, "name", name);
+        public static VMwareVM QueryByVM(VMware vmware, string vm) => QueryBy(vmware, "vm", vm);
 
 
     }

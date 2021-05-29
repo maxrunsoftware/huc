@@ -18,6 +18,6 @@ namespace HavokMultimedia.Utilities.Console
 {
     public static class Version
     {
-        public static string Value => "1.10.1";
+        public static string Value => "1.10.2";
     }
 }
