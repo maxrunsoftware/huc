@@ -411,6 +411,7 @@ huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass DataCenter VM 
 huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_Quick
 huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_WithoutTools
 huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_PoweredOff
+huc VMwareList -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass VM_IsoAttached
 ```
 
 Query raw JSON data from VCenter 6.7+ infrastructure
@@ -435,6 +436,7 @@ huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Reset
 huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Start
 huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Stop
 huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM Suspend
+huc VMwareVM -h=192.168.1.5 -u=testuser@vsphere.local -p=mypass MyVM DetachISOs
 ```
 &nbsp;
 &nbsp;
