@@ -124,13 +124,13 @@ namespace HavokMultimedia.Utilities.Console.External
               {"cdrom":"1000"}
             */
             string json;
-            using (var stream = new MemoryStream())
+            using (var writer = new JsonWriter())
             {
-                using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false }))
+                using (writer.StartObject())
                 {
-                    writer.WriteObject(("cdrom", key));
+                    writer.Property("cdrom", key);
                 }
-                json = Encoding.UTF8.GetString(stream.ToArray());
+                json = writer.ToString();
             }
 
             vmware.Post($"/rest/com/vmware/vcenter/iso/image/id:{VM}?~action=unmount", contentJson: json);
@@ -153,18 +153,17 @@ namespace HavokMultimedia.Utilities.Console.External
             }
             */
             string json;
-            using (var stream = new MemoryStream())
+            using (var writer = new JsonWriter())
             {
-                using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false }))
+                using (writer.StartObject())
                 {
-                    writer.WriteStartObject();
-                    writer.WriteStartObject("spec");
-                    writer.WriteStrings(("allow_guest_control", "true"), ("start_connected", "false"));
-                    writer.WriteObject("backing", ("device_access_type", "EMULATION"), ("type", "CLIENT_DEVICE"));
-                    writer.WriteEndObject();
-                    writer.WriteEndObject();
+                    using (writer.StartObject("spec"))
+                    {
+                        writer.Property(("allow_guest_control", "true"), ("start_connected", "false"));
+                        writer.Object("backing", ("device_access_type", "EMULATION"), ("type", "CLIENT_DEVICE"));
+                    }
                 }
-                json = Encoding.UTF8.GetString(stream.ToArray());
+                json = writer.ToString();
             }
 
             vmware.Patch($"/rest/vcenter/vm/{VM}/hardware/cdrom/{key}", contentJson: json);
