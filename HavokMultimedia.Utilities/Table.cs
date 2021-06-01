@@ -599,42 +599,38 @@ namespace HavokMultimedia.Utilities
     {
         public static string ToXml(this Table table, bool format = true)
         {
-            var sb = new StringBuilder();
-            var settings = new XmlWriterSettings();
-            settings.Encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
-            settings.Indent = format;
-            settings.NewLineOnAttributes = false;
-            settings.OmitXmlDeclaration = true;
-
-            using (XmlWriter writer = XmlWriter.Create(sb, settings))
+            using (var w = new XmlWriter(formatted: format))
             {
-                writer.WriteStartElement("table");
-                foreach (var c in table.Columns)
+                using (w.Element("table"))
                 {
-                    writer.WriteStartElement("column");
-                    writer.WriteAttributeString("index", c.Index.ToString());
-                    writer.WriteString(c.Name);
-                    writer.WriteEndElement();
-                }
-                for (int i = 0; i < table.Count; i++)
-                {
-                    var r = table[i];
-                    writer.WriteStartElement("row");
-                    writer.WriteAttributeString("index", r.RowIndex.ToString());
-                    for (int j = 0; j < r.Count; j++)
+                    foreach (var c in table.Columns)
                     {
-                        writer.WriteStartElement("cell");
-                        writer.WriteAttributeString("index", j.ToString());
-                        writer.WriteString(r[j] ?? string.Empty);
-                        writer.WriteEndElement();
+                        using (w.Element("column", ("index", c.Index)))
+                        {
+                            w.Value(c.Name);
+                        }
                     }
 
-                    writer.WriteEndElement();
+                    foreach (var r in table)
+                    {
+                        using (w.Element("row", ("index", r.RowIndex)))
+                        {
+                            for (int j = 0; j < r.Count; j++)
+                            {
+                                using (w.Element("cell", ("index", j)))
+                                {
+                                    w.Value(r[j] ?? string.Empty);
+                                }
+                            }
+                        }
+                    }
+
                 }
-                writer.WriteEndElement();
-                writer.Flush();
+
+                return w.ToString();
             }
-            return sb.ToString();
+
+
         }
 
         public static string ToJson(this Table table, bool format = true)
