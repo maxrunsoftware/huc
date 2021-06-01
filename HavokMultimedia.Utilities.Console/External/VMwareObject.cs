@@ -188,7 +188,7 @@ namespace HavokMultimedia.Utilities.Console.External
             foreach (var cdrom in vmfull.CDRoms)
             {
                 if (!cdrom.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase)) continue;
-                if (cdrom.IsConnected)
+                if (cdrom.State == VMwareVM.VmHardwareConnectionState.Connected)
                 {
                     CDRomDisconnect(vmware, cdrom.Key);
                 }
@@ -276,9 +276,9 @@ namespace HavokMultimedia.Utilities.Console.External
                     foreach (var cdrom in CDRoms)
                     {
                         if (!cdrom.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase)) continue;
-                        var filename = cdrom.BackingIsoFile.Split("/").TrimOrNull().WhereNotNull().LastOrDefault();
+                        var filename = cdrom.BackingIsoFileName;
                         if (filename == null) continue;
-                        if (cdrom.State.EqualsCaseInsensitive("CONNECTED")) filename = filename + " (" + cdrom.State + ")";
+                        if (cdrom.State == VMwareVM.VmHardwareConnectionState.Connected) filename = filename + " (" + cdrom.State + ")";
                         list.Add(filename);
                     }
 
@@ -321,29 +321,22 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public class VMwareVM : VMwareObject
     {
+        public enum VmHardwareConnectionState { Connected, RecoverableError, UnrecoverableError, NotConnected, Unknown }
+
         public class GuestLocalFilesystem : VMwareObject
         {
             public string Key { get; }
             public long? FreeSpace { get; }
             public long? Capacity { get; }
-            public long? Used { get; }
-            public byte? PercentFree { get; }
-            public byte? PercentUsed { get; }
+            public long? Used => FreeSpace == null || Capacity == null ? null : Capacity.Value - FreeSpace.Value;
+            public byte? PercentFree => FreeSpace == null || Capacity == null ? null : (byte)((double)FreeSpace.Value / (double)Capacity.Value * (double)100);
+            public byte? PercentUsed => PercentFree == null ? null : (byte)((double)100 - (double)PercentFree.Value);
 
             public GuestLocalFilesystem(JToken obj)
             {
-                Key = obj["key"]?.ToString();
-                var sFreeSpace = obj["value"]?["free_space"]?.ToString();
-                if (sFreeSpace != null) FreeSpace = long.Parse(sFreeSpace);
-
-                var sCapacity = obj["value"]?["capacity"]?.ToString();
-                if (sCapacity != null) Capacity = long.Parse(sCapacity);
-
-                if (FreeSpace == null || Capacity == null) return;
-
-                Used = Capacity.Value - FreeSpace.Value;
-                PercentFree = (byte)((double)FreeSpace.Value / (double)Capacity.Value * (double)100);
-                PercentUsed = (byte)((double)100 - (double)PercentFree.Value);
+                Key = obj.ToString("key");
+                FreeSpace = obj.ToLong("value", "free_space");
+                Capacity = obj.ToLong("value", "capacity");
             }
         }
 
@@ -353,11 +346,12 @@ namespace HavokMultimedia.Utilities.Console.External
             public string StartConnected { get; }
             public string AllowGuestControl { get; }
             public string Label { get; }
-            public string State { get; }
+            public VmHardwareConnectionState State { get; }
             public string Type { get; }
             public string BackingDeviceAccessType { get; }
             public string BackingType { get; }
             public string BackingIsoFile { get; }
+            public string BackingIsoFileName => BackingIsoFile == null ? null : BackingIsoFile.Split("/").TrimOrNull().WhereNotNull().LastOrDefault();
             public string IdePrimary { get; }
             public string IdeMaster { get; }
             public string SataBus { get; }
@@ -365,27 +359,25 @@ namespace HavokMultimedia.Utilities.Console.External
             public string ScsiBus { get; }
             public string ScsiUnit { get; }
 
-            public bool IsConnected => State != null && State.EqualsCaseInsensitive("CONNECTED");
-
             public CDROM(JToken obj)
             {
-                Key = obj["key"]?.ToString();
-                Label = obj["value"]?["label"]?.ToString();
-                Type = obj["value"]?["type"]?.ToString();
-                StartConnected = obj["value"]?["start_connected"]?.ToString();
-                AllowGuestControl = obj["value"]?["allow_guest_control"]?.ToString();
-                State = obj["value"]?["state"]?.ToString();
+                Key = obj.ToString("key");
+                Label = obj.ToString("value", "label");
+                Type = obj.ToString("value", "type");
+                StartConnected = obj.ToString("value", "start_connected");
+                AllowGuestControl = obj.ToString("value", "allow_guest_control");
+                State = obj.ToConnectionState("value", "state");
 
-                BackingIsoFile = obj["value"]?["backing"]?["iso_file"]?.ToString();
-                BackingType = obj["value"]?["backing"]?["type"]?.ToString();
-                BackingDeviceAccessType = obj["value"]?["backing"]?["device_access_type"]?.ToString();
+                BackingIsoFile = obj.ToString("value", "backing", "iso_file");
+                BackingType = obj.ToString("value", "backing", "type");
+                BackingDeviceAccessType = obj.ToString("value", "backing", "device_access_type");
 
-                IdePrimary = obj["value"]?["ide"]?["primary"]?.ToString();
-                IdeMaster = obj["value"]?["ide"]?["master"]?.ToString();
-                ScsiBus = obj["value"]?["scsi"]?["bus"]?.ToString();
-                ScsiUnit = obj["value"]?["scsi"]?["unit"]?.ToString();
-                SataBus = obj["value"]?["sata"]?["bus"]?.ToString();
-                SataUnit = obj["value"]?["sata"]?["unit"]?.ToString();
+                IdePrimary = obj.ToString("value", "ide", "primary");
+                IdeMaster = obj.ToString("value", "ide", "master");
+                ScsiBus = obj.ToString("value", "scsi", "bus");
+                ScsiUnit = obj.ToString("value", "scsi", "unit");
+                SataBus = obj.ToString("value", "sata", "bus");
+                SataUnit = obj.ToString("value", "sata", "unit");
             }
         }
 
@@ -394,7 +386,7 @@ namespace HavokMultimedia.Utilities.Console.External
             public string Key { get; }
             public string Label { get; }
             public string Type { get; }
-            public string Capacity { get; }
+            public long? Capacity { get; }
             public string IdePrimary { get; }
             public string IdeMaster { get; }
             public string SataBus { get; }
@@ -406,19 +398,19 @@ namespace HavokMultimedia.Utilities.Console.External
 
             public Disk(JToken obj)
             {
-                Key = obj["key"]?.ToString();
-                Label = obj["value"]?["label"]?.ToString();
-                Type = obj["value"]?["type"]?.ToString();
-                Capacity = obj["value"]?["capacity"]?.ToString();
+                Key = obj.ToString("key");
+                Label = obj.ToString("value", "label");
+                Type = obj.ToString("value", "type");
+                Capacity = obj.ToLong("value", "capacity");
 
-                IdePrimary = obj["value"]?["ide"]?["primary"]?.ToString();
-                IdeMaster = obj["value"]?["ide"]?["master"]?.ToString();
-                ScsiBus = obj["value"]?["scsi"]?["bus"]?.ToString();
-                ScsiUnit = obj["value"]?["scsi"]?["unit"]?.ToString();
-                SataBus = obj["value"]?["sata"]?["bus"]?.ToString();
-                SataUnit = obj["value"]?["sata"]?["unit"]?.ToString();
-                BackingVmdkFile = obj["value"]?["backing"]?["vmdk_file"]?.ToString();
-                BackingType = obj["value"]?["backing"]?["type"]?.ToString();
+                IdePrimary = obj.ToString("value", "ide", "primary");
+                IdeMaster = obj.ToString("value", "ide", "master");
+                ScsiBus = obj.ToString("value", "scsi", "bus");
+                ScsiUnit = obj.ToString("value", "scsi", "unit");
+                SataBus = obj.ToString("value", "sata", "bus");
+                SataUnit = obj.ToString("value", "sata", "unit");
+                BackingVmdkFile = obj.ToString("value", "backing", "vmdk_file");
+                BackingType = obj.ToString("value", "backing", "type");
             }
         }
 
@@ -434,14 +426,13 @@ namespace HavokMultimedia.Utilities.Console.External
 
             public ScsiAdapter(JToken obj)
             {
-                Key = obj["key"]?.ToString();
-                PciSlotNumber = obj["value"]?["pci_slot_number"]?.ToString();
-                PciSlotNumber = obj["value"]?["label"]?.ToString();
-                PciSlotNumber = obj["value"]?["type"]?.ToString();
-                PciSlotNumber = obj["value"]?["sharing"]?.ToString();
-
-                ScsiBus = obj["value"]?["scsi"]?["bus"]?.ToString();
-                ScsiUnit = obj["value"]?["scsi"]?["unit"]?.ToString();
+                Key = obj.ToString("key");
+                PciSlotNumber = obj.ToString("value", "pci_slot_number");
+                Label = obj.ToString("value", "label");
+                Type = obj.ToString("value", "type");
+                Sharing = obj.ToString("value", "sharing");
+                ScsiBus = obj.ToString("value", "scsi", "bus");
+                ScsiUnit = obj.ToString("value", "scsi", "unit");
             }
         }
 
@@ -455,88 +446,97 @@ namespace HavokMultimedia.Utilities.Console.External
 
             public SataAdapter(JToken obj)
             {
-                Key = obj["key"]?.ToString();
-                Bus = obj["value"]?["bus"]?.ToString();
-                PciSlotNumber = obj["value"]?["pci_slot_number"]?.ToString();
-                Label = obj["value"]?["label"]?.ToString();
-                Type = obj["value"]?["type"]?.ToString();
+                Key = obj.ToString("key");
+                Bus = obj.ToString("value", "bus");
+                PciSlotNumber = obj.ToString("value", "pci_slot_number");
+                Label = obj.ToString("value", "label");
+                Type = obj.ToString("value", "type");
             }
         }
 
         public class Floppy : VMwareObject
         {
             public string Key { get; }
-            public string StartConnected { get; }
+            public bool? StartConnected { get; }
             public string BackingType { get; }
-            public string AllowGuestControl { get; }
+            public string BackingHostDevice { get; }
+            public string BackingImageFile { get; }
+            public bool? BackingAutoDetect { get; }
+            public bool? AllowGuestControl { get; }
             public string Label { get; }
-            public string State { get; }
+            public VmHardwareConnectionState State { get; }
 
             public Floppy(JToken obj)
             {
-                Key = obj["key"]?.ToString();
-                StartConnected = obj["value"]?["start_connected"]?.ToString();
-                Label = obj["value"]?["label"]?.ToString();
-                AllowGuestControl = obj["value"]?["allow_guest_control"]?.ToString();
-                State = obj["value"]?["state"]?.ToString();
-                BackingType = obj["value"]?["backing"]?["type"]?.ToString();
+                Key = obj.ToString("key");
+                StartConnected = obj.ToBool("value", "start_connected");
+                Label = obj.ToString("value", "label");
+                AllowGuestControl = obj.ToBool("value", "allow_guest_control");
+                State = obj.ToConnectionState("value", "state");
+                BackingType = obj.ToString("value", "backing", "type");
+                BackingAutoDetect = obj.ToBool("value", "backing", "auto_detect");
+                BackingHostDevice = obj.ToString("value", "backing", "host_device");
+                BackingImageFile = obj.ToString("value", "backing", "image_file");
+
             }
         }
 
         public class Nic : VMwareObject
         {
             public string Key { get; }
-            public string StartConnected { get; }
-            public string PciSlotNumber { get; }
+            public bool? StartConnected { get; }
+            public int? PciSlotNumber { get; }
             public string MacAddress { get; }
             public string MacType { get; }
-            public string AllowGuestControl { get; }
-            public string WakeOnLanEnabled { get; }
+            public bool? AllowGuestControl { get; }
+            public bool? WakeOnLanEnabled { get; }
             public string Label { get; }
-            public string State { get; }
+            public VmHardwareConnectionState State { get; }
             public string Type { get; }
             public string BackingConnectionCookie { get; }
-            public string BackingDistributedSwitchUUID { get; }
-            public string BackingDistributedPort { get; }
+            public Guid? BackingDistributedSwitchUUID { get; }
+            public int? BackingDistributedPort { get; }
             public string BackingType { get; }
             public string BackingNetwork { get; }
 
             public Nic(JToken obj)
             {
-                Key = obj["key"]?.ToString();
-                StartConnected = obj["value"]?["start_connected"]?.ToString();
-                PciSlotNumber = obj["value"]?["pci_slot_number"]?.ToString();
-                MacAddress = obj["value"]?["mac_address"]?.ToString();
-                MacType = obj["value"]?["mac_type"]?.ToString();
-                AllowGuestControl = obj["value"]?["allow_guest_control"]?.ToString();
-                WakeOnLanEnabled = obj["value"]?["wake_on_lan_enabled"]?.ToString();
-                Label = obj["value"]?["label"]?.ToString();
-                State = obj["value"]?["state"]?.ToString();
-                Type = obj["value"]?["type"]?.ToString();
+                Key = obj.ToString("key");
+                StartConnected = obj.ToBool("value", "start_connected");
+                PciSlotNumber = obj.ToInt("value", "pci_slot_number");
+                MacAddress = obj.ToString("value", "mac_address");
+                MacType = obj.ToString("value", "mac_type");
+                AllowGuestControl = obj.ToBool("value", "allow_guest_control");
+                WakeOnLanEnabled = obj.ToBool("value", "wake_on_lan_enabled");
+                Label = obj.ToString("value", "label");
+                State = obj.ToConnectionState("value", "state");
+                Type = obj.ToString("value", "type");
 
-                BackingConnectionCookie = obj["value"]?["backing"]?["connection_cookie"]?.ToString();
-                BackingDistributedSwitchUUID = obj["value"]?["backing"]?["distributed_switch_uuid"]?.ToString();
-                BackingDistributedPort = obj["value"]?["backing"]?["distributed_port"]?.ToString();
-                BackingType = obj["value"]?["backing"]?["type"]?.ToString();
-                BackingNetwork = obj["value"]?["backing"]?["network"]?.ToString();
+                BackingConnectionCookie = obj.ToString("value", "backing", "connection_cookie");
+                BackingDistributedSwitchUUID = obj.ToGuid("value", "backing", "distributed_switch_uuid");
+                BackingDistributedPort = obj.ToInt("value", "backing", "distributed_port");
+                BackingType = obj.ToString("value", "backing", "type");
+                BackingNetwork = obj.ToString("value", "backing", "network");
             }
         }
 
+        public enum VMPowerState { Unknown, PoweredOff, PoweredOn, Suspended }
         public string VM { get; }
         public string Name { get; }
-        public string MemorySizeMB { get; }
-        public string CpuCount { get; }
-        public string PowerState { get; }
-        public string MemoryHotAddEnabled { get; }
-        public string CpuCoresPerSocket { get; }
-        public string CpuHotRemoveEnabled { get; }
-        public string CpuHotAddEnabled { get; }
-        public string BootDelay { get; }
-        public string BootRetryDelay { get; }
-        public string BootEnterSetupMode { get; }
+        public long? MemorySizeMB { get; }
+        public int? CpuCount { get; }
+        public VMPowerState PowerState { get; }
+        public bool? MemoryHotAddEnabled { get; }
+        public int? CpuCoresPerSocket { get; }
+        public int? CpuSocketCount => CpuCount == null || CpuCoresPerSocket == null ? null : CpuCount.Value / CpuCoresPerSocket.Value;
+        public bool? CpuHotRemoveEnabled { get; }
+        public bool? CpuHotAddEnabled { get; }
+        public int? BootDelay { get; }
+        public int? BootRetryDelay { get; }
+        public bool? BootEnterSetupMode { get; }
         public string BootType { get; }
-        public string BootRetry { get; }
-        public string BootEfiLegacyBoot { get; }
+        public bool? BootRetry { get; }
+        public bool? BootEfiLegacyBoot { get; }
         public string BootNetworkProtocol { get; }
         public string GuestOS { get; }
         public string HardwareUpgradePolicy { get; }
@@ -554,49 +554,55 @@ namespace HavokMultimedia.Utilities.Console.External
         public IReadOnlyList<Nic> Nics { get; }
         public IReadOnlyList<GuestLocalFilesystem> GuestLocalFilesystems { get; }
         public bool IsVMwareToolsInstalled { get; }
+        public string LibraryItem { get; }
         public VMwareVM(VMware vmware, JToken obj)
         {
-            VM = obj["vm"]?.ToString();
-            Name = obj["name"]?.ToString();
-            MemorySizeMB = obj["memory_size_MiB"]?.ToString();
-            CpuCount = obj["cpu_count"]?.ToString();
-            PowerState = obj["power_state"]?.ToString();
+            VM = obj.ToString("vm");
+            Name = obj.ToString("name");
+            MemorySizeMB = obj.ToLong("memory_size_MiB");
+            CpuCount = obj.ToInt("cpu_count");
+
+            var powerState = obj.ToString("power_state");
+            if (powerState == null) PowerState = VMPowerState.Unknown;
+            else if (powerState.EqualsCaseInsensitive("POWERED_OFF")) PowerState = VMPowerState.PoweredOff;
+            else if (powerState.EqualsCaseInsensitive("POWERED_ON")) PowerState = VMPowerState.PoweredOn;
+            else if (powerState.EqualsCaseInsensitive("SUSPENDED")) PowerState = VMPowerState.Suspended;
 
             obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM);
             if (obj == null) return;
-            GuestOS = obj["guest_OS"]?.ToString();
+            GuestOS = obj.ToString("guest_OS");
 
-            MemoryHotAddEnabled = obj["memory"]?["hot_add_enabled"]?.ToString();
-            CpuHotRemoveEnabled = obj["cpu"]?["hot_remove_enabled"]?.ToString();
-            CpuHotAddEnabled = obj["cpu"]?["hot_add_enabled"]?.ToString();
-            CpuCoresPerSocket = obj["cpu"]?["cores_per_socket"]?.ToString();
+            MemoryHotAddEnabled = obj.ToBool("memory", "hot_add_enabled");
+            CpuHotRemoveEnabled = obj.ToBool("cpu", "hot_remove_enabled");
+            CpuHotAddEnabled = obj.ToBool("cpu", "hot_add_enabled");
+            CpuCoresPerSocket = obj.ToInt("cpu", "cores_per_socket");
 
             CDRoms = obj["cdroms"].OrEmpty().Select(o => new CDROM((JObject)o)).ToList();
             Disks = obj["disks"].OrEmpty().Select(o => new Disk((JObject)o)).ToList();
             ScsiAdapters = obj["scsi_adapters"].OrEmpty().Select(o => new ScsiAdapter((JObject)o)).ToList();
             Nics = obj["nics"].OrEmpty().Select(o => new Nic((JObject)o)).ToList();
 
-            BootDelay = obj["boot"]?["delay"]?.ToString();
-            BootRetryDelay = obj["boot"]?["retry_delay"]?.ToString();
-            BootEnterSetupMode = obj["boot"]?["enter_setup_mode"]?.ToString();
-            BootType = obj["boot"]?["type"]?.ToString();
-            BootRetry = obj["boot"]?["retry"]?.ToString();
-            BootEfiLegacyBoot = obj["boot"]?["efi_legacy_boot"]?.ToString();
-            BootNetworkProtocol = obj["boot"]?["network_protocol"]?.ToString();
+            BootDelay = obj.ToInt("boot", "delay");
+            BootRetryDelay = obj.ToInt("boot", "retry_delay");
+            BootEnterSetupMode = obj.ToBool("boot", "enter_setup_mode");
+            BootType = obj.ToString("boot", "type");
+            BootRetry = obj.ToBool("boot", "retry");
+            BootEfiLegacyBoot = obj.ToBool("boot", "efi_legacy_boot");
+            BootNetworkProtocol = obj.ToString("boot", "network_protocol");
 
-            HardwareUpgradePolicy = obj["hardware"]?["upgrade_policy"]?.ToString();
-            HardwareUpgradeStatus = obj["hardware"]?["upgrade_status"]?.ToString();
-            HardwareVersion = obj["hardware"]?["version"]?.ToString();
+            HardwareUpgradePolicy = obj.ToString("hardware", "upgrade_policy");
+            HardwareUpgradeStatus = obj.ToString("hardware", "upgrade_status");
+            HardwareVersion = obj.ToString("hardware", "version");
 
             obj = QueryValueObjectSafe(vmware, $"/rest/vcenter/vm/{VM}/guest/identity");
             if (obj != null)
             {
-                IdentityFullNameDefaultMessage = obj["full_name"]?["default_message"]?.ToString();
-                IdentityFullNameId = obj["full_name"]?["id"]?.ToString();
-                IdentityName = obj["name"]?.ToString();
-                IdentityIpAddress = obj["ip_address"]?.ToString(); // Only 1 IP supported: https://github.com/vmware-archive/vsphere-automation-sdk-rest/issues/21
-                IdentityFamily = obj["family"]?.ToString();
-                IdentityHostName = obj["host_name"]?.ToString();
+                IdentityFullNameDefaultMessage = obj.ToString("full_name", "default_message");
+                IdentityFullNameId = obj.ToString("full_name", "id");
+                IdentityName = obj.ToString("name");
+                IdentityIpAddress = obj.ToString("ip_address"); // Only 1 IP supported: https://github.com/vmware-archive/vsphere-automation-sdk-rest/issues/21
+                IdentityFamily = obj.ToString("family");
+                IdentityHostName = obj.ToString("host_name");
             }
 
             var localFilesystem = QueryValueArraySafe(vmware, $"/rest/vcenter/vm/{VM}/guest/local-filesystem").ToArray();
@@ -604,6 +610,12 @@ namespace HavokMultimedia.Utilities.Console.External
 
             if (obj == null && localFilesystem.Length == 0) IsVMwareToolsInstalled = false;
             else IsVMwareToolsInstalled = true;
+
+            obj = QueryValueObjectSafe(vmware, $"/rest/vcenter/vm/{VM}/library-item");
+            if (obj != null)
+            {
+                LibraryItem = obj.ToString("check_out", "library_item");
+            }
         }
 
         public static IEnumerable<VMwareVM> Query(VMware vmware)
@@ -641,16 +653,16 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareDatacenter(VMware vmware, JToken obj)
         {
-            Name = obj["name"]?.ToString();
-            Datacenter = obj["datacenter"]?.ToString();
+            Name = obj.ToString("name");
+            Datacenter = obj.ToString("datacenter");
 
             obj = QueryValueObjectSafe(vmware, "/rest/vcenter/datacenter/" + Datacenter);
             if (obj != null)
             {
-                DatastoreFolder = obj["datastore_folder"]?.ToString();
-                HostFolder = obj["host_folder"]?.ToString();
-                NetworkFolder = obj["network_folder"]?.ToString();
-                VMFolder = obj["vm_folder"]?.ToString();
+                DatastoreFolder = obj.ToString("datastore_folder");
+                HostFolder = obj.ToString("host_folder");
+                NetworkFolder = obj.ToString("network_folder");
+                VMFolder = obj.ToString("vm_folder");
             }
         }
 
@@ -673,8 +685,8 @@ namespace HavokMultimedia.Utilities.Console.External
 
             public Disk(JToken obj)
             {
-                Key = obj["key"]?.ToString();
-                VmHome = obj["value"]?["vm_home"]?.ToString();
+                Key = obj.ToString("key");
+                VmHome = obj.ToString("value", "vm_home");
                 Disks = obj["value"]?["disks"].OrEmpty().Select(o => o?.ToString()).WhereNotNull().ToList();
             }
 
@@ -687,9 +699,9 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareStoragePolicy(VMware vmware, JToken obj)
         {
-            Name = obj["name"]?.ToString();
-            Description = obj["description"]?.ToString();
-            Policy = obj["policy"]?.ToString();
+            Name = obj.ToString("name");
+            Description = obj.ToString("description");
+            Policy = obj.ToString("policy");
 
             Disks = vmware.GetValueArray($"/rest/vcenter/storage/policies/{Policy}/vm").OrEmpty().Select(o => new Disk(o)).ToList();
         }
@@ -708,26 +720,30 @@ namespace HavokMultimedia.Utilities.Console.External
         public string Name { get; }
         public string Datastore { get; }
         public string Type { get; }
-        public string FreeSpace { get; }
-        public string Capacity { get; }
-        public string Accessible { get; }
-        public string MultipleHostAccess { get; }
-        public string ThinProvisioningSupported { get; }
+        public long? FreeSpace { get; }
+        public long? Capacity { get; }
+        public long? Used => FreeSpace == null || Capacity == null ? null : Capacity.Value - FreeSpace.Value;
+        public byte? PercentFree => FreeSpace == null || Capacity == null ? null : (byte)((double)FreeSpace.Value / (double)Capacity.Value * (double)100);
+        public byte? PercentUsed => PercentFree == null ? null : (byte)((double)100 - (double)PercentFree.Value);
+
+        public bool? Accessible { get; }
+        public bool? MultipleHostAccess { get; }
+        public bool? ThinProvisioningSupported { get; }
 
         public VMwareDatastore(VMware vmware, JToken obj)
         {
-            Name = obj["name"]?.ToString();
-            Datastore = obj["datastore"]?.ToString();
-            Type = obj["type"]?.ToString();
-            FreeSpace = obj["free_space"]?.ToString();
-            Capacity = obj["capacity"]?.ToString();
+            Name = obj.ToString("name");
+            Datastore = obj.ToString("datastore");
+            Type = obj.ToString("type");
+            FreeSpace = obj.ToLong("free_space");
+            Capacity = obj.ToLong("capacity");
 
             obj = QueryValueObjectSafe(vmware, "/rest/vcenter/datastore/" + Datastore);
             if (obj != null)
             {
-                Accessible = obj["accessible"]?.ToString();
-                MultipleHostAccess = obj["multiple_host_access"]?.ToString();
-                ThinProvisioningSupported = obj["thin_provisioning_supported"]?.ToString();
+                Accessible = obj.ToBool("accessible");
+                MultipleHostAccess = obj.ToBool("multiple_host_access");
+                ThinProvisioningSupported = obj.ToBool("thin_provisioning_supported");
             }
         }
 
@@ -748,9 +764,9 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareFolder(VMware vmware, JToken obj)
         {
-            Name = obj["name"]?.ToString();
-            Folder = obj["folder"]?.ToString();
-            Type = obj["type"]?.ToString();
+            Name = obj.ToString("name");
+            Folder = obj.ToString("folder");
+            Type = obj.ToString("type");
         }
 
         public static IEnumerable<VMwareFolder> Query(VMware vmware)
@@ -762,19 +778,32 @@ namespace HavokMultimedia.Utilities.Console.External
         }
     }
 
+
     public class VMwareHost : VMwareObject
     {
+        public enum HostPowerState { Unknown, PoweredOn, PoweredOff, Standby }
+        public enum HostConnectionState { Unknown, Connected, Disconnected, NotResponding }
         public string Name { get; }
         public string Host { get; }
-        public string ConnectionState { get; }
-        public string PowerState { get; }
+        public HostConnectionState ConnectionState { get; }
+        public HostPowerState PowerState { get; }
 
         public VMwareHost(VMware vmware, JToken obj)
         {
-            Name = obj["name"]?.ToString();
-            Host = obj["host"]?.ToString();
-            ConnectionState = obj["connection_state"]?.ToString();
-            PowerState = obj["power_state"]?.ToString();
+            Name = obj.ToString("name");
+            Host = obj.ToString("host");
+
+            var connectionState = obj.ToString("connection_state");
+            if (connectionState == null) ConnectionState = HostConnectionState.Unknown;
+            else if (connectionState.EqualsCaseInsensitive("CONNECTED")) ConnectionState = HostConnectionState.Connected;
+            else if (connectionState.EqualsCaseInsensitive("DISCONNECTED")) ConnectionState = HostConnectionState.Disconnected;
+            else if (connectionState.EqualsCaseInsensitive("NOT_RESPONDING")) ConnectionState = HostConnectionState.NotResponding;
+
+            var powerState = obj.ToString("power_state");
+            if (powerState == null) PowerState = HostPowerState.Unknown;
+            else if (powerState.EqualsCaseInsensitive("POWERED_OFF")) PowerState = HostPowerState.PoweredOff;
+            else if (powerState.EqualsCaseInsensitive("POWERED_ON")) PowerState = HostPowerState.PoweredOn;
+            else if (powerState.EqualsCaseInsensitive("STANDBY")) PowerState = HostPowerState.Standby;
         }
 
         public static IEnumerable<VMwareHost> Query(VMware vmware)
@@ -794,9 +823,9 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareNetwork(VMware vmware, JToken obj)
         {
-            Name = obj["name"]?.ToString();
-            Network = obj["network"]?.ToString();
-            Type = obj["type"]?.ToString();
+            Name = obj.ToString("name");
+            Network = obj.ToString("network");
+            Type = obj.ToString("type");
         }
 
         public static IEnumerable<VMwareNetwork> Query(VMware vmware)
@@ -815,8 +844,8 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public VMwareResourcePool(VMware vmware, JToken obj)
         {
-            Name = obj["name"]?.ToString();
-            ResourcePool = obj["resource_pool"]?.ToString();
+            Name = obj.ToString("name");
+            ResourcePool = obj.ToString("resource_pool");
         }
 
         public static IEnumerable<VMwareResourcePool> Query(VMware vmware)
@@ -825,6 +854,87 @@ namespace HavokMultimedia.Utilities.Console.External
             {
                 yield return new VMwareResourcePool(vmware, obj);
             }
+        }
+    }
+
+
+    public static class VMwareExtensions
+    {
+        public static string ToString(this JToken token, params string[] keys)
+        {
+            if (token == null) return null;
+            foreach (var key in keys)
+            {
+                token = token[key];
+                if (token == null) return null;
+            }
+            return token.ToString().TrimOrNull();
+        }
+        public static bool ToBool(this JToken token, bool ifNull, params string[] keys)
+        {
+            return ToBool(token, keys) ?? ifNull;
+        }
+        public static bool? ToBool(this JToken token, params string[] keys)
+        {
+            var val = ToString(token, keys);
+            if (val == null) return null;
+            return val.ToBool();
+        }
+        public static uint ToUInt(this JToken token, uint ifNull, params string[] keys)
+        {
+            return ToUInt(token, keys) ?? ifNull;
+        }
+        public static uint? ToUInt(this JToken token, params string[] keys)
+        {
+            var val = ToString(token, keys);
+            if (val == null) return null;
+            return val.ToUInt();
+        }
+        public static int ToInt(this JToken token, int ifNull, params string[] keys)
+        {
+            return ToInt(token, keys) ?? ifNull;
+        }
+        public static int? ToInt(this JToken token, params string[] keys)
+        {
+            var val = ToString(token, keys);
+            if (val == null) return null;
+            return val.ToInt();
+        }
+        public static Guid ToGuid(this JToken token, Guid ifNull, params string[] keys)
+        {
+            return ToGuid(token, keys) ?? ifNull;
+        }
+        public static Guid? ToGuid(this JToken token, params string[] keys)
+        {
+            var val = ToString(token, keys);
+            if (val == null) return null;
+            var sb = new StringBuilder();
+            for (int i = 0; i < val.Length; i++)
+            {
+                if (val[i].In("0123456789abcdef".ToCharArray())) sb.Append(val[i]);
+            }
+            return sb.ToString().ToGuid();
+        }
+        public static long ToLong(this JToken token, long ifNull, params string[] keys)
+        {
+            return ToLong(token, keys) ?? ifNull;
+        }
+        public static long? ToLong(this JToken token, params string[] keys)
+        {
+            var val = ToString(token, keys);
+            if (val == null) return null;
+            return val.ToLong();
+        }
+        public static VMwareVM.VmHardwareConnectionState ToConnectionState(this JToken token, params string[] keys)
+        {
+            var s = token.ToString(keys);
+            if (s == null) return VMwareVM.VmHardwareConnectionState.Unknown;
+            else if (s.EqualsCaseInsensitive("CONNECTED")) return VMwareVM.VmHardwareConnectionState.Connected;
+            else if (s.EqualsCaseInsensitive("RECOVERABLE_ERROR")) return VMwareVM.VmHardwareConnectionState.RecoverableError;
+            else if (s.EqualsCaseInsensitive("UNRECOVERABLE_ERROR")) return VMwareVM.VmHardwareConnectionState.UnrecoverableError;
+            else if (s.EqualsCaseInsensitive("NOT_CONNECTED")) return VMwareVM.VmHardwareConnectionState.NotConnected;
+            else if (s.EqualsCaseInsensitive("UNKNOWN")) return VMwareVM.VmHardwareConnectionState.Unknown;
+            else return VMwareVM.VmHardwareConnectionState.Unknown;
         }
     }
 
