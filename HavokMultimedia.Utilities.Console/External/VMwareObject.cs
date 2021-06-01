@@ -105,8 +105,6 @@ namespace HavokMultimedia.Utilities.Console.External
 
             return sb.ToString();
         }
-
-
     }
 
     public class VMwareVMSlim : VMwareObject
