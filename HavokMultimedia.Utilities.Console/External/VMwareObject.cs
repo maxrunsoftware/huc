@@ -128,9 +128,7 @@ namespace HavokMultimedia.Utilities.Console.External
             {
                 using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false }))
                 {
-                    writer.WriteStartObject();
-                    writer.WriteString("cdrom", key);
-                    writer.WriteEndObject();
+                    writer.WriteObject(("cdrom", key));
                 }
                 json = Encoding.UTF8.GetString(stream.ToArray());
             }
@@ -161,14 +159,8 @@ namespace HavokMultimedia.Utilities.Console.External
                 {
                     writer.WriteStartObject();
                     writer.WriteStartObject("spec");
-                    writer.WriteString("allow_guest_control", "true");
-                    writer.WriteStartObject("backing");
-                    writer.WriteString("device_access_type", "EMULATION");
-                    //writer.WriteString("host_device", "");
-                    //writer.WriteString("iso_file", "");
-                    writer.WriteString("type", "CLIENT_DEVICE");
-                    writer.WriteEndObject();
-                    writer.WriteString("start_connected", "false");
+                    writer.WriteStrings(("allow_guest_control", "true"), ("start_connected", "false"));
+                    writer.WriteObject("backing", ("device_access_type", "EMULATION"), ("type", "CLIENT_DEVICE"));
                     writer.WriteEndObject();
                     writer.WriteEndObject();
                 }

@@ -29,6 +29,7 @@ using System.Reflection;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace HavokMultimedia.Utilities
@@ -303,6 +304,31 @@ namespace HavokMultimedia.Utilities
     [System.Diagnostics.DebuggerStepThrough]
     public static class Extensions
     {
+        #region JSON
+
+        public static void WriteObject(this Utf8JsonWriter writer, string objectName, params (string name, string value)[] properties)
+        {
+            if (objectName == null) writer.WriteStartObject();
+            else writer.WriteStartObject(objectName);
+            writer.WriteStrings(properties);
+            writer.WriteEndObject();
+        }
+
+        public static void WriteObject(this Utf8JsonWriter writer, params (string name, string value)[] properties)
+        {
+            WriteObject(writer, null, properties);
+        }
+
+        public static void WriteStrings(this Utf8JsonWriter writer, params (string name, string value)[] properties)
+        {
+            foreach (var property in properties)
+            {
+                writer.WriteString(property.name, property.value);
+            }
+        }
+
+        #endregion JSON
+
         /// <summary>
         /// Attempts to convert the DotNet type to a DbType
         /// </summary>
