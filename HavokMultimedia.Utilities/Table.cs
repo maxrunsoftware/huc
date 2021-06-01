@@ -639,31 +639,28 @@ namespace HavokMultimedia.Utilities
 
         public static string ToJson(this Table table, bool format = true)
         {
-            var options = new JsonWriterOptions();
-            options.Indented = format;
-
-            using (var stream = new MemoryStream())
+            using (var w = new JsonWriter(formatted: format))
             {
-                using (var writer = new Utf8JsonWriter(stream, options))
+                using (w.Object())
                 {
-                    writer.WriteStartObject();
-                    writer.WriteStartArray("columns");
-                    foreach (var c in table.Columns) writer.WriteStringValue(c.Name);
-                    writer.WriteEndArray();
-                    writer.WriteStartArray("rows");
-                    foreach (var r in table)
+                    using (w.Array("columns"))
                     {
-                        writer.WriteStartArray();
-                        foreach (var cell in r) writer.WriteStringValue(cell ?? string.Empty);
-                        writer.WriteEndArray();
+                        foreach (var c in table.Columns) w.Value(c.Name);
                     }
-                    writer.WriteEndArray();
-                    writer.WriteEndObject();
-                    writer.Flush();
-
-                    return Encoding.UTF8.GetString(stream.ToArray());
+                    using (w.Array("rows"))
+                    {
+                        foreach (var r in table)
+                        {
+                            using (w.Array())
+                            {
+                                foreach (var cell in r) w.Value(cell ?? string.Empty);
+                            }
+                        }
+                    }
                 }
+                return w.ToString();
             }
+
         }
 
         public static Table SetColumnsListTo(this Table table, params string[] columnNames)

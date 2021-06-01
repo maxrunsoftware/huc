@@ -23,7 +23,7 @@ namespace HavokMultimedia.Utilities
 {
     public class JsonWriter : IDisposable
     {
-        public class ObjectToken : IDisposable
+        private class ObjectToken : IDisposable
         {
             private readonly JsonWriter writer;
             public ObjectToken(JsonWriter writer)
@@ -33,6 +33,19 @@ namespace HavokMultimedia.Utilities
             public void Dispose()
             {
                 writer.EndObject();
+            }
+        }
+
+        private class ArrayToken : IDisposable
+        {
+            private readonly JsonWriter writer;
+            public ArrayToken(JsonWriter writer)
+            {
+                this.writer = writer;
+            }
+            public void Dispose()
+            {
+                writer.EndArray();
             }
         }
 
@@ -64,17 +77,26 @@ namespace HavokMultimedia.Utilities
             return toString;
         }
 
-        public ObjectToken Object() => Object(null);
-        public ObjectToken Object(string objectName)
+        public IDisposable Object() => Object(null);
+        public IDisposable Object(string objectName)
         {
             if (objectName == null) writer.WriteStartObject();
             else writer.WriteStartObject(objectName);
             return new ObjectToken(this);
         }
+        public IDisposable Array() => Array(null);
+        public IDisposable Array(string arrayPropertyName)
+        {
+            if (arrayPropertyName == null) writer.WriteStartArray();
+            else writer.WriteStartArray(arrayPropertyName);
+            return new ArrayToken(this);
+        }
         public void EndObject() => writer.WriteEndObject();
+        public void EndArray() => writer.WriteEndArray();
 
         public void Property(string propertyName, string propertyValue) => writer.WriteString(propertyName, propertyValue);
         public void Property(string propertyName, bool propertyValue) => writer.WriteBoolean(propertyName, propertyValue);
+        public void Value(string value) => writer.WriteStringValue(value);
 
 
     }
