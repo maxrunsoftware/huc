@@ -22,7 +22,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HavokMultimedia.Utilities.Console.External
