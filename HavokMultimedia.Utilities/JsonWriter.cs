@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -84,19 +85,31 @@ namespace HavokMultimedia.Utilities
             else writer.WriteStartObject(objectName);
             return new ObjectToken(this);
         }
-        public IDisposable Array() => Array(null);
+        public IDisposable Array() => Array((string)null);
         public IDisposable Array(string arrayPropertyName)
         {
             if (arrayPropertyName == null) writer.WriteStartArray();
             else writer.WriteStartArray(arrayPropertyName);
             return new ArrayToken(this);
         }
+        public void Array(string arrayPropertyName, IEnumerable<object> enumerable)
+        {
+            using (Array(arrayPropertyName))
+            {
+                foreach (var o in enumerable)
+                {
+                    Value(o);
+                }
+            }
+        }
+
+
         public void EndObject() => writer.WriteEndObject();
         public void EndArray() => writer.WriteEndArray();
 
-        public void Property(string propertyName, string propertyValue) => writer.WriteString(propertyName, propertyValue);
+        public void Property(string propertyName, object propertyValue) => writer.WriteString(propertyName, propertyValue.ToStringGuessFormat());
         public void Property(string propertyName, bool propertyValue) => writer.WriteBoolean(propertyName, propertyValue);
-        public void Value(string value) => writer.WriteStringValue(value);
+        public void Value(object value) => writer.WriteStringValue(value.ToStringGuessFormat());
 
 
     }

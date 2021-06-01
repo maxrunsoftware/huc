@@ -33,37 +33,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             help.AddSummary("Creates a web server to host a name+key+value store");
             help.AddExample("-o=80");
+            help.AddDetail("Store a value: http://192.168.1.5?name=store1&key=mykey&value=abc");
+            help.AddDetail("Retrieve a value: http://192.168.1.5?name=store1&key=mykey");
+            help.AddDetail("Retrieve all values in bucket: http://192.168.1.5?name=store1");
+            help.AddDetail("Retrieve bucket names: http://192.168.1.5");
         }
 
-        private static string GenerateRandomData(int length)
-        {
-            var chars = "abcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
 
-            using (var srandom = RandomNumberGenerator.Create())
-            {
-                var sb = new StringBuilder();
-                for (int i = 0; i < length; i++)
-                {
-                    sb.Append(srandom.Pick(chars));
-                }
-                return sb.ToString();
-            }
-        }
         private readonly BucketStoreMemoryString store = new BucketStoreMemoryString();
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
             var config = GetConfig();
-
-            /*
-            store["store1"][GenerateRandomData(3)] = GenerateRandomData(20);
-            store["store1"][GenerateRandomData(3)] = GenerateRandomData(20);
-            store["store2"][GenerateRandomData(3)] = GenerateRandomData(20);
-            store["store2"][GenerateRandomData(3)] = GenerateRandomData(20);
-            store["store2"][GenerateRandomData(3)] = GenerateRandomData(20);
-            store["store3"][GenerateRandomData(3)] = GenerateRandomData(20);
-            store["store3"][GenerateRandomData(3)] = GenerateRandomData(20);
-            */
 
             config.AddPathHandler("/", HttpVerbs.Any, Index);
 
@@ -83,8 +64,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Info("WebServer shutdown");
         }
 
-        private object Serialize(object o) => Swan.Formatters.Json.Serialize(o, format: true);
-
 
 
         private object Index(IHttpContext context)
@@ -94,20 +73,93 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var value = context.GetParameterString("value").TrimOrNull();
             if (context.HasParameter("value"))
             {
+                // store value
                 if (name != null && key != null) store[name][key] = value;
-                return string.Empty;
+                using (var w = new JsonWriter(formatted: true))
+                {
+                    using (w.Object())
+                    {
+                        w.Property("key", key);
+                        w.Property("value", value);
+                    }
+                    return w.ToString();
+                }
             }
 
-            if (name == null) return Serialize(store.Buckets.ToArray());
-            var bucket = store[name];
-            if (key != null) return bucket[key];
-
-            var list = new List<string[]>();
-            foreach (var k in bucket.Keys)
+            if (name == null)
             {
-                list.Add(new string[] { k, bucket[k] });
+                // show all buckets
+                /*
+                {
+                    "bucketsNames":
+                    [
+                        "store1",
+                        "store2"
+                    ]
+                }
+                */
+                using (var w = new JsonWriter(formatted: true))
+                {
+                    using (w.Object())
+                    {
+                        w.Array("bucketNames", store.Buckets.ToArray());
+                    }
+                    return w.ToString();
+                }
             }
-            return Serialize(list.ToArray());
+
+            var bucket = store[name];
+            if (key != null)
+            {
+                // return value
+                /*
+                {   
+                    key="a98"
+                    value="dfa"
+                }
+                */
+                using (var w = new JsonWriter(formatted: true))
+                {
+                    using (w.Object())
+                    {
+                        w.Property("key", key);
+                        w.Property("value", bucket[key]);
+                    }
+                    return w.ToString();
+                }
+            }
+
+
+            // return name+key value
+            /*
+            {
+                "buckets":
+                [
+                    { key="a98", value="dfa" },
+                    { key="kdf", value="39f"
+                ]
+            }
+            */
+            using (var w = new JsonWriter(formatted: true))
+            {
+                using (w.Object())
+                {
+                    using (w.Array("buckets"))
+                    {
+                        foreach (var keyName in bucket.Keys)
+                        {
+                            using (w.Object())
+                            {
+                                w.Property("key", keyName);
+                                w.Property("value", bucket[keyName]);
+                            }
+                        }
+
+                    }
+
+                }
+                return w.ToString();
+            }
 
 
         }
