@@ -64,27 +64,18 @@ namespace HavokMultimedia.Utilities
             return toString;
         }
 
-        public void StartObject() => writer.WriteStartObject();
-        public void StartObject(string propertyName) => writer.WriteStartObject(propertyName);
-        public void EndObject() => writer.WriteEndObject();
-        public void Property(string name, string value) => writer.WriteString(name, value);
-        public void Property(params (string name, string value)[] properties)
-        {
-            foreach (var property in properties)
-            {
-                Property(property.name, property.value);
-            }
-        }
-        public void Object(string objectName, params (string name, string value)[] properties)
+        public ObjectToken Object() => Object(null);
+        public ObjectToken Object(string objectName)
         {
             if (objectName == null) writer.WriteStartObject();
             else writer.WriteStartObject(objectName);
-            Property(properties);
-            writer.WriteEndObject();
+            return new ObjectToken(this);
         }
-        public void Object(params (string name, string value)[] properties)
-        {
-            Object(null, properties);
-        }
+        public void EndObject() => writer.WriteEndObject();
+
+        public void Property(string propertyName, string propertyValue) => writer.WriteString(propertyName, propertyValue);
+        public void Property(string propertyName, bool propertyValue) => writer.WriteBoolean(propertyName, propertyValue);
+
+
     }
 }

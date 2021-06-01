@@ -52,6 +52,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             { "VMwareVM_WithoutTools", VMwareVMSlim.QueryWithoutToolsInstalled },
             { "VMwareVM_PoweredOff", VMwareVMSlim.QueryPoweredOff },
             { "VMwareVM_PoweredOn", VMwareVMSlim.QueryPoweredOn },
+            { "VMwareVM_Suspended", VMwareVMSlim.QuerySuspended },
             { "VMwareVM_25%Free", VMwareVMSlim.QueryDiskspace25 },
             { "VMwareVM_10%Free", VMwareVMSlim.QueryDiskspace10 },
             { "VMwareVM_IsoAttached", VMwareVMSlim.QueryIsoAttached },

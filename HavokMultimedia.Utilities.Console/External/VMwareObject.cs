@@ -124,19 +124,19 @@ namespace HavokMultimedia.Utilities.Console.External
               {"cdrom":"1000"}
             */
             string json;
-            using (var writer = new JsonWriter())
+            using (var w = new JsonWriter())
             {
-                using (writer.StartObject())
+                using (w.Object())
                 {
-                    writer.Property("cdrom", key);
+                    w.Property("cdrom", key);
                 }
-                json = writer.ToString();
+                json = w.ToString();
             }
 
             vmware.Post($"/rest/com/vmware/vcenter/iso/image/id:{VM}?~action=unmount", contentJson: json);
         }
 
-        public void CDRomUpdateToClientDevice(VMware vmware, string key)
+        public void CDRomUpdate_ClientDevice(VMware vmware, string key)
         {
             /*
             {
@@ -153,17 +153,22 @@ namespace HavokMultimedia.Utilities.Console.External
             }
             */
             string json;
-            using (var writer = new JsonWriter())
+            using (var w = new JsonWriter())
             {
-                using (writer.StartObject())
+                using (w.Object())
                 {
-                    using (writer.StartObject("spec"))
+                    using (w.Object("spec"))
                     {
-                        writer.Property(("allow_guest_control", "true"), ("start_connected", "false"));
-                        writer.Object("backing", ("device_access_type", "EMULATION"), ("type", "CLIENT_DEVICE"));
+                        w.Property("allow_guest_control", true);
+                        w.Property("start_connected", false);
+                        using (w.Object("backing"))
+                        {
+                            w.Property("device_access_type", "EMULATION");
+                            w.Property("type", "CLIENT_DEVICE");
+                        }
                     }
                 }
-                json = writer.ToString();
+                json = w.ToString();
             }
 
             vmware.Patch($"/rest/vcenter/vm/{VM}/hardware/cdrom/{key}", contentJson: json);
@@ -180,25 +185,23 @@ namespace HavokMultimedia.Utilities.Console.External
                 {
                     CDRomDisconnect(vmware, cdrom.Key);
                 }
-                CDRomUpdateToClientDevice(vmware, cdrom.Key);
+                CDRomUpdate_ClientDevice(vmware, cdrom.Key);
             }
         }
 
         public string VM { get; }
         public string Name { get; }
-        public string MemorySizeMB { get; }
-        public string CpuCount { get; }
-        public string PowerState { get; }
-
-        private bool IsPoweredOn => PowerState == null ? false : PowerState.EndsWith("ON", StringComparison.OrdinalIgnoreCase);
+        public long? MemorySizeMB { get; }
+        public int? CpuCount { get; }
+        public VMwareVM.VMPowerState PowerState { get; }
 
         public VMwareVMSlim(VMware vmware, JToken obj)
         {
             VM = obj["vm"]?.ToString();
             Name = obj["name"]?.ToString();
-            MemorySizeMB = obj["memory_size_MiB"]?.ToString();
-            CpuCount = obj["cpu_count"]?.ToString();
-            PowerState = obj["power_state"]?.ToString();
+            MemorySizeMB = obj.ToLong("memory_size_MiB");
+            CpuCount = obj.ToInt("cpu_count");
+            PowerState = obj.ToPowerState("power_state");
         }
 
         public static IEnumerable<VMwareVMSlim> Query(VMware vmware)
@@ -294,17 +297,23 @@ namespace HavokMultimedia.Utilities.Console.External
             }
         }
 
-        public static IEnumerable<VMwareVMSlim> QueryPoweredOff(VMware vmware) => Query(vmware).Where(o => !o.IsPoweredOn);
-        public static IEnumerable<VMwareVMSlim> QueryPoweredOn(VMware vmware) => Query(vmware).Where(o => o.IsPoweredOn);
+        public static IEnumerable<VMwareVMSlim> QueryPoweredOff(VMware vmware) => Query(vmware).Where(o => o.PowerState != VMwareVM.VMPowerState.PoweredOn);
+        public static IEnumerable<VMwareVMSlim> QueryPoweredOn(VMware vmware) => Query(vmware).Where(o => o.PowerState == VMwareVM.VMPowerState.PoweredOn);
+        public static IEnumerable<VMwareVMSlim> QuerySuspended(VMware vmware) => Query(vmware).Where(o => o.PowerState == VMwareVM.VMPowerState.Suspended);
 
 
         public override string ToString()
         {
-            return VM.PadRight(10) + (IsPoweredOn ? "   " : "OFF") + "  " + Name;
+            var sb = new StringBuilder();
+            sb.Append(VM.PadRight(10));
+            sb.Append(" ");
+            if (PowerState == VMwareVM.VMPowerState.PoweredOn) sb.Append("         ");
+            else if (PowerState == VMwareVM.VMPowerState.PoweredOff) sb.Append("   OFF   ");
+            else if (PowerState == VMwareVM.VMPowerState.Suspended) sb.Append("SUSPENDED");
+            else sb.Append(" UNKNOWN ");
+            sb.Append("  " + Name);
+            return sb.ToString();
         }
-
-
-
     }
 
     public class VMwareVM : VMwareObject
@@ -549,12 +558,7 @@ namespace HavokMultimedia.Utilities.Console.External
             Name = obj.ToString("name");
             MemorySizeMB = obj.ToLong("memory_size_MiB");
             CpuCount = obj.ToInt("cpu_count");
-
-            var powerState = obj.ToString("power_state");
-            if (powerState == null) PowerState = VMPowerState.Unknown;
-            else if (powerState.EqualsCaseInsensitive("POWERED_OFF")) PowerState = VMPowerState.PoweredOff;
-            else if (powerState.EqualsCaseInsensitive("POWERED_ON")) PowerState = VMPowerState.PoweredOn;
-            else if (powerState.EqualsCaseInsensitive("SUSPENDED")) PowerState = VMPowerState.Suspended;
+            PowerState = obj.ToPowerState("power_state");
 
             obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM);
             if (obj == null) return;
@@ -923,6 +927,16 @@ namespace HavokMultimedia.Utilities.Console.External
             else if (s.EqualsCaseInsensitive("NOT_CONNECTED")) return VMwareVM.VmHardwareConnectionState.NotConnected;
             else if (s.EqualsCaseInsensitive("UNKNOWN")) return VMwareVM.VmHardwareConnectionState.Unknown;
             else return VMwareVM.VmHardwareConnectionState.Unknown;
+        }
+
+        public static VMwareVM.VMPowerState ToPowerState(this JToken token, params string[] keys)
+        {
+            var s = token.ToString(keys);
+            if (s == null) return VMwareVM.VMPowerState.Unknown;
+            if (s.EqualsCaseInsensitive("POWERED_OFF")) return VMwareVM.VMPowerState.PoweredOff;
+            else if (s.EqualsCaseInsensitive("POWERED_ON")) return VMwareVM.VMPowerState.PoweredOn;
+            else if (s.EqualsCaseInsensitive("SUSPENDED")) return VMwareVM.VMPowerState.Suspended;
+            else return VMwareVM.VMPowerState.Unknown;
         }
     }
 
