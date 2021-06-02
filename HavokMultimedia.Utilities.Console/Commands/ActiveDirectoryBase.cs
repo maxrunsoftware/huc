@@ -62,8 +62,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return new ActiveDirectory(server: host, userName: username, password: password, ldapPort: port, domainName: domainName);
         }
 
-
-
         protected ActiveDirectoryObject FindUser(ActiveDirectory ad, string samAccountName, string ou)
         {
             var users = ad.GetUsers();
