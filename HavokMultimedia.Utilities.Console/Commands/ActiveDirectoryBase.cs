@@ -48,7 +48,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             domainName = GetArgParameterOrConfig("domainName", "d");
 
-            using (var ad = GetActiveDirectory())
+            using (var ad = new ActiveDirectory(
+                server: host,
+                userName: username,
+                password: password,
+                ldapPort: port,
+                domainName: domainName
+                )
+            )
             {
                 ExecuteInternal(ad);
             }
@@ -56,11 +63,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected abstract void ExecuteInternal(ActiveDirectory ad);
         protected string HelpExamplePrefix => "-h=192.168.1.5 -u=administrator -p=testpass";
-        protected ActiveDirectory GetActiveDirectory()
-        {
-            if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-            return new ActiveDirectory(server: host, userName: username, password: password, ldapPort: port, domainName: domainName);
-        }
 
         protected ActiveDirectoryObject FindUser(ActiveDirectory ad, string samAccountName, string ou)
         {
