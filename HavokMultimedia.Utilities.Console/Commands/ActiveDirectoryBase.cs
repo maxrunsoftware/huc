@@ -42,8 +42,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (!Constant.OS_WINDOWS) throw new Exception("This function is only supported on Windows clients");
             host = GetArgParameterOrConfigRequired("host", "h");
             port = GetArgParameterOrConfigInt("port", "o", Ldap.LDAP_PORT).ToString().ToUShort();
-            username = GetArgParameterOrConfig("username", "u");
-            password = GetArgParameterOrConfig("password", "p");
+            username = GetArgParameterOrConfig("username", "u").TrimOrNull();
+            if (username != null) password = GetArgParameterOrConfigRequired("password", "p");
+            else GetArgParameterOrConfig("password", "p");
+
             domainName = GetArgParameterOrConfig("domainName", "d");
 
             using (var ad = GetActiveDirectory())
