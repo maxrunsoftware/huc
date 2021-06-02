@@ -30,7 +30,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("emailaddress", "ea", "The email address of the new user");
             help.AddValue("<SAMAccountName>");
             help.AddExample(HelpExamplePrefix + " testuser");
-            help.AddExample(HelpExamplePrefix + " -fn=First -fn=Last -dn=MyUser testuser");
+            help.AddExample(HelpExamplePrefix + " -fn=First -ln=Last -dn=MyUser testuser");
         }
 
         protected override void ExecuteInternal(ActiveDirectory ad)
