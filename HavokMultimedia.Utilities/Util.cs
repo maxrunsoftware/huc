@@ -1428,14 +1428,23 @@ namespace HavokMultimedia.Utilities
         public static IEnumerable<FileListResult> FileList(string directoryPath, bool recursive = false)
         {
             directoryPath = directoryPath.CheckNotNullTrimmed(nameof(directoryPath));
+            directoryPath = Path.GetFullPath(directoryPath);
             if (IsFile(directoryPath)) throw CreateExceptionIsNotDirectory(directoryPath);
             if (!IsDirectory(directoryPath)) throw CreateExceptionDirectoryNotFound(directoryPath);
 
+            var alreadyScannedDirectories = new HashSet<string>(Constant.OS_WINDOWS ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
             var queue = new Queue<string>();
             queue.Enqueue(directoryPath);
             while (queue.Count > 0)
             {
                 var currentDirectory = Path.GetFullPath(queue.Dequeue());
+
+                // prevent loops
+                if (!alreadyScannedDirectories.Add(currentDirectory)) continue;
+
+                // ignore links to other paths
+                if (!currentDirectory.StartsWith(directoryPath, Constant.OS_WINDOWS ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)) continue;
+
                 Exception exception = null;
                 string[] files = null;
                 try
