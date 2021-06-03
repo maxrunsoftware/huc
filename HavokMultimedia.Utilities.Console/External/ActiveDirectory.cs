@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
 
@@ -128,25 +129,30 @@ namespace HavokMultimedia.Utilities.Console.External
             MoveObject(adobj, DomainUsersDN);
         }
 
-        private ActiveDirectoryObject FindOU(string ouName)
+        private List<ActiveDirectoryObject> FindOU(string ouName)
         {
-            if (ouName.EqualsCaseInsensitive(DistinguishedName)) return GetObjectByDistinguishedName(DistinguishedName);
+            if (ouName.EqualsCaseInsensitive(DistinguishedName))
+            {
+                return GetObjectByDistinguishedName(DistinguishedName).Yield().WhereNotNull().ToList();
+            }
+
+            var d = new Dictionary<string, ActiveDirectoryObject>(StringComparer.OrdinalIgnoreCase);
 
             var ous = this.GetOUs();
             if (ouName.Contains(","))
             {
                 // full distinguished name
-                foreach (var ou in ous) if (ou.DistinguishedName.EqualsCaseInsensitive(ouName)) return ou;
+                foreach (var ou in ous) if (ou.DistinguishedName.EqualsCaseInsensitive(ouName)) d[ou.DistinguishedName] = ou;
             }
             else
             {
                 // SAM account name of OU
-                foreach (var ou in ous) if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsCaseInsensitive(ouName)) return ou;
-                foreach (var ou in ous) if (ou.Name != null && ou.Name.EqualsCaseInsensitive(ouName)) return ou;
-                foreach (var ou in ous) if (ou.DisplayName != null && ou.DisplayName.EqualsCaseInsensitive(ouName)) return ou;
-                foreach (var ou in ous) if (ou.ObjectName != null && ou.ObjectName.EqualsCaseInsensitive(ouName)) return ou;
+                foreach (var ou in ous) if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsCaseInsensitive(ouName)) d[ou.DistinguishedName] = ou;
+                foreach (var ou in ous) if (ou.Name != null && ou.Name.EqualsCaseInsensitive(ouName)) d[ou.DistinguishedName] = ou;
+                foreach (var ou in ous) if (ou.DisplayName != null && ou.DisplayName.EqualsCaseInsensitive(ouName)) d[ou.DistinguishedName] = ou;
+                foreach (var ou in ous) if (ou.ObjectName != null && ou.ObjectName.EqualsCaseInsensitive(ouName)) d[ou.DistinguishedName] = ou;
             }
-            return null;
+            return d.Values.ToList();
         }
 
         public void AddOU(string samAccountName, string parentOUName = null, string description = null)
@@ -154,12 +160,27 @@ namespace HavokMultimedia.Utilities.Console.External
             if (parentOUName == null) parentOUName = DistinguishedName.TrimOrNull();
             if (parentOUName == null) throw new Exception("Could not determine top level OU");
 
-            var parentOU = FindOU(parentOUName);
-            if (parentOU == null) throw new Exception("Parent OU \"" + parentOUName + "\" not found");
+            var parentOUs = FindOU(parentOUName);
+            if (parentOUs.IsEmpty()) throw new Exception("Parent OU \"" + parentOUName + "\" not found");
+            if (parentOUs.Count > 1) throw new Exception("Multiple potential parents found, use DistinguishedName...  " + parentOUs.Select(o => o.DistinguishedName).ToStringDelimited("  "));
+            var parentOU = parentOUs.First();
 
             var childOU = parentOU.DirectoryEntry.Children.Add("OU=" + samAccountName, "OrganizationalUnit");
             if (description != null) childOU.Properties["description"].Add(description);
             childOU.CommitChanges();
+        }
+
+        public void RemoveOU(string samAccountNameOrDN)
+        {
+            var ous = FindOU(samAccountNameOrDN);
+            if (ous.IsEmpty()) throw new Exception("OU \"" + samAccountNameOrDN + "\" not found");
+            if (ous.Count > 1) throw new Exception("Multiple OUs found, use DistinguishedName...  " + ous.Select(o => o.DistinguishedName).ToStringDelimited("  "));
+            var ou = ous.First();
+
+            var ouParent = ou.DirectoryEntry.Parent;
+            if (ouParent == null) throw new Exception("Could not determine parent OU of object " + ou.DistinguishedName);
+
+            ouParent.Children.Remove(ou.DirectoryEntry);
         }
 
         public void AddGroup(string samAccountName, ActiveDirectoryGroupType groupType = ActiveDirectoryGroupType.GlobalSecurityGroup)
