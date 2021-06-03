@@ -130,9 +130,12 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public void AddOU(string samAccountName, string parentOUName = null, string description = null)
         {
+            if (parentOUName == null) parentOUName = DistinguishedName.TrimOrNull();
+            if (parentOUName == null) throw new Exception("Could not determine top level OU");
+
             ActiveDirectoryObject findOU(string ouName)
             {
-                if (ouName == null) ouName = DistinguishedName;
+                if (ouName.EqualsCaseInsensitive(DistinguishedName)) return GetObjectByDistinguishedName(DistinguishedName);
 
                 var ous = this.GetOUs();
                 if (ouName.Contains(","))
