@@ -128,6 +128,37 @@ namespace HavokMultimedia.Utilities.Console.External
             MoveObject(adobj, DomainUsersDN);
         }
 
+        public void AddOU(string samAccountName, string parentOUName = null, string description = null)
+        {
+            ActiveDirectoryObject findOU(string ouName)
+            {
+                if (ouName == null) ouName = DistinguishedName;
+
+                var ous = this.GetOUs();
+                if (ouName.Contains(","))
+                {
+                    // full distinguished name
+                    foreach (var ou in ous) if (ou.DistinguishedName.EqualsCaseInsensitive(ouName)) return ou;
+                }
+                else
+                {
+                    // SAM account name of OU
+                    foreach (var ou in ous) if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsCaseInsensitive(ouName)) return ou;
+                    foreach (var ou in ous) if (ou.Name != null && ou.Name.EqualsCaseInsensitive(ouName)) return ou;
+                    foreach (var ou in ous) if (ou.DisplayName != null && ou.DisplayName.EqualsCaseInsensitive(ouName)) return ou;
+                    foreach (var ou in ous) if (ou.ObjectName != null && ou.ObjectName.EqualsCaseInsensitive(ouName)) return ou;
+                }
+                return null;
+            }
+
+            var parentOU = findOU(parentOUName);
+            if (parentOU == null) throw new Exception("Parent OU \"" + parentOUName + "\" not found");
+
+            var childOU = parentOU.DirectoryEntry.Children.Add(samAccountName, "OrganizationalUnit");
+            if (description != null) childOU.Properties["description"].Add(description);
+            childOU.CommitChanges();
+        }
+
         public void AddGroup(string samAccountName, ActiveDirectoryGroupType groupType = ActiveDirectoryGroupType.GlobalSecurityGroup)
         {
             if (!IsGroupNameValid(samAccountName)) throw new Exception($"Groupname {samAccountName} is an invalid name");

@@ -45,7 +45,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 nameof(PasswordExpired)
             }.OrderBy(o => o, StringComparer.OrdinalIgnoreCase).ToHashSet();
 
-        private System.DirectoryServices.DirectoryEntry DirectoryEntry
+        public System.DirectoryServices.DirectoryEntry DirectoryEntry
         {
             get
             {
