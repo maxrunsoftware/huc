@@ -67,6 +67,11 @@ mv Orders.xml ./subdir2
 mv Orders.json ./subdir2
 ./huc directoryFlatten -c=KeepNewest .
 
+echo --- DIRECTORYSIZE ---
+./huc DirectorySize .
+
+
+
 echo --- FTP ---
 ./huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
 ./huc ftpput -h=$ip -u=testuser -p=testpass testdata1.txt
