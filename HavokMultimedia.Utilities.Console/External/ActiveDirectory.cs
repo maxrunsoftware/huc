@@ -176,7 +176,9 @@ namespace HavokMultimedia.Utilities.Console.External
             if (ous.IsEmpty()) throw new Exception("OU \"" + samAccountNameOrDN + "\" not found");
             if (ous.Count > 1) throw new Exception("Multiple OUs found, use DistinguishedName...  " + ous.Select(o => o.DistinguishedName).ToStringDelimited("  "));
             var ou = ous.First();
-
+            var ouChildren = ou.Children.ToList();
+            log.Debug("OU " + ou.DistinguishedName + " contains " + ouChildren.Count + " children objects");
+            if (!ouChildren.IsEmpty()) throw new Exception("Cannot remove OU " + ou.DistinguishedName + " because it contains " + ouChildren.Count + " objects...  " + ouChildren.Select(o => o.DistinguishedName).ToStringDelimited("  "));
             var ouParent = ou.DirectoryEntry.Parent;
             if (ouParent == null) throw new Exception("Could not determine parent OU of object " + ou.DistinguishedName);
 

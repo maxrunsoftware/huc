@@ -207,6 +207,22 @@ namespace HavokMultimedia.Utilities.Console.External
         public DateTime? WhenCreated => Attributes.GetDateTimeUTC("whenCreated");
         public string WWWHomePage { get => Attributes.GetString("wWWHomePage"); set => AttributeSave("wWWHomePage", value.TrimOrNull()); }
 
+        public IEnumerable<ActiveDirectoryObject> Children
+        {
+            get
+            {
+                foreach (var o in DirectoryEntry.Children)
+                {
+                    var de = o as System.DirectoryServices.DirectoryEntry;
+                    if (de == null) continue; // TODO: Could we get other object types?
+                    var dn = de.Properties["distinguishedName"].ToStringGuessFormat().TrimOrNull();
+                    if (dn == null) continue;
+                    var ado = activeDirectory.GetObjectByDistinguishedName(dn);
+                    if (ado == null) continue; // should not happen
+                    yield return ado;
+                }
+            }
+        }
         #endregion Properties
 
         #region Properties Custom
