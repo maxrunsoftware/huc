@@ -22,7 +22,7 @@
     <PackageReference Include="MySql.Data" Version="8.0.25" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.1" />
     <PackageReference Include="EmbedIO" Version="3.4.3" />
-    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.51.0.2272" />
+    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.51.0.2315" />
     <PackageReference Include="Inferno" Version="1.6.4" />
     <PackageReference Include="System.DirectoryServices.AccountManagement" Version="5.0.0" />
     <PackageReference Include="System.DirectoryServices.Protocols" Version="5.0.0" />
