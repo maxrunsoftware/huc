@@ -384,7 +384,7 @@ namespace HavokMultimedia.Utilities.Console.External
             if (username == null) username = password = "anonymous";
             _client = new FtpClient(host, port, new System.Net.NetworkCredential(username, password));
             log.Debug("Connecting to FTP server " + host + ":" + port + " with username " + username);
-            FtpTrace.LogPassword = true;
+            //FtpTrace.LogPassword = true;
             //FtpTrace.LogPrefix = true;
             _client.OnLogEvent = LogMessage;
             _client.Connect();
@@ -406,7 +406,7 @@ namespace HavokMultimedia.Utilities.Console.External
             _client.SslProtocols = sslProtocols;
 
             log.Debug("Connecting to FTPS server " + host + ":" + port + " with username " + username);
-            FtpTrace.LogPassword = true;
+            //FtpTrace.LogPassword = true;
             //FtpTrace.LogPrefix = true;
             _client.OnLogEvent = LogMessage;
             _client.Connect();
