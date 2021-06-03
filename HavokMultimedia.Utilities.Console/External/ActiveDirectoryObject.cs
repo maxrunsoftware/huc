@@ -215,7 +215,14 @@ namespace HavokMultimedia.Utilities.Console.External
                 {
                     var de = o as System.DirectoryServices.DirectoryEntry;
                     if (de == null) continue; // TODO: Could we get other object types?
-                    var dn = de.Properties["distinguishedName"].ToStringGuessFormat().TrimOrNull();
+                    var dnCollection = de.Properties["distinguishedName"];
+                    object dnObj = null;
+                    foreach (var dnCollectionObj in dnCollection)
+                    {
+                        if (dnObj == null) dnObj = dnCollectionObj;
+                    }
+
+                    var dn = dnObj.ToStringGuessFormat().TrimOrNull();
                     if (dn == null) continue;
                     var ado = activeDirectory.GetObjectByDistinguishedName(dn);
                     if (ado == null) continue; // should not happen
