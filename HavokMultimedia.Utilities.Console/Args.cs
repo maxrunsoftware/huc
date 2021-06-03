@@ -138,5 +138,7 @@ namespace HavokMultimedia.Utilities.Console
         {
 
         }
+
+        public static ArgsException ValueNotSpecified(string argName) => new ArgsException(argName, "Arg <" + argName + "> not specified");
     }
 }
