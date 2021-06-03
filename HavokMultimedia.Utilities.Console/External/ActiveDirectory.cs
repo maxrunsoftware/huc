@@ -128,33 +128,33 @@ namespace HavokMultimedia.Utilities.Console.External
             MoveObject(adobj, DomainUsersDN);
         }
 
+        private ActiveDirectoryObject FindOU(string ouName)
+        {
+            if (ouName.EqualsCaseInsensitive(DistinguishedName)) return GetObjectByDistinguishedName(DistinguishedName);
+
+            var ous = this.GetOUs();
+            if (ouName.Contains(","))
+            {
+                // full distinguished name
+                foreach (var ou in ous) if (ou.DistinguishedName.EqualsCaseInsensitive(ouName)) return ou;
+            }
+            else
+            {
+                // SAM account name of OU
+                foreach (var ou in ous) if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsCaseInsensitive(ouName)) return ou;
+                foreach (var ou in ous) if (ou.Name != null && ou.Name.EqualsCaseInsensitive(ouName)) return ou;
+                foreach (var ou in ous) if (ou.DisplayName != null && ou.DisplayName.EqualsCaseInsensitive(ouName)) return ou;
+                foreach (var ou in ous) if (ou.ObjectName != null && ou.ObjectName.EqualsCaseInsensitive(ouName)) return ou;
+            }
+            return null;
+        }
+
         public void AddOU(string samAccountName, string parentOUName = null, string description = null)
         {
             if (parentOUName == null) parentOUName = DistinguishedName.TrimOrNull();
             if (parentOUName == null) throw new Exception("Could not determine top level OU");
 
-            ActiveDirectoryObject findOU(string ouName)
-            {
-                if (ouName.EqualsCaseInsensitive(DistinguishedName)) return GetObjectByDistinguishedName(DistinguishedName);
-
-                var ous = this.GetOUs();
-                if (ouName.Contains(","))
-                {
-                    // full distinguished name
-                    foreach (var ou in ous) if (ou.DistinguishedName.EqualsCaseInsensitive(ouName)) return ou;
-                }
-                else
-                {
-                    // SAM account name of OU
-                    foreach (var ou in ous) if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsCaseInsensitive(ouName)) return ou;
-                    foreach (var ou in ous) if (ou.Name != null && ou.Name.EqualsCaseInsensitive(ouName)) return ou;
-                    foreach (var ou in ous) if (ou.DisplayName != null && ou.DisplayName.EqualsCaseInsensitive(ouName)) return ou;
-                    foreach (var ou in ous) if (ou.ObjectName != null && ou.ObjectName.EqualsCaseInsensitive(ouName)) return ou;
-                }
-                return null;
-            }
-
-            var parentOU = findOU(parentOUName);
+            var parentOU = FindOU(parentOUName);
             if (parentOU == null) throw new Exception("Parent OU \"" + parentOUName + "\" not found");
 
             var childOU = parentOU.DirectoryEntry.Children.Add("OU=" + samAccountName, "OrganizationalUnit");
