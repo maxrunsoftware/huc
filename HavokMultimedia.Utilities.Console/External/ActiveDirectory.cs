@@ -154,7 +154,7 @@ namespace HavokMultimedia.Utilities.Console.External
             var parentOU = findOU(parentOUName);
             if (parentOU == null) throw new Exception("Parent OU \"" + parentOUName + "\" not found");
 
-            var childOU = parentOU.DirectoryEntry.Children.Add(samAccountName, "OrganizationalUnit");
+            var childOU = parentOU.DirectoryEntry.Children.Add("OU=" + samAccountName, "OrganizationalUnit");
             if (description != null) childOU.Properties["description"].Add(description);
             childOU.CommitChanges();
         }
