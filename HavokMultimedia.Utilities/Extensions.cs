@@ -326,6 +326,13 @@ namespace HavokMultimedia.Utilities
         /// <returns>The typed service</returns>
         public static T GetService<T>(this IServiceProvider serviceProvider) => (T)serviceProvider.GetService(typeof(T));
 
+        /// <summary>
+        /// Gets a typed value from a serialized object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="serializationInfo"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static T GetValue<T>(this System.Runtime.Serialization.SerializationInfo serializationInfo, string name) => (T)serializationInfo.GetValue(name, typeof(T));
 
 
@@ -366,6 +373,12 @@ namespace HavokMultimedia.Utilities
         /// <returns>The string without the first character</returns>
         public static string RemoveLeft(this string str) => RemoveLeft(str, out var c);
 
+        /// <summary>
+        /// Removes the leftmost character from a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
         public static string RemoveLeft(this string str, out char c)
         {
             if (str.Length == 0)
@@ -378,12 +391,35 @@ namespace HavokMultimedia.Utilities
             return str.Substring(1);
         }
 
+        /// <summary>
+        /// Removes the leftmost character from a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="numberOfCharactersToRemove"></param>
+        /// <returns></returns>
         public static string RemoveLeft(this string str, int numberOfCharactersToRemove) => numberOfCharactersToRemove.CheckNotNegative(nameof(numberOfCharactersToRemove)) >= str.Length ? string.Empty : str.Substring(numberOfCharactersToRemove);
 
+        /// <summary>
+        /// Removes the rightmost characters from a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="numberOfCharactersToRemove"></param>
+        /// <returns></returns>
         public static string RemoveRight(this string str, int numberOfCharactersToRemove) => numberOfCharactersToRemove.CheckNotNegative(nameof(numberOfCharactersToRemove)) >= str.Length ? string.Empty : str.Substring(0, str.Length - numberOfCharactersToRemove);
 
+        /// <summary>
+        /// Removes the rightmost character from a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public static string RemoveRight(this string str) => RemoveRight(str, out var c);
 
+        /// <summary>
+        /// Removes the rightmost character from a string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
         public static string RemoveRight(this string str, out char c)
         {
             if (str.Length == 0)
@@ -396,6 +432,13 @@ namespace HavokMultimedia.Utilities
             return str.Substring(0, str.Length - 1);
         }
 
+        /// <summary>
+        /// Counts the number of occurances of a specific string
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="stringToSearchFor"></param>
+        /// <param name="comparison"></param>
+        /// <returns></returns>
         public static int CountOccurances(this string str, string stringToSearchFor, StringComparison? comparison = null)
         {
             str.Remove(stringToSearchFor, out var num, comparison);
