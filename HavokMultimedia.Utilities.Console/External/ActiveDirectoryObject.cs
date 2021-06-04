@@ -910,7 +910,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public override bool Equals(object obj) => Equals(obj as ActiveDirectoryObject);
 
-        public override int GetHashCode() => ObjectGUID.GetHashCode();
+        public override int GetHashCode() => Util.GenerateHashCode(DistinguishedName?.ToUpper(), ObjectGUID);
 
         public override string ToString()
         {
@@ -930,20 +930,21 @@ namespace HavokMultimedia.Utilities.Console.External
 
         #region IEquatable
 
-        public bool Equals(ActiveDirectoryObject other)
-        {
-            if (other == null) return false;
-
-            if (string.Equals(DistinguishedName, other.DistinguishedName, StringComparison.OrdinalIgnoreCase)) return true;
-            if (ObjectGUID.Equals(other.ObjectGUID)) return true;
-            return false;
-        }
+        public bool Equals(ActiveDirectoryObject other) => CompareTo(other) == 0;
 
         #endregion IEquatable
 
         #region IComparable
 
-        public int CompareTo(ActiveDirectoryObject other) => StringComparer.OrdinalIgnoreCase.Compare(DistinguishedName, other.DistinguishedName);
+        public int CompareTo(ActiveDirectoryObject other)
+        {
+            if (other == null) return 1;
+            int c = StringComparer.OrdinalIgnoreCase.Compare(DistinguishedName, other.DistinguishedName);
+            if (c != 0) return c;
+            c = ObjectGUID.CompareTo(other.ObjectGUID);
+            if (c != 0) return c;
+            return 0;
+        }
 
         #endregion IComparable
     }
