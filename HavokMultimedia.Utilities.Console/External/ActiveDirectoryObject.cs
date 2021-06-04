@@ -918,11 +918,10 @@ namespace HavokMultimedia.Utilities.Console.External
             sb.Append(GetType().NameFormatted());
             sb.Append("[");
             var list = new List<string>();
-            if (DistinguishedName != null) list.Add(nameof(DistinguishedName) + ":" + DistinguishedName);
-            if (CN != null) list.Add(nameof(CN) + ":" + CN);
-            if (SAMAccountName != null) list.Add(nameof(SAMAccountName) + ":" + SAMAccountName);
-            list.Add(nameof(ObjectGUID) + ":" + ObjectGUID);
-            sb.Append(list.ToStringDelimited(", "));
+            if (ObjectName != null) list.Add(ObjectName);
+            if (DistinguishedName != null) list.Add(DistinguishedName);
+            list.Add(ObjectGUID.ToString());
+            sb.Append(list.ToStringDelimited(" "));
             sb.Append("]");
             return sb.ToString();
         }
