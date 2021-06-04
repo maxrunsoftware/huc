@@ -356,16 +356,11 @@ namespace HavokMultimedia.Utilities
 
         private static Action<object> CloseSafelyCreate(Type type)
         {
-            MethodInfo method = null;
-            foreach (var m in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (m.GetParameters().Length != 0) continue;
-                if (m.Name.Equals("Close"))
-                {
-                    method = m;
-                    break;
-                }
-            }
+            var method = type.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                .Where(o => o.GetParameters().Length == 0)
+                .Where(o => o.Name.Equals("Close"))
+                .FirstOrDefault();
+
             if (method == null) throw new Exception("Close() method not found on object " + type.FullNameFormatted());
 
             return Util.CreateAction(method);
