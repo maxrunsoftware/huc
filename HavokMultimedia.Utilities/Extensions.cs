@@ -353,6 +353,7 @@ namespace HavokMultimedia.Utilities
         }
 
         private static readonly Dictionary<Type, Action<object>> closeSafelyCache = new();
+        private static readonly object closeSafelyCacheLock = new object();
 
         private static Action<object> CloseSafelyCreate(Type type)
         {
@@ -383,7 +384,7 @@ namespace HavokMultimedia.Utilities
             var type = objectWithCloseMethod.GetType();
 
             Action<object> closer;
-            lock (closeSafelyCache)
+            lock (closeSafelyCacheLock)
             {
                 if (!closeSafelyCache.TryGetValue(type, out closer))
                 {
