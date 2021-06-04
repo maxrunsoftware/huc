@@ -335,6 +335,50 @@ namespace HavokMultimedia.Utilities
         /// <returns></returns>
         public static T GetValue<T>(this System.Runtime.Serialization.SerializationInfo serializationInfo, string name) => (T)serializationInfo.GetValue(name, typeof(T));
 
+        #region IDisposable
+
+        public static void DisposeSafely(this IDisposable disposable, Action<string, Exception> onErrorLog)
+        {
+            onErrorLog.CheckNotNull(nameof(onErrorLog));
+            if (disposable == null) return;
+            try
+            {
+                disposable.Dispose();
+            }
+            catch (Exception e)
+            {
+                onErrorLog($"Error calling {disposable.GetType().FullNameFormatted()}.Dispose() : {e.Message}", e);
+            }
+        }
+
+
+        public static void CloseSafely(this IDisposable objectWithCloseMethod, Action<string, Exception> onErrorLog)
+        {
+            if (objectWithCloseMethod == null) return;
+
+            MethodInfo closeMethod = null;
+            foreach (var m in objectWithCloseMethod.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (m.GetParameters().Length != 0) continue;
+                if (m.Name.Equals("Close"))
+                {
+                    closeMethod = m;
+                    break;
+                }
+            }
+            if (closeMethod == null) throw new Exception("Close() method not found on object " + objectWithCloseMethod.GetType().FullNameFormatted());
+
+            try
+            {
+                closeMethod.Invoke(objectWithCloseMethod, null);
+            }
+            catch (Exception e)
+            {
+                onErrorLog($"Error calling {objectWithCloseMethod.GetType().FullNameFormatted()}.Close() : {e.Message}", e);
+            }
+        }
+
+        #endregion IDisposable
 
         #region Attributes
 
