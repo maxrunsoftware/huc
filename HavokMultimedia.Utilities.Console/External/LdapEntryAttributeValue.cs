@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.External
@@ -72,6 +73,15 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             Bytes = bytes;
             String = str;
+        }
+
+        public static IEnumerable<LdapEntryAttributeValue> Parse(System.DirectoryServices.Protocols.DirectoryAttribute attribute)
+        {
+            foreach (var obj in attribute)
+            {
+                var leav = Parse(obj);
+                if (leav != null) yield return leav;
+            }
         }
 
         public static LdapEntryAttributeValue Parse(object obj)
