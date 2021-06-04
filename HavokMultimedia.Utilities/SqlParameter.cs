@@ -18,12 +18,31 @@ using System.Data;
 
 namespace HavokMultimedia.Utilities
 {
+    /// <summary>
+    /// Parameter used for calling SQL stored procedure and functions
+    /// </summary>
     public sealed class SqlParameter
     {
+        /// <summary>
+        /// Parameter name
+        /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// Parameter type
+        /// </summary>
         public DbType Type { get; }
+
+        /// <summary>
+        /// Parameter value
+        /// </summary>
         public object Value { get; }
 
+        /// <summary>
+        /// Constructs a new SqlParameter attempting to figure out the Type based on the value supplied
+        /// </summary>
+        /// <param name="name">Name</param>
+        /// <param name="value">Value</param>
         public SqlParameter(string name, object value)
         {
             Name = name;
@@ -48,6 +67,12 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        /// <summary>
+        /// Constructs a new SqlParameter
+        /// </summary>
+        /// <param name="name">Name</param>
+        /// <param name="value">Value</param>
+        /// <param name="type"></param>
         public SqlParameter(string name, object value, DbType type)
         {
             Name = name;
