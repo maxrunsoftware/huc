@@ -22,6 +22,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -351,31 +352,50 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        private static readonly Dictionary<Type, Action<object>> CloseSafelyCache = new();
 
-        public static void CloseSafely(this IDisposable objectWithCloseMethod, Action<string, Exception> onErrorLog)
+        private static Action<object> CloseSafelyCreate(Type type)
         {
-            if (objectWithCloseMethod == null) return;
-
-            MethodInfo closeMethod = null;
-            foreach (var m in objectWithCloseMethod.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            MethodInfo method = null;
+            foreach (var m in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (m.GetParameters().Length != 0) continue;
                 if (m.Name.Equals("Close"))
                 {
-                    closeMethod = m;
+                    method = m;
                     break;
                 }
             }
-            if (closeMethod == null) throw new Exception("Close() method not found on object " + objectWithCloseMethod.GetType().FullNameFormatted());
+            if (method == null) throw new Exception("Close() method not found on object " + type.FullNameFormatted());
 
+            // https://stackoverflow.com/a/2933227
+            var input = Expression.Parameter(typeof(object), "input");
+            Action<object> compiledExp = Expression.Lambda<Action<object>>(
+            Expression.Call(Expression.Convert(input, type), method), input).Compile();
+
+            Action<object> func = o => compiledExp(o);
+            return func;
+
+        }
+        public static void CloseSafely(this IDisposable objectWithCloseMethod, Action<string, Exception> onErrorLog)
+        {
+            if (objectWithCloseMethod == null) return;
+            var type = objectWithCloseMethod.GetType();
+            // TODO: Not thread safe
+            if (!CloseSafelyCache.TryGetValue(type, out var closer))
+            {
+                closer = CloseSafelyCreate(type);
+                CloseSafelyCache[type] = closer;
+            }
             try
             {
-                closeMethod.Invoke(objectWithCloseMethod, null);
+                closer(objectWithCloseMethod);
             }
             catch (Exception e)
             {
                 onErrorLog($"Error calling {objectWithCloseMethod.GetType().FullNameFormatted()}.Close() : {e.Message}", e);
             }
+
         }
 
         #endregion IDisposable
