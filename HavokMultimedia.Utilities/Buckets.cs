@@ -91,29 +91,24 @@ namespace HavokMultimedia.Utilities
     }
 
     /// <summary>
-    /// Threadsafe cache implementation using backing dictionary and value generation function. If
-    /// you expect thousands of different keys either pre-cache using the Cache method or use a
-    /// different cache implementation as new keys get more expensive depending on the number of
-    /// current keys. The benefit is read is o(1).
+    /// Threadsafe cache implementation using backing dictionary and value generation function. 
     /// </summary>
     /// <typeparam name="TKey">Key</typeparam>
     /// <typeparam name="TValue">Generated Value</typeparam>
-    public class BucketCacheCopyOnWrite<TKey, TValue> : IBucketReadOnly<TKey, TValue>
+    public class BucketCacheThreadSafe<TKey, TValue> : IBucketReadOnly<TKey, TValue>
     {
         private readonly object locker = new object();
-        private readonly Func<IDictionary<TKey, TValue>> newDictionary;
         private readonly Func<TKey, TValue> factory;
-        private volatile IDictionary<TKey, TValue> dictionary;
+        private readonly IDictionary<TKey, TValue> dictionary;
         public IEnumerable<TKey> Keys => dictionary.Keys;
 
-        public BucketCacheCopyOnWrite(Func<TKey, TValue> factory, Func<IDictionary<TKey, TValue>> dictionaryFactory)
+        public BucketCacheThreadSafe(Func<TKey, TValue> factory, IDictionary<TKey, TValue> dictionary)
         {
             this.factory = factory.CheckNotNull(nameof(factory));
-            newDictionary = dictionaryFactory.CheckNotNull(nameof(dictionaryFactory));
-            dictionary = dictionaryFactory();
+            this.dictionary = dictionary.CheckNotNull(nameof(dictionary));
         }
 
-        public BucketCacheCopyOnWrite(Func<TKey, TValue> factory) : this(factory, () => new Dictionary<TKey, TValue>())
+        public BucketCacheThreadSafe(Func<TKey, TValue> factory) : this(factory, new Dictionary<TKey, TValue>())
         {
         }
 
@@ -121,51 +116,15 @@ namespace HavokMultimedia.Utilities
         {
             get
             {
-                var dCurrent = dictionary;
-                if (dCurrent.TryGetValue(key, out var val)) return val;
-
                 lock (locker)
                 {
-                    dCurrent = dictionary;
-                    if (dCurrent.TryGetValue(key, out val)) return val;
-
-                    val = factory(key);
-                    var dNew = newDictionary();
-
-                    dCurrent.ForEach(kvp => dNew[kvp.Key] = kvp.Value);
-                    dNew[key] = val;
-
-                    dictionary = dNew;
-                    return val;
-                }
-            }
-        }
-
-        public void Cache(IEnumerable<TKey> keys)
-        {
-            var list = new List<TKey>();
-            var dCurrent = dictionary;
-
-            foreach (var key in keys)
-            {
-                if (!dCurrent.ContainsKey(key)) list.Add(key);
-            }
-            if (list.Count == 0) return;
-
-            lock (locker)
-            {
-                dCurrent = dictionary;
-                var dNew = newDictionary();
-                dCurrent.ForEach(kvp => dNew[kvp.Key] = kvp.Value);
-                foreach (var key in list)
-                {
-                    if (!dNew.ContainsKey(key))
+                    if (!dictionary.TryGetValue(key, out var value))
                     {
-                        var val = factory(key);
-                        dNew[key] = val;
+                        value = factory(key);
+                        dictionary.Add(key, value);
                     }
+                    return value;
                 }
-                dictionary = dNew;
             }
         }
 
@@ -173,7 +132,7 @@ namespace HavokMultimedia.Utilities
         {
             lock (locker)
             {
-                dictionary = newDictionary();
+                dictionary.Clear();
             }
         }
     }

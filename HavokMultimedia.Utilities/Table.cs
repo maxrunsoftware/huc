@@ -375,7 +375,7 @@ namespace HavokMultimedia.Utilities
             ColumnNames = columns.Select(o => o.Name).ToList().AsReadOnly();
             columnsSet = new HashSet<TableColumn>(this.columns);
             // Use a fast cache for column name lookups by any case formatting
-            columnNameCache = new BucketCacheCopyOnWrite<string, TableColumn>(columnName =>
+            columnNameCache = new BucketCacheThreadSafe<string, TableColumn>(columnName =>
             {
                 foreach (var sc in Constant.LIST_StringComparison)
                     foreach (var item in columns)
