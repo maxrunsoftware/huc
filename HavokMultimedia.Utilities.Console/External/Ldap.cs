@@ -528,14 +528,25 @@ namespace HavokMultimedia.Utilities.Console.External
 
     public static class LdapExtensions
     {
+        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private static string ToStringDebugOutput(object o)
         {
             var sb = new StringBuilder();
             foreach (var prop in o.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
             {
-                var getter = prop.GetGetMethod();
-                if (getter == null) continue;
-                sb.AppendLine("    " + prop.Name + ": " + getter.Invoke(o, null));
+                if (!prop.CanRead) continue;
+                object val = null;
+                try
+                {
+                    val = Util.GetPropertyValue(o, prop.Name);
+                }
+                catch (Exception e)
+                {
+                    log.Debug("Error retrieving property " + o.GetType().FullNameFormatted() + "." + prop.Name, e);
+                }
+
+                sb.AppendLine("    " + prop.Name + ": " + val.ToStringGuessFormat());
             }
             return sb.ToString();
         }
