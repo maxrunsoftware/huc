@@ -2245,6 +2245,8 @@ namespace HavokMultimedia.Utilities
             return listCreated;
         }
 
+        public static bool AddToList<K, V>(this IDictionary<K, List<V>> dictionary, K key, IEnumerable<V> values) => AddToList(dictionary, key, values.ToArray());
+
         #endregion Dictionary
 
         #endregion Collections
