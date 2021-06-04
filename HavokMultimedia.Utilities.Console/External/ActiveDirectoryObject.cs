@@ -491,6 +491,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static ActiveDirectoryObject Create(ActiveDirectoryCore activeDirectory, LdapEntryAttributeCollection attributes)
         {
+            log.Debug($"Created 1 {nameof(ActiveDirectoryObject)}");
             return new ActiveDirectoryObject(activeDirectory, attributes);
         }
 
