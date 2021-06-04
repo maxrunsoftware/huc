@@ -34,13 +34,12 @@ namespace HavokMultimedia.Utilities.Console.External
         private readonly ActiveDirectoryCore activeDirectory;
         private System.DirectoryServices.AccountManagement.UserPrincipal userPrincipal;
 
-        public static IReadOnlyCollection<string> ExpensiveProperties { get; } = new string[]
-                                                            {
+        public static IReadOnlyCollection<string> ExpensiveProperties { get; } = new string[] {
                 nameof(UserCannotChangePassword),
                 nameof(PasswordExpirationDate),
                 nameof(IsDisabled),
                 nameof(PasswordExpired)
-            }.OrderBy(o => o, StringComparer.OrdinalIgnoreCase).ToHashSet();
+        }.OrderBy(o => o, StringComparer.OrdinalIgnoreCase).ToHashSet();
 
         private Lazy<System.DirectoryServices.DirectoryEntry> directoryEntry;
         private System.DirectoryServices.DirectoryEntry DirectoryEntry => directoryEntry.Value;
