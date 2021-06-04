@@ -474,32 +474,11 @@ namespace HavokMultimedia.Utilities.Console.External
                 isDisposed = true;
             }
 
-            if (connection != null)
-            {
-                try { connection.Dispose(); }
-                catch (Exception e) { log.Warn($"Error disposing of {connection.GetType().FullNameFormatted()}: {e.Message}", e); }
-            }
-
-            if (searcher != null)
-            {
-                try { searcher.Dispose(); }
-                catch (Exception e) { log.Warn($"Error disposing of {searcher.GetType().FullNameFormatted()}: {e.Message}", e); }
-            }
-
-            if (searchRoot != null)
-            {
-                try { searchRoot.Close(); }
-                catch (Exception e) { log.Warn($"Error closing of {searchRoot.GetType().FullNameFormatted()}: {e.Message}", e); }
-
-                try { searchRoot.Dispose(); }
-                catch (Exception e) { log.Warn($"Error disposing of {searchRoot.GetType().FullNameFormatted()}: {e.Message}", e); }
-            }
-
-            if (context != null)
-            {
-                try { context.Dispose(); }
-                catch (Exception e) { log.Warn($"Error disposing of {context.GetType().FullNameFormatted()}: {e.Message}", e); }
-            }
+            connection.DisposeSafely(log.Warn);
+            searcher.DisposeSafely(log.Warn);
+            searchRoot.CloseSafely(log.Warn);
+            searchRoot.DisposeSafely(log.Warn);
+            context.DisposeSafely(log.Warn);
         }
 
         #endregion IDisposable
