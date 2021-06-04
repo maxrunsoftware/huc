@@ -32,7 +32,6 @@ namespace HavokMultimedia.Utilities.Console.External
         private static readonly DateTime JAN_01_1601 = new DateTime(1601, 1, 1);
         private static readonly DateTime JAN_01_1800 = new DateTime(1800, 1, 1);
         private readonly ActiveDirectoryCore activeDirectory;
-        private System.DirectoryServices.AccountManagement.UserPrincipal userPrincipal;
 
         public static IReadOnlyCollection<string> ExpensiveProperties { get; } = new string[] {
                 nameof(UserCannotChangePassword),
@@ -44,20 +43,8 @@ namespace HavokMultimedia.Utilities.Console.External
         private Lazy<System.DirectoryServices.DirectoryEntry> directoryEntry;
         private System.DirectoryServices.DirectoryEntry DirectoryEntry => directoryEntry.Value;
 
-
-        private System.DirectoryServices.AccountManagement.UserPrincipal UserPrincipal
-        {
-            get
-            {
-                var d = userPrincipal;
-                if (d == null)
-                {
-                    d = activeDirectory.Ldap.GetUserPrincipalByDistinguishedName(DistinguishedName);
-                    userPrincipal = d;
-                }
-                return d;
-            }
-        }
+        private Lazy<System.DirectoryServices.AccountManagement.UserPrincipal> userPrincipal;
+        private System.DirectoryServices.AccountManagement.UserPrincipal UserPrincipal => userPrincipal.Value;
 
         #region Properties
 
@@ -491,6 +478,7 @@ namespace HavokMultimedia.Utilities.Console.External
             this.activeDirectory = activeDirectory.CheckNotNull(nameof(activeDirectory));
             Attributes = attributes.CheckNotNull(nameof(attributes));
             directoryEntry = new Lazy<System.DirectoryServices.DirectoryEntry>(() => activeDirectory.Ldap.GetDirectoryEntryByDistinguishedName(DistinguishedName));
+            userPrincipal = new Lazy<System.DirectoryServices.AccountManagement.UserPrincipal>(() => activeDirectory.Ldap.GetUserPrincipalByDistinguishedName(DistinguishedName));
         }
 
         public static ActiveDirectoryObject Create(ActiveDirectoryCore activeDirectory, LdapEntryAttributeCollection attributes)
