@@ -25,6 +25,9 @@ namespace HavokMultimedia.Utilities.Console.External
 {
     public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, IComparable<ActiveDirectoryObject>
     {
+        [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+        public sealed class IgnoreInPropertiesListAttribute : Attribute { }
+
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private static readonly DateTime JAN_01_1601 = new DateTime(1601, 1, 1);
@@ -45,7 +48,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 nameof(PasswordExpired)
             }.OrderBy(o => o, StringComparer.OrdinalIgnoreCase).ToHashSet();
 
-        public System.DirectoryServices.DirectoryEntry DirectoryEntry
+        private System.DirectoryServices.DirectoryEntry DirectoryEntry
         {
             get
             {
@@ -207,22 +210,16 @@ namespace HavokMultimedia.Utilities.Console.External
         public DateTime? WhenCreated => Attributes.GetDateTimeUTC("whenCreated");
         public string WWWHomePage { get => Attributes.GetString("wWWHomePage"); set => AttributeSave("wWWHomePage", value.TrimOrNull()); }
 
+        [IgnoreInPropertiesList]
         public IEnumerable<ActiveDirectoryObject> Children
         {
             get
             {
                 foreach (var o in DirectoryEntry.Children)
                 {
-                    var de = o as System.DirectoryServices.DirectoryEntry;
-                    if (de == null) continue; // TODO: Could we get other object types?
-                    var dnCollection = de.Properties["distinguishedName"];
-                    object dnObj = null;
-                    foreach (var dnCollectionObj in dnCollection)
-                    {
-                        if (dnObj == null) dnObj = dnCollectionObj;
-                    }
+                    if (o is not System.DirectoryServices.DirectoryEntry de) continue; // TODO: Could we get other object types?
 
-                    var dn = dnObj.ToStringGuessFormat().TrimOrNull();
+                    var dn = de.DistinguishedName();
                     if (dn == null) continue;
                     var ado = activeDirectory.GetObjectByDistinguishedName(dn);
                     if (ado == null) continue; // should not happen
@@ -230,6 +227,29 @@ namespace HavokMultimedia.Utilities.Console.External
                 }
             }
         }
+
+        [IgnoreInPropertiesList]
+        public ActiveDirectoryObject Parent
+        {
+            get
+            {
+                System.DirectoryServices.DirectoryEntry de = null;
+                try
+                {
+                    de = DirectoryEntry.Parent;
+                }
+                catch (Exception e)
+                {
+                    log.Debug("Error retrieving parent of " + DistinguishedName, e);
+                }
+                if (de == null) return null;
+                var dn = de.DistinguishedName();
+                if (dn == null) return null;
+                var ado = activeDirectory.GetObjectByDistinguishedName(dn);
+                return ado;
+            }
+        }
+
         #endregion Properties
 
         #region Properties Custom
@@ -758,6 +778,11 @@ namespace HavokMultimedia.Utilities.Console.External
                     d[prop.Name] = "[SKIPPED]";
                     continue;
                 }
+                if (prop.GetCustomAttributes(typeof(IgnoreInPropertiesListAttribute), false).OrEmpty().Any())
+                {
+                    d[prop.Name] = "[SKIPPED]";
+                    continue;
+                }
                 try
                 {
                     d[prop.Name] = Util.GetPropertyValue(this, prop.Name);
@@ -797,6 +822,18 @@ namespace HavokMultimedia.Utilities.Console.External
             }
 
             return d;
+        }
+
+        public void AddChildOU(string samAccountName, string description)
+        {
+            var childOU = DirectoryEntry.Children.Add("OU=" + samAccountName, "OrganizationalUnit");
+            if (description != null) childOU.Properties["description"].Add(description);
+            childOU.CommitChanges();
+        }
+
+        public void RemoveChildOU(ActiveDirectoryObject obj)
+        {
+            DirectoryEntry.Children.Remove(obj.DirectoryEntry);
         }
 
         #endregion Methods Instance

@@ -152,6 +152,25 @@ namespace HavokMultimedia.Utilities.Console.External
         public static List<ActiveDirectoryObject> GetGroupsEmpty(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(&(objectClass=group)(!member=*))", queryConfig: queryConfig, useCache: useCache);
 
 
+        public static string DistinguishedName(this System.DirectoryServices.DirectoryEntry entry) => entry.GetString("distinguishedName");
+        public static string GetString(this System.DirectoryServices.DirectoryEntry entry, string key) => entry.GetStrings(key).TrimOrNull().WhereNotNull().FirstOrDefault();
+        public static IEnumerable<string> GetStrings(this System.DirectoryServices.DirectoryEntry entry, string key) => entry.GetObjects(key).Select(o => o.ToStringGuessFormat());
+        public static IEnumerable<object> GetObjects(this System.DirectoryServices.DirectoryEntry entry, string key)
+        {
+            if (entry.Properties.Contains(key))
+            {
+                var properties = entry.Properties[key];
+                if (properties != null)
+                {
+
+                    foreach (var property in properties)
+                    {
+                        if (property != null) yield return property;
+                    }
+                }
+            }
+        }
+
     }
 
 

@@ -165,9 +165,7 @@ namespace HavokMultimedia.Utilities.Console.External
             if (parentOUs.Count > 1) throw new Exception("Multiple potential parents found, use DistinguishedName...  " + parentOUs.Select(o => o.DistinguishedName).ToStringDelimited("  "));
             var parentOU = parentOUs.First();
 
-            var childOU = parentOU.DirectoryEntry.Children.Add("OU=" + samAccountName, "OrganizationalUnit");
-            if (description != null) childOU.Properties["description"].Add(description);
-            childOU.CommitChanges();
+            parentOU.AddChildOU(samAccountName, description);
         }
 
         public void RemoveOU(string samAccountNameOrDN)
@@ -179,10 +177,10 @@ namespace HavokMultimedia.Utilities.Console.External
             var ouChildren = ou.Children.ToList();
             log.Debug("OU " + ou.DistinguishedName + " contains " + ouChildren.Count + " children objects");
             if (!ouChildren.IsEmpty()) throw new Exception("Cannot remove OU " + ou.DistinguishedName + " because it contains " + ouChildren.Count + " objects...  " + ouChildren.Select(o => o.DistinguishedName).ToStringDelimited("  "));
-            var ouParent = ou.DirectoryEntry.Parent;
+            var ouParent = ou.Parent;
             if (ouParent == null) throw new Exception("Could not determine parent OU of object " + ou.DistinguishedName);
 
-            ouParent.Children.Remove(ou.DirectoryEntry);
+            ouParent.RemoveChildOU(ou);
         }
 
         public void AddGroup(string samAccountName, ActiveDirectoryGroupType groupType = ActiveDirectoryGroupType.GlobalSecurityGroup)
