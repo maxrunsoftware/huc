@@ -2151,6 +2151,12 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        public static T? FirstOrNull<T>(this IEnumerable<T> enumerable) where T : struct
+        {
+            foreach (var o in enumerable) return o;
+            return null;
+        }
+
         #region Dictionary
 
         public static ReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) => new ReadOnlyDictionary<TKey, TValue>(dictionary);
