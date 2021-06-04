@@ -352,7 +352,7 @@ namespace HavokMultimedia.Utilities
             }
         }
 
-        private static readonly Dictionary<Type, Action<object>> CloseSafelyCache = new();
+        private static readonly Dictionary<Type, Action<object>> closeSafelyCache = new();
 
         private static Action<object> CloseSafelyCreate(Type type)
         {
@@ -381,11 +381,15 @@ namespace HavokMultimedia.Utilities
         {
             if (objectWithCloseMethod == null) return;
             var type = objectWithCloseMethod.GetType();
-            // TODO: Not thread safe
-            if (!CloseSafelyCache.TryGetValue(type, out var closer))
+
+            Action<object> closer;
+            lock (closeSafelyCache)
             {
-                closer = CloseSafelyCreate(type);
-                CloseSafelyCache[type] = closer;
+                if (!closeSafelyCache.TryGetValue(type, out closer))
+                {
+                    closer = CloseSafelyCreate(type);
+                    closeSafelyCache[type] = closer;
+                }
             }
             try
             {
