@@ -352,8 +352,7 @@ namespace HavokMultimedia.Utilities
             }
         }
 
-        private static readonly Dictionary<Type, Action<object>> closeSafelyCache = new();
-        private static readonly object closeSafelyCacheLock = new object();
+        private static readonly IBucketReadOnly<Type, Action<object>> closeSafelyCache = new BucketCacheThreadSafe<Type, Action<object>>(o => CloseSafelyCreate(o));
 
         private static Action<object> CloseSafelyCreate(Type type)
         {
@@ -382,16 +381,8 @@ namespace HavokMultimedia.Utilities
         {
             if (objectWithCloseMethod == null) return;
             var type = objectWithCloseMethod.GetType();
+            var closer = closeSafelyCache[type];
 
-            Action<object> closer;
-            lock (closeSafelyCacheLock)
-            {
-                if (!closeSafelyCache.TryGetValue(type, out closer))
-                {
-                    closer = CloseSafelyCreate(type);
-                    closeSafelyCache[type] = closer;
-                }
-            }
             try
             {
                 closer(objectWithCloseMethod);
