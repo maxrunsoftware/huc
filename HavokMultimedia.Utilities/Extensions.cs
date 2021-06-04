@@ -368,13 +368,7 @@ namespace HavokMultimedia.Utilities
             }
             if (method == null) throw new Exception("Close() method not found on object " + type.FullNameFormatted());
 
-            // https://stackoverflow.com/a/2933227
-            var input = Expression.Parameter(typeof(object), "input");
-            Action<object> compiledExp = Expression.Lambda<Action<object>>(
-            Expression.Call(Expression.Convert(input, type), method), input).Compile();
-
-            Action<object> func = o => compiledExp(o);
-            return func;
+            return Util.CreateAction(method);
 
         }
         public static void CloseSafely(this IDisposable objectWithCloseMethod, Action<string, Exception> onErrorLog)

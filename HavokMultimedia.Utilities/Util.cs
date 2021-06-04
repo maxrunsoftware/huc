@@ -2383,7 +2383,7 @@ namespace HavokMultimedia.Utilities
 
         #endregion Threading / Mutex
 
-        #region New
+        #region New and Reflection
 
         /// <summary>
         /// High performance new object creation. Type must have a default constructor.
@@ -2408,7 +2408,6 @@ namespace HavokMultimedia.Utilities
             return CreateInstanceCache[type]();
         }
 
-
         public static List<T> CreateList<T, TEnumerable>(params TEnumerable[] enumerables) where TEnumerable : IEnumerable<T>
         {
             var list = new List<T>();
@@ -2422,7 +2421,32 @@ namespace HavokMultimedia.Utilities
             return list;
         }
 
-        #endregion New
+        public static Action<object> CreateAction(MethodInfo method)
+        {
+            // https://stackoverflow.com/a/2933227
+            var input = Expression.Parameter(typeof(object), "input");
+            Action<object> compiledExp = Expression.Lambda<Action<object>>(
+                Expression.Call(Expression.Convert(input, method.DeclaringType), method), input
+            ).Compile();
+
+            Action<object> func = o => compiledExp(o);
+            return func;
+        }
+
+        public static Func<object, T> CreateFunc<T>(MethodInfo method)
+        {
+            // https://stackoverflow.com/a/2933227
+            if (!method.ReturnType.Equals(typeof(T))) throw new Exception("Wrong return type specified, expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
+
+            var input = Expression.Parameter(typeof(object), "input");
+            Func<object, T> compiledExp = Expression.Lambda<Func<object, T>>(
+                Expression.Call(Expression.Convert(input, method.DeclaringType), method), input
+            ).Compile();
+
+            return compiledExp;
+        }
+
+        #endregion New and Reflection
 
         #region Buckets
 
