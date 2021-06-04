@@ -29,15 +29,9 @@ namespace HavokMultimedia.Utilities.Console.External
         public sealed class IgnoreInPropertiesListAttribute : Attribute { }
 
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         private static readonly DateTime JAN_01_1601 = new DateTime(1601, 1, 1);
-
         private static readonly DateTime JAN_01_1800 = new DateTime(1800, 1, 1);
-
         private readonly ActiveDirectoryCore activeDirectory;
-
-        private System.DirectoryServices.DirectoryEntry directoryEntry;
-
         private System.DirectoryServices.AccountManagement.UserPrincipal userPrincipal;
 
         public static IReadOnlyCollection<string> ExpensiveProperties { get; } = new string[]
@@ -48,19 +42,9 @@ namespace HavokMultimedia.Utilities.Console.External
                 nameof(PasswordExpired)
             }.OrderBy(o => o, StringComparer.OrdinalIgnoreCase).ToHashSet();
 
-        private System.DirectoryServices.DirectoryEntry DirectoryEntry
-        {
-            get
-            {
-                var d = directoryEntry;
-                if (d == null)
-                {
-                    d = activeDirectory.Ldap.GetDirectoryEntryByDistinguishedName(DistinguishedName);
-                    directoryEntry = d;
-                }
-                return d;
-            }
-        }
+        private Lazy<System.DirectoryServices.DirectoryEntry> directoryEntry;
+        private System.DirectoryServices.DirectoryEntry DirectoryEntry => directoryEntry.Value;
+
 
         private System.DirectoryServices.AccountManagement.UserPrincipal UserPrincipal
         {
@@ -507,6 +491,7 @@ namespace HavokMultimedia.Utilities.Console.External
         {
             this.activeDirectory = activeDirectory.CheckNotNull(nameof(activeDirectory));
             Attributes = attributes.CheckNotNull(nameof(attributes));
+            directoryEntry = new Lazy<System.DirectoryServices.DirectoryEntry>(() => activeDirectory.Ldap.GetDirectoryEntryByDistinguishedName(DistinguishedName));
         }
 
         public static ActiveDirectoryObject Create(ActiveDirectoryCore activeDirectory, LdapEntryAttributeCollection attributes)
