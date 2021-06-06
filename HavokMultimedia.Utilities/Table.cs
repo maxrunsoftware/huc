@@ -18,12 +18,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Text.Json;
-using System.Xml;
 
 namespace HavokMultimedia.Utilities
 {
@@ -659,6 +656,12 @@ namespace HavokMultimedia.Utilities
 
         }
 
+        /// <summary>
+        /// Generates a new table with the specified column list
+        /// </summary>
+        /// <param name="table">The source table</param>
+        /// <param name="columnNames">The existing columns to keep</param>
+        /// <returns>A new table with the specified columns if they exist</returns>
         public static Table SetColumnsListTo(this Table table, params string[] columnNames)
         {
             var columnsToKeep = new HashSet<TableColumn>();
@@ -674,6 +677,13 @@ namespace HavokMultimedia.Utilities
             return table.RemoveColumns(columnsToRemove.ToArray());
         }
 
+        /// <summary>
+        /// Returns a chunk of rows. The chunk is based on the number of characters in the rows.
+        /// </summary>
+        /// <param name="table">Table</param>
+        /// <param name="maxNumberOfCharacters">The number of characters to chunk by</param>
+        /// <param name="lengthOfNull">How many characters is a NULL value worth</param>
+        /// <returns>Iterator of row chunks</returns>
         public static IEnumerable<TableRow[]> GetRowsChunkedByNumberOfCharacters(this Table table, int maxNumberOfCharacters, int lengthOfNull)
         {
             var list = new List<TableRow>();
@@ -694,6 +704,12 @@ namespace HavokMultimedia.Utilities
             if (list.Count > 0) yield return list.ToArray();
         }
 
+        /// <summary>
+        /// Returns a chunk of rows. The chunk is based on the number of rows specified.
+        /// </summary>
+        /// <param name="table">Table</param>
+        /// <param name="numberOfRows">The number of rows in each chunk</param>
+        /// <returns>Iterator of row chunks</returns>
         public static IEnumerable<TableRow[]> GetRowsChunkedByNumber(this Table table, int numberOfRows)
         {
             var list = new List<TableRow>();
@@ -713,11 +729,22 @@ namespace HavokMultimedia.Utilities
             if (list.Count > 0) yield return list.ToArray();
         }
 
+        /// <summary>
+        /// The number of cells in this table including the header row
+        /// </summary>
+        /// <param name="table">Table</param>
+        /// <returns>The number of cells</returns>
         public static int GetNumberOfCells(this Table table)
         {
             return (table.Count * table.Columns.Count) + table.Columns.Count;
         }
 
+        /// <summary>
+        /// The number of characters in this table including the header row
+        /// </summary>
+        /// <param name="table">Table</param>
+        /// <param name="lengthOfNull">How many characters is a NULL value</param>
+        /// <returns>The total number of characters in this table</returns>
         public static int GetNumberOfCharacters(this Table table, int lengthOfNull)
         {
             int size = 0;
