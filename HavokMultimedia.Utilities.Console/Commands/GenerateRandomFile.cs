@@ -16,7 +16,6 @@ limitations under the License.
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -30,6 +29,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("length", "l", "Number of characters to include (1000)");
             help.AddParameter("width", "w", "Size of the column of data to write for each line (80)");
             help.AddParameter("secureRandom", "s", "Use the secure random algorithim (false)");
+            help.AddParameter("characters", "c", "Character pool to use for generation (0-9a-z)");
             help.AddValue("<output file 1> <output file 2> <etc>");
             help.AddExample("testdata.txt");
             help.AddExample("-l=1000000 testdata1.txt testdata2.txt testdata3.txt");
@@ -45,11 +45,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var secureRandom = GetArgParameterOrConfigBool("secureRandom", "s", false);
             if (w < 1) w = int.MaxValue;
 
+            var c = GetArgParameterOrConfig("characters", "c").TrimOrNull() ?? (Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9);
+
             var outputFiles = GetArgValuesTrimmed();
             log.Debug(outputFiles, nameof(outputFiles));
             if (outputFiles.IsEmpty()) throw new ArgsException(nameof(outputFiles), $"No <{nameof(outputFiles)}> specified");
 
-            var chars = (Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9).ToCharArray();
+            var chars = c.ToCharArray();
             var random = new Random();
             var srandom = RandomNumberGenerator.Create();
             foreach (var outputFile in outputFiles)
@@ -69,8 +71,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
                                 ww = 0;
                                 sw.WriteLine();
                             }
-                            var c = chars[secureRandom ? srandom.Next(chars.Length) : random.Next(chars.Length)];
-                            sw.Write(c);
+                            var ch = chars[secureRandom ? srandom.Next(chars.Length) : random.Next(chars.Length)];
+                            sw.Write(ch);
                             ll++;
                             ww++;
                         }
