@@ -35,12 +35,13 @@ namespace HavokMultimedia.Utilities
     /// </summary>
     public abstract class ThreadBase : IDisposable
     {
-        private readonly object stateLock = new object();
         private readonly Thread thread;
         protected static ILogFactory LogFactory => HavokMultimedia.Utilities.LogFactory.LogFactoryImpl;
 
-        public bool IsStarted { get; private set; } = false;
-        public bool IsDisposed { get; private set; } = false;
+        private readonly SingleUse isStarted = new SingleUse();
+        public bool IsStarted => isStarted.IsUsed;
+        private readonly SingleUse isDisposed = new SingleUse();
+        public bool IsDisposed => isDisposed.IsUsed;
         public string Name => thread.Name;
 
         //public int DisposeTimeoutSeconds { get; set; } = 10;
@@ -78,11 +79,15 @@ namespace HavokMultimedia.Utilities
             }
         }
 
+        /// <summary>
+        /// Peform work. When this method returns Dispose() is automatically called and the thread shuts down.
+        /// </summary>
         protected abstract void Work();
 
-        protected virtual void DisposeInternally()
-        {
-        }
+        /// <summary>
+        /// Dispose of any resources used. Guarenteed to be only called once.
+        /// </summary>
+        protected virtual void DisposeInternally() { }
 
         protected void Join() => thread.Join();
 
@@ -90,30 +95,22 @@ namespace HavokMultimedia.Utilities
 
         public void Dispose()
         {
-            if (IsDisposed) return;
-            lock (stateLock)
-            {
-                if (IsDisposed) return;
-                LogFactory.GetLogger<ThreadBase>().Debug($"Disposing thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
-                IsDisposed = true;
-            }
+            if (!isDisposed.TryUse()) return;
+
+            LogFactory.GetLogger<ThreadBase>().Debug($"Disposing thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
 
             DisposeInternally();
         }
 
         public void Start(bool isBackgroundThread = true, string name = null)
         {
-            lock (stateLock)
-            {
-                if (IsDisposed) throw new ObjectDisposedException(GetType().FullNameFormatted());
-                if (IsStarted) throw new InvalidOperationException("Start() already called");
+            if (IsDisposed) throw new ObjectDisposedException(GetType().FullNameFormatted());
+            if (!isStarted.TryUse()) throw new InvalidOperationException("Start() already called");
 
-                thread.IsBackground = isBackgroundThread;
-                thread.Name = name ?? GetType().FullNameFormatted();
-                if (!(GetType().Equals(typeof(LogBackgroundThread)))) LogFactory.GetLogger<ThreadBase>().Debug($"Starting thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
-                thread.Start();
-                IsStarted = true;
-            }
+            thread.IsBackground = isBackgroundThread;
+            thread.Name = name ?? GetType().FullNameFormatted();
+            if (!(GetType().Equals(typeof(LogBackgroundThread)))) LogFactory.GetLogger<ThreadBase>().Debug($"Starting thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
+            thread.Start();
         }
     }
 
@@ -152,6 +149,10 @@ namespace HavokMultimedia.Utilities
         {
         }
 
+        /// <summary>
+        /// Do some work on this item
+        /// </summary>
+        /// <param name="item">item</param>
         protected abstract void WorkConsume(T item);
 
         protected override void DisposeInternally()
@@ -173,8 +174,7 @@ namespace HavokMultimedia.Utilities
                     ConsumerThreadState = ConsumerThreadState.Waiting;
                     var result = queue.TryTake(out t, -1, cancellation.Token);
                     stopwatch.Stop();
-                    var timeSpent = stopwatch.Elapsed;
-                    log.Trace($"BlockingQueue.TryTake() time spent waiting {timeSpent.ToStringTotalSeconds(3)}s");
+                    log.Trace($"BlockingQueue.TryTake() time spent waiting {stopwatch.Elapsed.ToStringTotalSeconds(3)}s");
 
                     if (!result)
                     {
@@ -241,6 +241,7 @@ namespace HavokMultimedia.Utilities
         }
     }
 
+
     /// <summary>
     /// Thread for performing a specified action on a collection
     /// </summary>
@@ -295,7 +296,22 @@ namespace HavokMultimedia.Utilities
     }
 
     /// <summary>
-    /// Pool of consumer threads
+    /// Thread that consumes an object and produces a new object
+    /// </summary>
+    /// <typeparam name="TConsume">Consumed Type</typeparam>
+    /// <typeparam name="TProduce">Produced Type</typeparam>
+    public class ConsumerProducerThread<TConsume, TProduce> : ConsumerProducerThreadBase<TConsume, TProduce>
+    {
+        private readonly Func<TConsume, TProduce> func;
+
+        public ConsumerProducerThread(BlockingCollection<TConsume> consumerQueue, BlockingCollection<TProduce> producerQueue, Func<TConsume, TProduce> func) : base(consumerQueue, producerQueue) => this.func = func.CheckNotNull(nameof(func));
+
+        protected override TProduce WorkConsumeProduce(TConsume item) => func(item);
+    }
+
+
+    /// <summary>
+    /// Pool of consumer threads. Most useful for performing a bunch of actions on multiple threads.
     /// </summary>
     /// <typeparam name="T">Type of object to process</typeparam>
     public class ConsumerThreadPool<T> : IDisposable
@@ -420,22 +436,10 @@ namespace HavokMultimedia.Utilities
         }
     }
 
-    /// <summary>
-    /// Thread that consumes an object and produces a new object
-    /// </summary>
-    /// <typeparam name="TConsume">Consumed Type</typeparam>
-    /// <typeparam name="TProduce">Produced Type</typeparam>
-    public class ConsumerProducerThread<TConsume, TProduce> : ConsumerProducerThreadBase<TConsume, TProduce>
-    {
-        private readonly Func<TConsume, TProduce> func;
 
-        public ConsumerProducerThread(BlockingCollection<TConsume> consumerQueue, BlockingCollection<TProduce> producerQueue, Func<TConsume, TProduce> func) : base(consumerQueue, producerQueue) => this.func = func.CheckNotNull(nameof(func));
-
-        protected override TProduce WorkConsumeProduce(TConsume item) => func(item);
-    }
 
     /// <summary>
-    /// Simple polling thread
+    /// Simple polling thread that calls WorkInterval() periodically
     /// </summary>
     public abstract class IntervalThread : ThreadBase
     {
