@@ -2424,6 +2424,8 @@ namespace HavokMultimedia.Utilities
         public static Action<object> CreateAction(MethodInfo method)
         {
             // https://stackoverflow.com/a/2933227
+            if (method.GetParameters().Length > 0) throw new Exception("Expecting method containing 0 parameters");
+
             var input = Expression.Parameter(typeof(object), "input");
             Action<object> compiledExp = Expression.Lambda<Action<object>>(
                 Expression.Call(Expression.Convert(input, method.DeclaringType), method), input
@@ -2437,6 +2439,7 @@ namespace HavokMultimedia.Utilities
         {
             // https://stackoverflow.com/a/2933227
             if (!method.ReturnType.Equals(typeof(T))) throw new Exception("Wrong return type specified, expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
+            if (method.GetParameters().Length > 0) throw new Exception("Expecting method containing 0 parameters");
 
             var input = Expression.Parameter(typeof(object), "input");
             Func<object, T> compiledExp = Expression.Lambda<Func<object, T>>(
