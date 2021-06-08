@@ -241,11 +241,6 @@ Deletes empty subdirectories recursively
 ```sh
 huc DirectoryRemoveEmpty C:\temp\MyDirectory
 ```
-
-Move all files in all subdirectories of target directory into the target directory, and keep the newest file
-```sh
-huc DirectoryFlatten -c=KeepNewest C:\temp\MyDirectory
-```
 &nbsp;
 ### Web Server
 Start webserver and host files out of the current directory
