@@ -1425,6 +1425,12 @@ namespace HavokMultimedia.Utilities
             return false;
         }
 
+        /// <summary>
+        /// Returns a list of files and directories including the provided directory
+        /// </summary>
+        /// <param name="directoryPath">The directory path to list</param>
+        /// <param name="recursive">Whether to be recursive or not</param>
+        /// <returns>An IEnumerable of FileListResult</returns>
         public static IEnumerable<FileListResult> FileList(string directoryPath, bool recursive = false)
         {
             directoryPath = directoryPath.CheckNotNullTrimmed(nameof(directoryPath));
