@@ -51,6 +51,12 @@ Send an email with CC and BCC and attachments
 ```sh
 huc email -h="smtp.somerelay.org" -to="person1@aol.com;person2@aol.com" -cc="person3@aol.com" -bcc="person4@aol.com" -s="Some subject text" -b="Some text for body" myAttachedFile1.csv myAttachedFile2.txt
 ```
+
+Send an email with text templating
+```sh
+huc email -h="smtp.somerelay.org" -to="person1@aol.com" -t1="Sandy" -t2="some other text" -s="Email for {t1}" -b="Hi {t1},\nHere is your {t2}"
+```
+
 &nbsp;
 ### SQL
 Query Microsoft SQL server and output tab delimited data file
