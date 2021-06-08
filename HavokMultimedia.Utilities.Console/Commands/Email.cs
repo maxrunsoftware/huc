@@ -41,11 +41,21 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter("replyTo", "r", "REPLYTO field");
             help.AddParameter("subject", "s", "Subject line");
             help.AddParameter("body", "b", "Body of email");
+            help.AddParameter("bodyTemplate", "bt", "Body template file for templating");
+            help.AddParameter("template1", "t1", "Replaces {t1} with this value in subject and body");
+            help.AddParameter("template2", "t2", "Replaces {t2} with this value in subject and body");
+            help.AddParameter("template3", "t3", "Replaces {t3} with this value in subject and body");
+            help.AddParameter("template4", "t4", "Replaces {t4} with this value in subject and body");
+            help.AddParameter("template5", "t5", "Replaces {t5} with this value in subject and body");
+            help.AddParameter("template6", "t6", "Replaces {t6} with this value in subject and body");
+            help.AddParameter("template7", "t7", "Replaces {t7} with this value in subject and body");
+            help.AddParameter("template8", "t8", "Replaces {t8} with this value in subject and body");
+            help.AddParameter("template9", "t9", "Replaces {t9} with this value in subject and body");
             help.AddValue("<attachment1> <attachment2> <attachment3> <etc>");
             help.AddExample("-h=`smtp.somerelay.org` -from=`someone@aol.com` -to=`grandma@aol.com` -s=`Grandpa Birthday` -b=`Tell Grandpa / nHAPPY BIRTHDAY!`");
             help.AddExample("-h=`smtp.somerelay.org` -to=`person1@aol.com; person2 @aol.com` -cc=`person3 @aol.com` -bcc=`person4 @aol.com` -s=`Some subject text` -b=`Some text for body` myAttachedFile1.csv myAttachedFile2.txt");
+            help.AddDetail("If both -body and -bodyTemplate are specified the -body value is placed first, then the -bodyTemplate content is placed on a new line");
         }
-
 
         protected override void ExecuteInternal()
         {
@@ -61,9 +71,32 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var cc = GetEmailAddresses("cc");
             var bcc = GetEmailAddresses("bcc");
             var replyto = GetArgParameterOrConfig("replyto", "r", from);
-            var s = GetArgParameterOrConfigRequired("subject", "s");
-            var b = GetArgParameterOrConfig("body", "b");
-            if (b != null) b = b.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
+            var subject = GetArgParameterOrConfigRequired("subject", "s");
+            var body = GetArgParameterOrConfig("body", "b");
+            if (body != null) body = body.TrimEnd();
+            if (body.TrimOrNull() == null) body = null;
+            if (body != null) body = body.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
+
+            var bodyTemplate = GetArgParameterOrConfig("bodyTemplate", "bt").TrimOrNull();
+            if (bodyTemplate != null)
+            {
+                var bodyTemplateFile = ReadFile(bodyTemplate);
+                if (body != null) body = body + Constant.NEWLINE_WINDOWS + bodyTemplateFile;
+                else body = bodyTemplateFile;
+            }
+
+            for (int i = 1; i <= 9; i++)
+            {
+                var t1 = "template" + i;
+                var t2 = "t" + i;
+                var replacement = GetArgParameterOrConfig(t1, t2);
+                if (replacement.TrimOrNull() == null) replacement = null;
+                if (replacement == null) continue;
+
+                t2 = "{" + t2 + "}";
+                if (subject != null) subject = subject.Replace(t2, replacement, StringComparison.OrdinalIgnoreCase);
+                if (body != null) body = body.Replace(t2, replacement, StringComparison.OrdinalIgnoreCase);
+            }
 
             var attachmentFiles = ParseInputFiles(GetArgValuesTrimmed()).ToArray();
             log.Debug(attachmentFiles, nameof(attachmentFiles));
@@ -86,11 +119,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     cc.ForEach(o => mail.CC.Add(o));
                     bcc.ForEach(o => mail.Bcc.Add(o));
                     mail.SubjectEncoding = encoding;
-                    mail.Subject = s;
+                    mail.Subject = subject;
 
                     mail.BodyEncoding = encoding;
                     mail.IsBodyHtml = false;
-                    if (b != null) mail.Body = b;
+                    if (body != null) mail.Body = body;
 
                     mail.ReplyToList.Clear();
                     mail.ReplyToList.Add(new MailAddress(replyto ?? from));
