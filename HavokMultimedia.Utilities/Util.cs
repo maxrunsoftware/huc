@@ -1503,6 +1503,34 @@ namespace HavokMultimedia.Utilities
             return true;
         }
 
+        public static string FileGetParent(string path)
+        {
+            path = Path.GetFullPath(path);
+            string reassemblychar;
+            if (path.Contains("\\"))
+            {
+                // windows path
+                reassemblychar = "\\";
+            }
+            else if (path.Contains("/"))
+            {
+                // linux / mac path
+                reassemblychar = "/";
+            }
+            else
+            {
+                if (Constant.OS_WINDOWS) reassemblychar = "\\";
+                else reassemblychar = "/";
+            }
+
+            var pathparts = path.Split(reassemblychar).TrimOrNull().WhereNotNull().ToList();
+            if (pathparts.Count == 1) return null;
+            pathparts.PopTail();
+            path = pathparts.ToStringDelimited(reassemblychar);
+            if (reassemblychar.Equals("/")) path = "/" + path;
+            return Path.GetFullPath(path);
+        }
+
         public static FileStream FileOpenRead(string filename) => File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
         public static FileStream FileOpenWrite(string filename) => File.Open(filename, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
