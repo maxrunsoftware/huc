@@ -14,6 +14,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [File Split](#file-split)
 - [File Checksums](#file-checksum)
 - [Directory Flatten](#directory-flatten)
+- [Directory Remove Empty](#directory-remove-empty)
 - [Web Server](#web-server)
 - [SSH](#ssh)
 - [Active Directory Interaction](#active-directory)
@@ -228,6 +229,17 @@ huc FileChecksum -t=SHA512 *.txt
 Move all files in all subdirectories of target directory into the target directory, but don't overwrite if the file already exists
 ```sh
 huc DirectoryFlatten C:\temp\MyDirectory
+```
+
+Move all files in all subdirectories of target directory into the target directory, and keep the newest file
+```sh
+huc DirectoryFlatten -c=KeepNewest C:\temp\MyDirectory
+```
+&nbsp;
+### Directory Remove Empty
+Deletes empty subdirectories recursively
+```sh
+huc DirectoryRemoveEmpty C:\temp\MyDirectory
 ```
 
 Move all files in all subdirectories of target directory into the target directory, and keep the newest file
