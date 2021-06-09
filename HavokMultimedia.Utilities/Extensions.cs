@@ -1636,6 +1636,8 @@ namespace HavokMultimedia.Utilities
 
         public static T[][] SplitIntoPartSizes<T>(this T[] array, int partSize) => SplitIntoParts(array, array.Length / partSize);
 
+        public static bool IsNotEmpty<T>(this IEnumerable<T> enumerable) => !enumerable.IsEmpty();
+
         public static bool IsEmpty<T>(this IEnumerable<T> enumerable)
         {
             if (enumerable is IReadOnlyCollection<T>) return ((IReadOnlyCollection<T>)enumerable).Count < 1;
