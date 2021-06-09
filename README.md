@@ -14,6 +14,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [File Split](#file-split)
 - [File Checksums](#file-checksum)
 - [Directory Flatten](#directory-flatten)
+- [Directory Remove Empty](#directory-remove-empty)
 - [Web Server](#web-server)
 - [SSH](#ssh)
 - [Active Directory Interaction](#active-directory)
@@ -50,6 +51,12 @@ Send an email with CC and BCC and attachments
 ```sh
 huc email -h="smtp.somerelay.org" -to="person1@aol.com;person2@aol.com" -cc="person3@aol.com" -bcc="person4@aol.com" -s="Some subject text" -b="Some text for body" myAttachedFile1.csv myAttachedFile2.txt
 ```
+
+Send an email with text templating
+```sh
+huc email -h="smtp.somerelay.org" -to="person1@aol.com" -t1="Sandy" -t2="some other text" -s="Email for {t1}" -b="Hi {t1},\nHere is your {t2}"
+```
+
 &nbsp;
 ### SQL
 Query Microsoft SQL server and output tab delimited data file
@@ -233,6 +240,12 @@ huc DirectoryFlatten C:\temp\MyDirectory
 Move all files in all subdirectories of target directory into the target directory, and keep the newest file
 ```sh
 huc DirectoryFlatten -c=KeepNewest C:\temp\MyDirectory
+```
+&nbsp;
+### Directory Remove Empty
+Deletes empty subdirectories recursively
+```sh
+huc DirectoryRemoveEmpty C:\temp\MyDirectory
 ```
 &nbsp;
 ### Web Server
