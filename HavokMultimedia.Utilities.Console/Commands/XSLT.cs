@@ -36,8 +36,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug($"{nameof(xsltFile)}: {xsltFile}");
             if (xsltFile == null) throw ArgsException.ValueNotSpecified(nameof(xsltFile));
             var xsltContent = ReadFile(xsltFile);
-            var xsltReader = new StringReader(xsltContent);
-            var xsltXmlReader = XmlReader.Create(xsltReader);
 
             var xmlFile = GetArgValueTrimmed(1);
             if (xsltFile == null) throw ArgsException.ValueNotSpecified(nameof(xmlFile));
