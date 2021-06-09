@@ -2698,6 +2698,8 @@ namespace HavokMultimedia.Utilities
         }
 
         public static string ToStringISO8601(this DateTime dateTime) => dateTime.ToString("o"); // ISO 8601
+        public static string ToStringYYYYMMDD(this DateTime dateTime) => dateTime.ToString("yyyy-MM-dd");
+        public static string ToStringYYYYMMDDHHMMSS(this DateTime dateTime) => dateTime.ToString("yyyy-MM-dd HH:mm:ss");
 
         public static string ToStringGuessFormat(this object obj)
         {
@@ -2705,9 +2707,9 @@ namespace HavokMultimedia.Utilities
             var t = obj.GetType();
             if (t.IsNullable(out var underlyingType)) t = underlyingType;
             if (t == typeof(string)) return (string)obj;
-            if (t == typeof(DateTime)) return ((DateTime)obj).ToString("yyyy-MM-dd HH:mm:ss");
-            if (t == typeof(DateTime?)) return ((DateTime?)obj).Value.ToString("yyyy-MM-dd HH:mm:ss");
-            if (t == typeof(byte[])) return "0x" + Util.Base16(((byte[])obj));
+            if (t == typeof(DateTime)) return ((DateTime)obj).ToStringYYYYMMDDHHMMSS();
+            if (t == typeof(DateTime?)) return ((DateTime?)obj).Value.ToStringYYYYMMDDHHMMSS();
+            if (t == typeof(byte[])) return "0x" + Util.Base16((byte[])obj);
             if (obj is IEnumerable enumerable) return enumerable.ToStringItems();
             return obj.ToString();
         }
