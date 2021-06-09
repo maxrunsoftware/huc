@@ -51,11 +51,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal()
         {
             host = GetArgParameterOrConfigRequired("host", "h").TrimOrNull();
-
             username = GetArgParameterOrConfigRequired("username", "u").TrimOrNull();
-
             password = GetArgParameterOrConfigRequired("password", "p").TrimOrNull();
-
             forceV1 = GetArgParameterOrConfigBool("forceV1", "v1", false);
         }
 
@@ -71,15 +68,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 }
             }
 
-            if (triggerPartsQueue.Count < 1) throw new Exception("No trigger provided");
+            if (triggerPartsQueue.IsEmpty()) throw new Exception("No trigger provided");
             var directive = triggerPartsQueue.Dequeue().ToUpper();
-            if (triggerPartsQueue.Count < 1) throw new Exception("No trigger details provided for trigger " + directive);
+            if (triggerPartsQueue.IsEmpty()) throw new Exception("No trigger details provided for trigger " + directive);
 
             var triggers = new List<Trigger>();
-            log.Trace("Parsing trigger directive " + directive + " with " + triggerPartsQueue.Count + " parts");
+            log.Debug("Parsing trigger directive " + directive + " with " + triggerPartsQueue.ToStringGuessFormat());
             if (directive.Equals("HOURLY"))
             {
-                while (triggerPartsQueue.Count > 0)
+                while (triggerPartsQueue.IsNotEmpty())
                 {
                     var time = triggerPartsQueue.Dequeue();
                     var mm = ParseTimeMM(time, directive);
@@ -89,7 +86,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
             else if (directive.Equals("DAILY"))
             {
-                while (triggerPartsQueue.Count > 0)
+                while (!triggerPartsQueue.IsNotEmpty())
                 {
                     var time = triggerPartsQueue.Dequeue();
                     var hhmm = ParseTimeHHMM(time, directive);
@@ -105,7 +102,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
             else if (directive.In(Util.GetEnumItems<DayOfWeek>().Select(o => o.ToString().ToUpper())))
             {
-                while (triggerPartsQueue.Count > 0)
+                while (triggerPartsQueue.IsNotEmpty())
                 {
                     var time = triggerPartsQueue.Dequeue();
                     var hhmm = ParseTimeHHMM(time, directive);
@@ -116,7 +113,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
             else if (directive.Equals("MONTHLY"))
             {
-                while (triggerPartsQueue.Count > 0)
+                while (triggerPartsQueue.IsNotEmpty())
                 {
                     var time = triggerPartsQueue.Dequeue();
                     var (dayOfMonth, hour, minute) = ParseTimeDayOfMonthHHMM(time, directive);
