@@ -15,8 +15,10 @@ limitations under the License.
 */
 
 using System;
+using System.IO;
 using System.Text;
 using System.Xml;
+using System.Xml.Xsl;
 
 namespace HavokMultimedia.Utilities
 {
@@ -82,7 +84,24 @@ namespace HavokMultimedia.Utilities
         public void Attribute(string attributeName, object attributeValue) => writer.WriteAttributeString(attributeName, attributeValue.ToStringGuessFormat());
         public void Value(string value) => writer.WriteString(value);
 
+        public static string ApplyXslt(string xslt, string xml)
+        {
+            var xmlReader = new StringReader(xml);
+            var xmlXmlReader = XmlReader.Create(xmlReader);
 
+            var transformedContent = new StringBuilder();
+            var xmlWriter = System.Xml.XmlWriter.Create(transformedContent);
 
+            var xsltReader = new StringReader(xslt);
+            var xsltXmlReader = XmlReader.Create(xsltReader);
+            var myXslTrans = new XslCompiledTransform();
+
+            myXslTrans.Load(xsltXmlReader);
+            myXslTrans.Transform(xmlXmlReader, xmlWriter);
+            xmlWriter.Flush();
+
+            var data = transformedContent.ToString();
+            return data;
+        }
     }
 }

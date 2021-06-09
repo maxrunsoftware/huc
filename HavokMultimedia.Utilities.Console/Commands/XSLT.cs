@@ -34,11 +34,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var xsltFile = GetArgValueTrimmed(0);
             log.Debug($"{nameof(xsltFile)}: {xsltFile}");
+            if (xsltFile == null) throw ArgsException.ValueNotSpecified(nameof(xsltFile));
             var xsltContent = ReadFile(xsltFile);
             var xsltReader = new StringReader(xsltContent);
             var xsltXmlReader = XmlReader.Create(xsltReader);
 
             var xmlFile = GetArgValueTrimmed(1);
+            if (xsltFile == null) throw ArgsException.ValueNotSpecified(nameof(xmlFile));
             log.Debug($"{nameof(xmlFile)}: {xmlFile}");
             var xmlFiles = ParseInputFiles(xmlFile.Yield());
             log.Debug(xmlFiles, nameof(xmlFiles));
@@ -46,18 +48,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             foreach (var xml in xmlFiles)
             {
                 var xmlContent = ReadFile(xml);
-                var xmlReader = new StringReader(xmlContent);
-                var xmlXmlReader = XmlReader.Create(xmlReader);
-
-                var transformedContent = new StringBuilder();
-                var xmlWriter = System.Xml.XmlWriter.Create(transformedContent);
-
-                var myXslTrans = new XslCompiledTransform();
-                myXslTrans.Load(xsltXmlReader);
-                myXslTrans.Transform(xmlXmlReader, xmlWriter);
-                xmlWriter.Flush();
-
-                var data = transformedContent.ToString();
+                var data = XmlWriter.ApplyXslt(xsltContent, xmlContent);
                 WriteFile(xml, data);
             }
 
