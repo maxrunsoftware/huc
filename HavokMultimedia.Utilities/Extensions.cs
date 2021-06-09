@@ -2694,7 +2694,7 @@ namespace HavokMultimedia.Utilities
                 list.Add(item.ToStringGuessFormat());
             }
 
-            return "[" + string.Join(", ", list) + "]";
+            return "[" + string.Join(",", list) + "]";
         }
 
         public static string ToStringISO8601(this DateTime dateTime) => dateTime.ToString("o"); // ISO 8601
