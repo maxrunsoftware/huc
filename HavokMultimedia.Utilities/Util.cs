@@ -1770,7 +1770,7 @@ namespace HavokMultimedia.Utilities
 
         private sealed class EnumCache
         {
-            private static readonly IBucketReadOnly<Type, IReadOnlyDictionary<string, object>> enums = new BucketCacheThreadSafe<Type, IReadOnlyDictionary<string, object>>(type => Enum.GetNames(type).ToDictionary(o => o, o => Enum.Parse(type, o)).AsReadOnly());
+            private static readonly IBucketReadOnly<Type, IReadOnlyDictionary<string, object>> enums = new BucketCacheThreadSafeCopyOnWrite<Type, IReadOnlyDictionary<string, object>>(type => Enum.GetNames(type).ToDictionary(o => o, o => Enum.Parse(type, o)).AsReadOnly());
 
             private readonly object locker = new object();
             private volatile IReadOnlyDictionary<DicKey, object> cache = (new Dictionary<DicKey, object>()).AsReadOnly();
@@ -1955,7 +1955,7 @@ namespace HavokMultimedia.Utilities
 
         private sealed class DefaultValueCache : IBucketReadOnly<Type, object>
         {
-            private readonly IBucketReadOnly<Type, object> bucket = new BucketCacheThreadSafe<Type, object>(type => Activator.CreateInstance(type));
+            private readonly IBucketReadOnly<Type, object> bucket = new BucketCacheThreadSafeCopyOnWrite<Type, object>(type => Activator.CreateInstance(type));
             public IEnumerable<Type> Keys => bucket.Keys;
             public object this[Type key] => key == null ? null : (key.IsValueType ? bucket[key] : null);
         }
@@ -1974,7 +1974,7 @@ namespace HavokMultimedia.Utilities
 
         internal sealed class ClassReaderWriter
         {
-            private static readonly IBucketReadOnly<Type, ClassReaderWriter> CACHE = new BucketCacheThreadSafe<Type, ClassReaderWriter>(o => new ClassReaderWriter(o));
+            private static readonly IBucketReadOnly<Type, ClassReaderWriter> CACHE = new BucketCacheThreadSafeCopyOnWrite<Type, ClassReaderWriter>(o => new ClassReaderWriter(o));
             private readonly IReadOnlyDictionary<string, PropertyReaderWriter> propertiesCaseSensitive;
             private readonly IReadOnlyDictionary<string, PropertyReaderWriter> propertiesCaseInsensitive;
             private readonly Type type;
@@ -2088,7 +2088,7 @@ namespace HavokMultimedia.Utilities
 
         internal sealed class PropertyReaderWriter
         {
-            private static readonly IBucketReadOnly<Type, IReadOnlyList<PropertyReaderWriter>> CACHE = new BucketCacheThreadSafe<Type, IReadOnlyList<PropertyReaderWriter>>(o => CreateInternal(o));
+            private static readonly IBucketReadOnly<Type, IReadOnlyList<PropertyReaderWriter>> CACHE = new BucketCacheThreadSafeCopyOnWrite<Type, IReadOnlyList<PropertyReaderWriter>>(o => CreateInternal(o));
             private readonly Action<object, object> propertySetter;
             private readonly Func<object, object> propertyGetter;
             private object DefaultNullValue { get; }
@@ -2435,7 +2435,7 @@ namespace HavokMultimedia.Utilities
             return c;
         }
 
-        private static readonly IBucketReadOnly<Type, Func<object>> CreateInstanceCache = new BucketCacheThreadSafe<Type, Func<object>>(o => CreateInstanceFactory(o));
+        private static readonly IBucketReadOnly<Type, Func<object>> CreateInstanceCache = new BucketCacheThreadSafeCopyOnWrite<Type, Func<object>>(o => CreateInstanceFactory(o));
 
         public static object CreateInstance(Type type)
         {

@@ -352,7 +352,7 @@ namespace HavokMultimedia.Utilities
             }
         }
 
-        private static readonly IBucketReadOnly<Type, Action<object>> closeSafelyCache = new BucketCacheThreadSafe<Type, Action<object>>(o => CloseSafelyCreate(o));
+        private static readonly IBucketReadOnly<Type, Action<object>> closeSafelyCache = new BucketCacheThreadSafeCopyOnWrite<Type, Action<object>>(o => CloseSafelyCreate(o));
 
         private static Action<object> CloseSafelyCreate(Type type)
         {
