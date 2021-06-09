@@ -25,6 +25,7 @@ using EmbedIO;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
+    [HideCommand]
     public class WebServerUtility : WebServerBase
     {
         public class Handler
