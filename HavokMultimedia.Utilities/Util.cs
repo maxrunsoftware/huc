@@ -2422,8 +2422,8 @@ namespace HavokMultimedia.Utilities
         /// <summary>
         /// High performance new object creation. Type must have a default constructor.
         /// </summary>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <param name="type">The type of object to create</param>
+        /// <returns>A factory for creating new objects</returns>
         public static Func<object> CreateInstanceFactory(Type type)
         {
             // https://stackoverflow.com/a/29972767
@@ -2437,6 +2437,11 @@ namespace HavokMultimedia.Utilities
 
         private static readonly IBucketReadOnly<Type, Func<object>> CreateInstanceCache = new BucketCacheThreadSafeCopyOnWrite<Type, Func<object>>(o => CreateInstanceFactory(o));
 
+        /// <summary>
+        /// High performance new object creation. Type must have a default constructor.
+        /// </summary>
+        /// <param name="type">The type of object to create</param>
+        /// <returns>A new object</returns>
         public static object CreateInstance(Type type)
         {
             return CreateInstanceCache[type]();
@@ -2455,10 +2460,17 @@ namespace HavokMultimedia.Utilities
             return list;
         }
 
+        /// <summary>
+        /// Creates an Action from a MethodInfo. The method provided must have 0 parameters.
+        /// </summary>
+        /// <param name="method">The method, man</param>
+        /// <returns>An Action delegate to calling that method, man</returns>
         public static Action<object> CreateAction(MethodInfo method)
         {
+            method.CheckNotNull(nameof(method));
+
             // https://stackoverflow.com/a/2933227
-            if (method.GetParameters().Length > 0) throw new Exception("Expecting method containing 0 parameters");
+            if (method.GetParameters().Length > 0) throw new Exception("Expecting method " + (method.DeclaringType.FullNameFormatted() + "." + method.Name) + " containing 0 parameters");
 
             var input = Expression.Parameter(typeof(object), "input");
             Action<object> compiledExp = Expression.Lambda<Action<object>>(
@@ -2469,11 +2481,18 @@ namespace HavokMultimedia.Utilities
             return func;
         }
 
+        /// <summary>
+        /// Creates an Func from a MethodInfo. The method provided must have 0 parameters. The return types must match.
+        /// </summary>
+        /// <param name="method">The method, man</param>
+        /// <returns>A Func delegate to calling that method, man</returns>
         public static Func<object, T> CreateFunc<T>(MethodInfo method)
         {
+            method.CheckNotNull(nameof(method));
+
             // https://stackoverflow.com/a/2933227
-            if (!method.ReturnType.Equals(typeof(T))) throw new Exception("Wrong return type specified, expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
-            if (method.GetParameters().Length > 0) throw new Exception("Expecting method containing 0 parameters");
+            if (!method.ReturnType.Equals(typeof(T))) throw new Exception("Wrong return type specified for method " + (method.DeclaringType.FullNameFormatted() + "." + method.Name) + " expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
+            if (method.GetParameters().Length > 0) throw new Exception("Expecting method " + (method.DeclaringType.FullNameFormatted() + "." + method.Name) + " containing 0 parameters");
 
             var input = Expression.Parameter(typeof(object), "input");
             Func<object, T> compiledExp = Expression.Lambda<Func<object, T>>(
