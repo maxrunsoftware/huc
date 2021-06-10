@@ -19,15 +19,18 @@ using System.IO;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class FileRemoveOlderThenDays : Command
+    public abstract class FileRemoveOlderThenBase : Command
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
-            help.AddSummary("Removes file older then <days> in a directory");
+            help.AddSummary("Removes file older then <" + AmountType + "> in a directory");
             help.AddParameter("recursive", "r", "Recursively remove files (false)");
-            help.AddValue("<# of days> <target directory>");
+            help.AddValue("<# of " + AmountType + "> <target directory>");
             help.AddExample("7 MyDirectory");
         }
+
+        protected abstract string AmountType { get; }
+        protected abstract DateTime CalcThreshold(DateTime now, int numberOf);
 
         protected override void ExecuteInternal()
         {
@@ -48,21 +51,43 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var files = Util.FileListFiles(targetDirectory, recursive: recursive);
 
             var now = DateTime.UtcNow;
-            var then = now.AddDays(numberOfInt * (-1));
-            log.Debug("Date threshold UTC: " + then.ToStringYYYYMMDDHHMMSS());
+            var threshold = CalcThreshold(now, numberOfInt);
+
+            log.Debug("Date threshold UTC: " + threshold.ToStringYYYYMMDDHHMMSS());
             foreach (var file in files)
             {
                 var lastWriteTime = File.GetLastWriteTimeUtc(file);
                 log.Debug(file + " [" + lastWriteTime.ToStringYYYYMMDDHHMMSS() + "]");
-                if (lastWriteTime < then)
+                if (lastWriteTime < threshold)
                 {
                     log.Info("Removing file: " + file);
                     File.Delete(file);
                 }
-
-
             }
-
         }
+    }
+
+    public class FileRemoveOlderThenDays : FileRemoveOlderThenBase
+    {
+        protected override string AmountType => "days";
+        protected override DateTime CalcThreshold(DateTime now, int numberOf) => now.AddDays(numberOf * (-1));
+    }
+
+    public class FileRemoveOlderThenWeeks : FileRemoveOlderThenBase
+    {
+        protected override string AmountType => "weeks";
+        protected override DateTime CalcThreshold(DateTime now, int numberOf) => now.AddDays((numberOf * 7) * (-1));
+    }
+
+    public class FileRemoveOlderThenMonths : FileRemoveOlderThenBase
+    {
+        protected override string AmountType => "months";
+        protected override DateTime CalcThreshold(DateTime now, int numberOf) => now.AddMonths(numberOf * (-1));
+    }
+
+    public class FileRemoveOlderThenYears : FileRemoveOlderThenBase
+    {
+        protected override string AmountType => "years";
+        protected override DateTime CalcThreshold(DateTime now, int numberOf) => now.AddYears(numberOf * (-1));
     }
 }
