@@ -61,8 +61,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 var partData = part.ToStringDelimited(Environment.NewLine);
                 Util.FileWrite(targetFiles[i], partData, Constant.ENCODING_UTF8_WITHOUT_BOM);
             }
-
-
         }
     }
 }
