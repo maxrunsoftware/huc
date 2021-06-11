@@ -32,6 +32,11 @@ namespace HavokMultimedia.Utilities.Console
             }
         }
 
+        public static void DebugParameter(this ILogger log, string parameterName, object parameterValue)
+        {
+            log.Debug(parameterName + ": " + parameterValue);
+        }
+
 
     }
 }
