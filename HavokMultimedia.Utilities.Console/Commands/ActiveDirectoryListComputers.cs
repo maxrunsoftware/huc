@@ -41,7 +41,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
             computerPattern = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(computerPattern)}: {computerPattern}");
+            log.DebugParameter(nameof(computerPattern), computerPattern);
             base.ExecuteInternal(ad);
         }
     }

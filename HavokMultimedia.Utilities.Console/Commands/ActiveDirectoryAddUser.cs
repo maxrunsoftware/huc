@@ -41,9 +41,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var emailaddress = GetArgParameterOrConfig("emailaddress", "ea").TrimOrNull();
 
             var samAccountName = GetArgValueTrimmed(0);
-            log.Debug(nameof(samAccountName) + ": " + samAccountName);
-            if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
-
+            samAccountName.CheckValueNotNull(nameof(samAccountName), log);
 
             log.Debug("Adding user: " + samAccountName);
             ad.AddUser(

@@ -36,9 +36,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             //var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
             var targetDirectory = GetArgValueTrimmed(0);
-            if (targetDirectory == null) throw new ArgsException(nameof(targetDirectory), $"No <{nameof(targetDirectory)}> specified");
+            targetDirectory.CheckValueNotNull(nameof(targetDirectory), log);
             targetDirectory = Path.GetFullPath(targetDirectory);
-            log.Debug($"{nameof(targetDirectory)}: {targetDirectory}");
+            log.DebugParameter(nameof(targetDirectory), targetDirectory);
             if (!Directory.Exists(targetDirectory)) throw new ArgsException(nameof(targetDirectory), $"<{nameof(targetDirectory)}> does not exist {targetDirectory}");
 
             var conflictResolution = GetArgParameterOrConfigEnum("conflictResolution", "c", ConflictResolution.LeaveAsIs);

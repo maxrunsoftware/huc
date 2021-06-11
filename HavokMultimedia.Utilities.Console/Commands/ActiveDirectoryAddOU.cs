@@ -35,11 +35,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var parentOU = GetArgParameterOrConfig("parentOU", "pou").TrimOrNull();
 
             var newOUName = GetArgValueTrimmed(0);
-            log.Debug(nameof(newOUName) + ": " + newOUName);
-            if (newOUName == null) throw ArgsException.ValueNotSpecified(nameof(newOUName));
+            newOUName.CheckValueNotNull(nameof(newOUName), log);
 
             var newOUDescription = GetArgValueTrimmed(1);
-            log.Debug(nameof(newOUDescription) + ": " + newOUDescription);
+            log.DebugParameter(nameof(newOUDescription), newOUDescription);
 
             log.Debug("Adding OU: " + newOUName);
             ad.AddOU(

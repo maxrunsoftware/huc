@@ -34,8 +34,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var values = GetArgValues().TrimOrNull().WhereNotNull();
 
             var samAccountName = values.GetAtIndexOrDefault(0).TrimOrNull();
-            log.Debug(nameof(samAccountName) + ": " + samAccountName);
-            if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
+            samAccountName.CheckValueNotNull(nameof(samAccountName), log);
 
             log.Debug("Removing group " + samAccountName);
             ad.RemoveGroup(samAccountName);

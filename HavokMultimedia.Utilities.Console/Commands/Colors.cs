@@ -62,7 +62,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal()
         {
             var colorRequested = GetArgValueTrimmed(0);
-            log.Debug(nameof(colorRequested) + ": " + colorRequested);
+            log.DebugParameter(nameof(colorRequested), colorRequested);
             if (colorRequested == null)
             {
                 var lines = Color.ColorNames.ToStringsColumns(4);

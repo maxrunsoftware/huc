@@ -41,7 +41,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
             groupPattern = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(groupPattern)}: {groupPattern}");
+            log.DebugParameter(nameof(groupPattern), groupPattern);
             base.ExecuteInternal(ad);
         }
     }

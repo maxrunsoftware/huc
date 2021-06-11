@@ -32,12 +32,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
             var samAccountName = GetArgValueTrimmed(0);
-            log.Debug(nameof(samAccountName) + ": " + samAccountName);
-            if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
+            samAccountName.CheckValueNotNull(nameof(samAccountName), log);
 
             var newPassword = GetArgValueTrimmed(1);
-            log.Debug(nameof(newPassword) + ": " + newPassword);
-            if (newPassword == null) throw new ArgsException(nameof(newPassword), $"No {nameof(newPassword)} specified");
+            newPassword.CheckValueNotNull(nameof(newPassword), log);
 
             log.Debug($"Changing password for user {samAccountName} to {newPassword}");
             ad.ChangePassword(samAccountName, newPassword);

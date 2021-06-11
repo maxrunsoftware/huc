@@ -33,8 +33,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var includeExpensiveProperties = GetArgParameterOrConfigBool("includeExpensiveProperties", "e", false);
             var outputFile = GetArgValueTrimmed(0);
-            log.Debug(nameof(outputFile) + ": " + outputFile);
-            if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
+            outputFile.CheckValueNotNull(nameof(outputFile), log);
 
             var ados = ad.GetAll();
             var t = ActiveDirectoryObject.CreateTable(ados, includeExpensiveProperties);

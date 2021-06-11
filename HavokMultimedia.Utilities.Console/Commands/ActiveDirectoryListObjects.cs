@@ -40,7 +40,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
             objectPattern = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(objectPattern)}: {objectPattern}");
+            log.DebugParameter(nameof(objectPattern), objectPattern);
             base.ExecuteInternal(ad);
         }
     }

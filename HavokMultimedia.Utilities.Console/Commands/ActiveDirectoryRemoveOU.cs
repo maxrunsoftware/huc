@@ -32,8 +32,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
             var ouName = GetArgValueTrimmed(0);
-            log.Debug(nameof(ouName) + ": " + ouName);
-            if (ouName == null) throw ArgsException.ValueNotSpecified(nameof(ouName));
+            ouName.CheckValueNotNull(nameof(ouName), log);
 
             log.Debug("Removing OU: " + ouName);
             ad.RemoveOU(ouName);

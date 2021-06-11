@@ -40,17 +40,17 @@ namespace HavokMultimedia.Utilities.Console.Commands
             bufferSize = (int)bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
 
             var inputFile = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(inputFile)}: {inputFile}");
+            log.DebugParameter(nameof(inputFile), inputFile);
             inputFile = ParseInputFile(inputFile);
             if (!File.Exists(inputFile)) throw new FileNotFoundException($"{nameof(inputFile)} {inputFile} does not exist");
-            log.Debug($"{nameof(inputFile)}: {inputFile}");
+            log.DebugParameter(nameof(inputFile), inputFile);
 
             var outputFile = GetArgValueTrimmed(1);
-            log.Debug($"{nameof(outputFile)}: {outputFile}");
+            log.DebugParameter(nameof(outputFile), outputFile);
             if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
             outputFile = Path.GetFullPath(outputFile);
             if (inputFile.EqualsCaseInsensitive(outputFile)) throw new ArgsException(nameof(outputFile), $"{nameof(outputFile)} cannot be the same as {nameof(inputFile)}");
-            log.Debug($"{nameof(outputFile)}: {outputFile}");
+            log.DebugParameter(nameof(outputFile), outputFile);
             DeleteExistingFile(outputFile);
 
             using (var iStream = Util.FileOpenRead(inputFile))

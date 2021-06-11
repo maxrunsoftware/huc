@@ -35,8 +35,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
             var objectName = GetArgValueTrimmed(0);
-            log.Debug(nameof(objectName) + ": " + objectName);
-            if (objectName == null) throw new ArgsException(nameof(objectName), "No <" + nameof(objectName) + "> specified to search for");
+            objectName.CheckValueNotNull(nameof(objectName), log);
 
             var adobjs = new List<ActiveDirectoryObject>();
             foreach (var adobj in ad.GetAll())

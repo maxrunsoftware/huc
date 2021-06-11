@@ -31,12 +31,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
             var samAccountName = GetArgValueTrimmed(0);
-            log.Debug(nameof(samAccountName) + ": " + samAccountName);
-            if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
+            samAccountName.CheckValueNotNull(nameof(samAccountName), log);
 
             var newOUSAMAccountName = GetArgValueTrimmed(1);
-            log.Debug(nameof(newOUSAMAccountName) + ": " + newOUSAMAccountName);
-            if (newOUSAMAccountName == null) throw new ArgsException(nameof(newOUSAMAccountName), $"No {nameof(newOUSAMAccountName)} specified");
+            newOUSAMAccountName.CheckValueNotNull(nameof(newOUSAMAccountName), log);
 
             log.Debug($"Changing OU of group {samAccountName} to {newOUSAMAccountName}");
             ad.MoveGroup(samAccountName, newOUSAMAccountName);

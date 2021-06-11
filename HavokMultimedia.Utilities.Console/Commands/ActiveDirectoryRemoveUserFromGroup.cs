@@ -32,12 +32,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var values = GetArgValuesTrimmed1N();
             var samAccountName = values.firstValue;
-            log.Debug(nameof(samAccountName) + ": " + samAccountName);
-            if (samAccountName == null) throw new ArgsException(nameof(samAccountName), $"No {nameof(samAccountName)} specified");
+            samAccountName.CheckValueNotNull(nameof(samAccountName), log);
 
             var groups = values.otherValues;
             log.Debug(groups, nameof(groups));
-            if (groups.IsEmpty()) throw new ArgsException(nameof(groups), $"No {nameof(groups)} specified");
+            if (groups.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(groups));
 
             log.Debug("Removing user " + samAccountName + " from groups " + groups.ToStringDelimited(", "));
             foreach (var group in groups)
