@@ -24,15 +24,17 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Adds a new group to ActiveDirectory");
-            help.AddParameter("groupType", "gt", "The group type of the new group (" + ActiveDirectoryGroupType.GlobalSecurityGroup + ")  " + DisplayEnumOptions<ActiveDirectoryGroupType>());
+            help.AddParameter(nameof(groupType), "gt", "The group type of the new group (" + ActiveDirectoryGroupType.GlobalSecurityGroup + ")  " + DisplayEnumOptions<ActiveDirectoryGroupType>());
             help.AddValue("<SAMAccountName>");
             help.AddExample(HelpExamplePrefix + " testgroup");
             help.AddExample(HelpExamplePrefix + " -gt=" + ActiveDirectoryGroupType.GlobalSecurityGroup + " testgroup");
         }
 
+        private ActiveDirectoryGroupType groupType;
+
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            var groupType = GetArgParameterOrConfigEnum("groupType", "gt", ActiveDirectoryGroupType.GlobalSecurityGroup);
+            groupType = GetArgParameterOrConfigEnum(nameof(groupType), "gt", ActiveDirectoryGroupType.GlobalSecurityGroup);
 
             var samAccountName = GetArgValueTrimmed(0);
             samAccountName.CheckValueNotNull(nameof(samAccountName), log);

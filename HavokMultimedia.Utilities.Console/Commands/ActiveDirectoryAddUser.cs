@@ -24,21 +24,26 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Adds a new user to ActiveDirectory");
-            help.AddParameter("firstname", "fn", "The firstname of the new user");
-            help.AddParameter("lastname", "ln", "The lastname of the new user");
-            help.AddParameter("displayname", "dn", "The displayname of the new user");
-            help.AddParameter("emailaddress", "ea", "The email address of the new user");
+            help.AddParameter(nameof(firstname), "fn", "The firstname of the new user");
+            help.AddParameter(nameof(lastname), "ln", "The lastname of the new user");
+            help.AddParameter(nameof(displayname), "dn", "The displayname of the new user");
+            help.AddParameter(nameof(emailaddress), "ea", "The email address of the new user");
             help.AddValue("<SAMAccountName>");
             help.AddExample(HelpExamplePrefix + " testuser");
             help.AddExample(HelpExamplePrefix + " -fn=First -ln=Last -dn=MyUser testuser");
         }
 
+        private string firstname;
+        private string lastname;
+        private string displayname;
+        private string emailaddress;
+
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            var firstname = GetArgParameterOrConfig("firstname", "fn").TrimOrNull();
-            var lastname = GetArgParameterOrConfig("lastname", "ln").TrimOrNull();
-            var displayname = GetArgParameterOrConfig("displayname", "dn").TrimOrNull();
-            var emailaddress = GetArgParameterOrConfig("emailaddress", "ea").TrimOrNull();
+            firstname = GetArgParameterOrConfig(nameof(firstname), "fn").TrimOrNull();
+            lastname = GetArgParameterOrConfig(nameof(lastname), "ln").TrimOrNull();
+            displayname = GetArgParameterOrConfig(nameof(displayname), "dn").TrimOrNull();
+            emailaddress = GetArgParameterOrConfig(nameof(emailaddress), "ea").TrimOrNull();
 
             var samAccountName = GetArgValueTrimmed(0);
             samAccountName.CheckValueNotNull(nameof(samAccountName), log);

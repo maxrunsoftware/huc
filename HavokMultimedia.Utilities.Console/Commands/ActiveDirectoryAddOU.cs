@@ -24,15 +24,17 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Adds a new OU to ActiveDirectory");
-            help.AddParameter("parentOU", "pou", "The parent OU or leave empty to place the new OU at the top level");
+            help.AddParameter(nameof(parentOU), "pou", "The parent OU or leave empty to place the new OU at the top level");
             help.AddValue("<new_OU_Name> <optional_description>");
             help.AddExample(HelpExamplePrefix + " MyNewOU");
             help.AddExample(HelpExamplePrefix + " -pou=Users MyNewOU \"This is my new OU\"");
         }
 
+        private string parentOU;
+
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            var parentOU = GetArgParameterOrConfig("parentOU", "pou").TrimOrNull();
+            parentOU = GetArgParameterOrConfig(nameof(parentOU), "pou").TrimOrNull();
 
             var newOUName = GetArgValueTrimmed(0);
             newOUName.CheckValueNotNull(nameof(newOUName), log);

@@ -24,14 +24,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Lists all objects and their attributes in an ActiveDirectory to the specified tab delimited file");
-            help.AddParameter("includeExpensiveProperties", "e", "Whether to include expensive properties or not (false)");
+            help.AddParameter(nameof(includeExpensiveProperties), "e", "Whether to include expensive properties or not (false)");
             help.AddValue("<output tab delimited file>");
             help.AddExample(HelpExamplePrefix + " adlist.txt");
         }
 
+        private bool includeExpensiveProperties;
+
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            var includeExpensiveProperties = GetArgParameterOrConfigBool("includeExpensiveProperties", "e", false);
+            var includeExpensiveProperties = GetArgParameterOrConfigBool(nameof(includeExpensiveProperties), "e", false);
             var outputFile = GetArgValueTrimmed(0);
             outputFile.CheckValueNotNull(nameof(outputFile), log);
 
