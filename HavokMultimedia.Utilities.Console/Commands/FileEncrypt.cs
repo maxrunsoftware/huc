@@ -41,15 +41,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (password != null && publicKeyFile != null) throw new ArgsException(nameof(password), $"Both password and publicKey can not be specified at the same time");
 
             var fileToEncrypt = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
-            if (fileToEncrypt == null) throw new ArgsException(nameof(fileToEncrypt), $"No <{nameof(fileToEncrypt)}> specified to encrypt");
+            fileToEncrypt.CheckValueNotNull(nameof(fileToEncrypt), log);
             fileToEncrypt = Path.GetFullPath(fileToEncrypt);
+            log.DebugParameter(nameof(fileToEncrypt), fileToEncrypt);
             CheckFileExists(fileToEncrypt);
-            log.Debug($"{nameof(fileToEncrypt)}: {fileToEncrypt}");
 
             var encryptedFile = GetArgValueTrimmed(1);
             if (encryptedFile == null) encryptedFile = fileToEncrypt;
-            log.Debug($"{nameof(encryptedFile)}: {encryptedFile}");
+            log.DebugParameter(nameof(encryptedFile), encryptedFile);
 
             var fileToEncryptData = ReadFileBinary(fileToEncrypt);
             byte[] encryptedData;

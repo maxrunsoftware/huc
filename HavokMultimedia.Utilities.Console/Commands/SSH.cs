@@ -28,72 +28,84 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Execute a SSH statement and/or script remotely");
-            help.AddParameter("host", "h", "Hostname");
-            help.AddParameter("port", "o", "Port (22)");
-            help.AddParameter("username", "u", "Username");
-            help.AddParameter("password", "p", "Password");
-            help.AddParameter("privateKey1File", "pk1", "SFTP private key 1 filename");
-            help.AddParameter("privateKey1Password", "pk1pass", "SFTP private key 1 password");
-            help.AddParameter("privateKey2File", "pk2", "SFTP private key 2 filename");
-            help.AddParameter("privateKey2Password", "pk2pass", "SFTP private key 2 password");
-            help.AddParameter("privateKey3File", "pk3", "SFTP private key 3 filename");
-            help.AddParameter("privateKey3Password", "pk3pass", "SFTP private key 3 password");
-            help.AddParameter("sshScriptFile", "f", "SSH script file to execute");
+            help.AddParameter(nameof(host), "h", "Hostname");
+            help.AddParameter(nameof(port), "o", "Port (22)");
+            help.AddParameter(nameof(username), "u", "Username");
+            help.AddParameter(nameof(password), "p", "Password");
+            help.AddParameter(nameof(privateKey1File), "pk1", "SFTP private key 1 filename");
+            help.AddParameter(nameof(privateKey1Password), "pk1pass", "SFTP private key 1 password");
+            help.AddParameter(nameof(privateKey2File), "pk2", "SFTP private key 2 filename");
+            help.AddParameter(nameof(privateKey2Password), "pk2pass", "SFTP private key 2 password");
+            help.AddParameter(nameof(privateKey3File), "pk3", "SFTP private key 3 filename");
+            help.AddParameter(nameof(privateKey3Password), "pk3pass", "SFTP private key 3 password");
+            help.AddParameter(nameof(sshScriptFile), "f", "SSH script file to execute");
             help.AddValue("<ssh command>");
             help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass `ls`");
             help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass `cd someDirectory; ls -la;`");
         }
 
+        private string host;
+        private ushort port;
+        private string username;
+        private string password;
+        private string privateKey1File;
+        private string privateKey1Password;
+        private string privateKey2File;
+        private string privateKey2Password;
+        private string privateKey3File;
+        private string privateKey3Password;
+        private string sshScriptFile;
+
         protected override void ExecuteInternal()
         {
-            var host = GetArgParameterOrConfigRequired("host", "h");
-            var port = GetArgParameterOrConfigInt("port", "o", 22).ToString().ToUShort();
-            var username = GetArgParameterOrConfig("username", "u").TrimOrNull();
-            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
+            host = GetArgParameterOrConfigRequired(nameof(host), "h");
+            port = GetArgParameterOrConfigInt(nameof(port), "o", 22).ToString().ToUShort();
+            username = GetArgParameterOrConfig(nameof(username), "u").TrimOrNull();
+            password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
 
             var sshkeys = new List<SshKeyFile>();
 
-            var privateKey1File = GetArgParameterOrConfig("privateKey1File", "pk1").TrimOrNull();
+            privateKey1File = GetArgParameterOrConfig(nameof(privateKey1File), "pk1").TrimOrNull();
             if (privateKey1File != null)
             {
                 privateKey1File = Path.GetFullPath(privateKey1File);
-                if (!File.Exists(privateKey1File)) throw new FileNotFoundException("privateKey1File not found", privateKey1File);
+                if (!File.Exists(privateKey1File)) throw new FileNotFoundException(nameof(privateKey1File) + " not found", privateKey1File);
             }
-            var privateKey1Password = GetArgParameterOrConfig("privateKey1Password", "pk1pass").TrimOrNull();
+            privateKey1Password = GetArgParameterOrConfig(nameof(privateKey1Password), "pk1pass").TrimOrNull();
             if (privateKey1File != null) sshkeys.Add(new SshKeyFile(privateKey1File, privateKey1Password));
 
-            var privateKey2File = GetArgParameterOrConfig("privateKey2File", "pk2").TrimOrNull();
+            privateKey2File = GetArgParameterOrConfig(nameof(privateKey2File), "pk2").TrimOrNull();
             if (privateKey2File != null)
             {
                 privateKey2File = Path.GetFullPath(privateKey2File);
-                if (!File.Exists(privateKey2File)) throw new FileNotFoundException("privateKey2File not found", privateKey2File);
+                if (!File.Exists(privateKey2File)) throw new FileNotFoundException(nameof(privateKey2File) + " not found", privateKey2File);
             }
-            var privateKey2Password = GetArgParameterOrConfig("privateKey2Password", "pk2pass").TrimOrNull();
+            privateKey2Password = GetArgParameterOrConfig(nameof(privateKey2Password), "pk2pass").TrimOrNull();
             if (privateKey2File != null) sshkeys.Add(new SshKeyFile(privateKey2File, privateKey2Password));
 
-            var privateKey3File = GetArgParameterOrConfig("privateKey3File", "pk3").TrimOrNull();
+            privateKey3File = GetArgParameterOrConfig(nameof(privateKey3File), "pk3").TrimOrNull();
             if (privateKey3File != null)
             {
                 privateKey3File = Path.GetFullPath(privateKey3File);
-                if (!File.Exists(privateKey3File)) throw new FileNotFoundException("privateKey3File not found", privateKey3File);
+                if (!File.Exists(privateKey3File)) throw new FileNotFoundException(nameof(privateKey3File) + " not found", privateKey3File);
             }
-            var privateKey3Password = GetArgParameterOrConfig("privateKey3Password", "pk3pass").TrimOrNull();
+            privateKey3Password = GetArgParameterOrConfig(nameof(privateKey3Password), "pk3pass").TrimOrNull();
             if (privateKey3File != null) sshkeys.Add(new SshKeyFile(privateKey3File, privateKey3Password));
 
 
             var command = GetArgValueTrimmed(0);
-            log.Debug("command: " + command);
-            var f = GetArgParameterOrConfig("sshScriptFile", "f").TrimOrNull();
+            log.DebugParameter(nameof(command), command);
 
-            string fData = null;
-            if (f != null) fData = ReadFile(f);
-            if (fData.TrimOrNull() != null) log.Debug($"sshScriptFileData: {fData.Length}");
+            sshScriptFile = GetArgParameterOrConfig(nameof(sshScriptFile), "f").TrimOrNull();
+            string sshScriptFileData = null;
+            if (sshScriptFile != null) sshScriptFileData = ReadFile(sshScriptFile);
+            if (sshScriptFileData.TrimOrNull() != null) log.DebugParameter(nameof(sshScriptFileData), sshScriptFileData.Length);
 
-            if (command.TrimOrNull() == null && fData.TrimOrNull() == null) throw new Exception($"No SSH command(s) to execute");
-            var commands = (command ?? string.Empty) + Constant.NEWLINE_WINDOWS + (fData ?? string.Empty);
+            if (command.TrimOrNull() == null && sshScriptFileData.TrimOrNull() == null) throw new ArgsException(nameof(command), $"No SSH command(s) to execute");
+            var commands = (command ?? string.Empty) + Constant.NEWLINE_WINDOWS + (sshScriptFileData ?? string.Empty);
             commands = commands.TrimOrNull();
-            if (commands == null) throw new ArgsException("command", "No SSH command(s) to execute");
-            log.Debug($"commands: {commands}");
+            if (commands == null) throw new ArgsException(nameof(command), "No SSH command(s) to execute");
+            log.DebugParameter(nameof(commands), commands);
 
             var stopwatch = new Stopwatch();
             stopwatch.Start();

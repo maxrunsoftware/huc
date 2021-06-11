@@ -198,56 +198,64 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Loads a tab delimited data file into a SQL server table");
             help.AddDetail("It is expected that the table being imported is in Tab delimited format, and that there is a header row. If there is no header row set the -noHeader option");
-            help.AddParameter("drop", "dp", "Drop existing table if it exists (false)");
-            help.AddParameter("detectColumnTypes", "dct", "Attempts to detect column types and lengths (false)");
-            help.AddParameter("errorOnNonexistentColumns", "ec", "When inserting to an existing table, whether to error if columns in the data file don't have cooresponding columns in the existing SQL table (false)");
-            help.AddParameter("batchSize", "bs", "Number of insert commands to batch. Set to zero if having issues (1000)");
-            help.AddParameter("rowNumberColumnName", "rncn", "If provided, an extra column is inserted with the line number, -1 because excluding header");
-            help.AddParameter("currentUtcDateTimeColumnName", "ctcn", "If provided, an extra column containing the UTC datetime is inserted");
-            help.AddParameter("noHeader", "nh", "Set if your importing tab delimited file does not have a header row (false)");
-            help.AddParameter("database", "d", "Database name to load table");
-            help.AddParameter("schema", "s", "Schema to load table");
-            help.AddParameter("table", "t", "Table name");
+            help.AddParameter(nameof(drop), "dp", "Drop existing table if it exists (false)");
+            help.AddParameter(nameof(detectColumnTypes), "dct", "Attempts to detect column types and lengths (false)");
+            help.AddParameter(nameof(errorOnNonexistentColumns), "ec", "When inserting to an existing table, whether to error if columns in the data file don't have cooresponding columns in the existing SQL table (false)");
+            help.AddParameter(nameof(batchSize), "bs", "Number of insert commands to batch. Set to zero if having issues (1000)");
+            help.AddParameter(nameof(rowNumberColumnName), "rncn", "If provided, an extra column is inserted with the line number, -1 because excluding header");
+            help.AddParameter(nameof(currentUtcDateTimeColumnName), "ctcn", "If provided, an extra column containing the UTC datetime is inserted");
+            help.AddParameter(nameof(noHeader), "nh", "Set if your importing tab delimited file does not have a header row (false)");
+            help.AddParameter(nameof(database), "d", "Database name to load table");
+            help.AddParameter(nameof(schema), "s", "Schema to load table");
+            help.AddParameter(nameof(table), "t", "Table name");
             help.AddValue("<tab delimited file to load>");
             help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
             help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
         }
 
+        private bool drop;
+        private bool detectColumnTypes;
+        private bool errorOnNonexistentColumns;
+        private int batchSize;
+        private string rowNumberColumnName;
+        private string currentUtcDateTimeColumnName;
+        private bool noHeader;
+        private string database;
+        private string schema;
+        private string table;
+
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
 
-            var drop = GetArgParameterOrConfigBool("drop", "dp", false);
-            var detectColumnTypes = GetArgParameterOrConfigBool("detectColumnTypes", "dct", false);
-            var errorOnNonexistentColumns = GetArgParameterOrConfigBool("errorOnNonexistentColumns", "ec", false);
-            var batchSize = GetArgParameterOrConfigInt("batchSize", "bs", 1000);
-            var rowNumberColumnName = GetArgParameterOrConfig("rowNumberColumnName", "rncn").TrimOrNull();
-            var currentUtcDateTimeColumnName = GetArgParameterOrConfig("currentUtcDateTimeColumnName", "ctcn").TrimOrNull();
-            var noHeader = GetArgParameterOrConfigBool("noHeader", "nh", false);
-            var database = GetArgParameterOrConfigRequired("database", "d").TrimOrNull();
-            var schema = GetArgParameterOrConfig("schema", "s").TrimOrNull();
-            var table = GetArgParameterOrConfigRequired("table", "t").TrimOrNull();
+            drop = GetArgParameterOrConfigBool(nameof(drop), "dp", false);
+            detectColumnTypes = GetArgParameterOrConfigBool(nameof(detectColumnTypes), "dct", false);
+            errorOnNonexistentColumns = GetArgParameterOrConfigBool(nameof(errorOnNonexistentColumns), "ec", false);
+            batchSize = GetArgParameterOrConfigInt(nameof(batchSize), "bs", 1000);
+            rowNumberColumnName = GetArgParameterOrConfig(nameof(rowNumberColumnName), "rncn").TrimOrNull();
+            currentUtcDateTimeColumnName = GetArgParameterOrConfig(nameof(currentUtcDateTimeColumnName), "ctcn").TrimOrNull();
+            noHeader = GetArgParameterOrConfigBool(nameof(noHeader), "nh", false);
+            database = GetArgParameterOrConfigRequired(nameof(database), "d").TrimOrNull();
+            schema = GetArgParameterOrConfig(nameof(schema), "s").TrimOrNull();
+            table = GetArgParameterOrConfigRequired(nameof(table), "t").TrimOrNull();
 
             var inputFile = GetArgValueTrimmed(0);
-            if (inputFile == null) throw new ArgsException("inputFile", "No input file provided to load");
-            log.Debug($"inputFile: {inputFile}");
-            var inputFile2 = ParseInputFiles(inputFile.Yield()).FirstOrDefault();
-            if (!File.Exists(inputFile2)) throw new FileNotFoundException($"inputFile {inputFile} does not exist", inputFile);
-            inputFile = inputFile2;
+            inputFile.CheckValueNotNull(nameof(inputFile), log);
+            inputFile = ParseInputFiles(inputFile.Yield()).FirstOrDefault();
+            CheckFileExists(inputFile);
+
             var t = ReadTableTab(inputFile, headerRow: !noHeader);
             if (t.Columns.IsEmpty())
             {
                 throw new Exception("No columns in import file");
             }
 
-
-
             var c = GetSqlHelper();
             var databaseSchemaTable = c.Escape(database);
             if (schema != null) databaseSchemaTable = databaseSchemaTable + "." + c.Escape(schema);
             databaseSchemaTable = databaseSchemaTable + "." + c.Escape(table);
 
-            log.Debug($"databaseSchemaTable: {databaseSchemaTable}");
+            log.Debug(nameof(databaseSchemaTable), databaseSchemaTable);
 
             var tableExists = c.GetTableExists(database, schema, table);
             if (tableExists && drop)
@@ -272,7 +280,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     sql.Append(" ");
                     if (detectColumnTypes)
                     {
-                        if (SqlServerType.NotIn(SqlServerType.MSSQL)) throw new NotImplementedException($"detectColumnTypes for SqlServerType {SqlServerType} has not been implemented yet");
+                        if (serverType.NotIn(SqlServerType.MSSQL)) throw new NotImplementedException($"detectColumnTypes for SqlServerType {serverType} has not been implemented yet");
 
                         // MSSQL
                         var sqlDbType = column.Type.GetSqlDbType();
@@ -287,9 +295,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     }
                     else
                     {
-                        if (SqlServerType == SqlServerType.MSSQL) sql.Append("NVARCHAR(MAX)");
-                        else if (SqlServerType == SqlServerType.MySQL) sql.Append("LONGTEXT");
-                        else throw new NotImplementedException($"SqlServerType {SqlServerType} has not been implemented yet");
+                        if (serverType == SqlServerType.MSSQL) sql.Append("NVARCHAR(MAX)");
+                        else if (serverType == SqlServerType.MySQL) sql.Append("LONGTEXT");
+                        else throw new NotImplementedException($"SqlServerType {serverType} has not been implemented yet");
                     }
                     sql.Append(" ");
                 }

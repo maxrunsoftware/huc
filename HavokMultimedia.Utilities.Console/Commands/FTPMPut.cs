@@ -26,25 +26,29 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Puts multiple files on a FTP/FTPS/SFTP server");
-            help.AddParameter("remotePath", "Remote directory to get files from");
-            help.AddParameter("localPath", "Local directory to download files to (" + Path.GetFullPath(Environment.CurrentDirectory) + ")");
-            help.AddParameter("filePattern", "Pattern to match files using * and ? as wildcards");
+            help.AddParameter(nameof(remotePath), "Remote directory to get files from");
+            help.AddParameter(nameof(localPath), "Local directory to download files to (" + Path.GetFullPath(Environment.CurrentDirectory) + ")");
+            help.AddParameter(nameof(filePattern), "Pattern to match files using * and ? as wildcards");
         }
+
+        private string remotePath;
+        private string localPath;
+        private string filePattern;
 
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
 
-            var remotePath = GetArgParameterOrConfig("remotePath", null);
+            remotePath = GetArgParameterOrConfig(nameof(remotePath), null);
             if (remotePath != null && remotePath.Last() != '/') remotePath = remotePath + "/";
-            log.Debug($"remotePath: {remotePath}");
+            log.DebugParameter(nameof(remotePath), remotePath);
 
-            var localPath = Path.GetFullPath(GetArgParameterOrConfig("localPath", null, Environment.CurrentDirectory));
-            if (!Directory.Exists(localPath)) throw new DirectoryNotFoundException("Could not find " + nameof(localPath) + " directory " + localPath);
+            localPath = Path.GetFullPath(GetArgParameterOrConfig(nameof(localPath), null, Environment.CurrentDirectory));
+            if (!Directory.Exists(localPath)) throw new DirectoryNotFoundException("Could not find <" + nameof(localPath) + "> directory " + localPath);
 
-            var filePattern = GetArgParameterOrConfig("filePattern", null);
+            filePattern = GetArgParameterOrConfig(nameof(filePattern), null);
             if (filePattern.TrimOrNull() == null) filePattern = null;
-            log.Debug($"filePattern: {filePattern}");
+            log.DebugParameter(nameof(filePattern), filePattern);
 
             using (var c = OpenClient())
             {

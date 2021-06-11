@@ -50,7 +50,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var recursive = GetArgParameterOrConfigBool("recursive", "r", false);
 
             var sourceFiles = ParseInputFiles(GetArgValuesTrimmed());
-            if (sourceFiles.IsEmpty()) throw new ArgsException("sourceFiles", "No source files specified");
+            if (sourceFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(sourceFiles));
             log.Debug(sourceFiles, nameof(sourceFiles));
 
             foreach (var sourceFile in sourceFiles)

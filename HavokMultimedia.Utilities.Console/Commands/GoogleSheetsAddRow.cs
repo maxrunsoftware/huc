@@ -25,18 +25,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Adds a row of data to a Google Sheet");
             help.AddDetail("For empty values use the keyword NULL instead of a blank");
-            help.AddParameter("sheetName", "s", "The spreadsheet sheet name/tab to upload to (default first sheet)");
+            help.AddParameter(nameof(sheetName), "s", "The spreadsheet sheet name/tab to upload to (default first sheet)");
             help.AddValue("<column A value> <column B value> <column C value> <etc>");
             help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` AA null CC");
         }
 
+        private string sheetName;
+
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
-            var sheetName = GetArgParameterOrConfig("sheetName", "s");
+            sheetName = GetArgParameterOrConfig(nameof(sheetName), "s");
 
             var values = GetArgValues().TrimOrNull().ToList();
-            for (int i = 0; i < values.Count; i++) log.Debug("values[" + i + "]: " + values[i]);
+            log.Debug(values, nameof(values));
 
             for (int i = 0; i < values.Count; i++)
             {

@@ -25,23 +25,24 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddDetail("See the following to setup the account to be able to interact with Google Sheets...");
             help.AddDetail("https://medium.com/@williamchislett/writing-to-google-sheets-api-using-net-and-a-services-account-91ee7e4a291");
-            help.AddParameter("securityKeyFile", "k", "The JSON formatted security key file");
-            help.AddParameter("applicationName", "a", "The Google Developer application name");
-            help.AddParameter("spreadSheetId", "id", "The ID of the spreadsheet to upload to which is in the URL of the document");
+            help.AddParameter(nameof(securityKeyFile), "k", "The JSON formatted security key file");
+            help.AddParameter(nameof(applicationName), "a", "The Google Developer application name");
+            help.AddParameter(nameof(spreadsheetId), "id", "The ID of the spreadsheet to upload to which is in the URL of the document");
         }
 
+        private string securityKeyFile;
         private string securityKeyFileData;
         private string applicationName;
         private string spreadsheetId;
 
         protected override void ExecuteInternal()
         {
-            var securityKeyFile = GetArgParameterOrConfigRequired("securityKeyFile", "k");
+            securityKeyFile = GetArgParameterOrConfigRequired(nameof(securityKeyFile), "k");
             securityKeyFileData = ReadFile(securityKeyFile);
             log.Debug(nameof(securityKeyFileData) + ": " + securityKeyFileData);
 
-            applicationName = GetArgParameterOrConfigRequired("applicationName", "a");
-            spreadsheetId = GetArgParameterOrConfigRequired("spreadSheetId", "id");
+            applicationName = GetArgParameterOrConfigRequired(nameof(applicationName), "a");
+            spreadsheetId = GetArgParameterOrConfigRequired(nameof(spreadsheetId), "id");
         }
 
         protected GoogleSheets CreateConnection()

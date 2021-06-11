@@ -25,33 +25,38 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Generates a random data file");
-            help.AddParameter("bufferSizeMegabytes", "b", "Buffer size in megabytes (10)");
-            help.AddParameter("length", "l", "Number of characters to include (1000)");
-            help.AddParameter("width", "w", "Size of the column of data to write for each line (80)");
-            help.AddParameter("secureRandom", "s", "Use the secure random algorithim (false)");
-            help.AddParameter("characters", "c", "Character pool to use for generation (0-9a-z)");
+            help.AddParameter(nameof(bufferSizeMegabytes), "b", "Buffer size in megabytes (10)");
+            help.AddParameter(nameof(length), "l", "Number of characters to include (1000)");
+            help.AddParameter(nameof(width), "w", "Size of the column of data to write for each line (80)");
+            help.AddParameter(nameof(secureRandom), "s", "Use the secure random algorithim (false)");
+            help.AddParameter(nameof(characters), "c", "Character pool to use for generation (0-9a-z)");
             help.AddValue("<output file 1> <output file 2> <etc>");
             help.AddExample("testdata.txt");
             help.AddExample("-l=1000000 testdata1.txt testdata2.txt testdata3.txt");
         }
 
+        private int bufferSizeMegabytes;
+        private int length;
+        private int width;
+        private bool secureRandom;
+        private string characters;
+
         protected override void ExecuteInternal()
         {
-            var b = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10);
-            b = b * (int)Constant.BYTES_MEGA;
+            bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10);
+            bufferSizeMegabytes = bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
 
-            var l = GetArgParameterOrConfigInt("length", "l", 1000);
-            var w = GetArgParameterOrConfigInt("width", "w", 80);
-            var secureRandom = GetArgParameterOrConfigBool("secureRandom", "s", false);
-            if (w < 1) w = int.MaxValue;
-
-            var c = GetArgParameterOrConfig("characters", "c").TrimOrNull() ?? (Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9);
+            length = GetArgParameterOrConfigInt(nameof(length), "l", 1000);
+            width = GetArgParameterOrConfigInt(nameof(width), "w", 80);
+            if (width < 1) width = int.MaxValue;
+            secureRandom = GetArgParameterOrConfigBool(nameof(secureRandom), "s", false);
+            characters = GetArgParameterOrConfig(nameof(characters), "c").TrimOrNull() ?? (Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9);
 
             var outputFiles = GetArgValuesTrimmed();
             log.Debug(outputFiles, nameof(outputFiles));
-            if (outputFiles.IsEmpty()) throw new ArgsException(nameof(outputFiles), $"No <{nameof(outputFiles)}> specified");
+            if (outputFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(outputFiles));
 
-            var chars = c.ToCharArray();
+            var chars = characters.ToCharArray();
             var random = new Random();
             var srandom = RandomNumberGenerator.Create();
             foreach (var outputFile in outputFiles)
@@ -62,11 +67,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 DeleteExistingFile(outputFile);
                 using (var fs = Util.FileOpenWrite(outputFile))
                 {
-                    using (var sw = new StreamWriter(fs, Constant.ENCODING_UTF8_WITHOUT_BOM, b))
+                    using (var sw = new StreamWriter(fs, Constant.ENCODING_UTF8_WITHOUT_BOM, bufferSizeMegabytes))
                     {
-                        while (ll < l)
+                        while (ll < length)
                         {
-                            if (ww >= w)
+                            if (ww >= width)
                             {
                                 ww = 0;
                                 sw.WriteLine();

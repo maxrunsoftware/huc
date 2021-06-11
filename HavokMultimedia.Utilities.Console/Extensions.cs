@@ -37,16 +37,11 @@ namespace HavokMultimedia.Utilities.Console
             log.Debug(parameterName + ": " + parameterValue);
         }
 
-        public static string CheckValueNotNull(this string val, string valName)
-        {
-            if (val == null) throw ArgsException.ValueNotSpecified(valName);
-            return val;
-        }
-
         public static string CheckValueNotNull(this string val, string valName, ILogger log)
         {
             log.DebugParameter(valName, val);
-            return CheckValueNotNull(val, valName);
+            if (val == null) throw ArgsException.ValueNotSpecified(valName);
+            return val;
         }
 
 

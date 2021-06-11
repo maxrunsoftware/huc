@@ -84,23 +84,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
             var caseInsensitive = GetArgParameterOrConfigBool("caseInsensitive", "i", false);
+
             var values = GetArgValues().WhereNotNull().ToList();
             var oldString = values.GetAtIndexOrDefault(0);
-            log.Debug($"{nameof(oldString)}: {oldString}");
-            if (oldString == null) throw ArgsException.ValueNotSpecified(nameof(oldString));
+            oldString.CheckValueNotNull(nameof(oldString), log);
             var oldStringParsed = ParseOption(oldString);
-            log.Debug($"{nameof(oldStringParsed)}: {oldStringParsed}");
+            log.DebugParameter(nameof(oldStringParsed), oldStringParsed);
 
             var newString = values.GetAtIndexOrDefault(1);
-            log.Debug($"{nameof(newString)}: {newString}");
-            if (newString == null) throw ArgsException.ValueNotSpecified(nameof(newString));
+            newString.CheckValueNotNull(nameof(newString), log);
             var newStringParsed = ParseOption(newString);
-            log.Debug($"{nameof(newStringParsed)}: {newStringParsed}");
+            log.DebugParameter(nameof(newStringParsed), newStringParsed);
 
             var file = values.GetAtIndexOrDefault(2);
-            log.Debug($"file: {file}");
-            if (file == null) throw new ArgsException(nameof(file), "No file specified");
-
+            file.CheckValueNotNull(nameof(file), log);
             file = ParseInputFile(file);
             if (file == null) throw new FileNotFoundException($"Could not find file {file}", file);
             if (!File.Exists(file)) throw new FileNotFoundException($"Could not find file {file}", file);

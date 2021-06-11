@@ -41,15 +41,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (password != null && privateKeyFile != null) throw new ArgsException(nameof(password), $"Both password and privateKey can not be specified at the same time");
 
             var fileToDecrypt = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(fileToDecrypt)}: {fileToDecrypt}");
-            if (fileToDecrypt == null) throw new ArgsException(nameof(fileToDecrypt), $"No <{nameof(fileToDecrypt)}> specified to decrypt");
+            fileToDecrypt.CheckValueNotNull(nameof(fileToDecrypt), log);
             fileToDecrypt = Path.GetFullPath(fileToDecrypt);
+            log.DebugParameter(nameof(fileToDecrypt), fileToDecrypt);
+
             CheckFileExists(fileToDecrypt);
-            log.Debug($"{nameof(fileToDecrypt)}: {fileToDecrypt}");
 
             var decryptedFile = GetArgValueTrimmed(1);
             if (decryptedFile == null) decryptedFile = fileToDecrypt;
-            log.Debug($"{nameof(decryptedFile)}: {decryptedFile}");
+            log.DebugParameter(nameof(decryptedFile), decryptedFile);
 
             var fileToDecryptData = ReadFileBinary(fileToDecrypt);
             byte[] decryptedData;

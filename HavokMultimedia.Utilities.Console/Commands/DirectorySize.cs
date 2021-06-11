@@ -32,11 +32,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            var targetDirectory = GetArgValueTrimmed(0);
-            targetDirectory.CheckValueNotNull(nameof(targetDirectory), log);
-            targetDirectory = Path.GetFullPath(targetDirectory);
-            log.DebugParameter(nameof(targetDirectory), targetDirectory);
-            if (!Directory.Exists(targetDirectory)) throw new ArgsException(nameof(targetDirectory), $"<{nameof(targetDirectory)}> does not exist {targetDirectory}");
+            var targetDirectory = GetArgValueDirectory(0);
 
             log.Debug("Scanning for files: " + targetDirectory);
             var files = Util.FileListFiles(targetDirectory, recursive: true).ToList();

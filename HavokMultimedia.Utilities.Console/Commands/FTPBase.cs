@@ -114,8 +114,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-
-
             host = GetArgParameterOrConfigRequired("host", "h");
 
             encryptionMode = GetArgParameterOrConfigEnum("encryptionMode", "e", FTPEncryptionMode.None);

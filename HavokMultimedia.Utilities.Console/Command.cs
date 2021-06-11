@@ -346,6 +346,27 @@ namespace HavokMultimedia.Utilities.Console
             var firstItem = list.PopHead();
             return (firstItem, list);
         }
+
+        public string GetArgValueDirectory(int index, string valueName = "targetDirectory", bool isRequired = true, bool isExist = true)
+        {
+            var val = GetArgValueTrimmed(index);
+            log.DebugParameter(valueName, val);
+            if (val == null)
+            {
+                if (isRequired) throw ArgsException.ValueNotSpecified(valueName);
+                else return null;
+            }
+
+            val = Path.GetFullPath(val);
+            log.DebugParameter(valueName, val);
+            if (isExist)
+            {
+                if (!Directory.Exists(val)) throw new DirectoryNotFoundException("Arg <" + valueName + "> directory " + val + " does not exist");
+            }
+
+            return val;
+        }
+
         #endregion Parameters
 
         public string DisplayEnumOptions<TEnum>() where TEnum : struct, IConvertible, IComparable, IFormattable => "[ " + Util.GetEnumItems<TEnum>().Select(o => o.ToString()).ToStringDelimited(" | ") + " ]";

@@ -28,9 +28,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
-            help.AddParameter("connectionString", "c", "SQL connection string");
-            help.AddParameter("commandTimeout", "ct", "Length of time in seconds to wait for SQL command to execute before erroring out (" + (60 * 60 * 24) + ")");
-            help.AddParameter("serverType", "st", "The SQL server type [ MSSQL | MySQL ] (MSSQL)");
+            help.AddParameter(nameof(connectionString), "c", "SQL connection string");
+            help.AddParameter(nameof(commandTimeout), "ct", "Length of time in seconds to wait for SQL command to execute before erroring out (" + (60 * 60 * 24) + ")");
+            help.AddParameter(nameof(serverType), "st", "The SQL server type (" + SqlServerType.MSSQL + ")  " + DisplayEnumOptions<SqlServerType>());
             help.AddDetail("Example connection strings:");
             help.AddDetail("  Server=192.168.0.5;Database=myDatabase;User Id=myUsername;Password=myPassword;");
             help.AddDetail("  Server=192.168.0.5\\instanceName;Database=myDataBase;User Id=myUsername;Password=myPassword;");
@@ -39,13 +39,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         private string connectionString;
         private int commandTimeout;
-        protected SqlServerType SqlServerType { get; private set; }
+        protected SqlServerType serverType { get; private set; }
 
         protected override void ExecuteInternal()
         {
-            connectionString = GetArgParameterOrConfigRequired("connectionString", "c");
-            commandTimeout = GetArgParameterOrConfigInt("commandTimeout", "ct", 60 * 60 * 24);
-            SqlServerType = GetArgParameterOrConfigEnum("serverType", "st", SqlServerType.MSSQL);
+            connectionString = GetArgParameterOrConfigRequired(nameof(connectionString), "c");
+            commandTimeout = GetArgParameterOrConfigInt(nameof(commandTimeout), "ct", 60 * 60 * 24);
+            serverType = GetArgParameterOrConfigEnum(nameof(serverType), "st", SqlServerType.MSSQL);
 
         }
 
@@ -53,12 +53,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             if (connectionString == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
 
-            switch (SqlServerType)
+            switch (serverType)
             {
                 case SqlServerType.MSSQL: return new SqlMSSQL(CreateConnectionMSSQL) { CommandTimeout = commandTimeout };
                 case SqlServerType.MySQL: return new SqlMySQL(CreateConnectionMySQL) { CommandTimeout = commandTimeout };
                 case SqlServerType.Oracle: return new SqlOracle(CreateConnectionMySQL) { CommandTimeout = commandTimeout };
-                default: throw new NotImplementedException($"sqlServerType {SqlServerType} has not been implemented yet");
+                default: throw new NotImplementedException($"sqlServerType {serverType} has not been implemented yet");
             }
         }
 

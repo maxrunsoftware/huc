@@ -26,8 +26,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Puts files on a FTP/FTPS/SFTP server");
-            help.AddParameter("remotePath", "Remote directory to upload files to");
-            help.AddParameter("ignoreMissingFiles", "Do not error on missing local files (false)");
+            help.AddParameter(nameof(remotePath), "Remote directory to upload files to");
+            help.AddParameter(nameof(ignoreMissingFiles), "Do not error on missing local files (false)");
             help.AddValue("<local file 1> <local file 2> <etc>");
             help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
             help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
@@ -35,19 +35,22 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
         }
 
+        private string remotePath;
+        private bool ignoreMissingFiles;
+
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
 
             var localFiles = GetArgValuesTrimmed();
-            if (localFiles.IsEmpty()) throw new ArgsException("localFiles", "No local files provided");
-            for (var i = 0; i < localFiles.Count; i++) log.Debug($"localFile[{i}]: {localFiles[i]}");
+            log.Debug(localFiles, nameof(localFiles));
+            if (localFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(localFiles));
 
-            var remotePath = GetArgParameterOrConfig("remotePath", null);
+            remotePath = GetArgParameterOrConfig(nameof(remotePath), null);
             if (remotePath != null && remotePath.Last() != '/') remotePath = remotePath + "/";
-            log.Debug($"remotePath: {remotePath}");
+            log.DebugParameter(nameof(remotePath), remotePath);
 
-            var ignoreMissingFiles = GetArgParameterOrConfigBool("ignoreMissingFiles", null, false);
+            ignoreMissingFiles = GetArgParameterOrConfigBool(nameof(ignoreMissingFiles), null, false);
 
             localFiles = ParseInputFiles(localFiles);
             var localFiles2 = new List<string>();

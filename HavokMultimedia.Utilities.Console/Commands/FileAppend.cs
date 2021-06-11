@@ -33,15 +33,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             //var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
             var values = GetArgValuesTrimmed1N();
-            if (values.firstValue == null) throw new ArgsException("targetFile", "No target file specified");
-            if (values.otherValues.Count < 1) throw new ArgsException("sourceFile", "No source file(s) specified");
-
             var targetFile = values.firstValue;
-            log.Debug($"{nameof(targetFile)}: {targetFile}");
+            targetFile.CheckValueNotNull(nameof(targetFile), log);
             targetFile = Path.GetFullPath(targetFile);
-            log.Debug($"{nameof(targetFile)}: {targetFile}");
+            log.DebugParameter(nameof(targetFile), targetFile);
 
-            var sourceFiles = ParseInputFiles(values.otherValues);
+            var sourceFiles = values.otherValues;
+            log.Debug(sourceFiles, nameof(sourceFiles));
+            if (values.otherValues.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(sourceFiles));
+            sourceFiles = ParseInputFiles(values.otherValues);
             log.Debug(sourceFiles, nameof(sourceFiles));
             CheckFileExists(sourceFiles);
 

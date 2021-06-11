@@ -37,17 +37,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var recursive = GetArgParameterOrConfigBool("recursive", "r", false);
 
             var numberOf = GetArgValueTrimmed(0);
-            log.Debug(nameof(numberOf) + ": " + numberOf);
-            if (numberOf == null) throw ArgsException.ValueNotSpecified(nameof(numberOf));
+            numberOf.CheckValueNotNull(nameof(numberOf), log);
             var numberOfInt = int.Parse(numberOf);
-            log.Debug(nameof(numberOfInt) + ": " + numberOfInt);
+            log.DebugParameter(nameof(numberOfInt), numberOfInt);
 
-            var targetDirectory = GetArgValueTrimmed(1);
-            log.Debug(nameof(targetDirectory) + ": " + targetDirectory);
-            if (targetDirectory == null) throw ArgsException.ValueNotSpecified(nameof(targetDirectory));
-            targetDirectory = Path.GetFullPath(targetDirectory);
-            log.Debug(nameof(targetDirectory) + ": " + targetDirectory);
-            if (!Directory.Exists(targetDirectory)) throw new ArgsException(nameof(targetDirectory), "Target directory " + targetDirectory + " not found");
+            var targetDirectory = GetArgValueDirectory(1);
+
             var files = Util.FileListFiles(targetDirectory, recursive: recursive);
 
             var now = DateTime.UtcNow;

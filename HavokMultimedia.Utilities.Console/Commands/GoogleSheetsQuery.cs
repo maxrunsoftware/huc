@@ -24,21 +24,23 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Query a Google Sheet for data and generate a tab delimited file of the data");
-            help.AddParameter("sheetName", "s", "The spreadsheet sheet name/tab to query (default first sheet)");
-            help.AddParameter("range", "r", "The range to query from (A1:ZZ)");
+            help.AddParameter(nameof(sheetName), "s", "The spreadsheet sheet name/tab to query (default first sheet)");
+            help.AddParameter(nameof(range), "r", "The range to query from (A1:ZZ)");
             help.AddValue("<tab delimited output file name>");
             help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` MyFile.txt");
         }
 
+        private string sheetName;
+        private string range;
+
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
-            var sheetName = GetArgParameterOrConfig("sheetName", "s");
-            var range = GetArgParameterOrConfig("range", "r", "A1:ZZ");
+            sheetName = GetArgParameterOrConfig(nameof(sheetName), "s");
+            range = GetArgParameterOrConfig(nameof(range), "r", "A1:ZZ");
 
             var outputFile = GetArgValueTrimmed(0);
-            log.Debug(nameof(outputFile) + ": " + outputFile);
-            if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
+            outputFile.CheckValueNotNull(nameof(outputFile), log);
 
             using (var c = CreateConnection())
             {

@@ -27,38 +27,38 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Execute a SQL statement and/or script and optionally save the result(s) to a tab delimited file(s)");
-            help.AddParameter("sqlStatement", "s", "SQL statement to execute");
-            help.AddParameter("sqlScriptFile", "f", "SQL script file to execute");
+            help.AddParameter(nameof(sqlStatement), "s", "SQL statement to execute");
+            help.AddParameter(nameof(sqlScriptFile), "f", "SQL script file to execute");
             help.AddValue("<result file 1> <result file 2> <etc>");
             help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -s=`SELECT TOP 100 * FROM Orders` Orders100.txt");
             help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -s=`SELECT * FROM Orders; SELECT * FROM Employees` Orders.txt Employees.txt");
             help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -f=`mssqlscript.sql` OrdersFromScript.txt");
         }
 
+        private string sqlStatement;
+        private string sqlScriptFile;
+
         public Utilities.Table[] ExecuteTables()
         {
             base.ExecuteInternal();
 
-            var s = GetArgParameterOrConfig("sqlStatement", "s");
+            sqlStatement = GetArgParameterOrConfig(nameof(sqlStatement), "s");
+            sqlScriptFile = GetArgParameterOrConfig(nameof(sqlScriptFile), "f").TrimOrNull();
 
-            var f = GetArgParameterOrConfig("sqlScriptFile", "f").TrimOrNull();
+            string sqlScriptFileData = null;
+            if (sqlScriptFile != null) sqlScriptFileData = ReadFile(sqlScriptFile);
+            if (sqlScriptFileData.TrimOrNull() != null) log.DebugParameter(nameof(sqlScriptFileData), sqlScriptFileData.Length);
 
-            string fData = null;
-            if (f != null) fData = ReadFile(f);
-            if (fData.TrimOrNull() != null) log.Debug($"sqlScriptFileData: {fData.Length}");
-
-            if (s.TrimOrNull() == null && fData.TrimOrNull() == null) throw new Exception($"No SQL provided to execute");
-            var sql = (s ?? string.Empty) + Constant.NEWLINE_WINDOWS + (fData ?? string.Empty);
+            if (sqlStatement.TrimOrNull() == null && sqlScriptFileData.TrimOrNull() == null) throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
+            var sql = (sqlStatement ?? string.Empty) + Constant.NEWLINE_WINDOWS + (sqlScriptFileData ?? string.Empty);
             sql = sql.TrimOrNull();
-            if (sql == null) throw new ArgsException("sqlStatement", "No SQL provided to execute");
-            log.Debug($"sql: {sql}");
+            if (sql == null) throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
+            log.DebugParameter(nameof(sql), sql);
 
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-
             var c = GetSqlHelper();
             var tables = c.ExecuteQuery(sql);
-
             stopwatch.Stop();
             var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
             log.Info($"Completed SQL execution in {stopwatchtime} seconds");

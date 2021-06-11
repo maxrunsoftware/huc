@@ -35,35 +35,46 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Applies formatting to a block of Google Sheets cells");
-            help.AddParameter("sheetName", "s", "The spreadsheet sheet name/tab to clear (default first sheet)");
-            help.AddParameter("xPosition", "x", "The zero based column index to start at (0)");
-            help.AddParameter("yPosition", "y", "The zero based row index to start at (0)");
-            help.AddParameter("width", "w", "The number of column to include (1)");
-            help.AddParameter("height", "h", "The number of rows to include (1)");
-            help.AddParameter("foregroundColor", "fc", "The foreground color (Black) [ use \"huc colors\" to show colors ]");
-            help.AddParameter("backgroundColor", "bc", "The background color (White) [ use \"huc colors\" to show colors ]");
-            help.AddParameter("bold", "b", "Bold text (false)");
-            help.AddParameter("italic", "i", "Italic text (false)");
-            help.AddParameter("underline", "u", "Underline text (false)");
-            help.AddParameter("strikethrough", "st", "Strikethrough text (false)");
+            help.AddParameter(nameof(sheetName), "s", "The spreadsheet sheet name/tab to clear (default first sheet)");
+            help.AddParameter(nameof(xPosition), "x", "The zero based column index to start at (0)");
+            help.AddParameter(nameof(yPosition), "y", "The zero based row index to start at (0)");
+            help.AddParameter(nameof(width), "w", "The number of column to include (1)");
+            help.AddParameter(nameof(height), "h", "The number of rows to include (1)");
+            help.AddParameter(nameof(foregroundColor), "fc", "The foreground color (Black) [ use \"huc colors\" to show colors ]");
+            help.AddParameter(nameof(backgroundColor), "bc", "The background color (White) [ use \"huc colors\" to show colors ]");
+            help.AddParameter(nameof(bold), "b", "Bold text (false)");
+            help.AddParameter(nameof(italic), "i", "Italic text (false)");
+            help.AddParameter(nameof(underline), "u", "Underline text (false)");
+            help.AddParameter(nameof(strikethrough), "st", "Strikethrough text (false)");
             help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` -width=100 -b -fc=Red -bc=Blue");
         }
+
+        private string sheetName;
+        private int xPosition;
+        private int yPosition;
+        private int width;
+        private int height;
+        private string foregroundColor;
+        private string backgroundColor;
+        private bool bold;
+        private bool italic;
+        private bool underline;
+        private bool strikethrough;
 
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
-            var sheetName = GetArgParameterOrConfig("sheetName", "s");
-
-            var xPosition = GetArgParameterOrConfigInt("xPosition", "x", 0);
-            var yPosition = GetArgParameterOrConfigInt("yPosition", "y", 0);
-            var width = GetArgParameterOrConfigInt("width", "w", 1);
-            var height = GetArgParameterOrConfigInt("height", "h", 1);
-            var foregroundColor = GetArgParameterOrConfig("foregroundColor", "fc", "Black");
-            var backgroundColor = GetArgParameterOrConfig("backgroundColor", "bc", "White");
-            var bold = GetArgParameterOrConfigBool("bold", "b", false);
-            var italic = GetArgParameterOrConfigBool("italic", "i", false);
-            var underline = GetArgParameterOrConfigBool("underline", "u", false);
-            var strikethrough = GetArgParameterOrConfigBool("strikethrough", "st", false);
+            sheetName = GetArgParameterOrConfig(nameof(sheetName), "s");
+            xPosition = GetArgParameterOrConfigInt(nameof(xPosition), "x", 0);
+            yPosition = GetArgParameterOrConfigInt(nameof(yPosition), "y", 0);
+            width = GetArgParameterOrConfigInt(nameof(width), "w", 1);
+            height = GetArgParameterOrConfigInt(nameof(height), "h", 1);
+            foregroundColor = GetArgParameterOrConfig(nameof(foregroundColor), "fc", "Black");
+            backgroundColor = GetArgParameterOrConfig(nameof(backgroundColor), "bc", "White");
+            bold = GetArgParameterOrConfigBool(nameof(bold), "b", false);
+            italic = GetArgParameterOrConfigBool(nameof(italic), "i", false);
+            underline = GetArgParameterOrConfigBool(nameof(underline), "u", false);
+            strikethrough = GetArgParameterOrConfigBool(nameof(strikethrough), "st", false);
 
             var fColor = ParseColor(foregroundColor);
             if (fColor == null) throw new ArgsException(nameof(foregroundColor), nameof(foregroundColor) + " " + foregroundColor + " does not exist");

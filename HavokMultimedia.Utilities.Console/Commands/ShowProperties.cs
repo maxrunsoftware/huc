@@ -25,38 +25,34 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Shows property file definitions");
-            help.AddParameter("showUndefined", "a", "Shows undefined properties too");
+            help.AddParameter(nameof(showUndefined), "a", "Shows undefined properties too");
             help.AddValue("<propertiesFile> | CURRENT");
             help.AddExample("");
             help.AddExample("-a");
         }
 
+        private bool showUndefined;
+
         protected override void ExecuteInternal()
         {
-            var showUndefined = GetArgParameterOrConfigBool("showUndefined", "s", false);
-            var fileLocation = GetArgValueTrimmed(0);
-            ConfigFile c;
-            if (fileLocation == null)
-            {
-                c = new ConfigFile();
-            }
-            else
-            {
-                c = new ConfigFile(fileLocation);
-            }
+            showUndefined = GetArgParameterOrConfigBool(nameof(showUndefined), "s", false);
+            var propertiesFile = GetArgValueTrimmed(0);
+            log.DebugParameter(nameof(propertiesFile), propertiesFile);
+
+            var configFile = propertiesFile == null ? new ConfigFile() : new ConfigFile(propertiesFile);
 
             var keys = new List<string>();
 
             if (showUndefined) keys.AddRange(ConfigFile.GetAllKeys());
             var set = new HashSet<string>(keys, StringComparer.OrdinalIgnoreCase);
-            foreach (var key in c.Keys)
+            foreach (var key in configFile.Keys)
             {
                 if (set.Add(key)) keys.Add(key);
             }
 
             foreach (var prop in keys)
             {
-                log.Info(prop + "=" + c[prop]);
+                log.Info(prop + "=" + configFile[prop]);
             }
         }
     }

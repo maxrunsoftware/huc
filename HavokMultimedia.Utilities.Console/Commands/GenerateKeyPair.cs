@@ -24,22 +24,24 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Generates a public/private key pair");
-            help.AddParameter("length", "l", "The RSA key length (1024)");
+            help.AddParameter(nameof(length), "l", "The RSA key length (1024)");
             help.AddValue("<public key file> <private key file>");
             help.AddExample("MyPublicKey.txt MyPrivateKey.txt");
             help.AddExample("-l=4096 MyPublicKey.txt MyPrivateKey.txt");
         }
 
+        private int length;
+
         protected override void ExecuteInternal()
         {
-            var length = GetArgParameterOrConfigInt("length", "l", 1024);
+            length = GetArgParameterOrConfigInt(nameof(length), "l", 1024);
 
             var publicKeyFile = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(publicKeyFile)}: {publicKeyFile}");
+            log.Debug(nameof(publicKeyFile), publicKeyFile);
             if (publicKeyFile == null) throw new ArgsException(nameof(publicKeyFile), $"No {nameof(publicKeyFile)} specified to save to");
 
             var privateKeyFile = GetArgValueTrimmed(1);
-            log.Debug($"{nameof(privateKeyFile)}: {privateKeyFile}");
+            log.Debug(nameof(privateKeyFile), privateKeyFile);
             if (privateKeyFile == null) throw new ArgsException(nameof(privateKeyFile), $"No {nameof(privateKeyFile)} specified to save to");
 
             var keyPair = Encryption.GenerateKeyPair(length: length);

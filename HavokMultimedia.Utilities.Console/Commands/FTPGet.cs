@@ -61,8 +61,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.ExecuteInternal();
 
             var remoteFiles = GetArgValuesTrimmed();
-            if (remoteFiles.IsEmpty()) throw new ArgsException("remoteFiles", "No remote files provided");
-            for (var i = 0; i < remoteFiles.Count; i++) log.Debug($"remoteFile[{i}]: {remoteFiles[i]}");
+            if (remoteFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(remoteFiles));
+            log.Debug(remoteFiles, nameof(remoteFiles));
 
             var localPath = Path.GetFullPath(GetArgParameterOrConfig("localPath", null, Environment.CurrentDirectory));
             var ignoreMissingFiles = GetArgParameterOrConfigBool("ignoreMissingFiles", null, false);

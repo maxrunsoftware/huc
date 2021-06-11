@@ -46,6 +46,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             var r = GetArgParameterOrConfigBool("recursive", "r", false);
             var path = GetArgValueTrimmed(0);
+            log.DebugParameter(nameof(path), path);
 
             using (var c = OpenClient())
             {

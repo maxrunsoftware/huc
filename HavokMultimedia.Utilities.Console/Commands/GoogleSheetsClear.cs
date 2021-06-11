@@ -22,15 +22,17 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Clears all data in a Google Sheet");
-            help.AddParameter("sheetName", "s", "The spreadsheet sheet name/tab to clear (default first sheet)");
+            help.AddParameter(nameof(sheetName), "s", "The spreadsheet sheet name/tab to clear (default first sheet)");
             help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe` -s=`Sheet1`");
             help.AddExample("-k=`MyGoogleAppKey.json` -a=`MyApplicationName` -id=`dkjfsd328sdfuhscbjcds8hfjndsfdsfdsfe`");
         }
 
+        private string sheetName;
+
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
-            var sheetName = GetArgParameterOrConfig("sheetName", "s");
+            sheetName = GetArgParameterOrConfig(nameof(sheetName), "s");
 
             using (var c = CreateConnection())
             {
