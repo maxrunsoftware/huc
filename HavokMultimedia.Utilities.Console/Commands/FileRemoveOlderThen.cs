@@ -53,6 +53,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var now = DateTime.UtcNow;
             var threshold = CalcThreshold(now, numberOfInt);
 
+            log.Debug("Now UTC: " + now.ToStringYYYYMMDDHHMMSS());
             log.Debug("Date threshold UTC: " + threshold.ToStringYYYYMMDDHHMMSS());
             foreach (var file in files)
             {
