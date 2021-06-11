@@ -87,13 +87,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var values = GetArgValues().WhereNotNull().ToList();
             var oldString = values.GetAtIndexOrDefault(0);
             log.Debug($"{nameof(oldString)}: {oldString}");
-            if (oldString == null) throw new ArgsException(nameof(oldString), $"No {nameof(oldString)} specified");
+            if (oldString == null) throw ArgsException.ValueNotSpecified(nameof(oldString));
             var oldStringParsed = ParseOption(oldString);
             log.Debug($"{nameof(oldStringParsed)}: {oldStringParsed}");
 
             var newString = values.GetAtIndexOrDefault(1);
             log.Debug($"{nameof(newString)}: {newString}");
-            if (newString == null) throw new ArgsException(nameof(newString), $"No {nameof(newString)} specified");
+            if (newString == null) throw ArgsException.ValueNotSpecified(nameof(newString));
             var newStringParsed = ParseOption(newString);
             log.Debug($"{nameof(newStringParsed)}: {newStringParsed}");
 
