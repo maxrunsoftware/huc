@@ -28,15 +28,19 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Gets a file from a FTP/FTPS/SFTP server");
-            help.AddParameter("localPath", "Local directory to download files to (" + Path.GetFullPath(Environment.CurrentDirectory) + ")");
-            help.AddParameter("ignoreMissingFiles", "Do not error on missing remote files (false)");
-            help.AddParameter("search", "Recursively search for the file (false)");
+            help.AddParameter(nameof(localPath), "Local directory to download files to (" + Path.GetFullPath(Environment.CurrentDirectory) + ")");
+            help.AddParameter(nameof(ignoreMissingFiles), "Do not error on missing remote files (false)");
+            help.AddParameter(nameof(search), "Recursively search for the file (false)");
             help.AddValue("<remote file 1> <remote file 2> <etc>");
             help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
             help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
             help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
             help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
         }
+
+        private string localPath;
+        private bool ignoreMissingFiles;
+        private bool search;
 
         private FtpClientFile FindFile(IFtpClient ftp, string fileName)
         {
@@ -64,9 +68,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (remoteFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(remoteFiles));
             log.Debug(remoteFiles, nameof(remoteFiles));
 
-            var localPath = Path.GetFullPath(GetArgParameterOrConfig("localPath", null, Environment.CurrentDirectory));
-            var ignoreMissingFiles = GetArgParameterOrConfigBool("ignoreMissingFiles", null, false);
-            var search = GetArgParameterOrConfigBool("search", null, false);
+            localPath = Path.GetFullPath(GetArgParameterOrConfig(nameof(localPath), null, Environment.CurrentDirectory));
+            ignoreMissingFiles = GetArgParameterOrConfigBool(nameof(ignoreMissingFiles), null, false);
+            search = GetArgParameterOrConfigBool(nameof(search), null, false);
 
             using (var c = OpenClient())
             {

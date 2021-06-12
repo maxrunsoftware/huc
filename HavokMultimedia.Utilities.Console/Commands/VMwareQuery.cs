@@ -32,8 +32,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(VMware vmware)
         {
             var path = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(path)}: {path}");
-            if (path == null) throw new ArgsException(nameof(path), $"No <{nameof(path)}> specified");
+            path.CheckValueNotNull(nameof(path), log);
 
             var obj = vmware.Get(path);
             var json = VMware.FormatJson(obj);

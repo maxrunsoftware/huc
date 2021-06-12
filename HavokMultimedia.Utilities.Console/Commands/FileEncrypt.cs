@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System.IO;
-using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -26,19 +25,22 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary("Encrypts a file");
             help.AddDetail("Either password or publicKey can be specified but not both");
-            help.AddParameter("password", "p", "The password to encrypt the file with");
-            help.AddParameter("publicKey", "pk", "The public key file used to encrypt the data");
+            help.AddParameter(nameof(password), "p", "The password to encrypt the file with");
+            help.AddParameter(nameof(publicKey), "pk", "The public key file used to encrypt the data");
             help.AddValue("<file to encrypt> <optional new encrypted file>");
             help.AddExample("-p=password data.txt data.encrypted");
             help.AddExample("-pk=MyPublicKey.txt data.txt data.encrypted");
         }
 
+        private string password;
+        private string publicKey;
+
         protected override void ExecuteInternal()
         {
-            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
-            var publicKeyFile = GetArgParameterOrConfig("publicKey", "pk").TrimOrNull();
-            if (password == null && publicKeyFile == null) throw new ArgsException(nameof(password), $"Either password or publicKey must be specified");
-            if (password != null && publicKeyFile != null) throw new ArgsException(nameof(password), $"Both password and publicKey can not be specified at the same time");
+            password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
+            publicKey = GetArgParameterOrConfig(nameof(publicKey), "pk").TrimOrNull();
+            if (password == null && publicKey == null) throw new ArgsException(nameof(password), $"Either password or publicKey must be specified");
+            if (password != null && publicKey != null) throw new ArgsException(nameof(password), $"Both password and publicKey can not be specified at the same time");
 
             var fileToEncrypt = GetArgValueTrimmed(0);
             fileToEncrypt.CheckValueNotNull(nameof(fileToEncrypt), log);
@@ -51,17 +53,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.DebugParameter(nameof(encryptedFile), encryptedFile);
 
             var fileToEncryptData = ReadFileBinary(fileToEncrypt);
-            byte[] encryptedData;
-            if (password != null)
-            {
-                var passwordBytes = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password);
-                encryptedData = Encryption.Encrypt(passwordBytes, fileToEncryptData);
-            }
-            else
-            {
-                var publicKey = ReadFile(publicKeyFile);
-                encryptedData = Encryption.Encrypt(publicKey, fileToEncryptData);
-            }
+            byte[] encryptedData = password != null
+                ? Encryption.Encrypt(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password), fileToEncryptData)
+                : Encryption.Encrypt(ReadFile(publicKey), fileToEncryptData);
+
             WriteFileBinary(encryptedFile, encryptedData);
             log.Info("Created encrypted file " + encryptedFile);
         }

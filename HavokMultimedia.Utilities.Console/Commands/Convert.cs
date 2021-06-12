@@ -24,20 +24,19 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary(Summary);
-            help.AddParameter("bufferSizeMegabytes", "b", "SFTP buffer size in megabytes (10)");
-            help.AddParameter("encoding", "en", "Encoding of the output file (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
+            help.AddParameter(nameof(bufferSizeMegabytes), "b", "SFTP buffer size in megabytes (10)");
+            help.AddParameter(nameof(encoding), "en", "Encoding of the output file (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
             help.AddValue("<input file> <output file>");
         }
 
         protected abstract string Summary { get; }
         protected abstract void ProcessStreams(Stream inputStream, Stream outputStream);
         protected Encoding encoding;
-        protected int bufferSize;
+        protected int bufferSizeMegabytes;
         protected override void ExecuteInternal()
         {
-            encoding = GetArgParameterOrConfigEncoding("encoding", "en");
-            var bufferSizeMegabytes = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10).ToString().ToUInt();
-            bufferSize = (int)bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
+            encoding = GetArgParameterOrConfigEncoding(nameof(encoding), "en");
+            bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10) * (int)Constant.BYTES_MEGA;
 
             var inputFile = GetArgValueTrimmed(0);
             log.DebugParameter(nameof(inputFile), inputFile);
@@ -70,7 +69,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override void ProcessStreams(Stream inputStream, Stream outputStream)
         {
-            using (var writer = new StreamWriter(outputStream, encoding, bufferSize))
+            using (var writer = new StreamWriter(outputStream, encoding, bufferSizeMegabytes))
             {
                 inputStream.Read(o => writer.Write(Convert(o)));
                 writer.FlushSafe();
@@ -86,7 +85,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             using (var writer = new BinaryWriter(outputStream))
             {
-                using (var reader = new StreamReader(inputStream, encoding, false, bufferSize))
+                using (var reader = new StreamReader(inputStream, encoding, false, bufferSizeMegabytes))
                 {
                     reader.Read(o => writer.Write(Convert(new string(o))));
                 }

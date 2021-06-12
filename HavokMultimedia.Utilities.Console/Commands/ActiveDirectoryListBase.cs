@@ -28,7 +28,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
-            help.AddParameter("propertiesToInclude", "pi", "Comma or space seperated list of which LDAP properties to include (" + DefaultColumnsToInclude.ToStringDelimited(",") + ")");
+            help.AddParameter(nameof(propertiesToInclude), "pi", "Comma or space seperated list of which LDAP properties to include (" + DefaultColumnsToInclude.ToStringDelimited(",") + ")");
             help.AddDetail("Output is tab delimited");
             help.AddDetail("LDAP Properties Available:");
             var lines = ActiveDirectoryObject.GetPropertyNames(includeExpensiveObjects: false)
@@ -37,9 +37,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
             foreach (var line in lines) help.AddDetail("  " + line);
         }
 
+        private IList<string> propertiesToInclude;
+
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            var propertiesToInclude = GetArgParameterOrConfig("propertiesToInclude", "pi", DefaultColumnsToInclude.ToStringDelimited(","))
+            propertiesToInclude = GetArgParameterOrConfig(nameof(propertiesToInclude), "pi", DefaultColumnsToInclude.ToStringDelimited(","))
                 .Split(new char[] { ',', ' ' }).TrimOrNull().WhereNotNull();
             log.Debug(propertiesToInclude, nameof(propertiesToInclude));
             var allPropertyNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

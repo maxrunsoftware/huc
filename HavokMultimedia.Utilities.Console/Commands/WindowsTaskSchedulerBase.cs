@@ -29,10 +29,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void CreateHelp(CommandHelpBuilder help)
         {
-            help.AddParameter("host", "h", "Server hostname or IP");
-            help.AddParameter("username", "u", "Server username");
-            help.AddParameter("password", "p", "Server password");
-            help.AddParameter("forceV1", "v1", "Server force version 1 task scheduler implementation (false)");
+            help.AddParameter(nameof(host), "h", "Server hostname or IP");
+            help.AddParameter(nameof(username), "u", "Server username");
+            help.AddParameter(nameof(password), "p", "Server password");
+            help.AddParameter(nameof(forceV1), "v1", "Server force version 1 task scheduler implementation (false)");
         }
 
         protected WindowsTaskScheduler GetTaskScheduler()
@@ -50,10 +50,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            host = GetArgParameterOrConfigRequired("host", "h").TrimOrNull();
-            username = GetArgParameterOrConfigRequired("username", "u").TrimOrNull();
-            password = GetArgParameterOrConfigRequired("password", "p").TrimOrNull();
-            forceV1 = GetArgParameterOrConfigBool("forceV1", "v1", false);
+            host = GetArgParameterOrConfigRequired(nameof(host), "h").TrimOrNull();
+            username = GetArgParameterOrConfigRequired(nameof(username), "u").TrimOrNull();
+            password = GetArgParameterOrConfigRequired(nameof(password), "p").TrimOrNull();
+            forceV1 = GetArgParameterOrConfigBool(nameof(forceV1), "v1", false);
         }
 
         public List<Trigger> CreateTriggers(params string[] triggerParts)

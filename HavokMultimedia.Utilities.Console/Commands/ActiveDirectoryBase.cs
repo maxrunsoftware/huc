@@ -24,11 +24,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
-            help.AddParameter("host", "h", "ActiveDirectory server host name or IP");
-            help.AddParameter("port", "o", "ActiveDirectory server port (" + Ldap.LDAP_PORT + ")");
-            help.AddParameter("username", "u", "ActiveDirectory server username");
-            help.AddParameter("password", "p", "ActiveDirectory server password");
-            help.AddParameter("domainName", "d", "ActiveDirectory domain name");
+            help.AddParameter(nameof(host), "h", "ActiveDirectory server host name or IP");
+            help.AddParameter(nameof(port), "o", "ActiveDirectory server port (" + Ldap.LDAP_PORT + ")");
+            help.AddParameter(nameof(username), "u", "ActiveDirectory server username");
+            help.AddParameter(nameof(password), "p", "ActiveDirectory server password");
+            help.AddParameter(nameof(domainName), "d", "ActiveDirectory domain name");
         }
 
         private string host;
@@ -40,13 +40,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal()
         {
             if (!Constant.OS_WINDOWS) throw new Exception("This function is only supported on Windows clients");
-            host = GetArgParameterOrConfigRequired("host", "h");
-            port = GetArgParameterOrConfigInt("port", "o", Ldap.LDAP_PORT).ToString().ToUShort();
-            username = GetArgParameterOrConfig("username", "u").TrimOrNull();
-            if (username != null) password = GetArgParameterOrConfigRequired("password", "p");
-            else GetArgParameterOrConfig("password", "p");
+            host = GetArgParameterOrConfigRequired(nameof(host), "h");
+            port = GetArgParameterOrConfigInt(nameof(port), "o", Ldap.LDAP_PORT).ToString().ToUShort();
+            username = GetArgParameterOrConfig(nameof(username), "u").TrimOrNull();
+            if (username != null) password = GetArgParameterOrConfigRequired(nameof(password), "p");
+            else GetArgParameterOrConfig(nameof(password), "p");
 
-            domainName = GetArgParameterOrConfig("domainName", "d");
+            domainName = GetArgParameterOrConfig(nameof(domainName), "d");
 
             using (var ad = new ActiveDirectory(
                 server: host,

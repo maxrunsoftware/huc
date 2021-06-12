@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -74,16 +75,19 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Replaces a string with a different string in a file");
-            help.AddParameter("encoding", "en", "Encoding of the input file (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
-            help.AddParameter("caseInsensitive", "i", "Ignore case when searching for the string to replace (false)");
+            help.AddParameter(nameof(encoding), "en", "Encoding of the input file (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
+            help.AddParameter(nameof(caseInsensitive), "i", "Ignore case when searching for the string to replace (false)");
             help.AddValue("<old string> <new string> <file to replace in>");
             help.AddExample("`Person` `Steve` mydoc.txt");
         }
 
+        private Encoding encoding;
+        private bool caseInsensitive;
+
         protected override void ExecuteInternal()
         {
-            var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
-            var caseInsensitive = GetArgParameterOrConfigBool("caseInsensitive", "i", false);
+            encoding = GetArgParameterOrConfigEncoding(nameof(encoding), "en");
+            caseInsensitive = GetArgParameterOrConfigBool(nameof(caseInsensitive), "i", false);
 
             var values = GetArgValues().WhereNotNull().ToList();
             var oldString = values.GetAtIndexOrDefault(0);

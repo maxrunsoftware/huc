@@ -31,8 +31,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(VMware vmware)
         {
             var outputFile = GetArgValueTrimmed(0);
-            log.Debug(nameof(outputFile) + ": " + outputFile);
-            if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No <{nameof(outputFile)}> specified");
+            outputFile.CheckValueNotNull(nameof(outputFile), log);
 
             DeleteExistingFile(outputFile);
 

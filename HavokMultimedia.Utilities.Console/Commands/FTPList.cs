@@ -27,7 +27,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Lists files on a FTP/FTPS/SFTP server");
-            help.AddParameter("recursive", "r", "Recursively search for the file (false)");
+            help.AddParameter(nameof(recursive), "r", "Recursively search for the file (false)");
             help.AddValue("<path>");
             help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass");
             help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass");
@@ -37,14 +37,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
             help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
             help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
-
         }
+
+        private bool recursive;
 
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
 
-            var r = GetArgParameterOrConfigBool("recursive", "r", false);
+            recursive = GetArgParameterOrConfigBool(nameof(recursive), "r", false);
             var path = GetArgValueTrimmed(0);
             log.DebugParameter(nameof(path), path);
 
@@ -64,7 +65,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                         log.Info(msg);
                         foreach (var f in enumerator)
                         {
-                            if (r && f.Type == FtpClientFileType.Directory)
+                            if (recursive && f.Type == FtpClientFileType.Directory)
                             {
                                 if (f.FullName.EndsWith("/..")) continue;
                                 if (f.FullName.EndsWith("/.")) continue;

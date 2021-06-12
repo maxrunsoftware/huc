@@ -61,7 +61,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(VMware vmware)
         {
             var objectTypes = GetArgValuesTrimmed();
-            if (objectTypes.IsEmpty()) throw new ArgsException(nameof(objectTypes), $"No <{nameof(objectTypes)}> specified");
+            if (objectTypes.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(objectTypes));
 
             var h = new HashSet<string>(ObjectTypeNames, StringComparer.OrdinalIgnoreCase);
             foreach (var objectType in objectTypes)

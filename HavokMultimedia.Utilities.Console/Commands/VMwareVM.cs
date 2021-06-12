@@ -37,10 +37,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal(VMware vmware)
         {
             var vm = GetArgValueTrimmed(0);
-            if (vm == null) throw new ArgsException("VM", "No VM specified");
+            vm.CheckValueNotNull(nameof(vm), log);
 
             var actionString = GetArgValueTrimmed(1);
-            if (actionString == null) throw new ArgsException("action", "No action specified");
+            actionString.CheckValueNotNull(nameof(actionString), log);
+
             var actionN = Util.GetEnumItemNullable<Action>(actionString);
             if (actionN == null) throw new ArgsException("action", "Invalid action [" + actionString + "] specified");
             var action = actionN.Value;

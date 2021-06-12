@@ -25,13 +25,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Converts a tab delimited data file to a nice html table file");
-            help.AddParameter("cssFile", "css", "CSS file to embed in generated HTML file");
-            help.AddParameter("javascriptFile", "js", "Javascript file to embed in generated HTML file");
-            help.AddParameter("noJavascript", "nj", "Exclude the default javascript from the generated file (false)");
-            help.AddParameter("noCSS", "nc", "Exclude the default CSS from the generated file (false)");
+            help.AddParameter(nameof(cssFile), "css", "CSS file to embed in generated HTML file");
+            help.AddParameter(nameof(javascriptFile), "js", "Javascript file to embed in generated HTML file");
+            help.AddParameter(nameof(noJavascript), "nj", "Exclude the default javascript from the generated file (false)");
+            help.AddParameter(nameof(noCSS), "nc", "Exclude the default CSS from the generated file (false)");
             help.AddExample("Orders.html");
             help.AddExample("css=MyStyleSheet.css js=MyJavascriptFile.js Orders.html");
         }
+
+        private string cssFile;
+        private string javascriptFile;
+        private bool noJavascript;
+        private bool noCSS;
 
         private string ReadFileContent(string fileName)
         {
@@ -62,12 +67,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            var noCss = GetArgParameterOrConfigBool("noCSS", "nc", false);
-            css = ReadFileContent(GetArgParameterOrConfig("cssFile", "css"));
-            if (css == null && !noCss) css = HtmlBuilder.CSS_TABLE;
+            noCSS = GetArgParameterOrConfigBool(nameof(noCSS), "nc", false);
+            css = ReadFileContent(GetArgParameterOrConfig(nameof(cssFile), "css"));
+            if (css == null && !noCSS) css = HtmlBuilder.CSS_TABLE;
 
-            var noJavascript = GetArgParameterOrConfigBool("noJavascript", "nj", false);
-            js = ReadFileContent(GetArgParameterOrConfig("javascriptFile", "js"));
+            noJavascript = GetArgParameterOrConfigBool(nameof(noJavascript), "nj", false);
+            js = ReadFileContent(GetArgParameterOrConfig(nameof(javascriptFile), "js"));
             if (js == null && !noJavascript) js = HtmlBuilder.JS_TABLE;
 
             base.ExecuteInternal();

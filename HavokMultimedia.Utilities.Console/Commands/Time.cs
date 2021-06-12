@@ -24,14 +24,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Retrieves the current time from the internet");
-            help.AddParameter("drift", "d", "Show the difference between internet time and local time (false)");
+            help.AddParameter(nameof(drift), "d", "Show the difference between internet time and local time (false)");
             help.AddExample("");
             help.AddExample("-d");
         }
 
+        private bool drift;
+
         protected override void ExecuteInternal()
         {
-            var drift = GetArgParameterOrConfigBool("drift", "d", false);
+            drift = GetArgParameterOrConfigBool(nameof(drift), "d", false);
 
             var internetTime = Util.NetGetInternetDateTime();
             // Strip milliseconds

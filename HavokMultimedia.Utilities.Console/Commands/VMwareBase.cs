@@ -23,9 +23,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
-            help.AddParameter("host", "h", "VMware server host name or IP");
-            help.AddParameter("username", "u", "VMware server username");
-            help.AddParameter("password", "p", "VMware server password");
+            help.AddParameter(nameof(host), "h", "VMware server host name or IP");
+            help.AddParameter(nameof(username), "u", "VMware server username");
+            help.AddParameter(nameof(password), "p", "VMware server password");
         }
 
         private string host;
@@ -34,9 +34,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            host = GetArgParameterOrConfigRequired("host", "h");
-            username = GetArgParameterOrConfig("username", "u");
-            password = GetArgParameterOrConfig("password", "p");
+            host = GetArgParameterOrConfigRequired(nameof(host), "h");
+            username = GetArgParameterOrConfig(nameof(username), "u");
+            password = GetArgParameterOrConfig(nameof(password), "p");
 
             using (var vmware = GetVMware())
             {

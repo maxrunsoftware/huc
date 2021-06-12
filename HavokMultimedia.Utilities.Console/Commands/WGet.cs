@@ -27,17 +27,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Same as WGET command for getting web resources");
-            help.AddParameter("username", "u", "Basic authentication username");
-            help.AddParameter("password", "p", "Basic authentication password");
+            help.AddParameter(nameof(username), "u", "Basic authentication username");
+            help.AddParameter(nameof(password), "p", "Basic authentication password");
             help.AddValue("<source URL> <output file>");
             help.AddExample("https://github.com/Steven-D-Foster/huc/releases/download/v1.3.0/huc-linux.zip");
             help.AddExample("https://github.com github.txt");
         }
 
+        private string username;
+        private string password;
+
         protected override void ExecuteInternal()
         {
-            var username = GetArgParameterOrConfig("username", "u").TrimOrNull();
-            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
+            username = GetArgParameterOrConfig(nameof(username), "u").TrimOrNull();
+            password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
 
             var sourceURL = GetArgValueTrimmed(0);
             log.Debug($"{nameof(sourceURL)}: {sourceURL}");

@@ -22,10 +22,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
-            help.AddParameter("ipaddress", "ip", "IP address to bind to (localhost)");
-            help.AddParameter("port", "o", "Port to bind to (8080)");
-            help.AddParameter("username", "u", "Require a username to access this resource (user)");
-            help.AddParameter("password", "p", "Require a password to access this resource");
+            help.AddParameter(nameof(ipaddress), "ip", "IP address to bind to (localhost)");
+            help.AddParameter(nameof(port), "o", "Port to bind to (8080)");
+            help.AddParameter(nameof(username), "u", "Require a username to access this resource (user)");
+            help.AddParameter(nameof(password), "p", "Require a password to access this resource");
             help.AddDetail("If you specify a password, the default username is 'user' but can be changed");
         }
 
@@ -36,11 +36,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            ipaddress = GetArgParameterOrConfig("ipaddress", "ip").TrimOrNull();
-            port = GetArgParameterOrConfigUShort("port", "o", 8080);
+            ipaddress = GetArgParameterOrConfig(nameof(ipaddress), "ip").TrimOrNull();
+            port = GetArgParameterOrConfigUShort(nameof(port), "o", 8080);
             if (port == 0) throw new ArgsException(nameof(port), "Invalid port 0 specified");
-            username = GetArgParameterOrConfig("username", "u", "user").TrimOrNull();
-            password = GetArgParameterOrConfig("password", "p").TrimOrNull();
+            username = GetArgParameterOrConfig(nameof(username), "u", "user").TrimOrNull();
+            password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
         }
 
         protected External.WebServerConfig GetConfig()

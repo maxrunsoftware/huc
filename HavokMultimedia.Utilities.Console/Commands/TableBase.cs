@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System.IO;
+using System.Text;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -22,15 +23,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
-            help.AddParameter("encoding", "en", "Encoding of the input table (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
+            help.AddParameter(nameof(encoding), "en", "Encoding of the input table (" + nameof(FileEncoding.UTF8) + ")  " + DisplayEnumOptions<FileEncoding>());
             help.AddValue("<tab delimited input file 1> <tab delimited input file 2> <etc>");
         }
 
         protected string CurrentOutputFile { get; private set; }
 
+        private Encoding encoding;
         protected override void ExecuteInternal()
         {
-            var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
+            encoding = GetArgParameterOrConfigEncoding(nameof(encoding), "en");
 
             var inputFiles = ParseInputFiles(GetArgValuesTrimmed());
             if (inputFiles.Count < 1) throw new ArgsException(nameof(inputFiles), $"No <{nameof(inputFiles)}> supplied");
@@ -42,7 +44,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 log.Debug($"Reading table file: {includedItem}");
                 var table = ReadTableTab(includedItem, encoding: encoding);
                 var outputFile = includedItem;
-                log.Debug(nameof(outputFile) + ": " + outputFile);
+                log.DebugParameter(nameof(outputFile), outputFile);
                 CurrentOutputFile = outputFile;
                 DeleteExistingFile(outputFile);
 

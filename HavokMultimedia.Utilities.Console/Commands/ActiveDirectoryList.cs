@@ -33,7 +33,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal(ActiveDirectory ad)
         {
-            var includeExpensiveProperties = GetArgParameterOrConfigBool(nameof(includeExpensiveProperties), "e", false);
+            includeExpensiveProperties = GetArgParameterOrConfigBool(nameof(includeExpensiveProperties), "e", false);
             var outputFile = GetArgValueTrimmed(0);
             outputFile.CheckValueNotNull(nameof(outputFile), log);
 

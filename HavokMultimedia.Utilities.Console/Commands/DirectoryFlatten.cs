@@ -27,17 +27,19 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Scans all subfolders in target directory and moves the files in those subdirectories up to the target directory");
-            help.AddParameter("conflictResolution", "c", "The conflict resolution to use when multiple files with the same name exist (" + nameof(ConflictResolution.LeaveAsIs) + ") " + DisplayEnumOptions<ConflictResolution>());
+            help.AddParameter(nameof(conflictResolution), "c", "The conflict resolution to use when multiple files with the same name exist (" + nameof(ConflictResolution.LeaveAsIs) + ") " + DisplayEnumOptions<ConflictResolution>());
             help.AddValue("<target directory>");
             help.AddExample("MyDirectory");
         }
+
+        private ConflictResolution conflictResolution;
 
         protected override void ExecuteInternal()
         {
             //var encoding = GetArgParameterOrConfigEncoding("encoding", "en");
             var targetDirectory = GetArgValueDirectory(0);
 
-            var conflictResolution = GetArgParameterOrConfigEnum("conflictResolution", "c", ConflictResolution.LeaveAsIs);
+            conflictResolution = GetArgParameterOrConfigEnum(nameof(conflictResolution), "c", ConflictResolution.LeaveAsIs);
             var subdirs = Util.FileListDirectories(targetDirectory, recursive: true)
                 .Select(o => Path.GetFullPath(o))
                 .Where(o => !o.EqualsCaseInsensitive(targetDirectory))

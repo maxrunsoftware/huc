@@ -39,7 +39,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddDetail("Retrieve bucket names: http://192.168.1.5");
         }
 
-
         private readonly BucketStoreMemoryString store = new BucketStoreMemoryString();
         protected override void ExecuteInternal()
         {

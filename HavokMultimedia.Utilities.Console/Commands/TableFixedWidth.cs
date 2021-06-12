@@ -14,9 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,31 +27,34 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary("Manipulates delimited data into a fixed width format");
             help.AddDetail("By default, any columns with a 0 will be excluded from the result. All columns must have a width provided. The input file will be overwritten.");
-            help.AddParameter("headerInclude", "h", "Include the header row in the output file (false)");
-            help.AddParameter("newline", "n", "The type of newline character to use, win/unix/mac (win)");
-            help.AddParameter("encoding", "e", "Encoding of the output file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
+            help.AddParameter(nameof(headerInclude), "h", "Include the header row in the output file (false)");
+            help.AddParameter(nameof(newline), "n", "The type of newline character to use, win/unix/mac (win)");
+            help.AddParameter(nameof(encoding), "e", "Encoding of the output file, ASCII/BIGENDIANUNICODE/DEFAULT/UNICODE/UTF32/UTF8/UTF8BOM (UTF8)");
 
             help.AddValue("<tab delimited input file> <column1width> <column2width> <etc>");
         }
 
-
+        private bool headerInclude;
+        private string newline;
+        private Encoding encoding;
 
         protected override void ExecuteInternal()
         {
-            var columnWidths = GetArgValuesTrimmed();
-            var inputFile = columnWidths.PopHead();
-            log.Debug($"{nameof(inputFile)}: {inputFile}");
+            var values = GetArgValuesTrimmed1N();
+            var inputFile = values.firstValue;
+            inputFile.CheckValueNotNull(nameof(inputFile), log);
+            inputFile = Path.GetFullPath(inputFile);
+            log.DebugParameter(nameof(inputFile), inputFile);
+            CheckFileExists(inputFile);
+
+            var columnWidths = values.otherValues;
             log.Debug(columnWidths, nameof(columnWidths));
             var widths = columnWidths.Select(o => o.ToUInt()).ToArray();
             log.Debug(widths, nameof(widths));
 
-            inputFile = ParseInputFiles(inputFile.Yield()).FirstOrDefault();
-            log.Debug($"{nameof(inputFile)}: {inputFile}");
-            CheckFileExists(inputFile);
-
-            var headerInclude = GetArgParameterOrConfigBool("headerInclude", "h", false);
-            var newline = Table.ParseOption(GetArgParameterOrConfig("newline", "n", "WIN"));
-            var encoding = GetArgParameterOrConfigEncoding("encoding", "e");
+            headerInclude = GetArgParameterOrConfigBool(nameof(headerInclude), "h", false);
+            newline = Table.ParseOption(GetArgParameterOrConfig(nameof(newline), "n", "WIN"));
+            encoding = GetArgParameterOrConfigEncoding(nameof(encoding), "e");
 
             log.Debug($"Reading table file: {inputFile}");
             var table = ReadTableTab(inputFile, encoding);
@@ -70,10 +70,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 throw new ArgsException("inputFile", msg);
             }
 
-
-
             var outputFile = inputFile;
-            log.Debug($"outputFile: {outputFile}");
+            log.DebugParameter(nameof(outputFile), outputFile);
             DeleteExistingFile(outputFile);
 
             string FormatCell(string cellData, int width)

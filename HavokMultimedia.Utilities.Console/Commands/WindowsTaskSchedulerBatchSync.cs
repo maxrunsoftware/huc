@@ -298,23 +298,23 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             #region Initialization
 
-            var tu = GetArgParameterOrConfigRequired("taskUsername", "tu").TrimOrNull();
-            log.Debug($"taskUsername: {tu}");
-            var tp = GetArgParameterOrConfig("taskPassword", "tp").TrimOrNull();
-            log.Debug($"taskPassword: {tp}");
+            var taskUsername = GetArgParameterOrConfigRequired("taskUsername", "tu").TrimOrNull();
+            log.Debug($"taskUsername: {taskUsername}");
+            var taskPassword = GetArgParameterOrConfig("taskPassword", "tp").TrimOrNull();
+            log.Debug($"taskPassword: {taskPassword}");
             var taskUsernameMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "SYSTEM", WindowsTaskScheduler.USER_SYSTEM },
                 { "LOCALSERVICE", WindowsTaskScheduler.USER_LOCALSERVICE },
                 { "NETWORKSERVICE", WindowsTaskScheduler.USER_NETWORKSERVICE }
             };
-            if (tu != null && taskUsernameMapping.TryGetValue(tu, out var taskUsernameMappingValue))
+            if (taskUsername != null && taskUsernameMapping.TryGetValue(taskUsername, out var taskUsernameMappingValue))
             {
-                tu = taskUsernameMappingValue;
-                tp = null;
+                taskUsername = taskUsernameMappingValue;
+                taskPassword = null;
             }
-            log.Debug($"taskUsername: {tu}");
-            log.Debug($"taskPassword: {tp}");
+            log.DebugParameter(nameof(taskUsername), taskUsername);
+            log.DebugParameter(nameof(taskPassword), taskPassword);
 
             var tf = GetArgParameterOrConfigRequired("taskFolder", null).TrimOrNull();
             log.Debug($"taskFolder: {tf}");
@@ -372,7 +372,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
                 foreach (var batchFile in tasksToCreate)
                 {
-                    TaskCreate(scheduler, taskSchedulerFolderPath, batchFile, tu, tp);
+                    TaskCreate(scheduler, taskSchedulerFolderPath, batchFile, taskUsername, taskPassword);
                 }
 
                 foreach (var tuple in tasksToVerify)
@@ -397,7 +397,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                         log.Debug("Hashes are different, removing and recreating task");
                         log.Info("Recreating task " + Util.PathToString(WindowsTaskScheduler.ParsePath(task.Folder).Concat(task.Name)));
                         scheduler.TaskDelete(task);
-                        TaskCreate(scheduler, taskSchedulerFolderPath, batchFile, tu, tp);
+                        TaskCreate(scheduler, taskSchedulerFolderPath, batchFile, taskUsername, taskPassword);
                     }
                 }
             }

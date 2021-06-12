@@ -24,7 +24,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Removes file older then <" + AmountType + "> in a directory");
-            help.AddParameter("recursive", "r", "Recursively remove files (false)");
+            help.AddParameter(nameof(recursive), "r", "Recursively remove files (false)");
             help.AddValue("<# of " + AmountType + "> <target directory>");
             help.AddExample("7 MyDirectory");
         }
@@ -32,9 +32,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected abstract string AmountType { get; }
         protected abstract DateTime CalcThreshold(DateTime now, int numberOf);
 
+        private bool recursive;
+
         protected override void ExecuteInternal()
         {
-            var recursive = GetArgParameterOrConfigBool("recursive", "r", false);
+            recursive = GetArgParameterOrConfigBool(nameof(recursive), "r", false);
 
             var numberOf = GetArgValueTrimmed(0);
             numberOf.CheckValueNotNull(nameof(numberOf), log);

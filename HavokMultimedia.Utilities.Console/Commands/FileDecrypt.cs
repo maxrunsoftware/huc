@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System.IO;
-using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
@@ -26,25 +25,27 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             help.AddSummary("Decrypts a file");
             help.AddDetail("Either password or privateKey can be specified but not both");
-            help.AddParameter("password", "p", "The password to encrypt the file with");
-            help.AddParameter("privateKey", "pk", "The private key file used to decrypt the data");
+            help.AddParameter(nameof(password), "p", "The password to encrypt the file with");
+            help.AddParameter(nameof(privateKey), "pk", "The private key file used to decrypt the data");
             help.AddValue("<file to decrypt> <optional new decrypted file>");
             help.AddExample("-p=password data.encrypted dataDecrypted.txt");
             help.AddExample("-pk=MyPrivateKey.txt data.encrypted dataDecrypted.txt");
         }
 
+        private string password;
+        private string privateKey;
+
         protected override void ExecuteInternal()
         {
-            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
-            var privateKeyFile = GetArgParameterOrConfig("privateKey", "pk");
-            if (password == null && privateKeyFile == null) throw new ArgsException(nameof(password), $"Either password or privateKey must be specified");
-            if (password != null && privateKeyFile != null) throw new ArgsException(nameof(password), $"Both password and privateKey can not be specified at the same time");
+            password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
+            privateKey = GetArgParameterOrConfig(nameof(privateKey), "pk");
+            if (password == null && privateKey == null) throw new ArgsException(nameof(password), $"Either password or privateKey must be specified");
+            if (password != null && privateKey != null) throw new ArgsException(nameof(password), $"Both password and privateKey can not be specified at the same time");
 
             var fileToDecrypt = GetArgValueTrimmed(0);
             fileToDecrypt.CheckValueNotNull(nameof(fileToDecrypt), log);
             fileToDecrypt = Path.GetFullPath(fileToDecrypt);
             log.DebugParameter(nameof(fileToDecrypt), fileToDecrypt);
-
             CheckFileExists(fileToDecrypt);
 
             var decryptedFile = GetArgValueTrimmed(1);
@@ -52,17 +53,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.DebugParameter(nameof(decryptedFile), decryptedFile);
 
             var fileToDecryptData = ReadFileBinary(fileToDecrypt);
-            byte[] decryptedData;
-            if (password != null)
-            {
-                var passwordBytes = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password);
-                decryptedData = Encryption.Decrypt(passwordBytes, fileToDecryptData);
-            }
-            else
-            {
-                var privateKey = ReadFile(privateKeyFile);
-                decryptedData = Encryption.Decrypt(privateKey, fileToDecryptData);
-            }
+            byte[] decryptedData = password != null
+                ? Encryption.Decrypt(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password), fileToDecryptData)
+                : Encryption.Decrypt(ReadFile(privateKey), fileToDecryptData);
+
             WriteFileBinary(decryptedFile, decryptedData);
             log.Info("Created decrypted file " + decryptedFile);
         }

@@ -37,17 +37,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Generates a checksum of a file(s)");
-            help.AddParameter("checksumType", "t", "Checksum type to generate [ " + Util.GetEnumItems<ChecksumType>().ToStringDelimited(" | ") + " ] (" + ChecksumType.MD5 + ")");
-            help.AddParameter("recursive", "r", "If a directory is specified, recursively search that directory and all sudirectories for files (false)");
+            help.AddParameter(nameof(checksumType), "t", "Checksum type to generate [ " + Util.GetEnumItems<ChecksumType>().ToStringDelimited(" | ") + " ] (" + ChecksumType.MD5 + ")");
+            help.AddParameter(nameof(recursive), "r", "If a directory is specified, recursively search that directory and all sudirectories for files (false)");
             help.AddValue("<source file 1> <source file 2> <etc>");
             help.AddExample("MyFile.zip");
             help.AddExample("-t=SHA512 *.txt");
         }
 
+        private ChecksumType checksumType;
+        private bool recursive;
+
         protected override void ExecuteInternal()
         {
-            var checksumType = GetArgParameterOrConfigEnum("checksumType", "t", ChecksumType.MD5);
-            var recursive = GetArgParameterOrConfigBool("recursive", "r", false);
+            checksumType = GetArgParameterOrConfigEnum(nameof(checksumType), "t", ChecksumType.MD5);
+            recursive = GetArgParameterOrConfigBool(nameof(recursive), "r", false);
 
             var sourceFiles = ParseInputFiles(GetArgValuesTrimmed());
             if (sourceFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(sourceFiles));
