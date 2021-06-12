@@ -148,7 +148,16 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public static Trigger CreateTriggerInterval(TimeSpan interval)
         {
+            var now = DateTime.Now;
+
+            // remove everything but hour
+            var nowHour = now.AddMinutes(now.Minute * -1).AddSeconds(now.Second * -1).AddMilliseconds(now.Millisecond * -1);
+
+            // if it is 6:45 right now but our nowHour (6:00) + interval (22) has already passed then add an hour (7:00)
+            if (now > (nowHour + interval)) nowHour = nowHour.AddHours(1);
+
             var trigger = new TimeTrigger();
+            trigger.StartBoundary = nowHour;
             trigger.Repetition.Interval = interval;
             return trigger;
         }
