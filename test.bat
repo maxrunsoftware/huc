@@ -21,6 +21,11 @@ huc ActiveDirectoryRemoveGroup -h=%host% -u=%username% -p=%password% TestGroup1
 huc ActiveDirectoryRemoveOU -h=%host% -u=%username% -p=%password% OU2
 huc ActiveDirectoryRemoveOU -h=%host% -u=%username% -p=%password% OU1
 
+huc WindowsTaskSchedulerCreate -h=%host% -u=%username% -p=%password% -tn=MyTask1 -tu=System -td="Some task description" -t1="DAILY 11:42" -t2="HOURLY 25" C:\Temp\SomeTestFile.bat
+huc WindowsTaskSchedulerCreate -h=%host% -u=%username% -p=%password% -tn=/MyTasks/MyTask2 -tu=System -td="Some task description 2" -t1="DAILY 9:18" -t2="HOURLY 12" C:\Temp\SomeTestFile.bat
+
+
+
 
 
 

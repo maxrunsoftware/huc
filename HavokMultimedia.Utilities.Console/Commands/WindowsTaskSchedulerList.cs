@@ -32,8 +32,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(detail), "d", "Lists the task details (false)");
             help.AddParameter(nameof(xml), "x", "Show XML for task (false)");
             help.AddValue("<optional folder path>");
-            help.AddExample("-h=`localhost` -u=`administrator` -p=`password`");
-            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` -d /myTaskFolder/MyTask");
+            help.AddExample(HelpExamplePrefix);
+            help.AddExample(HelpExamplePrefix + " -d /myTaskFolder/MyTask");
         }
 
         private bool all;

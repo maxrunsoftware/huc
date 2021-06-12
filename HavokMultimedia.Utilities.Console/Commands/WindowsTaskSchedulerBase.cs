@@ -33,6 +33,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(forceV1), "v1", "Server force version 1 task scheduler implementation (false)");
         }
 
+        protected string HelpExamplePrefix => "-h=192.168.1.5 -u=administrator -p=testpass";
+
         protected WindowsTaskScheduler GetTaskScheduler()
         {
             if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());

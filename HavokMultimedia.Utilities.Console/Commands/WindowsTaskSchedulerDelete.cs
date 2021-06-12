@@ -26,7 +26,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Deletes a task from the Windows Task Scheduler");
             help.AddValue("<task path>");
-            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` MyTask");
+            help.AddExample(HelpExamplePrefix + " MyTask");
         }
 
         protected override void ExecuteInternal()

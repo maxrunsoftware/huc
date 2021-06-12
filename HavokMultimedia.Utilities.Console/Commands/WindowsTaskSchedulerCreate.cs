@@ -50,9 +50,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddDetail("  HOURLY {minute}");
             help.AddDetail("  MONTHLY {dayOfMonth}:{hour}:{minute}");
             help.AddDetail("  CRON <Minute> <Hour> <Day_of_the_Month> <Month_of_the_Year> <Day_of_the_Week>");
-            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` -taskUsername=`system` -tw=`c:\\temp` -t1=`DAILY 04:15` -tn=`MyTask` `C:\\temp\\RunMe.bat`");
-            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` -taskUsername=`system` -tw=`c:\\temp` -t1=`HOURLY 35` -tn=`MyTask` `C:\\temp\\RunMe.bat`");
-            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` -taskUsername=`system` -tw=`c:\\temp` -t1=`MONDAY 19:12` -t2=`WEDNESDAY 19:12` -tn=`MyTask` `C:\\temp\\RunMe.bat`");
+            help.AddExample(HelpExamplePrefix + " -taskUsername=`system` -tw=`c:\\temp` -t1=`DAILY 04:15` -tn=`MyTask` `C:\\temp\\RunMe.bat`");
+            help.AddExample(HelpExamplePrefix + " -taskUsername=`system` -tw=`c:\\temp` -t1=`HOURLY 35` -tn=`MyTask` `C:\\temp\\RunMe.bat`");
+            help.AddExample(HelpExamplePrefix + " -taskUsername=`system` -tw=`c:\\temp` -t1=`MONDAY 19:12` -t2=`WEDNESDAY 19:12` -tn=`MyTask` `C:\\temp\\RunMe.bat`");
         }
 
         private string taskName;
