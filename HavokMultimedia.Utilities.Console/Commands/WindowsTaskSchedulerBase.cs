@@ -111,7 +111,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
             else if (directive.Equals("DAILY"))
             {
-                while (!triggerPartsQueue.IsNotEmpty())
+                while (triggerPartsQueue.IsNotEmpty())
                 {
                     var time = triggerPartsQueue.Dequeue();
                     var hhmm = ParseTimeHHMM(time, directive);
