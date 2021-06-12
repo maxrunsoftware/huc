@@ -72,13 +72,26 @@ namespace HavokMultimedia.Utilities.Console
                 log.Warn("Could not create default properties file", e);
             }
 
+            void listCommand(ICommand c)
+            {
+                if (a.IsShowHidden || !c.IsHidden)
+                {
+                    log.Info((c.IsHidden ? "* " : "  ") + c.HelpSummary);
+                }
+            }
+
             if (a.Command == null)
             {
                 ShowBanner(a, null);
                 log.Info("No command specified");
                 log.Info("Commands: ");
-                foreach (var c in CommandObjects) if (a.IsShowHidden || !c.IsHidden) log.Info((c.IsHidden ? "* " : "  ") + c.HelpSummary);
+                foreach (var c in CommandObjects) listCommand(c);
                 return 2;
+            }
+            if (a.Command.Contains("*") || a.Command.Contains("?"))
+            {
+                foreach (var c in CommandObjects) if (c.Name.EqualsWildcard(a.Command)) listCommand(c);
+                return 5;
             }
             var command = commandTypes.Where(o => o.Name.Equals(a.Command, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             if (command == null)
@@ -86,7 +99,7 @@ namespace HavokMultimedia.Utilities.Console
                 ShowBanner(a, null);
                 log.Info($"Command '{a.Command}' does not exist");
                 log.Info("Commands: ");
-                foreach (var c in CommandObjects) if (a.IsShowHidden || !c.IsHidden) log.Info((c.IsHidden ? "* " : "  ") + c.HelpSummary);
+                foreach (var c in CommandObjects) listCommand(c);
                 return 3;
             }
             if (a.IsHelp)
