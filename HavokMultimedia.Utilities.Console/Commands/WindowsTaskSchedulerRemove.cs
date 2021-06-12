@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class WindowsTaskSchedulerDelete : WindowsTaskSchedulerBase
+    public class WindowsTaskSchedulerRemove : WindowsTaskSchedulerBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
