@@ -22,9 +22,22 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-
     public abstract class WindowsTaskSchedulerBase : Command
     {
+        public enum TriggerDirective
+        {
+            Hourly,
+            Daily,
+            Monthly,
+            Cron,
+            Sunday,
+            Monday,
+            Tuesday,
+            Wednesday,
+            Thursday,
+            Friday,
+            Saturday
+        }
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddParameter(nameof(host), "h", "Server hostname or IP");
@@ -81,6 +94,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return false;
         }
 
+        private TriggerDirective ParseDirective(string directive)
+        {
+            if (directive.EqualsCaseInsensitive("SUN")) directive = TriggerDirective.Sunday.ToString();
+            if (directive.EqualsCaseInsensitive("MON")) directive = TriggerDirective.Monday.ToString();
+            if (directive.EqualsCaseInsensitive("TUE")) directive = TriggerDirective.Tuesday.ToString();
+            if (directive.EqualsCaseInsensitive("WED")) directive = TriggerDirective.Wednesday.ToString();
+            if (directive.EqualsCaseInsensitive("THU")) directive = TriggerDirective.Thursday.ToString();
+            if (directive.EqualsCaseInsensitive("FRI")) directive = TriggerDirective.Friday.ToString();
+            if (directive.EqualsCaseInsensitive("SAT")) directive = TriggerDirective.Saturday.ToString();
+            return Util.GetEnumItem<TriggerDirective>(directive);
+        }
+
         public List<Trigger> CreateTriggers(params string[] triggerParts)
         {
             var triggerPartsQueue = new Queue<string>();
@@ -94,12 +119,13 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
 
             if (triggerPartsQueue.IsEmpty()) throw new Exception("No trigger provided");
-            var directive = triggerPartsQueue.Dequeue().ToUpper();
-            if (triggerPartsQueue.IsEmpty()) throw new Exception("No trigger details provided for trigger " + directive);
+            var directiveString = triggerPartsQueue.Dequeue().ToUpper();
+            if (triggerPartsQueue.IsEmpty()) throw new Exception("No trigger details provided for trigger " + directiveString);
+            var directive = ParseDirective(directiveString);
 
             var triggers = new List<Trigger>();
-            log.Debug("Parsing trigger directive " + directive + " with " + triggerPartsQueue.ToStringGuessFormat());
-            if (directive.Equals("HOURLY"))
+            log.Debug("Parsing trigger directive " + directive + " " + triggerPartsQueue.ToStringGuessFormat());
+            if (directive.In(TriggerDirective.Hourly))
             {
                 while (triggerPartsQueue.IsNotEmpty())
                 {
@@ -109,7 +135,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     triggers.Add(t);
                 }
             }
-            else if (directive.Equals("DAILY"))
+            else if (directive.In(TriggerDirective.Daily))
             {
                 while (triggerPartsQueue.IsNotEmpty())
                 {
@@ -119,24 +145,24 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     triggers.Add(t);
                 }
             }
-            else if (directive.Equals("CRON"))
+            else if (directive.In(TriggerDirective.Cron))
             {
                 var cronParts = string.Join(" ", triggerPartsQueue);
                 var cronTriggers = WindowsTaskScheduler.CreateTriggerCron(cronParts);
                 triggers.AddRange(cronTriggers);
             }
-            else if (directive.In(Util.GetEnumItems<DayOfWeek>().Select(o => o.ToString().ToUpper())))
+            else if (directive.In(TriggerDirective.Sunday, TriggerDirective.Monday, TriggerDirective.Tuesday, TriggerDirective.Wednesday, TriggerDirective.Thursday, TriggerDirective.Friday, TriggerDirective.Saturday))
             {
                 while (triggerPartsQueue.IsNotEmpty())
                 {
                     var time = triggerPartsQueue.Dequeue();
                     var hhmm = ParseTimeHHMM(time, directive);
-                    var dow = Util.GetEnumItem<DayOfWeek>(directive);
+                    var dow = Util.GetEnumItem<DayOfWeek>(directive.ToString());
                     var t = WindowsTaskScheduler.CreateTriggerWeekly(dow.Yield(), hour: hhmm.hour, minute: hhmm.minute);
                     triggers.Add(t);
                 }
             }
-            else if (directive.Equals("MONTHLY"))
+            else if (directive.In(TriggerDirective.Monthly))
             {
                 while (triggerPartsQueue.IsNotEmpty())
                 {
@@ -156,7 +182,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return triggers;
         }
 
-        private byte ParseTimeMM(string time, string directive)
+        private byte ParseTimeMM(string time, TriggerDirective directive)
         {
             time = ("00" + time).Right(2);
             if (!time.ToByteTry(out var minute)) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected MM");
@@ -164,7 +190,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return minute;
         }
 
-        private (byte dayOfMonth, byte hour, byte minute) ParseTimeDayOfMonthHHMM(string time, string directive)
+        private (byte dayOfMonth, byte hour, byte minute) ParseTimeDayOfMonthHHMM(string time, TriggerDirective directive)
         {
             log.Trace($"Parsing dayOfMonth, hours, and minutes from {time}");
             var timeparts = time.Split(':').TrimOrNull().WhereNotNull().ToArray();
@@ -176,7 +202,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             return (dayOfMonth, hour, minute);
         }
 
-        private (byte hour, byte minute) ParseTimeHHMM(string time, string directive)
+        private (byte hour, byte minute) ParseTimeHHMM(string time, TriggerDirective directive)
         {
             log.Trace($"Parsing hours and minutes from {time}");
             var timeparts = time.Split(':').TrimOrNull().WhereNotNull().ToArray();

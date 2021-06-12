@@ -1883,14 +1883,29 @@ namespace HavokMultimedia.Utilities
 
         public static object GetEnumItem(Type enumType, string name) => enumCache.TryGetEnumObject(enumType, name, out var o, true) ? o : null;
 
+        /// <summary>
+        /// Tries to parse a string to an Enum value, if not found return null
+        /// </summary>
+        /// <typeparam name="TEnum">The enum</typeparam>
+        /// <param name="name">The enum item name</param>
+        /// <returns>The enum item or null if not found</returns>
         public static TEnum? GetEnumItemNullable<TEnum>(string name) where TEnum : struct, IConvertible, IComparable, IFormattable
         {
+            if (name == null) return null;
             var o = GetEnumItemNullable(typeof(TEnum), name);
             if (o == null) return null;
             return (TEnum)o;
         }
 
-        public static object GetEnumItemNullable(Type enumType, string name) => enumCache.TryGetEnumObject(enumType, name, out var o, false) ? o : null;
+        public static object GetEnumItemNullable(Type enumType, string name)
+        {
+            if (name == null) return null;
+            if (enumCache.TryGetEnumObject(enumType, name, out var o, false))
+            {
+                return o;
+            }
+            return null;
+        }
 
         public static IReadOnlyList<TEnum> GetEnumItems<TEnum>() where TEnum : struct, IConvertible, IComparable, IFormattable => (TEnum[])Enum.GetValues(typeof(TEnum));
 
