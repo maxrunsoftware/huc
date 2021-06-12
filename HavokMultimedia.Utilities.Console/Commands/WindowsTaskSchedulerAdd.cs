@@ -23,7 +23,7 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
-    public class WindowsTaskSchedulerCreate : WindowsTaskSchedulerBase
+    public class WindowsTaskSchedulerAdd : WindowsTaskSchedulerBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
