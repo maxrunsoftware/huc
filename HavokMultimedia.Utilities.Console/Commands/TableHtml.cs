@@ -68,17 +68,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal()
         {
             noCSS = GetArgParameterOrConfigBool(nameof(noCSS), "nc", false);
-            css = ReadFileContent(GetArgParameterOrConfig(nameof(cssFile), "css"));
+            cssFile = GetArgParameterOrConfig(nameof(cssFile), "css");
+            css = ReadFileContent(cssFile);
             if (css == null && !noCSS) css = HtmlBuilder.CSS_TABLE;
 
             noJavascript = GetArgParameterOrConfigBool(nameof(noJavascript), "nj", false);
-            js = ReadFileContent(GetArgParameterOrConfig(nameof(javascriptFile), "js"));
+            javascriptFile = GetArgParameterOrConfig(nameof(javascriptFile), "js");
+            js = ReadFileContent(javascriptFile);
             if (js == null && !noJavascript) js = HtmlBuilder.JS_TABLE;
 
             base.ExecuteInternal();
         }
-
-
-
     }
 }

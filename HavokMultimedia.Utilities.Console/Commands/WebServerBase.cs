@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 using System;
+using System.Linq;
 
 namespace HavokMultimedia.Utilities.Console.Commands
 {
@@ -56,6 +57,26 @@ namespace HavokMultimedia.Utilities.Console.Commands
             config.Port = port;
             if (username != null && password != null) config.Users.Add((username, password));
             return config;
+        }
+
+        protected void LoopUntilKey(External.WebServerConfig config)
+        {
+            using (var server = GetWebServer(config))
+            {
+                foreach (var ipa in config.UrlPrefixes) log.Info("  " + ipa);
+                var consoleKeys = new ConsoleKey[] { ConsoleKey.Escape, ConsoleKey.Q };
+                log.Info("WebServer running, press " + consoleKeys.Select(o => o.ToString()).ToStringDelimited(" or ") + " to quit");
+
+                while (true)
+                {
+                    System.Threading.Thread.Sleep(50);
+                    var cki = System.Console.ReadKey(true);
+
+                    if (cki.Key.In(consoleKeys)) break;
+                }
+            }
+
+            log.Info("WebServer shutdown");
         }
 
         protected External.WebServer GetWebServer(External.WebServerConfig config)

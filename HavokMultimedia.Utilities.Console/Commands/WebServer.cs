@@ -37,30 +37,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.ExecuteInternal();
 
-            var directoryToServe = GetArgValueTrimmed(0) ?? Environment.CurrentDirectory;
-            log.Debug($"{nameof(directoryToServe)}: {directoryToServe}");
-            directoryToServe = Path.GetFullPath(directoryToServe);
-            if (!Directory.Exists(directoryToServe)) throw new DirectoryNotFoundException("Directory was not found " + directoryToServe);
-            log.Debug($"{nameof(directoryToServe)}: {directoryToServe}");
+            var directoryToServe = GetArgValueDirectory(0, valueName: "directoryToServe", useCurrentDirectoryAsDefault: true);
 
             var config = GetConfig();
             config.DirectoryToServe = directoryToServe;
             config.DirectoryToServeUrlPath = "/";
 
-            using (var server = GetWebServer(config))
-            {
-                foreach (var ipa in config.UrlPrefixes) log.Info("  " + ipa);
-                log.Info("WebServer running, press ESC or Q to quit, serving files from " + directoryToServe);
-                while (true)
-                {
-                    Thread.Sleep(50);
-                    var cki = System.Console.ReadKey(true);
-
-                    if (cki.Key.In(ConsoleKey.Escape, ConsoleKey.Q)) break;
-                }
-            }
-
-            log.Info("WebServer shutdown");
+            log.Info("Serving file from " + directoryToServe);
+            LoopUntilKey(config);
         }
     }
 }

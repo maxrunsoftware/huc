@@ -34,7 +34,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.ExecuteInternal();
 
             var taskPath = GetArgValueTrimmed(0);
-            if (taskPath == null) throw new ArgsException(nameof(taskPath), "No task path specified");
+            if (taskPath == null) throw ArgsException.ValueNotSpecified(nameof(taskPath));
 
             using (var scheduler = GetTaskScheduler())
             {

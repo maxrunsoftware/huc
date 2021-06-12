@@ -43,20 +43,18 @@ namespace HavokMultimedia.Utilities.Console.Commands
             password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
 
             var sourceURL = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(sourceURL)}: {sourceURL}");
-            if (sourceURL == null) throw new ArgsException(nameof(sourceURL), $"{nameof(sourceURL)} not provided");
+            sourceURL.CheckValueNotNull(nameof(sourceURL), log);
 
             var outputFile = GetArgValueTrimmed(1);
-            log.Debug($"{nameof(outputFile)}: {outputFile}");
+            log.DebugParameter(nameof(outputFile), outputFile);
             if (outputFile == null)
             {
                 outputFile = sourceURL.Split('/').TrimOrNull().WhereNotNull().LastOrDefault();
-
                 outputFile = Util.FilenameSanitize(outputFile, "_");
                 outputFile = Path.Combine(Environment.CurrentDirectory, outputFile);
             }
             outputFile = Path.GetFullPath(outputFile);
-            log.Debug($"{nameof(outputFile)}: {outputFile}");
+            log.DebugParameter(nameof(outputFile), outputFile);
             DeleteExistingFile(outputFile);
 
             using (var cli = new WebClient())
@@ -68,13 +66,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 }
                 catch (WebException we)
                 {
-                    if (username != null && password != null)
+                    if (username != null && password != null && we.Message != null && we.Message.Contains("(401)"))
                     {
-                        if (we.Message.Contains("(401)"))
-                        {
-                            unauthorized = true;
-                        }
+                        unauthorized = true;
                     }
+                    else
+                    {
+                        throw;
+                    }
+
                 }
                 if (unauthorized)
                 {

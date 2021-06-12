@@ -25,8 +25,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
     public abstract class WindowsTaskSchedulerBase : Command
     {
-
-
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddParameter(nameof(host), "h", "Server hostname or IP");
@@ -47,13 +45,38 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private string password;
         private bool forceV1;
 
-
         protected override void ExecuteInternal()
         {
             host = GetArgParameterOrConfigRequired(nameof(host), "h").TrimOrNull();
             username = GetArgParameterOrConfigRequired(nameof(username), "u").TrimOrNull();
             password = GetArgParameterOrConfigRequired(nameof(password), "p").TrimOrNull();
             forceV1 = GetArgParameterOrConfigBool(nameof(forceV1), "v1", false);
+        }
+
+        protected bool RemapUsername(ref string username)
+        {
+            if (username == null)
+            {
+                return false;
+            }
+
+            if (username.EqualsCaseInsensitive("SYSTEM"))
+            {
+                username = WindowsTaskScheduler.USER_SYSTEM;
+                return true;
+            }
+            if (username.EqualsCaseInsensitive("LOCALSERVICE"))
+            {
+                username = WindowsTaskScheduler.USER_LOCALSERVICE;
+                return true;
+            }
+            if (username.EqualsCaseInsensitive("NETWORKSERVICE"))
+            {
+                username = WindowsTaskScheduler.USER_NETWORKSERVICE;
+                return true;
+            }
+
+            return false;
         }
 
         public List<Trigger> CreateTriggers(params string[] triggerParts)

@@ -27,12 +27,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Interacts with a specific VM");
-            help.AddParameter("wildcard", "w", "Enables wildcard matching on VM Name with * and ?   USE WITH CAUTION (false)");
+            help.AddParameter(nameof(wildcard), "w", "Enables wildcard matching on VM Name with * and ?   USE WITH CAUTION (false)");
             help.AddValue("<VM ID or Name> <Action>");
             help.AddDetail("Use EXTREME CAUTION when enabling wildcard mode. Best to test with Action=None to see which VMs will be affected");
             help.AddDetail("Actions:");
             foreach (var action in Util.GetEnumItems<Action>()) help.AddDetail("  " + action);
         }
+
+        private bool wildcard;
 
         protected override void ExecuteInternal(VMware vmware)
         {
@@ -46,7 +48,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             if (actionN == null) throw new ArgsException("action", "Invalid action [" + actionString + "] specified");
             var action = actionN.Value;
 
-            var wildcard = GetArgParameterOrConfigBool("wildcard", "w", false);
+            wildcard = GetArgParameterOrConfigBool(nameof(wildcard), "w", false);
 
             var vms = vmware.VMsSlim;
 

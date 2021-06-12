@@ -137,6 +137,14 @@ namespace HavokMultimedia.Utilities.Console
         {
             foreach (var file in files) CheckFileExists(file);
         }
+        protected void CheckDirectoryExists(string directory)
+        {
+            if (!Directory.Exists(directory)) throw new DirectoryNotFoundException("Directory " + directory + " does not exist");
+        }
+        protected void CheckDirectoryExists(IEnumerable<string> directories)
+        {
+            foreach (var directory in directories) CheckDirectoryExists(directory);
+        }
 
         protected string ReadFile(string path, System.Text.Encoding encoding = null)
         {
@@ -347,10 +355,11 @@ namespace HavokMultimedia.Utilities.Console
             return (firstItem, list);
         }
 
-        public string GetArgValueDirectory(int index, string valueName = "targetDirectory", bool isRequired = true, bool isExist = true)
+        public string GetArgValueDirectory(int index, string valueName = "targetDirectory", bool isRequired = true, bool isExist = true, bool useCurrentDirectoryAsDefault = false)
         {
             var val = GetArgValueTrimmed(index);
             log.DebugParameter(valueName, val);
+            if (val == null && useCurrentDirectoryAsDefault) val = Environment.CurrentDirectory;
             if (val == null)
             {
                 if (isRequired) throw ArgsException.ValueNotSpecified(valueName);

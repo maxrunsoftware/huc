@@ -28,13 +28,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void ExecuteInternal()
         {
             var xsltFile = GetArgValueTrimmed(0);
-            log.Debug($"{nameof(xsltFile)}: {xsltFile}");
-            if (xsltFile == null) throw ArgsException.ValueNotSpecified(nameof(xsltFile));
+            xsltFile.CheckValueNotNull(nameof(xsltFile), log);
             var xsltContent = ReadFile(xsltFile);
 
             var xmlFile = GetArgValueTrimmed(1);
-            if (xsltFile == null) throw ArgsException.ValueNotSpecified(nameof(xmlFile));
-            log.Debug($"{nameof(xmlFile)}: {xmlFile}");
+            xmlFile.CheckValueNotNull(nameof(xmlFile), log);
             var xmlFiles = ParseInputFiles(xmlFile.Yield());
             log.Debug(xmlFiles, nameof(xmlFiles));
 

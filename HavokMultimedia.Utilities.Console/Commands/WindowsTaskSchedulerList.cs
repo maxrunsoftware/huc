@@ -28,13 +28,17 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Lists tasks in the Windows Task Scheduler");
-            help.AddParameter("all", "a", "Lists all tasks including the Microsoft/Windows ones (false)");
-            help.AddParameter("detail", "d", "Lists the task details (false)");
-            help.AddParameter("xml", "x", "Show XML for task (false)");
-            help.AddValue("ALL | <folder path>");
-            help.AddExample("-h=`localhost` -u=`administrator` -p=`password` ALL");
+            help.AddParameter(nameof(all), "a", "Lists all tasks including the Microsoft/Windows ones (false)");
+            help.AddParameter(nameof(detail), "d", "Lists the task details (false)");
+            help.AddParameter(nameof(xml), "x", "Show XML for task (false)");
+            help.AddValue("<optional folder path>");
+            help.AddExample("-h=`localhost` -u=`administrator` -p=`password`");
             help.AddExample("-h=`localhost` -u=`administrator` -p=`password` -d /myTaskFolder/MyTask");
         }
+
+        private bool all;
+        private bool detail;
+        private bool xml;
 
         private bool MatchesPath(Task task, string path)
         {
@@ -53,9 +57,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.ExecuteInternal();
 
-            var all = GetArgParameterOrConfigBool("all", "a", false);
-            var detail = GetArgParameterOrConfigBool("detail", "d", false);
-            var xml = GetArgParameterOrConfigBool("xml", "x", false);
+            all = GetArgParameterOrConfigBool(nameof(all), "a", false);
+            detail = GetArgParameterOrConfigBool(nameof(detail), "d", false);
+            xml = GetArgParameterOrConfigBool(nameof(xml), "x", false);
 
             var allOrFolderPath = GetArgValueTrimmed(0) ?? "ALL";
 

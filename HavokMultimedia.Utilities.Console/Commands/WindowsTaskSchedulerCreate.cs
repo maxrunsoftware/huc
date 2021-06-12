@@ -29,20 +29,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Creates a new Windows Task Scheduler task");
-            help.AddParameter("taskName", "tn", "The full path and name of the task");
-            help.AddParameter("taskUsername", "tu", "User account username to run the task as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
-            help.AddParameter("taskPassword", "tp", "User account password to run the task as");
-            help.AddParameter("taskWorkingDirectory", "tw", "The working directory for when the task executes");
-            help.AddParameter("taskDescription", "td", "The description for the task");
-            help.AddParameter("trigger1", "t1", "Trigger 1");
-            help.AddParameter("trigger2", "t2", "Trigger 2");
-            help.AddParameter("trigger3", "t3", "Trigger 3");
-            help.AddParameter("trigger4", "t4", "Trigger 4");
-            help.AddParameter("trigger5", "t5", "Trigger 5");
-            help.AddParameter("trigger6", "t6", "Trigger 6");
-            help.AddParameter("trigger7", "t7", "Trigger 7");
-            help.AddParameter("trigger8", "t8", "Trigger 8");
-            help.AddParameter("trigger9", "t9", "Trigger 9");
+            help.AddParameter(nameof(taskName), "tn", "The full path and name of the task");
+            help.AddParameter(nameof(taskUsername), "tu", "User account username to run the task as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
+            help.AddParameter(nameof(taskPassword), "tp", "User account password to run the task as");
+            help.AddParameter(nameof(taskWorkingDirectory), "tw", "The working directory for when the task executes");
+            help.AddParameter(nameof(taskDescription), "td", "The description for the task");
+            help.AddParameter(nameof(trigger1), "t1", "Trigger 1");
+            help.AddParameter(nameof(trigger2), "t2", "Trigger 2");
+            help.AddParameter(nameof(trigger3), "t3", "Trigger 3");
+            help.AddParameter(nameof(trigger4), "t4", "Trigger 4");
+            help.AddParameter(nameof(trigger5), "t5", "Trigger 5");
+            help.AddParameter(nameof(trigger6), "t6", "Trigger 6");
+            help.AddParameter(nameof(trigger7), "t7", "Trigger 7");
+            help.AddParameter(nameof(trigger8), "t8", "Trigger 8");
+            help.AddParameter(nameof(trigger9), "t9", "Trigger 9");
             help.AddValue("<execute file path 1> <execute file path 2> <etc>");
             help.AddDetail("Trigger formats are...");
             help.AddDetail("  DAILY {hour}:{minute}");
@@ -55,40 +55,55 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddExample("-h=`localhost` -u=`administrator` -p=`password` -taskUsername=`system` -tw=`c:\\temp` -t1=`MONDAY 19:12` -t2=`WEDNESDAY 19:12` -tn=`MyTask` `C:\\temp\\RunMe.bat`");
         }
 
+        private string taskName;
+        private string taskUsername;
+        private string taskPassword;
+        private string taskWorkingDirectory;
+        private string taskDescription;
+        private string trigger1;
+        private string trigger2;
+        private string trigger3;
+        private string trigger4;
+        private string trigger5;
+        private string trigger6;
+        private string trigger7;
+        private string trigger8;
+        private string trigger9;
+
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
 
-            var taskUsername = GetArgParameterOrConfigRequired("taskUsername", "tu").TrimOrNull();
-            var taskPassword = GetArgParameterOrConfig("taskPassword", "tp").TrimOrNull();
-            var taskUsernameMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "SYSTEM", WindowsTaskScheduler.USER_SYSTEM },
-                { "LOCALSERVICE", WindowsTaskScheduler.USER_LOCALSERVICE },
-                { "NETWORKSERVICE", WindowsTaskScheduler.USER_NETWORKSERVICE }
-            };
-            if (taskUsername != null && taskUsernameMapping.TryGetValue(taskUsername, out var taskUsernameMappingValue))
-            {
-                taskUsername = taskUsernameMappingValue;
-                taskPassword = null;
-                log.Debug($"taskUsername: {taskUsername}");
-                log.Debug($"taskPassword: {taskPassword}");
-            }
+            taskUsername = GetArgParameterOrConfigRequired(nameof(taskUsername), "tu").TrimOrNull();
+            taskPassword = GetArgParameterOrConfig(nameof(taskPassword), "tp").TrimOrNull();
+            if (RemapUsername(ref taskUsername)) taskPassword = null;
+            log.DebugParameter(nameof(taskUsername), taskUsername);
+            log.DebugParameter(nameof(taskPassword), taskPassword);
 
-            var taskNameFull = GetArgParameterOrConfigRequired("taskName", "tn").TrimOrNull();
-            log.Debug($"taskNameFull: {taskNameFull}");
-            var taskPath = WindowsTaskScheduler.ParsePath(taskNameFull).ToList();
-            var taskName = taskPath.PopTail();
-            log.Debug($"taskName: {taskName}");
-            log.Debug($"taskPath: {taskPath}");
+            taskName = GetArgParameterOrConfigRequired(nameof(taskName), "tn").TrimOrNull();
+            log.DebugParameter(nameof(taskName), taskName);
 
-            var taskWorkingDirectory = GetArgParameterOrConfig("taskWorkingDirectory", "tw");
-            var taskDescription = GetArgParameterOrConfig("taskDescription", "td");
+            var taskPath = WindowsTaskScheduler.ParsePath(taskName).ToList();
+            var taskNameShort = taskPath.PopTail();
+            log.DebugParameter(nameof(taskPath), taskPath);
+            log.DebugParameter(nameof(taskNameShort), taskNameShort);
 
-            var triggerStrings = new List<string>();
-            for (int i = 1; i < 10; i++) triggerStrings.Add(GetArgParameterOrConfig("trigger" + i, "t" + i));
-            triggerStrings = triggerStrings.TrimOrNull().WhereNotNull().ToList();
-            for (int i = 1; i < triggerStrings.Count; i++) log.Debug($"triggerStrings[{i}]: {triggerStrings[i]}");
+            taskWorkingDirectory = GetArgParameterOrConfig(nameof(taskWorkingDirectory), "tw");
+            taskDescription = GetArgParameterOrConfig(nameof(taskDescription), "td");
+
+            trigger1 = GetArgParameterOrConfig(nameof(trigger1), "t1");
+            trigger2 = GetArgParameterOrConfig(nameof(trigger2), "t2");
+            trigger3 = GetArgParameterOrConfig(nameof(trigger3), "t3");
+            trigger4 = GetArgParameterOrConfig(nameof(trigger4), "t4");
+            trigger5 = GetArgParameterOrConfig(nameof(trigger5), "t5");
+            trigger6 = GetArgParameterOrConfig(nameof(trigger6), "t6");
+            trigger7 = GetArgParameterOrConfig(nameof(trigger7), "t7");
+            trigger8 = GetArgParameterOrConfig(nameof(trigger8), "t8");
+            trigger9 = GetArgParameterOrConfig(nameof(trigger9), "t9");
+            var triggerArray = new string[] { trigger1, trigger2, trigger3, trigger4, trigger5, trigger6, trigger7, trigger8, trigger9 };
+
+            var triggerStrings = triggerArray.TrimOrNull().WhereNotNull().ToList();
+            log.Debug(triggerStrings, nameof(triggerStrings));
 
             var executeFiles = GetArgValuesTrimmed();
             for (int i = 0; i < executeFiles.Count; i++)
@@ -103,12 +118,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             using (var scheduler = GetTaskScheduler())
             {
-                var existingTask = scheduler.GetTask(taskNameFull);
-                if (existingTask != null) throw new ArgsException(nameof(taskName), $"Task already exists {taskNameFull}");
+                var existingTask = scheduler.GetTask(taskName);
+                if (existingTask != null) throw new ArgsException(nameof(taskNameShort), $"Task already exists {taskName}");
 
                 var t = scheduler.TaskAdd(
                     taskPath.ToArray(),
-                    taskName,
+                    taskNameShort,
                     executeFiles.ToArray(),
                     triggers,
                     workingDirectory: taskWorkingDirectory,

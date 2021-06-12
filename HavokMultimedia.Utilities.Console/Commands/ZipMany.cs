@@ -24,37 +24,46 @@ namespace HavokMultimedia.Utilities.Console.Commands
 {
     public class ZipMany : Command
     {
+        private readonly object locker = new object();
         private readonly int processTotal = 0;
-        private bool delete;
         private int processCurrent = 0;
-        private int compressionLevel;
         private int bufferSize;
 
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Multiple file compression");
-            help.AddParameter("bufferSizeMegabytes", "b", "Buffer size in megabytes (10)");
-            help.AddParameter("compressionLevel", "l", "Compression level 0-9, 9 being the highest level of compression (9)");
-            help.AddParameter("delete", "d", "Whether to delete the uncompressed file after compression completes (false)");
-            help.AddParameter("threads", "t", "Number of files to process at one time (total # of logical processors - 1)");
+            help.AddParameter(nameof(bufferSizeMegabytes), "b", "Buffer size in megabytes (10)");
+            help.AddParameter(nameof(compressionLevel), "l", "Compression level 0-9, 9 being the highest level of compression (9)");
+            help.AddParameter(nameof(delete), "d", "Whether to delete the uncompressed file after compression completes (false)");
+            help.AddParameter(nameof(threads), "t", "Number of files to process at one time (total # of logical processors - 1)");
             help.AddValue("<included item 1> <included item 2> <etc>");
         }
+
+        private int bufferSizeMegabytes;
+        private int compressionLevel;
+        private bool delete;
+        private int threads;
 
         private void ProcessFile(string inputFile)
         {
             try
             {
                 var outputFile = inputFile.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? inputFile + ".zip" : Util.FileChangeExtension(inputFile, "zip");
+
+                // shouldn't happen but sanity check anyways
                 if (string.Equals(inputFile, outputFile, StringComparison.OrdinalIgnoreCase)) throw new Exception("Input file same as output file " + inputFile);
 
                 DeleteExistingFile(outputFile);
 
                 var currentCount = -1;
-                lock (this) currentCount = processCurrent++;
+                lock (locker)
+                {
+                    currentCount = processCurrent++;
+                }
                 var runningCount = "[" + Util.FormatRunningCount(currentCount, processTotal) + "]  ";
 
                 log.Debug(runningCount + inputFile + "  -->  " + outputFile + "  [starting]");
-                lock (this)
+                lock (locker)
                 {
                     log.Info(runningCount + Path.GetFileName(inputFile) + "  -->  " + Path.GetFileName(outputFile));
                 }
@@ -99,29 +108,29 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
         protected override void ExecuteInternal()
         {
-            bufferSize = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10);
-            bufferSize = bufferSize * (int)Constant.BYTES_MEGA;
+            bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10);
+            bufferSize = bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
 
-            compressionLevel = GetArgParameterOrConfigInt("compressionLevel", "l", 9);
+            compressionLevel = GetArgParameterOrConfigInt(nameof(compressionLevel), "l", 9);
             if (compressionLevel < 0) compressionLevel = 0;
             if (compressionLevel > 9) compressionLevel = 9;
-            log.Debug($"compressionLevel: {compressionLevel}");
+            log.DebugParameter(nameof(compressionLevel), compressionLevel);
 
-            delete = GetArgParameterOrConfigBool("delete", "d", false);
+            delete = GetArgParameterOrConfigBool(nameof(delete), "d", false);
 
-            var t = GetArgParameterOrConfigInt("threads", "t", Environment.ProcessorCount - 1);
+            threads = GetArgParameterOrConfigInt(nameof(threads), "t", Environment.ProcessorCount - 1);
 
-            var inputFileStrings = GetArgValuesTrimmed();
-            log.Debug($"inputFileStrings: " + string.Join(", ", inputFileStrings));
-            var inputFiles = ParseInputFiles(inputFileStrings);
-            for (var i = 0; i < inputFiles.Count; i++) log.Debug($"inputFile[{i}]: {inputFiles[i]}");
-            if (inputFiles.IsEmpty()) throw new ArgsException("inputFiles", "No <inputFiles> specified");
+            var inputFiles = GetArgValuesTrimmed();
+            log.Debug(inputFiles, nameof(inputFiles));
+            inputFiles = ParseInputFiles(inputFiles);
+            log.Debug(inputFiles, nameof(inputFiles));
+            if (inputFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(inputFiles));
 
             using (var tp = new ConsumerThreadPool<string>(ProcessFile))
             {
                 foreach (var fileToZip in inputFiles) tp.AddWorkItem(fileToZip);
                 tp.FinishedAddingWorkItems();
-                tp.NumberOfThreads = t;
+                tp.NumberOfThreads = threads;
                 while (!tp.IsComplete)
                 {
                     Thread.Sleep(100);

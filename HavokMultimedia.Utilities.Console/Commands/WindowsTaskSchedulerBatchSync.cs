@@ -31,9 +31,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Syncs Windows Task Scheduler folder with a directory of batch files (.bat|.cmd)");
-            help.AddParameter("taskUsername", "tu", "User account username to run the tasks as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
-            help.AddParameter("taskPassword", "tp", "User account password to run the tasks as");
-            help.AddParameter("taskFolder", "tf", "Folder in task scheduler to put the tasks");
+            help.AddParameter(nameof(taskUsername), "tu", "User account username to run the tasks as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
+            help.AddParameter(nameof(taskPassword), "tp", "User account password to run the tasks as");
+            help.AddParameter(nameof(taskFolder), "tf", "Folder in task scheduler to put the tasks");
             help.AddValue("<folder to scan 1> <folder to scan 2> <etc>");
             help.AddDetail("Batch file formats are...");
             help.AddDetail("  :: WindowsTaskSchedulerBatchSync DAILY {hour}:{minute}");
@@ -42,6 +42,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddDetail("  :: WindowsTaskSchedulerBatchSync MONTHLY {dayOfMonth}:{hour}:{minute}");
             help.AddDetail("  :: WindowsTaskSchedulerBatchSync CRON <Minute> <Hour> <Day_of_the_Month> <Month_of_the_Year> <Day_of_the_Week>");
         }
+
+        private string taskUsername;
+        private string taskPassword;
+        private string taskFolder;
 
         private class BatchFile
         {
@@ -298,37 +302,23 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             #region Initialization
 
-            var taskUsername = GetArgParameterOrConfigRequired("taskUsername", "tu").TrimOrNull();
-            log.Debug($"taskUsername: {taskUsername}");
-            var taskPassword = GetArgParameterOrConfig("taskPassword", "tp").TrimOrNull();
-            log.Debug($"taskPassword: {taskPassword}");
-            var taskUsernameMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "SYSTEM", WindowsTaskScheduler.USER_SYSTEM },
-                { "LOCALSERVICE", WindowsTaskScheduler.USER_LOCALSERVICE },
-                { "NETWORKSERVICE", WindowsTaskScheduler.USER_NETWORKSERVICE }
-            };
-            if (taskUsername != null && taskUsernameMapping.TryGetValue(taskUsername, out var taskUsernameMappingValue))
-            {
-                taskUsername = taskUsernameMappingValue;
-                taskPassword = null;
-            }
+            taskUsername = GetArgParameterOrConfigRequired(nameof(taskUsername), "tu").TrimOrNull();
+            taskPassword = GetArgParameterOrConfig(nameof(taskPassword), "tp").TrimOrNull();
+            if (RemapUsername(ref taskUsername)) taskPassword = null;
             log.DebugParameter(nameof(taskUsername), taskUsername);
             log.DebugParameter(nameof(taskPassword), taskPassword);
 
-            var tf = GetArgParameterOrConfigRequired("taskFolder", null).TrimOrNull();
-            log.Debug($"taskFolder: {tf}");
-            var taskSchedulerFolderPath = WindowsTaskScheduler.ParsePath(tf);
-            log.Debug($"taskFolderPath: {taskSchedulerFolderPath}");
+            taskFolder = GetArgParameterOrConfigRequired(nameof(taskFolder), null).TrimOrNull();
+            log.DebugParameter(nameof(taskFolder), taskFolder);
+            var taskSchedulerFolderPath = WindowsTaskScheduler.ParsePath(taskFolder);
+            log.Debug(taskSchedulerFolderPath, nameof(taskSchedulerFolderPath));
 
             var foldersToScan = GetArgValuesTrimmed();
-            if (foldersToScan.IsEmpty()) throw new ArgsException("foldersToScan", "No folders to scan specified");
-            for (var i = 0; i < foldersToScan.Count; i++)
-            {
-                foldersToScan[i] = Path.GetFullPath(foldersToScan[i]);
-            }
-            log.Debug("foldersToScan: " + string.Join(", ", foldersToScan));
-            foreach (var dir in foldersToScan) if (!Directory.Exists(dir)) throw new DirectoryNotFoundException("Cannot find directory " + dir);
+            log.Debug(foldersToScan, nameof(foldersToScan));
+            if (foldersToScan.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(foldersToScan));
+            foldersToScan = foldersToScan.Select(o => Path.GetFullPath(o)).ToList();
+            log.Debug(foldersToScan, nameof(foldersToScan));
+            CheckDirectoryExists(foldersToScan);
 
             #endregion Initialization
 

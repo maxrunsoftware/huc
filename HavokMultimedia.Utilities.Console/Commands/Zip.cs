@@ -27,62 +27,64 @@ namespace HavokMultimedia.Utilities.Console.Commands
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("File compression");
-            help.AddParameter("bufferSizeMegabytes", "b", "Buffer size in megabytes (10)");
-            help.AddParameter("recursive", "r", "Whether to include subdirectory files or not (false)");
-            help.AddParameter("mask", "m", "Mask filter to apply to file list (*)");
-            help.AddParameter("compressionLevel", "l", "Compression level 0-9, 9 being the highest level of compression (9)");
-            help.AddParameter("skipTopLevelDirectory", "s", "Whether to not include the top level directory or rather include all the files under that directory instead (false)");
-            help.AddParameter("password", "p", "Password on the ZIP file");
+            help.AddParameter(nameof(bufferSizeMegabytes), "b", "Buffer size in megabytes (10)");
+            help.AddParameter(nameof(recursive), "r", "Whether to include subdirectory files or not (false)");
+            help.AddParameter(nameof(mask), "m", "Mask filter to apply to file list (*)");
+            help.AddParameter(nameof(compressionLevel), "l", "Compression level 0-9, 9 being the highest level of compression (9)");
+            help.AddParameter(nameof(skipTopLevelDirectory), "s", "Whether to not include the top level directory or rather include all the files under that directory instead (false)");
+            help.AddParameter(nameof(password), "p", "Password on the ZIP file");
             help.AddValue("<output zip file> <included item 1> <included item 2> <etc>");
             help.AddExample("myOuputFile.zip someLocalFile.txt");
             help.AddExample("myOuputFile.zip *.txt *.csv");
         }
 
+        private int bufferSizeMegabytes;
+        private bool recursive;
+        private string mask;
+        private int compressionLevel;
+        private bool skipTopLevelDirectory;
+        private string password;
+
         protected override void ExecuteInternal()
         {
-            var bs = GetArgParameterOrConfigInt("bufferSizeMegabytes", "b", 10);
-            bs = bs * (int)Constant.BYTES_MEGA;
+            bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10);
+            int bufferSize = bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
+            log.DebugParameter(nameof(bufferSize), bufferSize);
 
-            var r = GetArgParameterOrConfigBool("recursive", "r", false);
+            recursive = GetArgParameterOrConfigBool(nameof(recursive), "r", false);
+            mask = GetArgParameterOrConfig(nameof(mask), "m", "*");
 
-            var m = GetArgParameterOrConfig("mask", "m", "*");
+            compressionLevel = GetArgParameterOrConfigInt(nameof(compressionLevel), "l", 9);
+            if (compressionLevel < 0) compressionLevel = 0;
+            if (compressionLevel > 9) compressionLevel = 9;
+            log.DebugParameter(nameof(compressionLevel), compressionLevel);
 
-            var l = GetArgParameterOrConfigInt("compressionLevel", "l", 9);
-            if (l < 0) l = 0;
-            if (l > 9) l = 9;
-            log.Debug($"compressionLevel: {l}");
+            skipTopLevelDirectory = GetArgParameterOrConfigBool(nameof(skipTopLevelDirectory), "s", false);
 
-            var s = GetArgParameterOrConfigBool("skipTopLevelDirectory", "s", false);
-
-            var password = GetArgParameterOrConfig("password", "p").TrimOrNull();
+            password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
 
             var values = GetArgValuesTrimmed1N();
-            var outputFileString = values.firstValue;
-            log.Debug($"outputFileString: {outputFileString}");
-            var outputFile = Path.GetFullPath(outputFileString);
-            log.Debug($"outputFile: {outputFile}");
-            if (outputFile == null) throw new ArgsException("outputFile", "No <outputFile> specified");
+            var outputFile = values.firstValue;
+            outputFile.CheckValueNotNull(nameof(outputFile), log);
+            outputFile = Path.GetFullPath(outputFile);
+            outputFile.CheckValueNotNull(nameof(outputFile), log);
 
-            var inputFileStrings = values.otherValues;
-            log.Debug(inputFileStrings, nameof(inputFileStrings));
             var inputFiles = new List<string>();
-            foreach (var inputFileString in inputFileStrings)
+            foreach (var inputFile in values.otherValues)
             {
-                var ifs = Path.GetFullPath(inputFileString);
-                if (ifs.ContainsAny("*", "?")) inputFiles.AddRange(ParseFileName(ifs, r));
-                else inputFiles.Add(ifs);
+                if (inputFile.ContainsAny("*", "?")) inputFiles.AddRange(ParseFileName(inputFile, recursive));
+                else inputFiles.Add(Path.GetFullPath(inputFile));
             }
             log.Debug(inputFiles, nameof(inputFiles));
-            if (inputFiles.IsEmpty()) throw new ArgsException(nameof(inputFiles), $"No <{nameof(inputFiles)}> specified or no files exist");
+            if (inputFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(inputFiles));
 
             DeleteExistingFile(outputFile);
 
-
             using (var fs = Util.FileOpenWrite(outputFile))
             {
-                using (var zos = new ZipOutputStream(fs, bs))
+                using (var zos = new ZipOutputStream(fs, bufferSize))
                 {
-                    zos.SetLevel(l);
+                    zos.SetLevel(compressionLevel);
                     if (password != null)
                     {
                         // https://stackoverflow.com/a/31722359
@@ -99,16 +101,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
                         if (Util.IsFile(includedItem))
                         {
                             var fi = new FileInfo(includedItem);
-                            External.Zip.AddFileToZip(fi, fi.Directory, zos, bs, Path.GetFileName(outputFile), encrypt: password != null);
+                            External.Zip.AddFileToZip(fi, fi.Directory, zos, bufferSize, Path.GetFileName(outputFile), encrypt: password != null);
                         }
                         else
                         {
                             // Directory
                             var basePath = new DirectoryInfo(includedItem);
-                            var items = Util.FileList(includedItem, recursive: r);
-                            if (!r) items = items.Where(o => !o.IsDirectory || string.Equals(o.Path, includedItem, StringComparison.OrdinalIgnoreCase));
-                            if (s) items = items.Where(o => !string.Equals(o.Path, includedItem, StringComparison.OrdinalIgnoreCase));
-                            if (!s) basePath = basePath.Parent;
+                            var items = Util.FileList(includedItem, recursive: recursive);
+                            if (!recursive) items = items.Where(o => !o.IsDirectory || string.Equals(o.Path, includedItem, StringComparison.OrdinalIgnoreCase));
+                            if (skipTopLevelDirectory) items = items.Where(o => !string.Equals(o.Path, includedItem, StringComparison.OrdinalIgnoreCase));
+                            if (!skipTopLevelDirectory) basePath = basePath.Parent;
                             items = items.OrderBy(o => StringComparer.OrdinalIgnoreCase);
                             foreach (var item in items)
                             {
@@ -127,11 +129,11 @@ namespace HavokMultimedia.Utilities.Console.Commands
                                 if (!item.IsDirectory)
                                 {
                                     var fi = (FileInfo)item.GetFileSystemInfo();
-                                    if (!fi.Name.EqualsWildcard(m))
+                                    if (!fi.Name.EqualsWildcard(mask))
                                     {
                                         continue;
                                     }
-                                    External.Zip.AddFileToZip(fi, basePath, zos, bs, Path.GetFileName(outputFile), encrypt: password != null);
+                                    External.Zip.AddFileToZip(fi, basePath, zos, bufferSize, Path.GetFileName(outputFile), encrypt: password != null);
                                 }
                             }
 

@@ -40,6 +40,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
         }
 
         private readonly BucketStoreMemoryString store = new BucketStoreMemoryString();
+
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
@@ -47,23 +48,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             config.AddPathHandler("/", HttpVerbs.Any, Index);
 
-            using (var server = GetWebServer(config))
-            {
-                foreach (var ipa in config.UrlPrefixes) log.Info("  " + ipa);
-                log.Info("WebServer running, press ESC or Q to quit");
-                while (true)
-                {
-                    Thread.Sleep(50);
-                    var cki = System.Console.ReadKey(true);
-
-                    if (cki.Key.In(ConsoleKey.Escape, ConsoleKey.Q)) break;
-                }
-            }
-
-            log.Info("WebServer shutdown");
+            LoopUntilKey(config);
         }
-
-
 
         private object Index(IHttpContext context)
         {
