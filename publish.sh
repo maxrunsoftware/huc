@@ -10,7 +10,7 @@ if [[ " $@ " =~ " nozip " ]]; then
 fi
 
 if [[ " $@ " =~ " win " ]]; then
-   runOsx=0
+   runOSX=0
    runLinux=0
    runZip=0
 fi
