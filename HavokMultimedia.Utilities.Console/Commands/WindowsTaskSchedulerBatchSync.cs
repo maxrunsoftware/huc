@@ -65,12 +65,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 FileName = Path.GetFileName(FilePath);
                 TaskName = Path.GetFileNameWithoutExtension(FilePath);
 
-                var filetext = Util.FileRead(FilePath, Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM).TrimOrNull() ?? string.Empty;
-                var fileLines = filetext.SplitOnNewline().TrimOrNull().ToList();
+                var fileText = Util.FileRead(FilePath, Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM).TrimOrNull() ?? string.Empty;
+                var fileLines = fileText.SplitOnNewline().TrimOrNull().ToList();
 
                 var triggers = new List<Trigger>();
 
-                var hashList = new List<string[]>();
+                var hashList = new List<string>();
                 var sb = new StringBuilder();
                 for (var i = 0; i < fileLines.Count; i++)
                 {
@@ -85,12 +85,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     var logHeader = FilePath + " [" + (i + 1) + "]: ";
                     try
                     {
-                        var hashCopy = fileLineParts.Copy();
-                        var triggersOfLine = ParseDirective(fileLineParts, logHeader);
-                        if (triggersOfLine.Count > 0)
+                        var triggerLine = fileLineParts.ToStringDelimited(" ");
+                        var triggersOfLine = External.WindowsTaskSchedulerTrigger.CreateTriggers(triggerLine, logHeader).ToList();
+                        if (triggersOfLine.IsNotEmpty())
                         {
                             triggers.AddRange(triggersOfLine);
-                            hashList.Add(hashCopy);
+                            hashList.Add(triggerLine);
                         }
                     }
                     catch (Exception e)
@@ -100,116 +100,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 }
 
                 Triggers = triggers.AsReadOnly();
-                Hash = HashDirectiveLines(hashList);
-            }
 
-            private static string HashDirectiveLines(IEnumerable<string[]> lineTokensEnumerable)
-            {
-                var sb = new StringBuilder();
-                foreach (var line in lineTokensEnumerable)
-                {
-                    var l = string.Join(" ", line.OrEmpty()).TrimOrNull();
-                    if (l != null) sb.Append(l + Utilities.Constant.NEWLINE_WINDOWS);
-                }
-                return HASHING_ALGORITHM(Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(sb.ToString()));
-            }
-
-            private List<Trigger> ParseDirective(string[] directiveParts, string fileAndLine)
-            {
-                var triggers = new List<Trigger>();
-                var directive = directiveParts.GetAtIndexOrDefault(0).TrimOrNullUpper();
-                if (directive == null) return triggers;
-                directiveParts = directiveParts.RemoveHead();
-
-                (byte hour, byte minute) parseTimeHHMM(string time)
-                {
-                    log.Trace($"Parsing hours and minutes from {time}");
-                    var timeparts = time.Split(':').TrimOrNull().WhereNotNull().ToArray();
-                    if (timeparts.Length < 2) throw new Exception($"{fileAndLine} Error creating {directive} triggers from value {time}. Invalid time format. Expected : character in time {time}");
-                    if (timeparts.Length > 2) throw new Exception($"{fileAndLine} Error creating {directive} triggers from value {time}. Invalid time format. Encountered multiple : characters in time {time} but only 1 is allowed seperating hours and minutes");
-                    var hours = timeparts[0].ToByte();
-                    var mins = timeparts[1].ToByte();
-                    log.Trace($"Parsed {hours} hours and {mins} minutes from {time}");
-                    return (hours, mins);
-                }
-
-                (byte dayOfMonth, byte hour, byte minute) parseTimeDayOfMonthHHMM(string time)
-                {
-                    log.Trace($"Parsing dayOfMonth, hours, and minutes from {time}");
-                    var timeparts = time.Split(':').Concat("00:00".Split(':')).TrimOrNull().WhereNotNull().ToArray();
-                    if (timeparts.Length < 3) throw new Exception($"{fileAndLine} Error creating {directive} triggers from value {time}. Invalid time format. Expected a day of month specified. Format dayOfMonth:HH:MM");
-                    var dayOfMonth = timeparts[0].ToByte();
-                    var hour = timeparts[1].ToByte();
-                    var minute = timeparts[2].ToByte();
-                    log.Trace($"Parsed {dayOfMonth} day of month, {hour} hour, and {minute} minute from {time}");
-                    return (dayOfMonth, hour, minute);
-                }
-
-                if (directive == "HOURLY")
-                {
-                    foreach (var time in directiveParts)
-                    {
-                        var minute = time.ToByte();
-                        var minuteString = ("00" + minute).Right(2);
-
-                        var t = WindowsTaskScheduler.CreateTriggerInterval(TimeSpan.FromMinutes(minute));
-                        triggers.Add(t);
-                        log.Debug($"{fileAndLine} {directive} created at times " + string.Join($":{minuteString}:00 ", Enumerable.Range(0, 24)) + " --> " + t);
-                    }
-                }
-
-                if (directive == "CRON")
-                {
-                    var directiveLine = string.Join(" ", directiveParts).TrimOrNull();
-                    if (directiveLine == null)
-                    {
-                        log.Warn($"{fileAndLine} CRON directive doesn't provide any details");
-                    }
-                    else
-                    {
-                        var cronTriggers = WindowsTaskScheduler.CreateTriggerCron(directiveLine);
-                        triggers.AddRange(cronTriggers);
-                        log.Warn($"{fileAndLine} {directive} created {triggers.Count} triggers");
-                    }
-                }
-
-                if (directive == "DAILY")
-                {
-                    foreach (var time in directiveParts)
-                    {
-                        var (hour, minute) = parseTimeHHMM(time);
-                        var t = WindowsTaskScheduler.CreateTriggerDaily(hour: hour, minute: minute);
-                        triggers.Add(t);
-                        log.Debug($"{fileAndLine} {directive} created at time {time}");
-                    }
-                }
-
-                if (directive.In(Util.GetEnumItems<DayOfWeek>().Select(o => o.ToString().ToUpper())))
-                {
-                    foreach (var time in directiveParts)
-                    {
-                        var (hour, minute) = parseTimeHHMM(time);
-                        var dow = Util.GetEnumItem<DayOfWeek>(directive);
-                        var t = WindowsTaskScheduler.CreateTriggerWeekly(dow.Yield(), hour: hour, minute: minute);
-                        triggers.Add(t);
-                        log.Debug($"{fileAndLine} {directive} created at time {time}");
-                    }
-                }
-
-                if (directive == "MONTHLY")
-                {
-                    foreach (var time in directiveParts)
-                    {
-                        var (dayOfMonth, hour, minute) = parseTimeDayOfMonthHHMM(time);
-                        var t = WindowsTaskScheduler.CreateTriggerMonthly(dayOfMonth, hour: hour, minute: minute);
-                        triggers.Add(t);
-                        log.Debug($"{fileAndLine} {directive} created for {time}");
-                    }
-                }
-
-                if (triggers.Count == 0) log.Warn($"{fileAndLine} {directive} No triggers created");
-
-                return triggers;
+                var hashValue = hashList.ToStringDelimited(Constant.NEWLINE_WINDOWS);
+                Hash = HASHING_ALGORITHM(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(hashValue));
             }
 
             public static bool IsBatchFile(string filename)
@@ -241,11 +134,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             }
 
             var potentialTaskNameCollisions = new SortedDictionary<string, List<BatchFile>>(StringComparer.OrdinalIgnoreCase);
-            foreach (var batchFile in batchFiles)
-            {
-                if (!potentialTaskNameCollisions.TryGetValue(batchFile.TaskName, out var list)) potentialTaskNameCollisions.Add(batchFile.TaskName, list = new List<BatchFile>());
-                list.Add(batchFile);
-            }
+            foreach (var batchFile in batchFiles) potentialTaskNameCollisions.AddToList(batchFile.TaskName, batchFile);
 
             foreach (var taskName in potentialTaskNameCollisions.Keys.ToList())
             {
@@ -260,17 +149,17 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 potentialTaskNameCollisions.Remove(taskName);
             }
 
-            Debug.Assert(potentialTaskNameCollisions.Values.All(o => o.Count == 1), "Expecting all Tasks to have only 1 batch file at this point");
+            if (!potentialTaskNameCollisions.Values.All(o => o.Count == 1)) throw new Exception("Expecting all Tasks to have only 1 batch file at this point");
             batchFiles = potentialTaskNameCollisions.Values.Select(o => o.First()).OrderBy(o => o.TaskName, StringComparer.OrdinalIgnoreCase).ToList();
 
             return batchFiles;
         }
 
-        private void TaskCreate(WindowsTaskScheduler scheduler, string[] path, BatchFile batchFile, string taskUsername, string taskPassword)
+        private void TaskCreate(WindowsTaskScheduler scheduler, WindowsTaskSchedulerPath path, BatchFile batchFile, string taskUsername, string taskPassword)
         {
             try
             {
-                scheduler.TaskAdd(path, batchFile.TaskName, batchFile.FilePath.Yield().ToArray(), batchFile.Triggers
+                scheduler.TaskAdd(path.Add(batchFile.TaskName), batchFile.FilePath.Yield().ToArray(), batchFile.Triggers
                     , workingDirectory: Path.GetDirectoryName(batchFile.FilePath)
                     , description: batchFile.TaskName
                     , documentation: batchFile.Hash
@@ -300,8 +189,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.ExecuteInternal();
 
-            #region Initialization
-
             taskUsername = GetArgParameterOrConfigRequired(nameof(taskUsername), "tu").TrimOrNull();
             taskPassword = GetArgParameterOrConfig(nameof(taskPassword), "tp").TrimOrNull();
             if (RemapUsername(ref taskUsername)) taskPassword = null;
@@ -310,8 +197,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             taskFolder = GetArgParameterOrConfigRequired(nameof(taskFolder), null).TrimOrNull();
             log.DebugParameter(nameof(taskFolder), taskFolder);
-            var taskSchedulerFolderPath = WindowsTaskScheduler.ParsePath(taskFolder);
-            log.Debug(taskSchedulerFolderPath, nameof(taskSchedulerFolderPath));
+            var taskSchedulerFolderPath = new WindowsTaskSchedulerPath(taskFolder);
+            log.DebugParameter(nameof(taskSchedulerFolderPath), taskSchedulerFolderPath);
 
             var foldersToScan = GetArgValuesTrimmed();
             log.Debug(foldersToScan, nameof(foldersToScan));
@@ -320,15 +207,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.Debug(foldersToScan, nameof(foldersToScan));
             CheckDirectoryExists(foldersToScan);
 
-            #endregion Initialization
-
             var batchFiles = GetBatchFiles(foldersToScan);
-
             using (var scheduler = GetTaskScheduler())
             {
-                var currentDirectory = scheduler.GetTaskFolder(taskSchedulerFolderPath, true);
-                taskSchedulerFolderPath = WindowsTaskScheduler.ParsePath(currentDirectory);
-                log.Debug($"Using task folder {Util.PathToString(taskSchedulerFolderPath)}");
+                var currentDirectory = scheduler.CreateTaskFolder(taskSchedulerFolderPath);
+                taskSchedulerFolderPath = currentDirectory.GetPath();
+                log.Debug($"Using task folder {taskSchedulerFolderPath}");
 
                 var existingTasks = new SortedDictionary<string, Task>();
                 foreach (var t in currentDirectory.Tasks) existingTasks.Add(t.Name, t);
@@ -356,7 +240,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
                 foreach (var task in tasksToDelete)
                 {
-                    log.Info("Deleting task " + Util.PathToString(WindowsTaskScheduler.ParsePath(task.Folder).Concat(task.Name)));
+                    log.Info("Deleting task " + task.GetPath());
                     scheduler.TaskDelete(task);
                 }
 
@@ -385,7 +269,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     else
                     {
                         log.Debug("Hashes are different, removing and recreating task");
-                        log.Info("Recreating task " + Util.PathToString(WindowsTaskScheduler.ParsePath(task.Folder).Concat(task.Name)));
+                        log.Info("Recreating task " + task.GetPath());
                         scheduler.TaskDelete(task);
                         TaskCreate(scheduler, taskSchedulerFolderPath, batchFile, taskUsername, taskPassword);
                     }

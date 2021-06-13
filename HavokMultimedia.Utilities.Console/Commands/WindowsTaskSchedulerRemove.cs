@@ -39,9 +39,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             {
                 var t = scheduler.GetTask(taskPath);
                 if (t == null) throw new ArgsException(nameof(taskPath), "Task does not exist " + taskPath);
-                log.Debug("Deleting task " + t.NameFull());
+                log.Debug("Deleting task " + t.GetPath());
                 scheduler.TaskDelete(t);
-                log.Info("Successfully deleted task " + t.NameFull());
+                log.Info("Successfully deleted task " + t.GetPath());
             }
 
         }

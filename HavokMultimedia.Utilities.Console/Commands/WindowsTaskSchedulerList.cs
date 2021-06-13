@@ -40,19 +40,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private bool detail;
         private bool xml;
 
-        private bool MatchesPath(Task task, string path)
-        {
-            var pathParts = WindowsTaskScheduler.ParsePath(path);
-            var taskParts = task.NameFullParts();
-
-            if (pathParts.Length > taskParts.Length) return false;
-            for (int i = 0; i < pathParts.Length; i++)
-            {
-                if (!pathParts[i].EqualsCaseInsensitive(taskParts[i])) return false;
-            }
-            return true;
-        }
-
         protected override void ExecuteInternal()
         {
             base.ExecuteInternal();
@@ -61,28 +48,38 @@ namespace HavokMultimedia.Utilities.Console.Commands
             detail = GetArgParameterOrConfigBool(nameof(detail), "d", false);
             xml = GetArgParameterOrConfigBool(nameof(xml), "x", false);
 
-            var allOrFolderPath = GetArgValueTrimmed(0) ?? "ALL";
+            var folderPath = GetArgValueTrimmed(0);
+            log.DebugParameter(nameof(folderPath), folderPath);
+            var folderPathPath = new WindowsTaskSchedulerPath(folderPath);
 
             using (var scheduler = GetTaskScheduler())
             {
-                var tasksAll = scheduler.GetTasksAll();
+                var tasksAll = scheduler.GetTasks();
                 var tasks = new List<Task>();
                 foreach (var task in tasksAll)
                 {
-                    if (allOrFolderPath.EqualsCaseInsensitive("ALL"))
+                    var taskPath = task.GetPath();
+                    if (folderPath == null)
                     {
                         tasks.Add(task);
                     }
                     else
                     {
-                        if (MatchesPath(task, allOrFolderPath)) tasks.Add(task);
+                        if (folderPathPath.Equals(taskPath))
+                        {
+                            tasks.Add(task);
+                        }
+                        else if (taskPath.Parent != null && taskPath.Parent.Equals(folderPathPath))
+                        {
+                            tasks.Add(task);
+                        }
                     }
                 }
                 foreach (var task in tasks)
                 {
-                    var taskNameParts = task.NameFullParts();
-                    var part1 = taskNameParts.GetAtIndexOrDefault(0);
-                    var part2 = taskNameParts.GetAtIndexOrDefault(1);
+                    var taskPath = task.GetPath();
+                    var part1 = taskPath.PathFull.GetAtIndexOrDefault(0);
+                    var part2 = taskPath.PathFull.GetAtIndexOrDefault(1);
                     if (part1 != null && part2 != null)
                     {
                         if (part1.EqualsCaseInsensitive("Microsoft") && part2.EqualsCaseInsensitive("Windows"))
@@ -91,7 +88,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                         }
                     }
 
-                    log.Info(task.NameFull());
+                    log.Info(taskPath.ToString());
                     if (detail)
                     {
                         log.Info("Name: " + task.Name);

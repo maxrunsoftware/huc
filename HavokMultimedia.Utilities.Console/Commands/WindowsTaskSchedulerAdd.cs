@@ -83,11 +83,6 @@ namespace HavokMultimedia.Utilities.Console.Commands
             taskName = GetArgParameterOrConfigRequired(nameof(taskName), "tn").TrimOrNull();
             log.DebugParameter(nameof(taskName), taskName);
 
-            var taskPath = WindowsTaskScheduler.ParsePath(taskName).ToList();
-            var taskNameShort = taskPath.PopTail();
-            log.DebugParameter(nameof(taskPath), taskPath);
-            log.DebugParameter(nameof(taskNameShort), taskNameShort);
-
             taskWorkingDirectory = GetArgParameterOrConfig(nameof(taskWorkingDirectory), "tw");
             taskDescription = GetArgParameterOrConfig(nameof(taskDescription), "td");
 
@@ -105,6 +100,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             var triggerStrings = triggerArray.TrimOrNull().WhereNotNull().ToList();
             log.Debug(triggerStrings, nameof(triggerStrings));
 
+            var triggers = new List<Trigger>();
+            foreach (var triggerString in triggerStrings) triggers.AddRange(WindowsTaskSchedulerTrigger.CreateTriggers(triggerString));
+            for (int i = 0; i < triggers.Count; i++) log.Debug($"Parsed trigger[{i}]: {triggers[i]}");
+
             var executeFiles = GetArgValuesTrimmed();
             for (int i = 0; i < executeFiles.Count; i++)
             {
@@ -112,18 +111,16 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 log.Debug($"ExecuteFile[{i}]: {executeFiles[i]}");
             }
 
-            var triggers = new List<Trigger>();
-            foreach (var triggerString in triggerStrings) triggers.AddRange(CreateTriggers(triggerString));
-            for (int i = 0; i < triggers.Count; i++) log.Debug($"Parsed trigger[{i}]: {triggers[i]}");
 
             using (var scheduler = GetTaskScheduler())
             {
                 var existingTask = scheduler.GetTask(taskName);
-                if (existingTask != null) throw new ArgsException(nameof(taskNameShort), $"Task already exists {taskName}");
+                if (existingTask != null) throw new ArgsException(nameof(taskName), $"Task already exists {taskName}");
 
+                var taskPath = new WindowsTaskSchedulerPath(taskName);
+                log.Debug("Creating task: " + taskPath);
                 var t = scheduler.TaskAdd(
-                    taskPath.ToArray(),
-                    taskNameShort,
+                    taskPath,
                     executeFiles.ToArray(),
                     triggers,
                     workingDirectory: taskWorkingDirectory,
@@ -133,12 +130,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     );
 
                 log.Info("Successfully created task: " + t);
-
-
             }
-
-
-
 
         }
     }

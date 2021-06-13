@@ -21,63 +21,6 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace HavokMultimedia.Utilities.Console.External
 {
-    public class WindowsTaskSchedulerPathComparer : ComparatorBase<string[]>
-    {
-        private readonly StringComparer stringComparer;
-        public static readonly WindowsTaskSchedulerPathComparer OrdinalIgnoreCase = new WindowsTaskSchedulerPathComparer(StringComparer.OrdinalIgnoreCase);
-
-        private WindowsTaskSchedulerPathComparer(StringComparer stringComparer) => this.stringComparer = stringComparer.CheckNotNull(nameof(stringComparer));
-
-        public override int Compare(string[] x, string[] y) => Util.Compare(x, y, stringComparer);
-
-        public override int GetHashCode(string[] obj) => Util.GenerateHashCodeFromCollection(obj);
-    }
-
-    public static class WindowsTaskSchedulerExtensions
-    {
-        public static string NameFull(this Task task)
-        {
-            return "/" + string.Join("/", NameFullParts(task));
-        }
-
-        public static string[] NameFullParts(this Task task)
-        {
-
-            var list = new List<string>();
-            list.AddRange(PathParts(task));
-            list.Add(task.Name);
-            return list.ToArray();
-
-        }
-
-        public static bool IsMatchNameFull(this Task task, string pathAndName)
-        {
-            var mypath = NameFullParts(task);
-            var pathParts = WindowsTaskScheduler.ParsePath(pathAndName);
-            if (mypath.Length != pathParts.Length) return false;
-            for (int i = 0; i < mypath.Length; i++)
-            {
-                if (!mypath[i].EqualsCaseInsensitive(pathParts[i])) return false;
-            }
-            return true;
-        }
-
-        public static bool IsMatchPath(this Task task, string path)
-        {
-            var mypath = PathParts(task);
-            var pathParts = WindowsTaskScheduler.ParsePath(path);
-            if (mypath.Length != pathParts.Length) return false;
-            for (int i = 0; i < mypath.Length; i++)
-            {
-                if (!mypath[i].EqualsCaseInsensitive(pathParts[i])) return false;
-            }
-            return true;
-
-        }
-
-        public static string[] PathParts(this Task task) => (task.Folder?.Path ?? string.Empty).Split(new char[] { '/', '\\' }).TrimOrNull().WhereNotNull();
-    }
-
     public class WindowsTaskScheduler : IDisposable
     {
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -118,88 +61,12 @@ namespace HavokMultimedia.Utilities.Console.External
             taskService = new TaskService(host, userName: username, accountDomain: accountDomain, password: password, forceV1: forceV1);
         }
 
-        #region Helpers
-
-        private static void CheckTime(int hour, int minute, int second)
-        {
-            if (hour < 0 || hour > 23) throw new ArgumentOutOfRangeException(nameof(hour), hour, $"Argument [{nameof(hour)}] must be between 0 - 23");
-            if (minute < 0 || minute > 59) throw new ArgumentOutOfRangeException(nameof(minute), minute, $"Argument [{nameof(minute)}] must be between 0 - 59");
-            if (second < 0 || second > 59) throw new ArgumentOutOfRangeException(nameof(second), second, $"Argument [{nameof(second)}] must be between 0 - 59");
-        }
-
-        public static string[] ParsePath(TaskFolder taskFolder) => ParsePath(taskFolder.Path);
-
-        public static string[] ParsePath(string path) => Util.PathParse(path, PATH_PARSE_CHARACTERS);
-
-        #endregion Helpers
-
-        #region Triggers
-
-        public static MonthlyTrigger CreateTriggerMonthly(int dayOfMonth, int hour = 0, int minute = 0, int second = 0)
-        {
-            // TODO: Check daysOfMonth
-            var t = new MonthlyTrigger(monthsOfYear: MonthsOfTheYear.AllMonths)
-            {
-                DaysOfMonth = new int[] { dayOfMonth },
-                StartBoundary = DateTime.Today + TimeSpan.FromHours(hour) + TimeSpan.FromMinutes(minute)
-            };
-            return t;
-        }
-
-        public static Trigger CreateTriggerInterval(TimeSpan interval)
-        {
-            var now = DateTime.Now;
-
-            // remove everything but hour
-            var nowHour = now.AddMinutes(now.Minute * -1).AddSeconds(now.Second * -1).AddMilliseconds(now.Millisecond * -1);
-
-            // if it is 6:45 right now but our nowHour (6:00) + interval (22) has already passed then add an hour (7:00)
-            if (now > (nowHour + interval)) nowHour = nowHour.AddHours(1);
-
-            var trigger = new TimeTrigger();
-            trigger.StartBoundary = nowHour;
-            trigger.Repetition.Interval = interval;
-            return trigger;
-        }
-
-        public static DailyTrigger CreateTriggerDaily(int hour = 0, int minute = 0, int second = 0)
-        {
-            CheckTime(hour, minute, second);
-            var startBoundary = DateTime.Today + TimeSpan.FromHours(hour) + TimeSpan.FromMinutes(minute);
-            return new DailyTrigger { StartBoundary = startBoundary };
-        }
-
-        public static WeeklyTrigger CreateTriggerWeekly(IEnumerable<DayOfWeek> days, int hour = 0, int minute = 0, int second = 0)
-        {
-            CheckTime(hour, minute, second);
-            var startBoundary = DateTime.Today + TimeSpan.FromHours(hour) + TimeSpan.FromMinutes(minute);
-            var t = new WeeklyTrigger { StartBoundary = startBoundary };
-
-            var list = new List<DaysOfTheWeek>();
-            foreach (var day in days)
-            {
-                var dotw = Util.GetEnumItem<DaysOfTheWeek>(day.ToString());
-                list.Add(dotw);
-            }
-
-            t.DaysOfWeek = Util.CombineEnumFlags(list);
-
-            return t;
-        }
-
-        public static IEnumerable<Trigger> CreateTriggerCron(string cron) => Trigger.FromCronFormat(cron);
-
-        #endregion Triggers
-
-        #region Add
-
-        public Task TaskAdd(string[] path, string taskName, string[] filePaths, IEnumerable<Trigger> triggers, string arguments = null, string workingDirectory = null, string description = null, string documentation = null, string username = null, string password = null)
+        public Task TaskAdd(WindowsTaskSchedulerPath path, string[] filePaths, IEnumerable<Trigger> triggers, string arguments = null, string workingDirectory = null, string description = null, string documentation = null, string username = null, string password = null)
         {
             path.CheckNotNull(nameof(path));
-            taskName = taskName.CheckNotNullTrimmed(nameof(taskName));
+            var taskName = path.Name.CheckNotNullTrimmed(nameof(path.Name));
 
-            var dir = GetTaskFolder(path, true);
-            if (dir == null) return null;
+            var dir = CreateTaskFolder(path.Parent);
 
             var td = TaskService.NewTask();
 
@@ -236,10 +103,6 @@ namespace HavokMultimedia.Utilities.Console.External
 
             return task;
         }
-
-        #endregion Add
-
-        #region Delete
 
         public bool TaskDelete(Task task)
         {
@@ -285,126 +148,80 @@ namespace HavokMultimedia.Utilities.Console.External
             return result;
         }
 
-        public bool TaskDelete(string[] path, string taskName)
+        public bool TaskDelete(WindowsTaskSchedulerPath path)
         {
-            var t = GetTask(path, taskName);
+            var t = GetTask(path);
             if (t == null) return false;
             return TaskDelete(t);
         }
 
-        #endregion Delete
-
-        #region Get
-
-
-        public IEnumerable<Task> GetTasksAll()
+        public IEnumerable<Task> GetTasks()
         {
-            var list = new List<Task>();
-            foreach (var a in GetTasks())
+            foreach (var f in GetTaskFolders())
             {
-                foreach (var b in a.Value)
+                foreach (var t in f.Tasks)
                 {
-                    list.Add(b);
+                    yield return t;
                 }
             }
-            return list;
         }
-        public Dictionary<string[], List<Task>> GetTasks()
+
+        public Dictionary<WindowsTaskSchedulerPath, List<Task>> GetTasksByFolder()
         {
-            var queue = new Queue<TaskFolder>();
-            queue.Enqueue(TaskService.RootFolder);
-            var d = new Dictionary<string[], List<Task>>(WindowsTaskSchedulerPathComparer.OrdinalIgnoreCase);
-
-            while (queue.Count > 0)
+            var d = new Dictionary<WindowsTaskSchedulerPath, List<Task>>();
+            foreach (var tf in GetTaskFolders())
             {
-                var currentFolder = queue.Dequeue();
-                var currentFolderPath = ParsePath(currentFolder);
-
-                if (!d.TryGetValue(currentFolderPath, out var currentFolderTasks))
-                {
-                    currentFolderTasks = new List<Task>();
-                    d.Add(currentFolderPath, currentFolderTasks);
-                }
-
-                foreach (var subfolder in currentFolder.SubFolders) queue.Enqueue(subfolder);
-                foreach (var task in currentFolder.Tasks)
-                {
-                    currentFolderTasks.Add(task);
-                }
+                d.AddToList(tf.GetPath(), tf.Tasks.ToArray());
             }
-
             return d;
         }
 
-        public IEnumerable<Task> GetTasks(string[] path)
+        public IEnumerable<TaskFolder> GetTaskFolders()
         {
-            var dir = GetTaskFolder(path, false);
-            if (dir == null) return Enumerable.Empty<Task>();
-            return dir.Tasks;
+            var queue = new Queue<TaskFolder>();
+            var h = new HashSet<WindowsTaskSchedulerPath>();
+
+            queue.Enqueue(TaskService.RootFolder);
+            while (queue.Count > 0)
+            {
+                var currentFolder = queue.Dequeue();
+                if (!h.Add(currentFolder.GetPath())) continue;
+                foreach (var subfolder in currentFolder.SubFolders) queue.Enqueue(subfolder);
+                yield return currentFolder;
+            }
         }
 
-        public Task GetTask(string path)
+        public Task GetTask(WindowsTaskSchedulerPath path)
         {
-            foreach (var task in GetTasksAll())
+            foreach (var task in GetTasks())
             {
-                if (task.IsMatchNameFull(path)) return task;
+                if (path.Equals(task.GetPath())) return task;
             }
             return null;
         }
+        public Task GetTask(string path) => GetTask(new WindowsTaskSchedulerPath(path));
 
-        public Task GetTask(string[] path, string taskName)
+        public TaskFolder GetTaskFolder(WindowsTaskSchedulerPath path)
         {
-            path.CheckNotNull(nameof(path));
-            taskName = taskName.CheckNotNullTrimmed(nameof(taskName));
-
-            var dir = GetTaskFolder(path, false);
-            if (dir == null) return null;
-
-            Task GetTaskSub(TaskFolder currentFolder, string tn)
+            foreach (var folder in GetTaskFolders())
             {
-                var d = new Dictionary<string, Task>();
-                foreach (var task in currentFolder.Tasks) d[task.Name] = task;
-                foreach (var sc in Utilities.Constant.LIST_StringComparison) foreach (var kvp in d) if (string.Equals(kvp.Key, tn, sc)) return kvp.Value;
-                return null;
+                if (path.Equals(folder.GetPath())) return folder;
             }
-
-            return GetTaskSub(dir, taskName);
+            return null;
         }
+        public TaskFolder GetTaskFolder(string path) => GetTaskFolder(new WindowsTaskSchedulerPath(path));
 
-        public TaskFolder GetTaskFolder(string[] path, bool createFolders)
+        public TaskFolder CreateTaskFolder(WindowsTaskSchedulerPath path)
         {
-            path.CheckNotNull(nameof(path));
+            var existingFolder = GetTaskFolder(path);
+            if (existingFolder != null) return existingFolder;
 
-            var currentDirectory = TaskService.RootFolder;
-
-            TaskFolder GetTaskFolderSub(TaskFolder currentFolder, string folderName)
-            {
-                var d = new Dictionary<string, TaskFolder>();
-                foreach (var subfolder in currentFolder.SubFolders) d[subfolder.Name] = subfolder;
-                foreach (var sc in Utilities.Constant.LIST_StringComparison) foreach (var kvp in d) if (string.Equals(kvp.Key, folderName, sc)) return kvp.Value;
-                return null;
-            }
-
-            for (var i = 0; i < path.Length; i++)
-            {
-                var pathItem = path[i];
-                var taskFolder = GetTaskFolderSub(currentDirectory, pathItem);
-                if (taskFolder == null)
-                {
-                    if (!createFolders) return null;
-                    log.Debug("Creating task folder " + Util.PathToString(ParsePath(currentDirectory).Concat(pathItem)));
-                    currentDirectory = currentDirectory.CreateFolder(pathItem);
-                }
-                else
-                {
-                    currentDirectory = taskFolder;
-                }
-            }
-
-            return currentDirectory;
+            var parent = path.Parent;
+            var parentFolder = GetTaskFolder(parent);
+            if (parentFolder == null) parentFolder = CreateTaskFolder(parent);
+            log.Debug("Creating TaskFolder: " + path);
+            return parentFolder.CreateFolder(path.Name);
         }
-
-        #endregion Get
 
         public void Dispose()
         {

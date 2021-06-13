@@ -615,6 +615,11 @@ namespace HavokMultimedia.Utilities
 
         public static string EscapeHtml(this string unescaped) => unescaped == null ? null : WebUtility.HtmlEncode(unescaped);
 
+        public static string[] Split(this string str, IEnumerable<string> stringsToSplitOn)
+        {
+            return str.Split(stringsToSplitOn.ToArray(), StringSplitOptions.None);
+        }
+
         #region Equals
 
         public static bool Equals(this string str, string other, StringComparer comparer)
