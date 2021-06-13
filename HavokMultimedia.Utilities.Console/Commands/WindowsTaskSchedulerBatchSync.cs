@@ -34,6 +34,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(taskUsername), "tu", "User account username to run the tasks as, SYSTEM, LOCALSERVICE, NETWORKSERVICE are valid values as well");
             help.AddParameter(nameof(taskPassword), "tp", "User account password to run the tasks as");
             help.AddParameter(nameof(taskFolder), "tf", "Folder in task scheduler to put the tasks");
+            help.AddParameter(nameof(forceRebuild), "fr", "Forces a delete of all tasks in task folder and then recreates them all (false)");
+            help.AddParameter(nameof(batchKeyword), "bk", "The keyword to use when scanning batch files to detect whether to process the line (" + nameof(WindowsTaskSchedulerBatchSync) + ")");
             help.AddValue("<folder to scan 1> <folder to scan 2> <etc>");
             help.AddDetail("Batch file formats are...");
             help.AddDetail("  :: WindowsTaskSchedulerBatchSync DAILY {hour}:{minute}");
@@ -46,6 +48,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         private string taskUsername;
         private string taskPassword;
         private string taskFolder;
+        private bool forceRebuild;
+        private string batchKeyword;
 
         private class BatchFile
         {
@@ -58,7 +62,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             public string Hash { get; }
             public IReadOnlyList<Trigger> Triggers { get; }
 
-            public BatchFile(string file)
+            public BatchFile(string file, string batchKeyword)
             {
                 file.CheckNotNullTrimmed(nameof(file));
                 FilePath = Path.GetFullPath(file);
@@ -79,7 +83,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
                     if (!fileLineParts.EqualsAtAny(0, StringComparer.OrdinalIgnoreCase, "REM", "::")) continue;
                     fileLineParts = fileLineParts.RemoveHead();
 
-                    if (!fileLineParts.EqualsAt(0, StringComparer.OrdinalIgnoreCase, nameof(WindowsTaskSchedulerBatchSync))) continue;
+                    if (!fileLineParts.EqualsAt(0, StringComparer.OrdinalIgnoreCase, batchKeyword)) continue;
                     fileLineParts = fileLineParts.RemoveHead();
 
                     var logHeader = FilePath + " [" + (i + 1) + "]: ";
@@ -124,7 +128,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             {
                 log.Debug($"Scanning directory {dir}");
 
-                var batchFilesInDir = Util.FileListFiles(dir).Where(o => BatchFile.IsBatchFile(o)).Select(o => new BatchFile(o)).ToList();
+                var batchFilesInDir = Util.FileListFiles(dir).Where(o => BatchFile.IsBatchFile(o)).Select(o => new BatchFile(o, batchKeyword)).ToList();
                 log.Debug($"Found {batchFilesInDir.Count} batch files in directory {dir}");
 
                 batchFilesInDir = batchFilesInDir.Where(o => o.Triggers.Count > 0).ToList();
@@ -195,6 +199,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.DebugParameter(nameof(taskUsername), taskUsername);
             log.DebugParameter(nameof(taskPassword), taskPassword);
 
+            forceRebuild = GetArgParameterOrConfigBool(nameof(forceRebuild), "fr", false);
+            batchKeyword = GetArgParameterOrConfig(nameof(batchKeyword), "bk", nameof(WindowsTaskSchedulerBatchSync));
+
             taskFolder = GetArgParameterOrConfigRequired(nameof(taskFolder), "tf").TrimOrNull();
             log.DebugParameter(nameof(taskFolder), taskFolder);
             var taskSchedulerFolderPath = new WindowsTaskSchedulerPath(taskFolder);
@@ -217,9 +224,15 @@ namespace HavokMultimedia.Utilities.Console.Commands
                 var existingTasks = new SortedDictionary<string, Task>();
                 foreach (var t in currentDirectory.Tasks) existingTasks.Add(t.Name, t);
 
+                if (forceRebuild)
+                {
+                    log.Debug("Forcing rebuild of " + currentDirectory.GetPath());
+                    foreach (var t in currentDirectory.Tasks) scheduler.TaskDelete(t);
+                    existingTasks.Clear();
+                }
+
                 var tasksToVerify = new List<Tuple<Task, BatchFile>>();
                 var tasksToCreate = new List<BatchFile>();
-
                 foreach (var batchFile in batchFiles)
                 {
                     if (existingTasks.TryGetValue(batchFile.TaskName, out var task))
