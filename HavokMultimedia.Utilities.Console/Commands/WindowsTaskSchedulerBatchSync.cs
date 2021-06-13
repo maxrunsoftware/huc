@@ -195,7 +195,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             log.DebugParameter(nameof(taskUsername), taskUsername);
             log.DebugParameter(nameof(taskPassword), taskPassword);
 
-            taskFolder = GetArgParameterOrConfigRequired(nameof(taskFolder), null).TrimOrNull();
+            taskFolder = GetArgParameterOrConfigRequired(nameof(taskFolder), "tf").TrimOrNull();
             log.DebugParameter(nameof(taskFolder), taskFolder);
             var taskSchedulerFolderPath = new WindowsTaskSchedulerPath(taskFolder);
             log.DebugParameter(nameof(taskSchedulerFolderPath), taskSchedulerFolderPath);

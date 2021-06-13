@@ -161,6 +161,7 @@ namespace HavokMultimedia.Utilities.Console.External
             {
                 foreach (var t in f.Tasks)
                 {
+                    log.Trace("Found Task: " + t.GetPath());
                     yield return t;
                 }
             }
@@ -187,12 +188,14 @@ namespace HavokMultimedia.Utilities.Console.External
                 var currentFolder = queue.Dequeue();
                 if (!h.Add(currentFolder.GetPath())) continue;
                 foreach (var subfolder in currentFolder.SubFolders) queue.Enqueue(subfolder);
+                log.Trace("Found TaskFolder: " + currentFolder.GetPath());
                 yield return currentFolder;
             }
         }
 
         public Task GetTask(WindowsTaskSchedulerPath path)
         {
+            log.Debug("Getting Task: " + path);
             foreach (var task in GetTasks())
             {
                 if (path.Equals(task.GetPath())) return task;
@@ -203,6 +206,7 @@ namespace HavokMultimedia.Utilities.Console.External
 
         public TaskFolder GetTaskFolder(WindowsTaskSchedulerPath path)
         {
+            log.Debug("Getting TaskFolder: " + path);
             foreach (var folder in GetTaskFolders())
             {
                 if (path.Equals(folder.GetPath())) return folder;

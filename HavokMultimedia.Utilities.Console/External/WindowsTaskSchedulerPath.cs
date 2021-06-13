@@ -53,7 +53,7 @@ namespace HavokMultimedia.Utilities.Console.External
                 return new WindowsTaskSchedulerPath(Path);
             }
         }
-        public WindowsTaskSchedulerPath(Task task) : this(task.Folder?.Path ?? string.Empty) { }
+        public WindowsTaskSchedulerPath(Task task) : this(task.Folder.Path + "/" + task.Name) { }
         public WindowsTaskSchedulerPath(IEnumerable<string> pathParts) => PathFull = pathParts.ToList();
         public WindowsTaskSchedulerPath(TaskFolder folder) : this(folder.Path) { }
         public WindowsTaskSchedulerPath(string path) : this(Util.PathParse(path ?? string.Empty, PATH_PARSE_CHARACTERS).TrimOrNull().WhereNotNull()) { }
