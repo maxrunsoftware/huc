@@ -26,8 +26,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Puts files on a FTP/FTPS/SFTP server");
-            help.AddParameter(nameof(remotePath), "Remote directory to upload files to");
-            help.AddParameter(nameof(ignoreMissingFiles), "Do not error on missing local files (false)");
+            help.AddParameter(nameof(remotePath), null, "Remote directory to upload files to");
+            help.AddParameter(nameof(ignoreMissingFiles), null, "Do not error on missing local files (false)");
             help.AddValue("<local file 1> <local file 2> <etc>");
             help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
             help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");

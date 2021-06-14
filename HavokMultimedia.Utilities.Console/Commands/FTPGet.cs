@@ -28,9 +28,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Gets a file from a FTP/FTPS/SFTP server");
-            help.AddParameter(nameof(localPath), "Local directory to download files to (" + Path.GetFullPath(Environment.CurrentDirectory) + ")");
-            help.AddParameter(nameof(ignoreMissingFiles), "Do not error on missing remote files (false)");
-            help.AddParameter(nameof(search), "Recursively search for the file (false)");
+            help.AddParameter(nameof(localPath), null, "Local directory to download files to (" + Path.GetFullPath(Environment.CurrentDirectory) + ")");
+            help.AddParameter(nameof(ignoreMissingFiles), null, "Do not error on missing remote files (false)");
+            help.AddParameter(nameof(search), null, "Recursively search for the file (false)");
             help.AddValue("<remote file 1> <remote file 2> <etc>");
             help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
             help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");

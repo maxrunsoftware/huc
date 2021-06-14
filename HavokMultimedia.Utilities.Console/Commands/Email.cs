@@ -32,12 +32,12 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(port), "o", "Port of SMTP server (25)");
             help.AddParameter(nameof(username), "u", "Username of SMTP server");
             help.AddParameter(nameof(password), "p", "Password of SMTP server");
-            help.AddParameter(nameof(ssl), "SSL connection to SMTP server (false)");
+            help.AddParameter(nameof(ssl), null, "SSL connection to SMTP server (false)");
             help.AddParameter(nameof(timeout), "t", "SMTP server timeout seconds (60)");
             help.AddParameter(nameof(encoding), "e", "Encoding to use (UTF8)");
-            help.AddParameter(nameof(to), "TO field seperated by ;");
-            help.AddParameter(nameof(cc), "CC field seperated by ;");
-            help.AddParameter(nameof(bcc), "BCC field seperated by ;");
+            help.AddParameter(nameof(to), null, "TO field seperated by ;");
+            help.AddParameter(nameof(cc), null, "CC field seperated by ;");
+            help.AddParameter(nameof(bcc), null, "BCC field seperated by ;");
             help.AddParameter(nameof(from), "f", "FROM field");
             help.AddParameter(nameof(replyto), "r", "REPLYTO field");
             help.AddParameter(nameof(subject), "s", "Subject line");

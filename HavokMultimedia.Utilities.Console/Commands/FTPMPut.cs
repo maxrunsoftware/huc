@@ -26,9 +26,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
         {
             base.CreateHelp(help);
             help.AddSummary("Puts multiple files on a FTP/FTPS/SFTP server");
-            help.AddParameter(nameof(remotePath), "Remote directory to get files from");
-            help.AddParameter(nameof(localPath), "Local directory to download files to (" + Path.GetFullPath(Environment.CurrentDirectory) + ")");
-            help.AddParameter(nameof(filePattern), "Pattern to match files using * and ? as wildcards");
+            help.AddParameter(nameof(remotePath), null, "Remote directory to get files from");
+            help.AddParameter(nameof(localPath), null, "Local directory to download files to (" + Path.GetFullPath(Environment.CurrentDirectory) + ")");
+            help.AddParameter(nameof(filePattern), null, "Pattern to match files using * and ? as wildcards");
         }
 
         private string remotePath;

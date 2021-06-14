@@ -477,7 +477,6 @@ namespace HavokMultimedia.Utilities.Console
         public void AddValue(string msg) => values.Add(msg);
         public void AddDetail(string msg) => details.Add(msg);
         public void AddParameter(string p1, string p2, string description) => parameters.Add((p1, p2, description));
-        public void AddParameter(string p1, string description) => parameters.Add((p1, null, description));
         public void AddExample(string example) => examples.Add(example.Replace("`", "\""));
     }
 }
