@@ -27,16 +27,16 @@ namespace HavokMultimedia.Utilities
         public override IEnumerable<string> GetTables(string database, string schema) => ExecuteQueryToList($"SELECT table_name FROM all_tables;");
         public override void DropTable(string database, string schema, string table)
         {
-            var sql = new StringBuilder();
-            sql.AppendLine($"declare c int; ");
-            sql.AppendLine($"begin ");
-            sql.AppendLine($"   select count(*) into c from user_tables where table_name = upper('{table}'); ");
-            sql.AppendLine($"   if c = 1 then ");
-            sql.AppendLine($"      execute immediate 'drop table {table}'; ");
-            sql.AppendLine($"   end if; ");
-            sql.AppendLine($"end;");
-
-            ExecuteNonQuery(sql.ToString());
+            var sql = $@"
+                declare c int;
+                begin 
+                   select count(*) into c from user_tables where table_name = upper('{table}'); 
+                   if c = 1 then
+                      execute immediate 'drop table {table}'; 
+                   end if;
+                end;
+            ";
+            ExecuteNonQuery(sql);
         }
         public override IEnumerable<string> GetSchemas(string database) => ExecuteQueryToList($"SELECT username FROM dba_users");
         public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT column_name FROM USER_TAB_COLUMNS WHERE table_name = '{table}';");
