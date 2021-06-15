@@ -45,6 +45,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(privateKey3Password), "pk3pass", "SFTP private key 3 password");
         }
 
+        protected string HelpExamplePrefix => "-h=192.168.1.5 -u=testuser -p=testpass";
+
         #region Helpers
 
         private bool ShouldExclude(string filename, string filePattern)

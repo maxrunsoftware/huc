@@ -29,10 +29,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(remotePath), null, "Remote directory to upload files to");
             help.AddParameter(nameof(ignoreMissingFiles), null, "Do not error on missing local files (false)");
             help.AddValue("<local file 1> <local file 2> <etc>");
-            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
-            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
-            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
-            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass localfile.txt");
+            help.AddExample(HelpExamplePrefix + " localfile.txt");
+            help.AddExample(HelpExamplePrefix + " -e=explicit localfile.txt");
+            help.AddExample(HelpExamplePrefix + " -e=implicit localfile.txt");
+            help.AddExample(HelpExamplePrefix + " -e=ssh localfile.txt");
         }
 
         private string remotePath;

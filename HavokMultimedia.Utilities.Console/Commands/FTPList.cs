@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System.Collections.Generic;
-using System.Linq;
 using HavokMultimedia.Utilities.Console.External;
 using Renci.SshNet.Common;
 
@@ -29,14 +28,14 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddSummary("Lists files on a FTP/FTPS/SFTP server");
             help.AddParameter(nameof(recursive), "r", "Recursively search for the file (false)");
             help.AddValue("<path>");
-            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass");
-            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass");
-            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass");
-            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass");
-            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
-            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
-            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
-            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass -r `/home/user`");
+            help.AddExample(HelpExamplePrefix);
+            help.AddExample(HelpExamplePrefix + " -e=explicit");
+            help.AddExample(HelpExamplePrefix + " -e=implicit");
+            help.AddExample(HelpExamplePrefix + " -e=ssh");
+            help.AddExample(HelpExamplePrefix + " -r `/home/user`");
+            help.AddExample(HelpExamplePrefix + " -e=explicit -r `/home/user`");
+            help.AddExample(HelpExamplePrefix + " -e=implicit -r `/home/user`");
+            help.AddExample(HelpExamplePrefix + " -e=ssh -r `/home/user`");
         }
 
         private bool recursive;

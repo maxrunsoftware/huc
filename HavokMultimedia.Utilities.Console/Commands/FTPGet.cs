@@ -32,10 +32,10 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(ignoreMissingFiles), null, "Do not error on missing remote files (false)");
             help.AddParameter(nameof(search), null, "Recursively search for the file (false)");
             help.AddValue("<remote file 1> <remote file 2> <etc>");
-            help.AddExample("-h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
-            help.AddExample("-e=explicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
-            help.AddExample("-e=implicit -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
-            help.AddExample("-e=ssh -h=192.168.1.5 -u=testuser -p=testpass remotefile.txt");
+            help.AddExample(HelpExamplePrefix + " remotefile.txt");
+            help.AddExample(HelpExamplePrefix + " -e=explicit remotefile.txt");
+            help.AddExample(HelpExamplePrefix + " -e=implicit remotefile.txt");
+            help.AddExample(HelpExamplePrefix + " -e=ssh remotefile.txt");
         }
 
         private string localPath;
