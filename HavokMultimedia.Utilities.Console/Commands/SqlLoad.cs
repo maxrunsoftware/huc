@@ -209,8 +209,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(schema), "s", "Schema to load table");
             help.AddParameter(nameof(table), "t", "Table name");
             help.AddValue("<tab delimited file to load>");
-            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
-            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
+            help.AddExample(HelpExamplePrefix + " -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
+            help.AddExample(HelpExamplePrefix + " -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
         }
 
         private bool drop;

@@ -37,6 +37,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddDetail("  Server=192.168.0.5;Database=myDataBase;Trusted_Connection=True;");
         }
 
+        protected string HelpExamplePrefix => "-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;`";
+
         private string connectionString;
         private int commandTimeout;
         protected SqlServerType serverType { get; private set; }

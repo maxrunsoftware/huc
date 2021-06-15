@@ -30,9 +30,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddParameter(nameof(sqlStatement), "s", "SQL statement to execute");
             help.AddParameter(nameof(sqlScriptFile), "f", "SQL script file to execute");
             help.AddValue("<result file 1> <result file 2> <etc>");
-            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -s=`SELECT TOP 100 * FROM Orders` Orders100.txt");
-            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -s=`SELECT * FROM Orders; SELECT * FROM Employees` Orders.txt Employees.txt");
-            help.AddExample("-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;` -f=`mssqlscript.sql` OrdersFromScript.txt");
+            help.AddExample(HelpExamplePrefix + " -s=`SELECT TOP 100 * FROM Orders` Orders100.txt");
+            help.AddExample(HelpExamplePrefix + " -s=`SELECT * FROM Orders; SELECT * FROM Employees` Orders.txt Employees.txt");
+            help.AddExample(HelpExamplePrefix + " -f=`mssqlscript.sql` OrdersFromScript.txt");
         }
 
         private string sqlStatement;
