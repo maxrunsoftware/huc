@@ -31,13 +31,20 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddValue("<VM ID or Name> <Action>");
             help.AddDetail("Use CAUTION when enabling wildcard mode. Best to test with Action=None to see which VMs will be affected");
             help.AddDetail("Actions:");
-            foreach (var action in Util.GetEnumItems<Action>()) help.AddDetail("  " + action);
+            var maxLength = Util.GetEnumItems<Action>().Select(o => o.ToString().Length).Max();
+            foreach (var action in Util.GetEnumItems<Action>())
+            {
+
+                help.AddDetail("  " + action.ToString().PadRight(maxLength) + "  " + DescriptionAttribute.Get(action).Description);
+            }
             help.AddExample(HelpExamplePrefix + " MyVM1 " + Action.Reboot);
             help.AddExample(HelpExamplePrefix + " vm-1394 Suspend" + Action.Shutdown);
             help.AddExample(HelpExamplePrefix + " -w MyVM? " + Action.None);
         }
 
         private bool wildcard;
+
+
 
         protected override void ExecuteInternal(VMware vmware)
         {
@@ -74,20 +81,54 @@ namespace HavokMultimedia.Utilities.Console.Commands
 
             foreach (var v in vmsAction)
             {
-                if (action == Action.None) log.Info("Doing nothing for " + v.Name);
-                else if (action == Action.Shutdown) { log.Info("Shutting down guest operating system " + v.Name); v.Shutdown(vmware); }
-                else if (action == Action.Reboot) { log.Info("Rebooting guest operating system " + v.Name); v.Reboot(vmware); }
-                else if (action == Action.Standby) { log.Info("Standby guest operating system " + v.Name); v.Standby(vmware); }
-                else if (action == Action.Reset) { log.Info("Resetting " + v.Name); v.Reset(vmware); }
-                else if (action == Action.Start) { log.Info("Starting " + v.Name); v.Start(vmware); }
-                else if (action == Action.Stop) { log.Info("Stopping " + v.Name); v.Stop(vmware); }
-                else if (action == Action.Suspend) { log.Info("Suspending " + v.Name); v.Suspend(vmware); }
-                else if (action == Action.DetachISOs) { log.Info("Detching ISOs " + v.Name); v.DetachISOs(vmware); }
+                log.Info(DescriptionAttribute.Get(action).Message + v.Name);
+                if (action == Action.None) log.Debug("Doing nothing");
+                else if (action == Action.Shutdown) v.Shutdown(vmware);
+                else if (action == Action.Reboot) v.Reboot(vmware);
+                else if (action == Action.Standby) v.Standby(vmware);
+                else if (action == Action.Reset) v.Reset(vmware);
+                else if (action == Action.Start) v.Start(vmware);
+                else if (action == Action.Stop) v.Stop(vmware);
+                else if (action == Action.Suspend) v.Suspend(vmware);
+                else if (action == Action.DetachISOs) v.DetachISOs(vmware);
                 else throw new NotImplementedException(nameof(Action) + " [" + action + "] has not been implemented yet");
             }
         }
 
-        public enum Action { None, Shutdown, Reboot, Standby, Reset, Start, Stop, Suspend, DetachISOs }
+
+        private class DescriptionAttribute : Attribute
+        {
+            public string Description { get; }
+            public string Message { get; }
+            public DescriptionAttribute(string description, string message)
+            {
+                Description = description;
+                Message = message;
+            }
+            public static DescriptionAttribute Get(Action action)
+            {
+                // https://stackoverflow.com/a/1799401
+                var enumType = typeof(Action);
+                var memberInfos = enumType.GetMember(action.ToString());
+                var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == enumType);
+                var valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+                var attr = (DescriptionAttribute)valueAttributes[0];
+                return attr;
+            }
+        }
+
+        private enum Action
+        {
+            [Description("Does nothing", "Doing nothing for ")] None,
+            [Description("Shuts down the guest operating system", "Shutting down guest operating system ")] Shutdown,
+            [Description("Reboots the guest operating system", "Rebooting guest operating system ")] Reboot,
+            [Description("Standby the guest operating system", "Standby guest operating system ")] Standby,
+            [Description("Does a hard reset on the VM", "Resetting ")] Reset,
+            [Description("Starts a stopped or suspended VM", "Starting ")] Start,
+            [Description("Does a hard power off on the VM", "Stopping ")] Stop,
+            [Description("Suspends/Pauses the VM", "Suspending ")] Suspend,
+            [Description("Detaches any ISO files currently attached to the VM", "Detching ISOs ")] DetachISOs
+        }
     }
 
 
