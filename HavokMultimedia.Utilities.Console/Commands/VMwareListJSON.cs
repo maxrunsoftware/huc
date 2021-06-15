@@ -26,6 +26,7 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Lists all details available for a VMware VCenter environment to a JSON file");
             help.AddValue("<JSON output file>");
+            help.AddExample(HelpExamplePrefix + " MyVMwareStuff.json");
         }
 
         protected override void ExecuteInternal(VMware vmware)

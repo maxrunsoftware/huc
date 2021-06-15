@@ -32,6 +32,9 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddDetail("Use EXTREME CAUTION when enabling wildcard mode. Best to test with Action=None to see which VMs will be affected");
             help.AddDetail("Actions:");
             foreach (var action in Util.GetEnumItems<Action>()) help.AddDetail("  " + action);
+            help.AddExample(HelpExamplePrefix + " MyVM1 " + Action.Reboot);
+            help.AddExample(HelpExamplePrefix + " vm-1394 Suspend" + Action.Shutdown);
+            help.AddExample(HelpExamplePrefix + " -w MyVM? " + Action.None);
         }
 
         private bool wildcard;

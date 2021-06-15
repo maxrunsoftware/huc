@@ -31,6 +31,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             help.AddValue("<object type 1> <object type 2> <etc>");
             help.AddDetail("ObjectTypes:");
             foreach (var name in ObjectTypeNames) help.AddDetail("  " + name);
+            help.AddExample(HelpExamplePrefix + " " + nameof(VMwareDatacenter));
+            help.AddExample(HelpExamplePrefix + " " + nameof(VMwareFolder) + " " + nameof(VMwareNetwork));
         }
 
         private IReadOnlyList<string> ObjectTypeNames => Funcs.Keys

@@ -26,7 +26,8 @@ namespace HavokMultimedia.Utilities.Console.Commands
             base.CreateHelp(help);
             help.AddSummary("Queries a VMware path for REST data");
             help.AddValue("<VMware query path>");
-            help.AddExample("/rest/vcenter/vm");
+            help.AddExample(HelpExamplePrefix + " /rest/vcenter/vm");
+            help.AddDetail("https://developer.vmware.com/docs/vsphere-automation/latest/vcenter/index.html");
         }
 
         protected override void ExecuteInternal(VMware vmware)
