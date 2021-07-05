@@ -45,21 +45,21 @@ rm -f ./publish/linux-x64/*
 
 rm -f ./publish/*.zip
 
-cd HavokMultimedia.Utilities.Console
+cd MaxRunSoftware.Utilities.Console
 
 if [[ $runWin = 1 ]]; then
 dotnet publish -o ../publish/win-x64   -r win-x64   -p:PublishSingleFile=true --self-contained true --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
-mv ../publish/win-x64/HavokMultimedia.Utilities.Console.exe ../publish/win-x64/huc.exe
+mv ../publish/win-x64/MaxRunSoftware.Utilities.Console.exe ../publish/win-x64/huc.exe
 fi
 
 if [[ $runOSX = 1 ]]; then
 dotnet publish -o ../publish/osx-x64   -r osx-x64   -p:PublishSingleFile=true --self-contained true --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
-mv ../publish/osx-x64/HavokMultimedia.Utilities.Console ../publish/osx-x64/huc
+mv ../publish/osx-x64/MaxRunSoftware.Utilities.Console ../publish/osx-x64/huc
 fi
 
 if [[ $runLinux = 1 ]]; then
 dotnet publish -o ../publish/linux-x64 -r linux-x64 -p:PublishSingleFile=true --self-contained true --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
-mv ../publish/linux-x64/HavokMultimedia.Utilities.Console ../publish/linux-x64/huc
+mv ../publish/linux-x64/MaxRunSoftware.Utilities.Console ../publish/linux-x64/huc
 fi
 
 cd ..
