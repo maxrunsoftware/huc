@@ -18,7 +18,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

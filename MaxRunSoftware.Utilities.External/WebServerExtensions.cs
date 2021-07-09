@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Text;
 using EmbedIO;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public static class WebServerExtensions
     {

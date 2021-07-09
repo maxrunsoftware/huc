@@ -25,7 +25,7 @@ using EmbedIO.Authentication;
 using EmbedIO.Files;
 using Swan.Logging;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class WebServer : IDisposable
     {
@@ -80,7 +80,7 @@ namespace MaxRunSoftware.Utilities.Console.External
             }
         }
 
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly SingleUse started = new SingleUse();
         private readonly SingleUse disposable = new SingleUse();

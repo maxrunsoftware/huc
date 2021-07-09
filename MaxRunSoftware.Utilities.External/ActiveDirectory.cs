@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     /// <summary>
     /// ActiveDirectory is a class that allows for the query and manipulation

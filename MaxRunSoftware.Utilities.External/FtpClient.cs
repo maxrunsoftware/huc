@@ -23,7 +23,7 @@ using System.Security.Authentication;
 using FluentFTP;
 using Renci.SshNet;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public enum FtpClientFtpSEncryptionMode { Explicit, Implicit }
 
@@ -85,7 +85,7 @@ namespace MaxRunSoftware.Utilities.Console.External
 
         protected FtpClientBase()
         {
-            log = Program.LogFactory.GetLogger(GetType());
+            log = Logging.LogFactory.GetLogger(GetType());
             serverInfo = new Lazy<string>(GetServerInfo);
         }
 

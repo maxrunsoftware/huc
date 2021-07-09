@@ -20,7 +20,7 @@ using System.Linq;
 using System.Text;
 using EmbedIO;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class WebServerConfig
     {

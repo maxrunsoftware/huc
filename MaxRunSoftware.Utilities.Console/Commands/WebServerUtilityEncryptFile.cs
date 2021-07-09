@@ -16,7 +16,7 @@ limitations under the License.
 
 using System.Linq;
 using EmbedIO;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

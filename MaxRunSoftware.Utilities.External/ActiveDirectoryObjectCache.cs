@@ -18,12 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class ActiveDirectoryObjectCache
     {
         private static readonly IEnumerable<ActiveDirectoryObject> EMPTY = Enumerable.Empty<ActiveDirectoryObject>();
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly Dictionary<string, List<ActiveDirectoryObject>> cache = new Dictionary<string, List<ActiveDirectoryObject>>(StringComparer.OrdinalIgnoreCase);
 

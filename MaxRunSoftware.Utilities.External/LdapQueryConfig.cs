@@ -20,7 +20,7 @@ using System.DirectoryServices.Protocols;
 using System.Linq;
 using System.Text;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class LdapQueryConfig : IEquatable<LdapQueryConfig>
     {

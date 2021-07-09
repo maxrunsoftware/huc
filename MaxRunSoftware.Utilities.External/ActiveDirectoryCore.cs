@@ -22,7 +22,7 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Text;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     /// <summary>
     /// ActiveDirectory is a class that allows for the query and manipulation
@@ -31,7 +31,7 @@ namespace MaxRunSoftware.Utilities.Console.External
     public class ActiveDirectoryCore : IDisposable
     {
         private readonly ActiveDirectoryObjectCache cache = new();
-        protected static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        protected static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         protected readonly string username;
         protected readonly string password;

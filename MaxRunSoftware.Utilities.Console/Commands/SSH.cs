@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

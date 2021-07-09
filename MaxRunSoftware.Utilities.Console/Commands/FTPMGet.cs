@@ -17,7 +17,7 @@ limitations under the License.
 using System;
 using System.IO;
 using System.Linq;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

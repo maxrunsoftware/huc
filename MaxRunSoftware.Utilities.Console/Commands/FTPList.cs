@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 using System.Collections.Generic;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 using Renci.SshNet.Common;
 
 namespace MaxRunSoftware.Utilities.Console.Commands

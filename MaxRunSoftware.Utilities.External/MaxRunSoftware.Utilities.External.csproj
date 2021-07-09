@@ -5,6 +5,10 @@
     <ReleaseVersion>1.12.0</ReleaseVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1701;1702;CA1416</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <None Remove="EmbedIO" />
     <None Remove="System.Data.SqlClient" />
@@ -36,5 +40,8 @@
     <PackageReference Include="System.DirectoryServices.Protocols" Version="5.0.0" />
     <PackageReference Include="HttpMultipartParser" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MaxRunSoftware.Utilities\MaxRunSoftware.Utilities.csproj" />
   </ItemGroup>
 </Project>

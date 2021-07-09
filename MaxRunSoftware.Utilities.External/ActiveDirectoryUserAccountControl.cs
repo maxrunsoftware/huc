@@ -16,7 +16,7 @@ limitations under the License.
 
 using System;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     /// <summary>
     /// Flags for use with the UserAccountControl and ms-DS-User-Account-Control-Computed properties of a user.

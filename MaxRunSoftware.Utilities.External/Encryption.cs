@@ -19,7 +19,7 @@ using System.IO;
 using System.Security.Cryptography;
 using SecurityDriven.Inferno;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class Encryption
     {

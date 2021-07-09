@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32.TaskScheduler;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class WindowsTaskSchedulerTrigger
     {
@@ -37,7 +37,7 @@ namespace MaxRunSoftware.Utilities.Console.External
             Friday,
             Saturday
         }
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private static void CheckTime(int hour, int minute, int second)
         {

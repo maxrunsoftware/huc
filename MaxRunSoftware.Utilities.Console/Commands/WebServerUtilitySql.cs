@@ -20,7 +20,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using EmbedIO;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

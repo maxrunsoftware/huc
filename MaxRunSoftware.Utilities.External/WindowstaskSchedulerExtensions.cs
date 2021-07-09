@@ -16,7 +16,7 @@ limitations under the License.
 
 using Microsoft.Win32.TaskScheduler;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public static class WindowstaskSchedulerExtensions
     {

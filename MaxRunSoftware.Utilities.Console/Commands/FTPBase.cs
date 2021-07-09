@@ -20,7 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Authentication;
 using System.Text;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

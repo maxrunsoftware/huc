@@ -20,7 +20,7 @@ using System.IO;
 using System.Linq;
 using Renci.SshNet;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public sealed class SshKeyFile
     {
@@ -36,7 +36,7 @@ namespace MaxRunSoftware.Utilities.Console.External
 
     public class Ssh : IDisposable
     {
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private SshClient _client;
 
@@ -128,9 +128,9 @@ namespace MaxRunSoftware.Utilities.Console.External
             return client;
         }
 
-        internal static SftpClient CreateSFtpClient(string host, ushort port, string username, string password, IEnumerable<SshKeyFile> keyFiles) => (SftpClient)CreateClient(host, port, username, password, keyFiles, typeof(SftpClient));
+        public static SftpClient CreateSFtpClient(string host, ushort port, string username, string password, IEnumerable<SshKeyFile> keyFiles) => (SftpClient)CreateClient(host, port, username, password, keyFiles, typeof(SftpClient));
 
-        internal static SshClient CreateSshClient(string host, ushort port, string username, string password, IEnumerable<SshKeyFile> keyFiles) => (SshClient)CreateClient(host, port, username, password, keyFiles, typeof(SshClient));
+        public static SshClient CreateSshClient(string host, ushort port, string username, string password, IEnumerable<SshKeyFile> keyFiles) => (SshClient)CreateClient(host, port, username, password, keyFiles, typeof(SshClient));
 
         #endregion Create Clients
 

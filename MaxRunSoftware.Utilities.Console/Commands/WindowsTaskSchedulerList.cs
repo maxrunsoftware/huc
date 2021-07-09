@@ -17,7 +17,7 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 using Microsoft.Win32.TaskScheduler;
 
 namespace MaxRunSoftware.Utilities.Console.Commands

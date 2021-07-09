@@ -21,14 +21,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, IComparable<ActiveDirectoryObject>
     {
         [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
         public sealed class IgnoreInPropertiesListAttribute : Attribute { }
 
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly DateTime JAN_01_1601 = new DateTime(1601, 1, 1);
         private static readonly DateTime JAN_01_1800 = new DateTime(1800, 1, 1);
         private readonly ActiveDirectoryCore activeDirectory;

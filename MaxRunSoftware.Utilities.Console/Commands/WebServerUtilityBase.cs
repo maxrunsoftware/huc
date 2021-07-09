@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using EmbedIO;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 using HttpMultipartParser;
 
 namespace MaxRunSoftware.Utilities.Console.Commands

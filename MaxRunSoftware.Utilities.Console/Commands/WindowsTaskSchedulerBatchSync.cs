@@ -21,7 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.Win32.TaskScheduler;
-using MaxRunSoftware.Utilities.Console.External;
+using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

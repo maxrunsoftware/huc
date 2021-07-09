@@ -21,11 +21,11 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class Ldap : IDisposable
     {
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly object locker = new object();
 
         /// <summary>
@@ -507,7 +507,7 @@ namespace MaxRunSoftware.Utilities.Console.External
 
     public static class LdapExtensions
     {
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private static string ToStringDebugOutput(object o)
         {

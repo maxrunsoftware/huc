@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32.TaskScheduler;
 
-namespace MaxRunSoftware.Utilities.Console.External
+namespace MaxRunSoftware.Utilities.External
 {
     public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IComparable<WindowsTaskSchedulerPath>
     {
