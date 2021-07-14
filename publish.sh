@@ -68,4 +68,5 @@ if [[ $runZip = 1 ]]; then
 zip -9 -j ./publish/huc-win.zip ./publish/win-x64/huc.exe
 zip -9 -j ./publish/huc-osx.zip ./publish/osx-x64/huc
 zip -9 -j ./publish/huc-linux.zip ./publish/linux-x64/huc
+zip -9 -j ./publish/libs.zip ./MaxRunSoftware.Utilities.External/bin/Debug/net5.0/*.* -x "ref" 
 fi
