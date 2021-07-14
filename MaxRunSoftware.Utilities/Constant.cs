@@ -140,23 +140,33 @@ namespace MaxRunSoftware.Utilities
         public static readonly bool OS_UNIX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
         public static readonly bool OS_MAC = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
 
-        public static readonly IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison = new Dictionary<StringComparer, StringComparison> {
-                { StringComparer.CurrentCulture, StringComparison.CurrentCulture },
-                { StringComparer.CurrentCultureIgnoreCase, StringComparison.CurrentCultureIgnoreCase },
-                { StringComparer.InvariantCulture, StringComparison.InvariantCulture },
-                { StringComparer.InvariantCultureIgnoreCase, StringComparison.InvariantCultureIgnoreCase },
-                { StringComparer.Ordinal, StringComparison.Ordinal },
-                { StringComparer.OrdinalIgnoreCase, StringComparison.OrdinalIgnoreCase },
-        };
+        public static readonly IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison = MAP_StringComparer_StringComparison_Create();
+        private static IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison_Create()
+        {
+            var d = new Dictionary<StringComparer, StringComparison>();
+            d.TryAdd(StringComparer.CurrentCulture, StringComparison.CurrentCulture);
+            d.TryAdd(StringComparer.CurrentCultureIgnoreCase, StringComparison.CurrentCultureIgnoreCase);
+            d.TryAdd(StringComparer.InvariantCulture, StringComparison.InvariantCulture);
+            d.TryAdd(StringComparer.InvariantCultureIgnoreCase, StringComparison.InvariantCultureIgnoreCase);
+            d.TryAdd(StringComparer.Ordinal, StringComparison.Ordinal);
+            d.TryAdd(StringComparer.OrdinalIgnoreCase, StringComparison.OrdinalIgnoreCase);
+            return d;
+        }
 
-        public static readonly IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer = new Dictionary<StringComparison, StringComparer> {
-                { StringComparison.CurrentCulture, StringComparer.CurrentCulture },
-                { StringComparison.CurrentCultureIgnoreCase, StringComparer.CurrentCultureIgnoreCase },
-                { StringComparison.InvariantCulture, StringComparer.InvariantCulture },
-                { StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase },
-                { StringComparison.Ordinal, StringComparer.Ordinal },
-                { StringComparison.OrdinalIgnoreCase, StringComparer.OrdinalIgnoreCase },
-        };
+        public static readonly IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer = MAP_StringComparison_StringComparer_Create();
+
+        private static IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer_Create()
+        {
+            var d = new Dictionary<StringComparison, StringComparer>();
+            d.TryAdd(StringComparison.CurrentCulture, StringComparer.CurrentCulture);
+            d.TryAdd(StringComparison.CurrentCultureIgnoreCase, StringComparer.CurrentCultureIgnoreCase);
+            d.TryAdd(StringComparison.InvariantCulture, StringComparer.InvariantCulture);
+            d.TryAdd(StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase);
+            d.TryAdd(StringComparison.Ordinal, StringComparer.Ordinal);
+            d.TryAdd(StringComparison.OrdinalIgnoreCase, StringComparer.OrdinalIgnoreCase);
+            return d;
+        }
+
 
         public static readonly IReadOnlyDictionary<Type, DbType> MAP_Type_DbType = new Dictionary<Type, DbType>
             {
