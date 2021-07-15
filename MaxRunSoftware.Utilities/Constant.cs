@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -62,10 +63,10 @@ namespace MaxRunSoftware.Utilities
                 "\u0060" + "\u0061" + "\u0062" + "\u0063" + "\u0064" + "\u0065" + "\u0066" + "\u0067" + "\u0068" + "\u0069" + "\u006A" + "\u006B" + "\u006C" + "\u006D" + "\u006E" + "\u006F" +
                 "\u0070" + "\u0071" + "\u0072" + "\u0073" + "\u0074" + "\u0075" + "\u0076" + "\u0077" + "\u0078" + "\u0079" + "\u007A" + "\u007B" + "\u007C" + "\u007D" + "\u007E" + "\u007F";
 
-        public static char[] CHARS_A_Z_UPPER_ARRAY => CHARS_A_Z_UPPER.ToCharArray();
-        public static char[] CHARS_A_Z_LOWER_ARRAY => CHARS_A_Z_LOWER.ToCharArray();
-        public static char[] CHARS_0_9_ARRAY => CHARS_0_9.ToCharArray();
-        public static char[] CHARS_00000_00128_ARRAY => CHARS_00000_00128.ToCharArray();
+        public static readonly ImmutableArray<char> CHARS_A_Z_UPPER_ARRAY = ImmutableArray.Create(CHARS_A_Z_UPPER.ToCharArray());
+        public static readonly ImmutableArray<char> CHARS_A_Z_LOWER_ARRAY = ImmutableArray.Create(CHARS_A_Z_LOWER.ToCharArray());
+        public static readonly ImmutableArray<char> CHARS_0_9_ARRAY = ImmutableArray.Create(CHARS_0_9.ToCharArray());
+        public static readonly ImmutableArray<char> CHARS_00000_00128_ARRAY = ImmutableArray.Create(CHARS_00000_00128.ToCharArray());
 
         #endregion CHARS
 
@@ -81,6 +82,7 @@ namespace MaxRunSoftware.Utilities
         public const string NEWLINE_WINDOWS = "\r\n";
         public const string NEWLINE_UNIX = "\n";
         public const string NEWLINE_MAC = "\r";
+
         public const long BYTES_BYTE = 1L;
         public const long BYTES_KILO = 1000L;
         public const long BYTES_KIBI = 1024L;
@@ -94,6 +96,7 @@ namespace MaxRunSoftware.Utilities
         public const long BYTES_PEBI = 1125899906842624L;
         public const long BYTES_EXA = 1000000000000000000L;
         public const long BYTES_EXBI = 1152921504606846976L;
+
         public const bool ZERO_BOOL = false;
         public const byte ZERO_BYTE = byte.MinValue;
         public const sbyte ZERO_SBYTE = 0;
@@ -106,7 +109,6 @@ namespace MaxRunSoftware.Utilities
         public const ulong ZERO_ULONG = ulong.MinValue;
         public const short ZERO_SHORT = 0;
         public const ushort ZERO_USHORT = ushort.MinValue;
-        public static readonly bool IS_BATCHFILE_EXECUTED = IS_BATCHFILE_EXECUTED_get();
 
         /// <summary>
         /// List of String Comparisons from most restrictive to least
@@ -132,14 +134,44 @@ namespace MaxRunSoftware.Utilities
                 StringComparer.InvariantCultureIgnoreCase
             }.AsReadOnly();
 
+        /// <summary>
+        /// Regex for validating an IPv4 address
+        /// </summary>
         public static readonly Regex REGEX_IPV4 = new Regex(@"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+
+        /// <summary>
+        /// Regex for validating an email address
+        /// </summary>
         public static readonly Regex REGEX_EMAIL = new Regex(@"^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(2));
+
+        /// <summary>
+        /// UTF8 encoding WITHOUT the Byte Order Marker
+        /// </summary>
         public static readonly Encoding ENCODING_UTF8_WITHOUT_BOM = new UTF8Encoding(false); // Threadsafe according to https://stackoverflow.com/a/3024405
+
+        /// <summary>
+        /// UTF8 encoding WITH the Byte Order Marker
+        /// </summary>
         public static readonly Encoding ENCODING_UTF8_WITH_BOM = new UTF8Encoding(true); // Threadsafe according to https://stackoverflow.com/a/3024405
+
+        /// <summary>
+        /// Are we running on a Windows platform?
+        /// </summary>
         public static readonly bool OS_WINDOWS = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+
+        /// <summary>
+        /// Are we running on a UNIX/LINUX platform?
+        /// </summary>
         public static readonly bool OS_UNIX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+
+        /// <summary>
+        /// Are we running on a Mac/Apple platform?
+        /// </summary>
         public static readonly bool OS_MAC = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
 
+        /// <summary>
+        /// Map of StringComparer to StringComparison
+        /// </summary>
         public static readonly IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison = MAP_StringComparer_StringComparison_Create();
         private static IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison_Create()
         {
@@ -153,8 +185,10 @@ namespace MaxRunSoftware.Utilities
             return d;
         }
 
+        /// <summary>
+        /// Map of StringComparison to StringComparer
+        /// </summary>
         public static readonly IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer = MAP_StringComparison_StringComparer_Create();
-
         private static IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer_Create()
         {
             var d = new Dictionary<StringComparison, StringComparer>();
@@ -167,7 +201,9 @@ namespace MaxRunSoftware.Utilities
             return d;
         }
 
-
+        /// <summary>
+        /// Map of DotNet types to DbType
+        /// </summary>
         public static readonly IReadOnlyDictionary<Type, DbType> MAP_Type_DbType = new Dictionary<Type, DbType>
             {
                 { typeof(bool), DbType.Boolean },
@@ -225,6 +261,9 @@ namespace MaxRunSoftware.Utilities
                 { typeof(object), DbType.Object },
             };
 
+        /// <summary>
+        /// Map of DbType to DotNet types
+        /// </summary>
         public static readonly IReadOnlyDictionary<DbType, Type> MAP_DbType_Type = new Dictionary<DbType, Type> {
                 { DbType.AnsiString, typeof(string) },
                 { DbType.AnsiStringFixedLength, typeof(string) },
@@ -255,6 +294,9 @@ namespace MaxRunSoftware.Utilities
                 { DbType.Xml, typeof(string) },
         };
 
+        /// <summary>
+        /// Case-Sensitive map of Color names to Colors
+        /// </summary>
         public static IReadOnlyDictionary<string, Color> COLORS = COLORS_get();
         private static IReadOnlyDictionary<string, Color> COLORS_get()
         {
@@ -279,10 +321,20 @@ namespace MaxRunSoftware.Utilities
             return d.AsReadOnly();
         }
 
+        /// <summary>
+        /// Case-Insensitive hashset of boolean true values 
+        /// </summary>
         public static readonly IReadOnlyCollection<string> SET_Bool_True = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Case-Insensitive hashset of boolean false values
+        /// </summary>
         public static readonly IReadOnlyCollection<string> SET_Bool_False = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Case-Insensitive map of boolean string values to boolean values
+        /// </summary>
         public static readonly IReadOnlyDictionary<string, bool> MAP_String_Bool = MAP_String_Bool_get();
-        public static readonly string CURRENT_EXE = CURRENT_EXE_get();
 
         private static IReadOnlyDictionary<string, bool> MAP_String_Bool_get()
         {
@@ -291,6 +343,11 @@ namespace MaxRunSoftware.Utilities
             foreach (var item in BOOL_FALSE.Split(' ')) d.Add(item, false);
             return (new Dictionary<string, bool>(d, StringComparer.OrdinalIgnoreCase));
         }
+
+        /// <summary>
+        /// The current EXE file name. Could be a full file path, or a partial file path, or null
+        /// </summary>
+        public static readonly string CURRENT_EXE = CURRENT_EXE_get();
 
         private static string CURRENT_EXE_get()
         {
@@ -335,6 +392,10 @@ namespace MaxRunSoftware.Utilities
             return null;
         }
 
+        /// <summary>
+        /// Are we executing via a batchfile or script or running the command directly from the console window?
+        /// </summary>
+        public static readonly bool IS_BATCHFILE_EXECUTED = IS_BATCHFILE_EXECUTED_get();
         private static bool IS_BATCHFILE_EXECUTED_get()
         {
             try
