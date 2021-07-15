@@ -32,11 +32,12 @@ namespace MaxRunSoftware.Utilities.External
         /// Constructs an Active Directory object with a base of the specified OU. Binds to Active Directory.
         /// </summary>
         /// <param name="server">The DNS style domain name of the Active Directory to connect to.</param>
+        /// <param name="ldapPort">(Optional)The port to use to connect</param>
         /// <param name="userName">The username of the account in AD to use when making the connection.</param>
         /// <param name="password">The password of the account.</param>
         /// <param name="siteName">(Optional)The name of a site in Active Directory to use the domain controllers from. Defaults to DEFAULT_FIRST_SITE_NAME if not supplied.</param>
         /// <param name="ouDn">(Optional)The distinguished name of the OU to use as a base for operations or use DistinguishedName if null.</param>
-        /// <param name="ldapEncrypted">(Optional)Whether to use SSL or not for the connection.</param>
+        /// <param name="domainName">(Optional)The domain name of the connection.</param>
         public ActiveDirectory(
             string server = null,
             ushort ldapPort = Ldap.LDAP_PORT,

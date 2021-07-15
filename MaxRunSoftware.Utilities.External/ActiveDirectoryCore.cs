@@ -42,17 +42,6 @@ namespace MaxRunSoftware.Utilities.External
         /// </summary>
         public const string DEFAULT_FIRST_SITE_NAME = "Default-First-Site-Name";
 
-
-        /// <summary>
-        /// The size of page to use when searching Active Directory. This number is based upon hardcoded Microsoft limits within Active Directory's architecture.
-        /// </summary>
-        //public const int PAGE_SIZE = 1000;
-
-        /// <summary>
-        /// The maximum number of values that can be retrieved from a multi-value attribute in a single search request. Windows 2000 DCs do not support this value and default to a maximum of 1000.
-        /// </summary>
-        //public const int MAX_NUM_MULTIVALUE_ATTRIBUTES = 1500;
-
         /// <summary>
         /// The object that manages the LDAP connection with the AD controller.
         /// </summary>
@@ -163,11 +152,12 @@ namespace MaxRunSoftware.Utilities.External
         /// Constructs an Active Directory object with a base of the specified OU. Binds to Active Directory.
         /// </summary>
         /// <param name="server">The DNS style domain name of the Active Directory to connect to.</param>
+        /// <param name="ldapPort">The LDAP port number to use</param>
         /// <param name="userName">The username of the account in AD to use when making the connection.</param>
         /// <param name="password">The password of the account.</param>
         /// <param name="siteName">(Optional)The name of a site in Active Directory to use the domain controllers from. Defaults to DEFAULT_FIRST_SITE_NAME if not supplied.</param>
         /// <param name="ouDn">(Optional)The distinguished name of the OU to use as a base for operations or use DistinguishedName if null.</param>
-        /// <param name="ldapEncrypted">(Optional)Whether to use SSL or not for the connection.</param>
+        /// <param name="domainName">(Optional)The domain name to use for the connection.</param>
         public ActiveDirectoryCore(
             string server = null,
             ushort ldapPort = Ldap.LDAP_PORT,
@@ -265,6 +255,8 @@ namespace MaxRunSoftware.Utilities.External
         /// Gets an entry given its distinguished name.
         /// </summary>
         /// <param name="distinguishedName">The distinguished name of the entry to get.</param>
+        /// <param name="queryConfig">Configuration to use for the query</param>
+        /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
         /// <returns>The SearchResultEntry object found, or null if not found.</returns>
         public ActiveDirectoryObject GetObjectByDistinguishedName(string distinguishedName, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjectsByAttribute("distinguishedName", distinguishedName, queryConfig: queryConfig, useCache: useCache).FirstOrDefault();
 
@@ -274,6 +266,8 @@ namespace MaxRunSoftware.Utilities.External
         /// Gets an entry given its GUID.
         /// </summary>
         /// <param name="objectGuid">The GUID of the entry to get.</param>
+        /// <param name="queryConfig">Configuration to use for the query</param>
+        /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
         /// <returns>The SearchResultEntry object found, or null if not found.</returns>
         public ActiveDirectoryObject GetObjectByObjectGuid(Guid objectGuid, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjectsByAttribute("objectGUID", Ldap.Guid2String(objectGuid), queryConfig: queryConfig, useCache: useCache).FirstOrDefault();
 
@@ -281,6 +275,8 @@ namespace MaxRunSoftware.Utilities.External
         /// Gets all entries in a search given an LDAP search filter.
         /// </summary>
         /// <param name="filter">The LDAP search filter string that will find the entries.</param>
+        /// <param name="queryConfig">Configuration to use for the query</param>
+        /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
         /// <returns>A list of SearchResultEntry objects, or null if not found.</returns>
         public List<ActiveDirectoryObject> GetObjects(string filter, LdapQueryConfig queryConfig = null, bool useCache = true)
         {
@@ -310,6 +306,8 @@ namespace MaxRunSoftware.Utilities.External
         /// </summary>
         /// <param name="attributeName">The name of the attribute to search against.</param>
         /// <param name="attributeValue">The value to search for in the attribute.</param>
+        /// <param name="queryConfig">Configuration to use for the query</param>
+        /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
         /// <returns>The list of SearchResultEntry(s) found, or null if not found.</returns>
         public List<ActiveDirectoryObject> GetObjectsByAttribute(string attributeName, string attributeValue, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjects("(" + attributeName.CheckNotNullTrimmed(nameof(attributeName)) + "=" + attributeValue.CheckNotNullTrimmed(nameof(attributeValue)) + ")", queryConfig: queryConfig, useCache: useCache);
 

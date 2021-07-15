@@ -109,7 +109,7 @@ namespace MaxRunSoftware.Utilities.External
 
         /// <summary>
         /// Establishes a connection with an LDAP server that can be used to query or modify its contents.
-        /// <param name="servers">A list of servers by fully qualified domain name, host name, ip address, or null.</param>
+        /// <param name="server">A list of servers by fully qualified domain name, host name, ip address, or null.</param>
         /// <param name="portNumber">The port number on the LDAP server that is listening for requests.</param>
         /// <param name="authType">(Optional) The type of authentication to use when connecting with the server. By default this is set to Anonymous (i.e. no credentials required).</param>
         /// <param name="userName">(Optional) The user name to use when connecting to the LDAP server.</param>

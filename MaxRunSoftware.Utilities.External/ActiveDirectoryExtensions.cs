@@ -114,16 +114,22 @@ namespace MaxRunSoftware.Utilities.External
         /// <summary>
         /// Gets of all user accounts that were modified within the specified time frame.
         /// </summary>
+        /// <param name="ad">The ActiveDirectoryCore object to query against</param>
         /// <param name="startDate">The lower boundary of the time frame.</param>
         /// <param name="endDate">The upper boundary of the time frame.</param>
+        /// <param name="queryConfig">Configuration to use for the query</param>
+        /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
         /// <returns>Returns a list of all users that were during the specified period of time.</returns>
         public static List<ActiveDirectoryObject> GetUsersByModified(this ActiveDirectoryCore ad, DateTime startDate, DateTime endDate, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects(string.Format("(&(objectCategory=person)(objectClass=user)(whenChanged>={0})(whenChanged<={1}))", startDate.ToUniversalTime().ToString("yyyyMMddHHmmss.s") + "Z", endDate.ToUniversalTime().ToString("yyyyMMddHHmmss.s") + "Z"), queryConfig: queryConfig, useCache: useCache);
 
         /// <summary>
         /// Gets of all user accounts that lastLogonTimestamp is between a specific date
         /// </summary>
+        /// <param name="ad">The ActiveDirectoryCore object to query against</param>
         /// <param name="startDate">The lower boundary of the time frame.</param>
         /// <param name="endDate">The upper boundary of the time frame.</param>
+        /// <param name="queryConfig">Configuration to use for the query</param>
+        /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
         /// <returns>Returns a list of all users that were during the specified period of time.</returns>
         public static List<ActiveDirectoryObject> GetUsersByLastLogonTimestamp(this ActiveDirectoryCore ad, DateTime startDate, DateTime endDate, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects(string.Format("(&(objectCategory=person)(objectClass=user)(lastLogonTimestamp>={0})(lastLogonTimestamp<={1}))", startDate.ToFileTimeUtc(), endDate.ToFileTimeUtc()), queryConfig: queryConfig, useCache: useCache);
 
