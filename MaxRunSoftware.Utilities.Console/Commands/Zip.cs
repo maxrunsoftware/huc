@@ -88,6 +88,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             }
 
             DeleteExistingFile(outputFile);
+            var isWindows = Constant.OS_WINDOWS;
 
             using (var fs = Util.FileOpenWrite(outputFile))
             {
@@ -113,10 +114,10 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                             // Directory
                             var basePath = new DirectoryInfo(includedItem);
                             var items = Util.FileList(includedItem, recursive: recursive);
-                            if (!recursive) items = items.Where(o => !o.IsDirectory || string.Equals(o.Path, includedItem, StringComparison.OrdinalIgnoreCase));
-                            if (skipTopLevelDirectory) items = items.Where(o => !string.Equals(o.Path, includedItem, StringComparison.OrdinalIgnoreCase));
+                            if (!recursive) items = items.Where(o => !o.IsDirectory || string.Equals(o.Path, includedItem, isWindows ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
+                            if (skipTopLevelDirectory) items = items.Where(o => !string.Equals(o.Path, includedItem, isWindows ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
                             if (!skipTopLevelDirectory) basePath = basePath.Parent;
-                            items = items.OrderBy(o => StringComparer.OrdinalIgnoreCase);
+                            items = items.OrderBy(o => isWindows ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
                             foreach (var item in items)
                             {
                                 if (item.Exception != null)
