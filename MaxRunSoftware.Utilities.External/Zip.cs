@@ -31,7 +31,7 @@ namespace MaxRunSoftware.Utilities.External
             var newEntry = new ZipEntry(entryPath)
             {
                 DateTime = file.LastWriteTime,
-                Size = file.Length
+                Size = file.GetLength()
             };
             if (encrypt) newEntry.AESKeySize = 256;
             zos.PutNextEntry(newEntry);
@@ -39,10 +39,13 @@ namespace MaxRunSoftware.Utilities.External
             using (var fs = Util.FileOpenRead(file.FullName))
             {
                 //StreamUtils.Copy(fs, zos, buffer);
-                fs.CopyTo(zos);
+                var bytes = fs.CopyToWithCount(zos);
+                log.Debug($"Wrote: {file.Name} ({bytes})");
             }
             zos.CloseEntry();
             log.Info($"Added: {file.FullName} --> {zipFileName}/{entryPath}");
+
+
         }
 
         public static void AddDirectoryToZip(DirectoryInfo directory, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, string zipFileName, bool encrypt = false)

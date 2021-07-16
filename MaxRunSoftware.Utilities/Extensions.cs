@@ -1076,6 +1076,25 @@ namespace MaxRunSoftware.Utilities
             return list.ToArray();
         }
 
+        public static long GetLength(this FileInfo file)
+        {
+            if (file == null) return -1;
+
+            // https://stackoverflow.com/a/26473940
+            if (file.Attributes.HasFlag(FileAttributes.ReparsePoint)) // probably symbolic link
+            {
+                // https://stackoverflow.com/a/57454136
+                using (Stream fs = Util.FileOpenRead(file.FullName))
+                {
+                    return fs.Length;
+                }
+            }
+            else // regular file
+            {
+                return file.Length;
+            }
+        }
+
         #endregion File
 
         #region System.Net
@@ -2353,7 +2372,7 @@ namespace MaxRunSoftware.Utilities
             return totalRead;
         }
 
-        public static long CopyTo(this Stream source, Stream target) => CopyTo(source, target, Constant.BUFFER_SIZE_OPTIMAL);
+        public static long CopyToWithCount(this Stream source, Stream target) => CopyToWithCount(source, target, Constant.BUFFER_SIZE_OPTIMAL);
 
         /// <summary>
         /// Reads all the bytes from the current stream and writes them to the destination stream
@@ -2362,7 +2381,7 @@ namespace MaxRunSoftware.Utilities
         /// <param name="source">The current stream.</param>
         /// <param name="target">The stream that will contain the contents of the current stream.</param>
         /// <param name="bufferSize">The size of the buffer to use.</param>
-        public static long CopyTo(this Stream source, Stream target, int bufferSize)
+        public static long CopyToWithCount(this Stream source, Stream target, int bufferSize)
         {
             source.CheckNotNull(nameof(source));
             target.CheckNotNull(nameof(target));
@@ -2379,24 +2398,13 @@ namespace MaxRunSoftware.Utilities
             return totalCount;
         }
 
-        public static long CopyToWithCount(this Stream source, Stream target) => CopyTo(source, target);
-
-        /// <summary>
-        /// Reads all the bytes from the current stream and writes them to the destination stream
-        /// with the specified buffer size.
-        /// </summary>
-        /// <param name="source">The current stream.</param>
-        /// <param name="target">The stream that will contain the contents of the current stream.</param>
-        /// <param name="bufferSize">The size of the buffer to use.</param>
-        public static long CopyToWithCount(this Stream source, Stream target, int bufferSize) => CopyTo(source, target, bufferSize);
-
         public static void WriteToFile(this Stream stream, string path, int bufferSize)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(path));
             //if (File.Exists(path)) File.Delete(path);
             using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, FileOptions.None))
             {
-                CopyTo(stream, fs, bufferSize);
+                CopyToWithCount(stream, fs, bufferSize);
                 fs.Flush();
             }
         }

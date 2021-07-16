@@ -109,9 +109,8 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                             var fi = new FileInfo(includedItem);
                             External.Zip.AddFileToZip(fi, fi.Directory, zos, bufferSize, Path.GetFileName(outputFile), encrypt: password != null);
                         }
-                        else
+                        else // Directory
                         {
-                            // Directory
                             var basePath = new DirectoryInfo(includedItem);
                             var items = Util.FileList(includedItem, recursive: recursive);
                             if (!recursive) items = items.Where(o => !o.IsDirectory || string.Equals(o.Path, includedItem, isWindows ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
@@ -143,6 +142,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                     }
 
                     zos.IsStreamOwner = true; // Makes the Close also Close the underlying stream
+                    //zos.CloseEntry();
                     zos.Flush();
                     fs.Flush();
                     zos.Close();
