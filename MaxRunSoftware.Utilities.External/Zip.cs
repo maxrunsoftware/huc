@@ -26,7 +26,7 @@ namespace MaxRunSoftware.Utilities.External
 
         public static void AddFileToZip(FileInfo file, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, int bufferSize, string zipFileName, bool encrypt = false)
         {
-            var entryPath = ZipEntry.CleanName(string.Join("/", file.RemoveBase(baseDirectoryToRemove)));
+            var entryPath = CleanName(file, baseDirectoryToRemove, false);
             log.Debug($"Adding: {file.FullName} --> {zipFileName}/{entryPath}");
             var newEntry = new ZipEntry(entryPath)
             {
@@ -35,10 +35,11 @@ namespace MaxRunSoftware.Utilities.External
             };
             if (encrypt) newEntry.AESKeySize = 256;
             zos.PutNextEntry(newEntry);
-            var buffer = new byte[bufferSize];
+            //var buffer = new byte[bufferSize];
             using (var fs = Util.FileOpenRead(file.FullName))
             {
-                StreamUtils.Copy(fs, zos, buffer);
+                //StreamUtils.Copy(fs, zos, buffer);
+                fs.CopyTo(zos);
             }
             zos.CloseEntry();
             log.Info($"Added: {file.FullName} --> {zipFileName}/{entryPath}");
@@ -46,7 +47,7 @@ namespace MaxRunSoftware.Utilities.External
 
         public static void AddDirectoryToZip(DirectoryInfo directory, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, string zipFileName, bool encrypt = false)
         {
-            var entryPath = ZipEntry.CleanName(string.Join("/", directory.RemoveBase(baseDirectoryToRemove))) + "/";
+            var entryPath = CleanName(directory, baseDirectoryToRemove, true);
             log.Debug($"Adding: {directory.FullName} --> {zipFileName}/{entryPath}");
             var newEntry = new ZipEntry(entryPath)
             {
@@ -56,6 +57,15 @@ namespace MaxRunSoftware.Utilities.External
             zos.PutNextEntry(newEntry);
             zos.CloseEntry();
             log.Info($"Added: {directory.FullName} --> {zipFileName}/{entryPath}");
+        }
+
+        private static string CleanName(FileSystemInfo item, DirectoryInfo baseDirectoryToRemove, bool isDirectory)
+        {
+            var pathParts = item.RemoveBase(baseDirectoryToRemove);
+            var newPath = pathParts.ToStringDelimited("/");
+            if (isDirectory) newPath = newPath + "/";
+            newPath = ZipEntry.CleanName(newPath);
+            return newPath;
         }
     }
 }
