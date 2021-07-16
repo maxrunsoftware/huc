@@ -78,6 +78,15 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             log.Debug(inputFiles, nameof(inputFiles));
             if (inputFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(inputFiles));
 
+            // check to be sure all of the files or directories exist
+            foreach (var includedItem in inputFiles)
+            {
+                if (!File.Exists(includedItem) && !Directory.Exists(includedItem))
+                {
+                    throw new FileNotFoundException($"File or directory to compress not found {includedItem}", includedItem);
+                }
+            }
+
             DeleteExistingFile(outputFile);
 
             using (var fs = Util.FileOpenWrite(outputFile))
@@ -94,10 +103,6 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
                     foreach (var includedItem in inputFiles)
                     {
-                        if (!File.Exists(includedItem) && !Directory.Exists(includedItem))
-                        {
-                            throw new FileNotFoundException($"File or directory to compress not found {includedItem}", includedItem);
-                        }
                         if (Util.IsFile(includedItem))
                         {
                             var fi = new FileInfo(includedItem);
