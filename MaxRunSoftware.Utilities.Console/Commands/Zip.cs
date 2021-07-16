@@ -122,23 +122,18 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                                 if (item.Exception != null)
                                 {
                                     log.Warn($"ERROR: {item.Path} --> {item.Exception.Message}", item.Exception);
-                                    continue;
                                 }
-
-                                if (item.IsDirectory)
+                                else if (item.IsDirectory)
                                 {
                                     External.Zip.AddDirectoryToZip((DirectoryInfo)item.GetFileSystemInfo(), basePath, zos, Path.GetFileName(outputFile), encrypt: password != null);
-                                    continue;
                                 }
-
-                                if (!item.IsDirectory)
+                                else // IsFile
                                 {
                                     var fi = (FileInfo)item.GetFileSystemInfo();
-                                    if (!fi.Name.EqualsWildcard(mask))
+                                    if (fi.Name.EqualsWildcard(mask))
                                     {
-                                        continue;
+                                        External.Zip.AddFileToZip(fi, basePath, zos, bufferSize, Path.GetFileName(outputFile), encrypt: password != null);
                                     }
-                                    External.Zip.AddFileToZip(fi, basePath, zos, bufferSize, Path.GetFileName(outputFile), encrypt: password != null);
                                 }
                             }
 
