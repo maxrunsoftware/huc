@@ -44,51 +44,99 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             download = GetArgParameterOrConfigBool(nameof(download), "d", false);
 
             var github = new GitHub("Steven-D-Foster", "huc");
-            foreach (var release in github.Releases)
+            var releases = github.Releases;
+            foreach (var release in releases)
             {
-                var sb = new StringBuilder();
-                if (("v" + Version.Value).EqualsCaseInsensitive(release.TagName))
-                {
-                    sb.Append("* ");
-                }
-                else
-                {
-                    sb.Append("  ");
-                }
-                sb.Append(release.TagName.PadRight(10));
-                var publishedAt = release.PublishedAt;
-                if (publishedAt == null)
-                {
-                    sb.Append("".PadRight("yyyy-MM-dd HH:mm:ss".Length));
-                }
-                else
-                {
-                    var localDateTime = publishedAt.Value.LocalDateTime;
-                    var dtString = localDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                    sb.Append(dtString);
-                }
-                sb.Append("  ");
-                var body = release.Body.TrimOrNull();
-                if (body != null)
-                {
-                    if (body.StartsWith(release.TagName)) body = body.Substring(release.TagName.Length).TrimOrNull();
-                    if (body != null)
-                    {
-                        if (body.StartsWith("-")) body = body.Substring("-".Length).TrimOrNull();
-                        if (body != null)
-                        {
-                            sb.Append(body);
-                        }
-                    }
-                }
-                log.Info(sb.ToString());
+                log.Info(FormatRelease(release));
+            }
+
+            if (download && releases.Count > 0)
+            {
+                DownloadLatestRelease(releases[0]);
             }
 
 
 
         }
 
+        private void DownloadLatestRelease(Release release)
+        {
+            var hucFileName = "huc-";
+            if (Constant.OS_MAC) hucFileName += "osx";
+            else if (Constant.OS_UNIX) hucFileName += "linux";
+            else if (Constant.OS_WINDOWS) hucFileName += "win";
+            hucFileName += ".zip";
 
+            string url = null;
+            foreach (var asset in release.Assets)
+            {
+                if (asset.Name == null) continue;
+                if (!asset.Name.EqualsCaseInsensitive(hucFileName)) continue;
+                url = asset.BrowserDownloadUrl;
+            }
+            if (url == null)
+            {
+                throw new Exception("Could not find asset " + hucFileName + " for release " + release.TagName);
+            }
+
+            var sourceURL = url;
+            sourceURL.CheckValueNotNull(nameof(sourceURL), log);
+
+
+            var outputFile = sourceURL.Split('/').TrimOrNull().WhereNotNull().LastOrDefault();
+            outputFile = Util.FilenameSanitize(outputFile, "_");
+            outputFile = Path.Combine(Environment.CurrentDirectory, outputFile);
+            outputFile = Path.GetFullPath(outputFile);
+            log.DebugParameter(nameof(outputFile), outputFile);
+            DeleteExistingFile(outputFile);
+
+            using (var cli = new WebClient())
+            {
+                log.Info("Downloading " + sourceURL);
+                cli.DownloadFile(sourceURL, outputFile);
+            }
+
+        }
+
+        private string FormatRelease(Release release)
+        {
+            var sb = new StringBuilder();
+            if (("v" + Version.Value).EqualsCaseInsensitive(release.TagName))
+            {
+                sb.Append("* ");
+            }
+            else
+            {
+                sb.Append("  ");
+            }
+            sb.Append(release.TagName.PadRight(10));
+            var publishedAt = release.PublishedAt;
+            if (publishedAt == null)
+            {
+                sb.Append("".PadRight("yyyy-MM-dd HH:mm:ss".Length));
+            }
+            else
+            {
+                var localDateTime = publishedAt.Value.LocalDateTime;
+                var dtString = localDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                sb.Append(dtString);
+            }
+            sb.Append("  ");
+            var body = release.Body.TrimOrNull();
+            if (body != null)
+            {
+                if (body.StartsWith(release.TagName)) body = body.Substring(release.TagName.Length).TrimOrNull();
+                if (body != null)
+                {
+                    if (body.StartsWith("-")) body = body.Substring("-".Length).TrimOrNull();
+                    if (body != null)
+                    {
+                        sb.Append(body);
+                    }
+                }
+            }
+            return sb.ToString();
+        }
 
     }
 }
