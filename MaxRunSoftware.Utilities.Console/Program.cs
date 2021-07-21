@@ -80,6 +80,11 @@ namespace MaxRunSoftware.Utilities.Console
                 }
             }
 
+            if (a.IsVersion || (a.Command != null && a.Command.EqualsCaseInsensitive("VERSION")))
+            {
+                ShowBanner(a, null);
+                return 6;
+            }
             if (a.Command == null)
             {
                 ShowBanner(a, null);

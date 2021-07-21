@@ -31,6 +31,7 @@ namespace MaxRunSoftware.Utilities.Console
         public bool IsNoBanner { get; init; }
         public bool IsHelp { get; init; }
         public bool IsShowHidden { get; init; }
+        public bool IsVersion { get; init; }
         public string[] ArgsString => args.Copy();
         private readonly string[] args;
         public Args(params string[] args)
@@ -91,6 +92,7 @@ namespace MaxRunSoftware.Utilities.Console
             IsNoBanner = d.Remove("NOBANNER");
             IsShowHidden = d.Remove("SHOWHIDDEN");
             if (!IsHelp) IsHelp = d.Remove("HELP");
+            IsVersion = d.Remove("VERSION");
             Parameters = d;
 
         }
