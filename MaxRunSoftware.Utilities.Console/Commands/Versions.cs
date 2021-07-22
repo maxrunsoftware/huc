@@ -92,8 +92,9 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             using (var cli = new WebClient())
             {
-                log.Info("Downloading " + sourceURL);
+                log.Info("Downloading: " + sourceURL);
                 cli.DownloadFile(sourceURL, outputFile);
+                log.Info("Download complete: " + outputFile);
             }
 
         }
