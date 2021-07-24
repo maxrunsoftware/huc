@@ -2609,7 +2609,69 @@ namespace MaxRunSoftware.Utilities
 
         }
 
+        #region Web
 
+        public static string WebParseFilename(string url)
+        {
+            var outputFile = url.Split('/').TrimOrNull().WhereNotNull().LastOrDefault();
+            outputFile = FilenameSanitize(outputFile, "_");
+            return outputFile;
+        }
+
+        public static byte[] WebDownload(string url, string username = null, string password = null) => WebDownloadInternal(url, null, username, password);
+
+        public static void WebDownload(string url, string outputFilename, string username = null, string password = null) => WebDownloadInternal(url, outputFilename, username, password);
+
+        private static byte[] WebDownloadInternal(string url, string outFilename, string username, string password)
+        {
+            using (var cli = new WebClient())
+            {
+                bool unauthorized = false;
+                try
+                {
+                    if (outFilename == null)
+                    {
+                        return cli.DownloadData(url);
+                    }
+                    else
+                    {
+                        cli.DownloadFile(url, outFilename);
+                        return null;
+                    }
+                }
+                catch (WebException we)
+                {
+                    if (username != null && password != null && we.Message != null && we.Message.Contains("(401)"))
+                    {
+                        unauthorized = true;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+
+                }
+                if (unauthorized)
+                {
+                    // https://stackoverflow.com/a/26016919
+                    string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
+                    cli.Headers[HttpRequestHeader.Authorization] = string.Format("Basic {0}", credentials);
+                    if (outFilename == null)
+                    {
+                        return cli.DownloadData(url);
+                    }
+                    else
+                    {
+                        cli.DownloadFile(url, outFilename);
+                        return null;
+                    }
+                }
+
+                throw new NotImplementedException("Should not happen");
+            }
+        }
+
+        #endregion Web
 
         #region Encryption
 

@@ -49,43 +49,13 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             log.DebugParameter(nameof(outputFile), outputFile);
             if (outputFile == null)
             {
-                outputFile = sourceURL.Split('/').TrimOrNull().WhereNotNull().LastOrDefault();
-                outputFile = Util.FilenameSanitize(outputFile, "_");
-                outputFile = Path.Combine(Environment.CurrentDirectory, outputFile);
+                outputFile = Path.Combine(Environment.CurrentDirectory, Util.WebParseFilename(sourceURL));
             }
             outputFile = Path.GetFullPath(outputFile);
             log.DebugParameter(nameof(outputFile), outputFile);
             DeleteExistingFile(outputFile);
 
-            using (var cli = new WebClient())
-            {
-                bool unauthorized = false;
-                try
-                {
-                    cli.DownloadFile(sourceURL, outputFile);
-                }
-                catch (WebException we)
-                {
-                    if (username != null && password != null && we.Message != null && we.Message.Contains("(401)"))
-                    {
-                        unauthorized = true;
-                    }
-                    else
-                    {
-                        throw;
-                    }
-
-                }
-                if (unauthorized)
-                {
-                    // https://stackoverflow.com/a/26016919
-                    string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
-                    cli.Headers[HttpRequestHeader.Authorization] = string.Format("Basic {0}", credentials);
-                    cli.DownloadFile(sourceURL, outputFile);
-                }
-                log.Info(sourceURL + "  ->  " + outputFile);
-
-            }
+            Util.WebDownload(sourceURL, outputFile, username: username, password: password);
 
         }
     }

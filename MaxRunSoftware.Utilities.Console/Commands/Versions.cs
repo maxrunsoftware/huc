@@ -83,19 +83,14 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             sourceURL.CheckValueNotNull(nameof(sourceURL), log);
 
 
-            var outputFile = sourceURL.Split('/').TrimOrNull().WhereNotNull().LastOrDefault();
-            outputFile = Util.FilenameSanitize(outputFile, "_");
-            outputFile = Path.Combine(Environment.CurrentDirectory, outputFile);
+            var outputFile = Path.Combine(Environment.CurrentDirectory, Util.WebParseFilename(sourceURL));
             outputFile = Path.GetFullPath(outputFile);
             log.DebugParameter(nameof(outputFile), outputFile);
             DeleteExistingFile(outputFile);
 
-            using (var cli = new WebClient())
-            {
-                log.Info("Downloading: " + sourceURL);
-                cli.DownloadFile(sourceURL, outputFile);
-                log.Info("Download complete: " + outputFile);
-            }
+            log.Info("Downloading: " + sourceURL);
+            Util.WebDownload(sourceURL);
+            log.Info("Download complete: " + outputFile);
 
         }
 
