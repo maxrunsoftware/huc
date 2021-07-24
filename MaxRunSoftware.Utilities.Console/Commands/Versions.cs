@@ -107,14 +107,15 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             }
             sb.Append(release.TagName.PadRight(10));
             var publishedAt = release.PublishedAt;
+            var dtFormat = "yyyy-MM-dd HH:mm:ss";
             if (publishedAt == null)
             {
-                sb.Append("".PadRight("yyyy-MM-dd HH:mm:ss".Length));
+                sb.Append("".PadRight(dtFormat.Length));
             }
             else
             {
                 var localDateTime = publishedAt.Value.LocalDateTime;
-                var dtString = localDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                var dtString = localDateTime.ToString(dtFormat);
                 sb.Append(dtString);
             }
             sb.Append("  ");
