@@ -243,6 +243,28 @@ namespace MaxRunSoftware.Utilities.External
             p.Delete();
         }
 
+        public void DisableUser(string samAccountName)
+        {
+            var p = context.FindUserBySamAccountNameRequired(samAccountName);
+            var enabledN = p.Enabled;
+            if (enabledN == null || enabledN.Value)
+            {
+                p.Enabled = false;
+                p.Save();
+            }
+
+        }
+        public void EnableUser(string samAccountName)
+        {
+            var p = context.FindUserBySamAccountNameRequired(samAccountName);
+            var enabledN = p.Enabled;
+            if (enabledN == null || !enabledN.Value)
+            {
+                p.Enabled = true;
+                p.Save();
+            }
+        }
+
         public string GetUserOU(string samAccountName)
         {
             var user = context.FindUserBySamAccountNameRequired(samAccountName);
