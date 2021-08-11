@@ -43,7 +43,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         {
             download = GetArgParameterOrConfigBool(nameof(download), "d", false);
 
-            var github = new GitHub("Steven-D-Foster", "huc");
+            var github = new GitHub("maxrunsoftware", "huc");
             var releases = github.Releases;
             foreach (var release in releases)
             {

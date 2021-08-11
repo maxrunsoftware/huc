@@ -35,7 +35,7 @@ namespace MaxRunSoftware.Utilities.External
         {
             get
             {
-                // https://api.github.com/repos/Steven-D-Foster/huc/releases
+                // https://api.github.com/repos/maxrunsoftware/huc/releases
                 var releasesTask = Task.Run(async () => await GetReleasesAsync());
                 var releases = releasesTask.Result;
                 return releases;
