@@ -350,6 +350,21 @@ Remove user from group
 ```sh
 huc ActiveDirectoryRemoveUserFromGroup -h=192.168.1.5 -u=administrator -p=testpass testuser MyGroup1
 ```
+
+Enable user
+```sh
+huc ActiveDirectoryEnableUser -h=192.168.1.5 -u=administrator -p=testpass testuser
+```
+
+Disable user
+```sh
+huc ActiveDirectoryDisableUser -h=192.168.1.5 -u=administrator -p=testpass testuser
+```
+
+Disable users who have not logged on in the past 7 days
+```sh
+huc ActiveDirectoryDisableUsers -h=192.168.1.5 -u=administrator -p=testpass -l=7
+```
 &nbsp;
 ### Google Sheets
 For setting up the Google account see...\
