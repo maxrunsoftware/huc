@@ -243,7 +243,7 @@ namespace MaxRunSoftware.Utilities.External
             p.Delete();
         }
 
-        public void DisableUser(string samAccountName)
+        public bool DisableUser(string samAccountName)
         {
             var p = context.FindUserBySamAccountNameRequired(samAccountName);
             var enabledN = p.Enabled;
@@ -251,10 +251,15 @@ namespace MaxRunSoftware.Utilities.External
             {
                 p.Enabled = false;
                 p.Save();
+                return true;
+            }
+            else
+            {
+                return false;
             }
 
         }
-        public void EnableUser(string samAccountName)
+        public bool EnableUser(string samAccountName)
         {
             var p = context.FindUserBySamAccountNameRequired(samAccountName);
             var enabledN = p.Enabled;
@@ -262,6 +267,11 @@ namespace MaxRunSoftware.Utilities.External
             {
                 p.Enabled = true;
                 p.Save();
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
