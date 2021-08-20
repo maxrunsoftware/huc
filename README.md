@@ -560,3 +560,9 @@ Show details for a specific color
 ```sh
 huc colors red
 ```
+
+Test JSAS service
+```sh
+huc jsas https://192.168.0.10 MyPassword MyData
+huc jsas https://192.168.0.10 MyPassword MyData NewFile.txt
+```
