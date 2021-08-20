@@ -2618,26 +2618,66 @@ namespace MaxRunSoftware.Utilities
             return outputFile;
         }
 
-        public static byte[] WebDownload(string url, string username = null, string password = null) => WebDownloadInternal(url, null, username, password);
+        public sealed class WebResponse
+        {
+            public byte[] Data { get; }
+            public IDictionary<string, List<string>> Headers { get; }
+            public string ContentType
+            {
+                get
+                {
+                    if (Headers.TryGetValue("Content-Type", out var list))
+                    {
+                        if (list.Count > 0)
+                        {
+                            return list[0];
+                        }
+                    }
 
-        public static void WebDownload(string url, string outputFilename, string username = null, string password = null) => WebDownloadInternal(url, outputFilename, username, password);
+                    return null;
+                }
+            }
 
-        private static byte[] WebDownloadInternal(string url, string outFilename, string username, string password)
+            public WebResponse(byte[] data, WebHeaderCollection headers)
+            {
+                Data = data;
+                var d = new SortedDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < headers.Count; i++)
+                {
+                    var key = headers.GetKey(i).TrimOrNull();
+                    var val = headers.Get(i);
+                    if (key != null && val.TrimOrNull() != null)
+                    {
+                        d.AddToList(key, val);
+                    }
+                }
+
+                Headers = d;
+            }
+        }
+
+        public static WebResponse WebDownload(string url, string username = null, string password = null) => WebDownloadInternal(url, null, username, password);
+
+        public static WebResponse WebDownload(string url, string outputFilename, string username = null, string password = null) => WebDownloadInternal(url, outputFilename, username, password);
+
+        private static WebResponse WebDownloadInternal(string url, string outFilename, string username, string password)
         {
             using (var cli = new WebClient())
             {
                 bool unauthorized = false;
                 try
                 {
+                    byte[] data = null;
                     if (outFilename == null)
                     {
-                        return cli.DownloadData(url);
+                        data = cli.DownloadData(url);
                     }
                     else
                     {
                         cli.DownloadFile(url, outFilename);
-                        return null;
                     }
+
+                    return new WebResponse(data, cli.ResponseHeaders);
                 }
                 catch (WebException we)
                 {
@@ -2656,15 +2696,17 @@ namespace MaxRunSoftware.Utilities
                     // https://stackoverflow.com/a/26016919
                     string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
                     cli.Headers[HttpRequestHeader.Authorization] = string.Format("Basic {0}", credentials);
+                    byte[] data = null;
                     if (outFilename == null)
                     {
-                        return cli.DownloadData(url);
+                        data = cli.DownloadData(url);
                     }
                     else
                     {
                         cli.DownloadFile(url, outFilename);
-                        return null;
                     }
+
+                    return new WebResponse(data, cli.ResponseHeaders);
                 }
 
                 throw new NotImplementedException("Should not happen");

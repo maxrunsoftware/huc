@@ -16,9 +16,6 @@ limitations under the License.
 
 using System;
 using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
@@ -30,7 +27,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddParameter(nameof(username), "u", "Basic authentication username");
             help.AddParameter(nameof(password), "p", "Basic authentication password");
             help.AddValue("<source URL> <output file>");
-            help.AddExample("https://github.com/Steven-D-Foster/huc/releases/download/v1.3.0/huc-linux.zip");
+            help.AddExample("https://github.com/maxrunsoftware/huc/releases/download/v" + Version.Value + "/huc-linux.zip");
             help.AddExample("https://github.com github.txt");
         }
 
@@ -56,7 +53,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             DeleteExistingFile(outputFile);
 
             Util.WebDownload(sourceURL, outputFile, username: username, password: password);
-
+            log.Info("File downloaded: " + outputFile);
         }
     }
 }
