@@ -58,7 +58,10 @@ namespace MaxRunSoftware.Utilities.Console
         private int Run(string[] args)
         {
             var a = new Args(args);
-            Utilities.LogFactory.LogFactoryImpl.SetupConsole(a.IsDebug);
+            var logLevel = LogLevel.Info;
+            if (a.IsTrace) logLevel = LogLevel.Trace;
+            else if (a.IsDebug) logLevel = LogLevel.Debug;
+            Utilities.LogFactory.LogFactoryImpl.SetupConsole(logLevel);
             log.Debug(a.ToString());
 
             var commandTypes = CommandTypes;

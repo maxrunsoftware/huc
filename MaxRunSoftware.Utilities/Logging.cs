@@ -245,23 +245,75 @@ namespace MaxRunSoftware.Utilities
 
     public static class LogFactoryExtensions
     {
-        public static void SetupConsole(this ILogFactory logFactory, bool isDebug)
+        private static void ConfigureLogFactoryForLevel(ILogFactory logFactory, LogLevel level)
         {
-            logFactory.IsCriticalEnabled = true;
-            logFactory.IsErrorEnabled = true;
-            logFactory.IsWarnEnabled = true;
-            logFactory.IsInfoEnabled = true;
-            logFactory.IsDebugEnabled = isDebug;
-            logFactory.IsTraceEnabled = isDebug;
-            var cl = new ConsoleLogger(isDebug);
+            var isCriticalEnabled = false;
+            var isErrorEnabled = false;
+            var isWarnEnabled = false;
+            var isInfoEnabled = false;
+            var isDebugEnabled = false;
+            var isTraceEnabled = false;
+
+            if (level == LogLevel.Critical)
+            {
+                isCriticalEnabled = true;
+            }
+            else if (level == LogLevel.Error)
+            {
+                isCriticalEnabled = true;
+                isErrorEnabled = true;
+            }
+            else if (level == LogLevel.Warn)
+            {
+                isCriticalEnabled = true;
+                isErrorEnabled = true;
+                isWarnEnabled = true;
+            }
+            else if (level == LogLevel.Info)
+            {
+                isCriticalEnabled = true;
+                isErrorEnabled = true;
+                isWarnEnabled = true;
+                isInfoEnabled = true;
+            }
+            else if (level == LogLevel.Debug)
+            {
+                isCriticalEnabled = true;
+                isErrorEnabled = true;
+                isWarnEnabled = true;
+                isInfoEnabled = true;
+                isDebugEnabled = true;
+            }
+            else if (level == LogLevel.Trace)
+            {
+                isCriticalEnabled = true;
+                isErrorEnabled = true;
+                isWarnEnabled = true;
+                isInfoEnabled = true;
+                isDebugEnabled = true;
+                isTraceEnabled = true;
+            }
+
+            logFactory.IsCriticalEnabled = isCriticalEnabled;
+            logFactory.IsErrorEnabled = isErrorEnabled;
+            logFactory.IsWarnEnabled = isWarnEnabled;
+            logFactory.IsInfoEnabled = isInfoEnabled;
+            logFactory.IsDebugEnabled = isDebugEnabled;
+            logFactory.IsTraceEnabled = isTraceEnabled;
+
+        }
+        public static void SetupConsole(this ILogFactory logFactory, LogLevel level)
+        {
+            ConfigureLogFactoryForLevel(logFactory, level);
+            var cl = new ConsoleLogger(level);
             logFactory.Logging += cl.LogConsole;
         }
         private class ConsoleLogger
         {
-            private readonly bool isDebug;
-            public ConsoleLogger(bool isDebug)
+            private readonly LogLevel level;
+            public ConsoleLogger(LogLevel level)
             {
-                this.isDebug = isDebug;
+                this.level = level;
 
             }
             private IDisposable LogConsoleColor(LogLevel level)
@@ -281,7 +333,7 @@ namespace MaxRunSoftware.Utilities
             public void LogConsole(object sender, LogEventArgs e)
             {
                 if (e == null) return;
-                if (isDebug)
+                if (level == LogLevel.Debug || level == LogLevel.Trace)
                 {
                     using (LogConsoleColor(e.Level))
                     {

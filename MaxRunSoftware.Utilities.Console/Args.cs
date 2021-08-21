@@ -28,6 +28,7 @@ namespace MaxRunSoftware.Utilities.Console
         public IReadOnlyList<string> Values { get; init; }
         public IReadOnlyDictionary<string, string> Parameters { get; init; }
         public bool IsDebug { get; init; }
+        public bool IsTrace { get; init; }
         public bool IsNoBanner { get; init; }
         public bool IsHelp { get; init; }
         public bool IsShowHidden { get; init; }
@@ -89,6 +90,7 @@ namespace MaxRunSoftware.Utilities.Console
 
             Values = values;
             IsDebug = d.Remove("DEBUG");
+            IsTrace = d.Remove("TRACE");
             IsNoBanner = d.Remove("NOBANNER");
             IsShowHidden = d.Remove("SHOWHIDDEN");
             if (!IsHelp) IsHelp = d.Remove("HELP");
