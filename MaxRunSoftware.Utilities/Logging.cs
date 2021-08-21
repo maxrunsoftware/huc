@@ -76,24 +76,34 @@ namespace MaxRunSoftware.Utilities
 
     public interface ILogFactory : IDisposable
     {
-        bool IsTraceEnabled { get; set; }
+        bool IsTraceEnabled { get; }
 
-        bool IsDebugEnabled { get; set; }
+        bool IsDebugEnabled { get; }
 
-        bool IsInfoEnabled { get; set; }
+        bool IsInfoEnabled { get; }
 
-        bool IsWarnEnabled { get; set; }
+        bool IsWarnEnabled { get; }
 
-        bool IsErrorEnabled { get; set; }
+        bool IsErrorEnabled { get; }
 
-        bool IsCriticalEnabled { get; set; }
+        bool IsCriticalEnabled { get; }
 
-        event EventHandler<LogEventArgs> Logging;
+        //event EventHandler<LogEventArgs> Logging;
 
         ILogger GetLogger<T>();
 
         ILogger GetLogger(Type type);
+
+        void AddAppender(ILogAppender appender);
+
     }
+
+    public interface ILogAppender
+    {
+        LogLevel Level { get; }
+        void Log(object sender, LogEventArgs args);
+    }
+
 
     internal class LogBackgroundThread : IDisposable
     {
@@ -245,75 +255,40 @@ namespace MaxRunSoftware.Utilities
 
     public static class LogFactoryExtensions
     {
-        private static void ConfigureLogFactoryForLevel(ILogFactory logFactory, LogLevel level)
+        public static void SetupConsole(this ILogFactory logFactory, LogLevel level) => logFactory.AddAppender(new ConsoleLogger(level));
+        public static void SetupFile(this ILogFactory logFactory, LogLevel level, string filename) => logFactory.AddAppender(new FileLogger(level, filename));
+
+        private class FileLogger : ILogAppender
         {
-            var isCriticalEnabled = false;
-            var isErrorEnabled = false;
-            var isWarnEnabled = false;
-            var isInfoEnabled = false;
-            var isDebugEnabled = false;
-            var isTraceEnabled = false;
-
-            if (level == LogLevel.Critical)
+            public LogLevel Level { get; init; }
+            private readonly string filename;
+            private readonly FileInfo file;
+            private readonly string id;
+            public FileLogger(LogLevel level, string filename)
             {
-                isCriticalEnabled = true;
-            }
-            else if (level == LogLevel.Error)
-            {
-                isCriticalEnabled = true;
-                isErrorEnabled = true;
-            }
-            else if (level == LogLevel.Warn)
-            {
-                isCriticalEnabled = true;
-                isErrorEnabled = true;
-                isWarnEnabled = true;
-            }
-            else if (level == LogLevel.Info)
-            {
-                isCriticalEnabled = true;
-                isErrorEnabled = true;
-                isWarnEnabled = true;
-                isInfoEnabled = true;
-            }
-            else if (level == LogLevel.Debug)
-            {
-                isCriticalEnabled = true;
-                isErrorEnabled = true;
-                isWarnEnabled = true;
-                isInfoEnabled = true;
-                isDebugEnabled = true;
-            }
-            else if (level == LogLevel.Trace)
-            {
-                isCriticalEnabled = true;
-                isErrorEnabled = true;
-                isWarnEnabled = true;
-                isInfoEnabled = true;
-                isDebugEnabled = true;
-                isTraceEnabled = true;
+                this.Level = level;
+                this.filename = Path.GetFullPath(filename.CheckNotNullTrimmed(nameof(filename)));
+                this.file = new FileInfo(filename);
+                this.id = Guid.NewGuid().ToString().Replace("-", "");
             }
 
-            logFactory.IsCriticalEnabled = isCriticalEnabled;
-            logFactory.IsErrorEnabled = isErrorEnabled;
-            logFactory.IsWarnEnabled = isWarnEnabled;
-            logFactory.IsInfoEnabled = isInfoEnabled;
-            logFactory.IsDebugEnabled = isDebugEnabled;
-            logFactory.IsTraceEnabled = isTraceEnabled;
+            public void Log(object sender, LogEventArgs e)
+            {
+                if (e == null) return;
+                using (MutexLock.CreateGlobal(TimeSpan.FromSeconds(10), file))
+                {
+                    Util.FileWrite(filename, e.ToStringDetailed(id: id), Constant.ENCODING_UTF8_WITHOUT_BOM, append: true);
+                }
 
+            }
         }
-        public static void SetupConsole(this ILogFactory logFactory, LogLevel level)
+
+        private class ConsoleLogger : ILogAppender
         {
-            ConfigureLogFactoryForLevel(logFactory, level);
-            var cl = new ConsoleLogger(level);
-            logFactory.Logging += cl.LogConsole;
-        }
-        private class ConsoleLogger
-        {
-            private readonly LogLevel level;
+            public LogLevel Level { get; init; }
             public ConsoleLogger(LogLevel level)
             {
-                this.level = level;
+                this.Level = level;
 
             }
             private IDisposable LogConsoleColor(LogLevel level)
@@ -330,10 +305,10 @@ namespace MaxRunSoftware.Utilities
                 }
             }
 
-            public void LogConsole(object sender, LogEventArgs e)
+            public void Log(object sender, LogEventArgs e)
             {
                 if (e == null) return;
-                if (level == LogLevel.Debug || level == LogLevel.Trace)
+                if (Level == LogLevel.Debug || Level == LogLevel.Trace)
                 {
                     using (LogConsoleColor(e.Level))
                     {
@@ -358,12 +333,12 @@ namespace MaxRunSoftware.Utilities
         private readonly LogBackgroundThread thread;
         private volatile Dictionary<Type, ILogger> loggers = new Dictionary<Type, ILogger>();
 
-        public bool IsTraceEnabled { get; set; } = true;
-        public bool IsDebugEnabled { get; set; } = true;
-        public bool IsInfoEnabled { get; set; } = true;
-        public bool IsWarnEnabled { get; set; } = true;
-        public bool IsErrorEnabled { get; set; } = true;
-        public bool IsCriticalEnabled { get; set; } = true;
+        public bool IsTraceEnabled { get; private set; }
+        public bool IsDebugEnabled { get; private set; }
+        public bool IsInfoEnabled { get; private set; }
+        public bool IsWarnEnabled { get; private set; }
+        public bool IsErrorEnabled { get; private set; }
+        public bool IsCriticalEnabled { get; private set; }
 
         public LogFactory()
         {
@@ -458,6 +433,69 @@ namespace MaxRunSoftware.Utilities
                 System.Console.Error.WriteLine(e);
             }
         }
+
+        private readonly List<ILogAppender> appenders = new List<ILogAppender>();
+        public void AddAppender(ILogAppender appender)
+        {
+
+            appenders.Add(appender);
+            Logging += appender.Log;
+
+            IsTraceEnabled = false;
+            IsDebugEnabled = false;
+            IsInfoEnabled = false;
+            IsWarnEnabled = false;
+            IsErrorEnabled = false;
+            IsCriticalEnabled = false;
+
+            foreach (var app in appenders)
+            {
+                var level = app.Level;
+                if (level == LogLevel.Trace)
+                {
+                    IsTraceEnabled = true;
+                    IsDebugEnabled = true;
+                    IsInfoEnabled = true;
+                    IsWarnEnabled = true;
+                    IsErrorEnabled = true;
+                    IsCriticalEnabled = true;
+                }
+                else if (level == LogLevel.Debug)
+                {
+                    IsDebugEnabled = true;
+                    IsInfoEnabled = true;
+                    IsWarnEnabled = true;
+                    IsErrorEnabled = true;
+                    IsCriticalEnabled = true;
+                }
+                else if (level == LogLevel.Info)
+                {
+                    IsInfoEnabled = true;
+                    IsWarnEnabled = true;
+                    IsErrorEnabled = true;
+                    IsCriticalEnabled = true;
+                }
+                else if (level == LogLevel.Warn)
+                {
+                    IsWarnEnabled = true;
+                    IsErrorEnabled = true;
+                    IsCriticalEnabled = true;
+                }
+                else if (level == LogLevel.Error)
+                {
+                    IsErrorEnabled = true;
+                    IsCriticalEnabled = true;
+                }
+                else if (level == LogLevel.Error)
+                {
+                    IsCriticalEnabled = true;
+                }
+            }
+
+
+        }
+
+
     }
 
     public abstract class LoggerBase : ILogger
@@ -563,10 +601,17 @@ namespace MaxRunSoftware.Utilities
             bool includeThread = true,
             bool includeType = true,
             bool includeCallingFile = true,
-            bool includeCallingMethod = true
+            bool includeCallingMethod = true,
+            string id = null
             )
         {
             var sb = new StringBuilder();
+
+            if (id != null)
+            {
+                if (sb.Length > 0) sb.Append(" ");
+                sb.Append(id);
+            }
 
             if (includeTimestamp)
             {
