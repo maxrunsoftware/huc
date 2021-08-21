@@ -110,20 +110,86 @@ namespace MaxRunSoftware.Utilities
     {
         private readonly System.Threading.Mutex mutex;
         private readonly SingleUse su = new SingleUse();
-
+        private bool hasHandle;
         public string MutexName { get; }
 
-        public MutexLock(string mutexName, TimeSpan timeout)
+        private static readonly char[] illegalMutexChars = new char[] { ':', '/', '\\' }
+                                                        .Concat(Path.GetInvalidFileNameChars())
+                                                        .Concat(Path.GetInvalidPathChars())
+                                                        .Concat(Path.DirectorySeparatorChar)
+                                                        .Concat(Path.AltDirectorySeparatorChar)
+                                                        .Distinct()
+                                                        .ToArray();
+
+        private static string MutexNameFormat(string mutexName)
         {
+            mutexName = mutexName.CheckNotNullTrimmed(nameof(mutexName));
+            for (var i = 0; i < illegalMutexChars.Length; i++)
+            {
+                mutexName = mutexName.Replace(illegalMutexChars[i], '_');
+            }
+            while (mutexName.Contains("__")) mutexName = mutexName.Replace("__", "_");
+            while (mutexName.StartsWith("_")) mutexName = mutexName.RemoveLeft();
+            while (mutexName.EndsWith("_")) mutexName = mutexName.RemoveRight();
+            mutexName = mutexName.TrimOrNullUpper();
+            if (mutexName == null) return "MUTEX";
+            if (mutexName.StartsWith("MUTEX")) return mutexName;
+            return "MUTEX_" + mutexName;
+        }
+
+        private static readonly object locker = new object();
+        private static readonly Dictionary<string, string> mutexNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        private MutexLock(string mutexName, TimeSpan timeout)
+        {
+            mutexName = mutexName.CheckNotNullTrimmed(nameof(mutexName));
+            lock (locker)
+            {
+                if (!mutexNames.TryGetValue(mutexName, out var actualMutexName))
+                {
+                    actualMutexName = MutexNameFormat(mutexName);
+                    mutexNames.Add(mutexName, actualMutexName);
+                }
+                mutexName = actualMutexName;
+            }
             MutexName = mutexName;
+
+            // https://stackoverflow.com/a/229567
             mutex = new System.Threading.Mutex(false, mutexName);
-            if (!mutex.WaitOne(timeout)) throw new MutexLockTimeoutException(mutexName, timeout);
+            try
+            {
+                hasHandle = mutex.WaitOne(timeout, false);
+                if (hasHandle == false) throw new MutexLockTimeoutException(mutexName, timeout);
+            }
+            catch (System.Threading.AbandonedMutexException)
+            {
+                hasHandle = true;
+            }
         }
 
         public void Dispose()
         {
             if (!su.TryUse()) return;
-            mutex.ReleaseMutex();
+            if (hasHandle) mutex.ReleaseMutex();
+        }
+
+        public static MutexLock Create(TimeSpan timeout, string mutexName) => new MutexLock(mutexName, timeout);
+        public static MutexLock Create(TimeSpan timeout, Guid mutexId) => Create(timeout, ParseGuid(mutexId));
+        public static MutexLock Create(TimeSpan timeout, FileInfo file) => Create(timeout, ParseFile(file));
+        public static MutexLock CreateGlobal(TimeSpan timeout, string mutexName) => new MutexLock(string.Format("Global\\{{{0}}}", mutexName), timeout);
+        public static MutexLock CreateGlobal(TimeSpan timeout, Guid mutexId) => CreateGlobal(timeout, ParseGuid(mutexId));
+        public static MutexLock CreateGlobal(TimeSpan timeout, FileInfo file) => CreateGlobal(timeout, ParseFile(file));
+
+        private static string ParseGuid(Guid guid) => guid.ToString().Replace("-", "");
+
+        private static string ParseFile(FileInfo file)
+        {
+            var fn = file.FullName;
+            if (fn.Length > 180)
+            {
+                fn = fn.Left(20) + fn.Right(160); // TODO: Maybe a better way to do this?
+            }
+            return fn;
         }
     }
 
@@ -2399,38 +2465,6 @@ namespace MaxRunSoftware.Utilities
         }
 
         #endregion Random
-
-        #region Threading / Mutex
-
-        private static readonly char[] illegalMutexChars = new char[] { ':', '/', '\\' }
-                                                                .Concat(Path.GetInvalidFileNameChars())
-                                                                .Concat(Path.GetInvalidPathChars())
-                                                                .Concat(Path.DirectorySeparatorChar)
-                                                                .Concat(Path.AltDirectorySeparatorChar)
-                                                                .Distinct()
-                                                                .ToArray();
-
-        public static MutexLock Mutex(string mutexName, TimeSpan timeout) => new MutexLock(MutexNameFormat(mutexName), timeout);
-
-        public static MutexLock Mutex(string mutexName, double seconds) => Mutex(mutexName, TimeSpan.FromSeconds(seconds));
-
-        public static string MutexNameFormat(string mutexName)
-        {
-            mutexName = mutexName.CheckNotNullTrimmed(nameof(mutexName));
-            for (var i = 0; i < illegalMutexChars.Length; i++)
-            {
-                mutexName = mutexName.Replace(illegalMutexChars[i], '_');
-            }
-            while (mutexName.Contains("__")) mutexName = mutexName.Replace("__", "_");
-            while (mutexName.StartsWith("_")) mutexName = mutexName.RemoveLeft();
-            while (mutexName.EndsWith("_")) mutexName = mutexName.RemoveRight();
-            mutexName = mutexName.TrimOrNullUpper();
-            if (mutexName == null) return "MUTEX";
-            if (mutexName.StartsWith("MUTEX")) return mutexName;
-            return "MUTEX_" + mutexName;
-        }
-
-        #endregion Threading / Mutex
 
         #region New and Reflection
 

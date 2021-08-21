@@ -359,7 +359,7 @@ namespace MaxRunSoftware.Utilities
 
             try
             {
-                using (Util.Mutex(File, 10))
+                using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
                 {
                     using (var fs = Util.FileOpenRead(File))
                     {
@@ -447,7 +447,7 @@ namespace MaxRunSoftware.Utilities
             var jp = new JavaProperties();
             try
             {
-                using (Util.Mutex(File, 10))
+                using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
                 {
                     using (var fs = Util.FileOpenRead(File))
                     {
@@ -493,7 +493,7 @@ namespace MaxRunSoftware.Utilities
             }
             try
             {
-                using (Util.Mutex(File, 10))
+                using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
                 {
                     if (System.IO.File.Exists(File)) System.IO.File.Delete(File);
                     using (var fs = Util.FileOpenWrite(File))
