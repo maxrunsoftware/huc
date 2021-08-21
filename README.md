@@ -1,4 +1,6 @@
 # HUC: Various command line tools to make your life easier
+[Max Run Software](https://www.maxrunsoftware.com)
+
 HUC is a simple to use open source command line tool for performing various tasks including...
 - [FTP](#ftp-ftps-sftp)
 - [FTPS](#ftp-ftps-sftp)
