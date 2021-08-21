@@ -20,7 +20,6 @@ using System.Linq;
 
 namespace MaxRunSoftware.Utilities.Console
 {
-
     public class Program
     {
         private static readonly ILogger log = LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
