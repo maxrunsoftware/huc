@@ -134,8 +134,8 @@ namespace MaxRunSoftware.Utilities.Console
             else if (Constant.OS_UNIX) os = " (Linux)";
             else if (Constant.OS_MAC) os = " (Mac)";
 
-            if (command == null) log.Info(typeof(Program).Namespace + " " + MaxRunSoftware.Utilities.Console.Version.Value + os);
-            else log.Info(typeof(Program).Namespace + " " + MaxRunSoftware.Utilities.Console.Version.Value + " : " + command.Name + os);
+            if (command == null) log.Info(typeof(Program).Namespace + " " + MaxRunSoftware.Utilities.Console.Version.Value + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
+            else log.Info(typeof(Program).Namespace + " " + MaxRunSoftware.Utilities.Console.Version.Value + " : " + command.Name + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
 
         }
 
