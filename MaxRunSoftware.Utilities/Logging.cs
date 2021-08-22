@@ -277,7 +277,7 @@ namespace MaxRunSoftware.Utilities
                 if (e == null) return;
                 using (MutexLock.CreateGlobal(TimeSpan.FromSeconds(10), file))
                 {
-                    Util.FileWrite(filename, e.ToStringDetailed(id: id), Constant.ENCODING_UTF8_WITHOUT_BOM, append: true);
+                    Util.FileWrite(filename, e.ToStringDetailed(id: id) + Environment.NewLine, Constant.ENCODING_UTF8_WITHOUT_BOM, append: true);
                 }
 
             }
@@ -346,8 +346,6 @@ namespace MaxRunSoftware.Utilities
             AppDomain.CurrentDomain.ProcessExit += delegate { Dispose(); };
         }
 
-        public event EventHandler<LogEventArgs> Logging;
-
         private class Logger : LoggerBase
         {
             private readonly LogFactory logFactory;
@@ -401,18 +399,26 @@ namespace MaxRunSoftware.Utilities
 
         public void OnLogging(LogEventArgs args)
         {
-            var evnt = Logging;
-            if (evnt == null) return;
 
-            var delegates = evnt.GetInvocationList();
-            if (delegates == null || delegates.Length < 1) return;
-
-            foreach (EventHandler<LogEventArgs> eh in delegates)
+            foreach (ILogAppender appender in appenders)
             {
-                if (eh == null) continue;
+                if (appender == null) continue;
+                bool shouldLog = false;
                 try
                 {
-                    eh.Invoke(this, args);
+                    var level = args.Level;
+                    var levelAppender = appender.Level;
+                    if (level == LogLevel.Trace && levelAppender.In(LogLevel.Trace)) shouldLog = true;
+                    else if (level == LogLevel.Debug && levelAppender.In(LogLevel.Debug, LogLevel.Trace)) shouldLog = true;
+                    else if (level == LogLevel.Info && levelAppender.In(LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) shouldLog = true;
+                    else if (level == LogLevel.Warn && levelAppender.In(LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) shouldLog = true;
+                    else if (level == LogLevel.Error && levelAppender.In(LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) shouldLog = true;
+                    else if (level == LogLevel.Critical) shouldLog = true;
+
+                    if (shouldLog)
+                    {
+                        appender.Log(this, args);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -439,7 +445,6 @@ namespace MaxRunSoftware.Utilities
         {
 
             appenders.Add(appender);
-            Logging += appender.Log;
 
             IsTraceEnabled = false;
             IsDebugEnabled = false;
