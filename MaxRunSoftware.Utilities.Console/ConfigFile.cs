@@ -85,6 +85,9 @@ namespace MaxRunSoftware.Utilities.Console
         {
             var cmdobjs = Program.CommandObjects;
             var cmdobjsParams = new List<string>();
+            cmdobjsParams.Add("Log.FileLevel");
+            cmdobjsParams.Add("Log.FileName");
+            cmdobjsParams.Add("Program.SuppressBanner");
             foreach (var cmdobj in cmdobjs)
             {
                 if (cmdobj is Command cmdobj2)
@@ -95,10 +98,6 @@ namespace MaxRunSoftware.Utilities.Console
                     }
                 }
             }
-
-            cmdobjsParams.Add("Log.FileLevel");
-            cmdobjsParams.Add("Log.FileName");
-            cmdobjsParams.Add("Program.SuppressBanner");
 
             return cmdobjsParams;
         }
