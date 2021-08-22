@@ -26,6 +26,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [VMware Interaction](#vmware)
 - [Can use a properties file](#using-a-properties-file)
 - [Helper Utility Functions](#helper-functions)
+- [Logging](#logging)
 
 HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
@@ -568,3 +569,10 @@ Test JSAS service
 huc jsas https://192.168.0.10 MyPassword MyData
 huc jsas https://192.168.0.10 MyPassword MyData NewFile.txt
 ```
+&nbsp;
+## Logging
+HUC supports various logging. At the console level HUC supports ```INFO```, ```DEBUG```, and ```TRACE``` logging levels. By default the logging level is ```INFO```. To enable ```DEBUG``` level logging at the console, specify the ```-debug``` parameter at the command line. To enable ```TRACE``` level logging, specify the ```-trace``` parameter at the command line.
+
+HUC also supports logging to a file. To enable file logging, use the parameters ```Log.FileLevel``` and ```Log.FileName``` in the ```huc.properties``` file to specify the log level (```CRITICAL```, ```ERROR```, ```WARN```, ```INFO```, ```DEBUG```, ```TRACE```) and the filename of the file to write out to.
+
+
