@@ -1637,6 +1637,7 @@ namespace MaxRunSoftware.Utilities
             if (File.Exists(path) && !append) File.Delete(path);
             using (var stream = File.OpenWrite(path))
             {
+                stream.Position = stream.Length;
                 stream.Write(data, 0, data.Length);
                 stream.Flush(true);
             }
