@@ -95,8 +95,17 @@ namespace MaxRunSoftware.Utilities.Console
                     }
                 }
             }
+
+            cmdobjsParams.Add("Log.FileLevel");
+            cmdobjsParams.Add("Log.FileName");
+            cmdobjsParams.Add("Program.SuppressBanner");
+
             return cmdobjsParams;
         }
+
+        public string LogFileLevel => this["Log.FileLevel"];
+        public string LogFileName => this["Log.FileName"];
+        public string ProgramSuppressBanner => this["Program.SuppressBanner"];
 
         public static void CreateDefaultPropertiesFile()
         {

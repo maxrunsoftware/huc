@@ -23,6 +23,7 @@ namespace MaxRunSoftware.Utilities.Console
     public class Program
     {
         private static readonly ILogger log = LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private ConfigFile config;
 
         public static ILogFactory LogFactory { get { return Utilities.LogFactory.LogFactoryImpl; } }
 
@@ -73,6 +74,25 @@ namespace MaxRunSoftware.Utilities.Console
             {
                 log.Warn("Could not create default properties file", e);
             }
+            config = new ConfigFile();
+
+            var logFileName = config.LogFileName.TrimOrNull();
+            if (logFileName != null)
+            {
+                var logFileLevel = config.LogFileLevel.TrimOrNull() ?? "info";
+                logFileLevel = logFileLevel.ToLower();
+                var level = LogLevel.Info;
+                if (logFileLevel.EqualsCaseInsensitive(LogLevel.Critical.ToString())) level = LogLevel.Critical;
+                else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Error.ToString())) level = LogLevel.Error;
+                else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Warn.ToString())) level = LogLevel.Warn;
+                else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Info.ToString())) level = LogLevel.Info;
+                else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Debug.ToString())) level = LogLevel.Debug;
+                else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Trace.ToString())) level = LogLevel.Trace;
+                else throw new Exception("Unrecognized file log level in config file: " + logFileLevel + "   valid values are TRACE/DEBUG/INFO/WARN/ERROR/CRITICAL");
+
+                Utilities.LogFactory.LogFactoryImpl.SetupFile(level, logFileName);
+            }
+
 
             void listCommand(ICommand c)
             {
@@ -125,9 +145,18 @@ namespace MaxRunSoftware.Utilities.Console
         }
 
 
-        private static void ShowBanner(Args a, Type command)
+        private void ShowBanner(Args a, Type command)
         {
             if (a.IsNoBanner) return;
+            bool suppressBanner = false;
+            var programSuppressBanner = config.ProgramSuppressBanner.TrimOrNull();
+            if (programSuppressBanner != null)
+            {
+                programSuppressBanner = programSuppressBanner.ToLower();
+                if (programSuppressBanner.In("t", "true", "y", "yes", "1")) suppressBanner = true;
+            }
+            if (suppressBanner) return;
+
             string os = "";
             if (Constant.OS_WINDOWS) os = " (Windows)";
             else if (Constant.OS_UNIX) os = " (Linux)";
