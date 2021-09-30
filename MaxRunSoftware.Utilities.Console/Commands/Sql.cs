@@ -33,6 +33,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddExample(HelpExamplePrefix + " -s=`SELECT TOP 100 * FROM Orders` Orders100.txt");
             help.AddExample(HelpExamplePrefix + " -s=`SELECT * FROM Orders; SELECT * FROM Employees` Orders.txt Employees.txt");
             help.AddExample(HelpExamplePrefix + " -f=`mssqlscript.sql` OrdersFromScript.txt");
+            help.AddDetail("If both -" + nameof(sqlStatement) + " and -" + nameof(sqlScriptFile) + " are specified then the SQL of both is combined with the -" + nameof(sqlStatement) + " executing first");
         }
 
         private string sqlStatement;
