@@ -52,6 +52,8 @@ namespace MaxRunSoftware.Utilities.Console
                 return config;
             }
         }
+        protected string PasswordEncode(string password) => Config.PasswordEncode(password);
+
         protected readonly ILogger log;
 
         public bool IsHidden => GetType().GetCustomAttributes(true).Where(o => o is HideCommandAttribute).Any();

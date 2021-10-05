@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console
 {
@@ -27,6 +28,7 @@ namespace MaxRunSoftware.Utilities.Console
     {
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDictionary<string, string> values = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private static readonly string PASSWORD = "kRdsf932kFf2iaknsa81haMch832jncMab891j";
 
         public static string Name => Path.GetFileName(FullPathName);
         public static string FullPathName => ProgramFullPathName + ".properties";
@@ -51,11 +53,37 @@ namespace MaxRunSoftware.Utilities.Console
                 if (key == null) return null;
                 if (values.TryGetValue(key, out var v))
                 {
-                    return v;
+                    if (v == null) return null;
+                    if (v.StartsWith(ProgramPasswordEscape))
+                    {
+                        return PasswordDecode(v);
+                    }
+                    else
+                    {
+                        return v;
+                    }
                 }
                 return null;
             }
         }
+
+        public string PasswordEncode(string password)
+        {
+            var encrypted = Encryption.EncryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(PASSWORD), Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password));
+            var str = Util.Base64(encrypted);
+            str = ProgramPasswordEscape + str;
+            return str;
+        }
+
+        private string PasswordDecode(string encodedPassword)
+        {
+            if (!encodedPassword.StartsWith(ProgramPasswordEscape)) return null;
+            var encodedPasswordBase64 = encodedPassword.Substring(ProgramPasswordEscape.Length);
+            var encodedBytes = Util.Base64(encodedPasswordBase64);
+            var decryptedPassword = Encryption.DecryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(PASSWORD), encodedBytes);
+            return Constant.ENCODING_UTF8_WITHOUT_BOM.GetString(decryptedPassword);
+        }
+
 
         public ConfigFile(string fileName)
         {
