@@ -247,13 +247,21 @@ namespace MaxRunSoftware.Utilities.Console
 
         #region Parameters
 
+        private static bool ShouldLog(string parameterName)
+        {
+            if (parameterName == null) return true;
+            parameterName = parameterName.ToLower();
+            if (parameterName.Contains("password")) return false;
+            return true;
+        }
+
         public string GetArgParameter(string key1, string key2) => args.GetParameter(key1, key2);
 
         public string GetArgParameterOrConfig(string key1, string key2)
         {
             var v = GetArgParameter(key1, key2);
             if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
-            log.Debug($"{key1}: {v}");
+            if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
             return v;
         }
 
@@ -262,7 +270,7 @@ namespace MaxRunSoftware.Utilities.Console
             var v = GetArgParameter(key1, key2);
             if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
             if (v.TrimOrNull() == null) v = defaultValue;
-            log.Debug($"{key1}: {v}");
+            if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
             return v;
         }
 
@@ -273,7 +281,7 @@ namespace MaxRunSoftware.Utilities.Console
             if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
             if (v.TrimOrNull() != null)
             {
-                log.Debug($"{key1}: {v}");
+                if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
                 return v;
             }
 
