@@ -88,6 +88,7 @@ namespace MaxRunSoftware.Utilities.Console
             cmdobjsParams.Add("Log.FileLevel");
             cmdobjsParams.Add("Log.FileName");
             cmdobjsParams.Add("Program.SuppressBanner");
+            cmdobjsParams.Add("Program.PasswordEscape");
             foreach (var cmdobj in cmdobjs)
             {
                 if (cmdobj is Command cmdobj2)
@@ -102,9 +103,10 @@ namespace MaxRunSoftware.Utilities.Console
             return cmdobjsParams;
         }
 
-        public string LogFileLevel => this["Log.FileLevel"];
+        public string LogFileLevel => this["Log.FileLevel"] ?? "info";
         public string LogFileName => this["Log.FileName"];
-        public string ProgramSuppressBanner => this["Program.SuppressBanner"];
+        public string ProgramSuppressBanner => this["Program.SuppressBanner"] ?? "false";
+        public string ProgramPasswordEscape => this["Program.PasswordEscape"] ?? "~^`";
 
         public static void CreateDefaultPropertiesFile()
         {
