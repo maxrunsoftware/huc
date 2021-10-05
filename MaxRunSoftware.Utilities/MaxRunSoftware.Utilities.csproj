@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <ReleaseVersion>1.12.9</ReleaseVersion>
+    <ReleaseVersion>1.12.10</ReleaseVersion>
     <Description>Various helper methods and functions</Description>
   </PropertyGroup>
 

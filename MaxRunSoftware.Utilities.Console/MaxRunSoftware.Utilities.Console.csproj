@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <ReleaseVersion>1.12.9</ReleaseVersion>
+    <ReleaseVersion>1.12.10</ReleaseVersion>
     <Description>Misc command line helper utilities</Description>
     <StartupObject>MaxRunSoftware.Utilities.Console.Program</StartupObject>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
