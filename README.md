@@ -569,6 +569,11 @@ Test JSAS service
 huc jsas https://192.168.0.10 MyPassword MyData
 huc jsas https://192.168.0.10 MyPassword MyData NewFile.txt
 ```
+
+Encrypt Password to use in huc.properties file
+```
+huc EncodePassword mySecretPassword
+```
 &nbsp;
 ## Logging
 HUC supports various logging. At the console level HUC supports ```INFO```, ```DEBUG```, and ```TRACE``` logging levels. By default the logging level is ```INFO```. To enable ```DEBUG``` level logging at the console, specify the ```-debug``` parameter at the command line. To enable ```TRACE``` level logging, specify the ```-trace``` parameter at the command line.
