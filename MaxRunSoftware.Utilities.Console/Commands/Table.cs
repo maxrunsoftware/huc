@@ -17,6 +17,7 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
@@ -34,6 +35,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddParameter(nameof(dataQuoting), "dq", "Quoting character(s) for each data row, single/double/none/etc (double)");
             help.AddParameter(nameof(dataExclude), "de", "Exclude the data rows from the output file (false)");
             help.AddParameter(nameof(newline), "nl", "The type of newline character to use, win/unix/mac (win)");
+            help.AddParameter(nameof(bracketGuids), "bg", "Add { and } brackets to GUID columns");
             help.AddExample("Orders.csv");
             help.AddExample("-hd=pipe -hq=single -he=true -dd=pipe -dq=single -de=false Orders.csv");
         }
@@ -90,6 +92,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         private string dataQuoting;
         private bool dataExclude;
         private string newline;
+        private bool bracketGuids;
 
         protected override void ExecuteInternal()
         {
@@ -100,12 +103,47 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             dataQuoting = ParseOption(GetArgParameterOrConfig(nameof(dataQuoting), "dq", "double"));
             dataExclude = GetArgParameterOrConfigBool(nameof(dataExclude), "de", false);
             newline = ParseOption(GetArgParameterOrConfig(nameof(newline), "nl", "WIN"));
+            bracketGuids = GetArgParameterOrConfigBool(nameof(bracketGuids), "bg", false);
 
             base.ExecuteInternal();
         }
 
+        private static Utilities.Table AddGuidBrackets(Utilities.Table table)
+        {
+            var width = table.Columns.Count;
+            var isColumnGuidList = new List<bool>();
+            foreach (var column in table.Columns) isColumnGuidList.Add(column.Type == typeof(System.Guid) || column.Type == typeof(System.Guid?));
+            if (!isColumnGuidList.Any(o => o)) return table; // if none are GUID columns then just return
+            var isColumnGuid = isColumnGuidList.ToArray(); // hopefully speed boost by using array
+
+            var newTable = new List<string[]>();
+            var newColumns = new string[width];
+            for (int i = 0; i < width; i++) newColumns[i] = table.Columns[i].Name;
+            newTable.Add(newColumns);
+
+            foreach (var row in table)
+            {
+                var newRow = new string[width];
+                for (int i = 0; i < width; i++)
+                {
+                    var val = row[i];
+                    if (val != null && isColumnGuid[i])
+                    {
+                        val = "{" + val + "}";
+                    }
+                    newRow[i] = val;
+                }
+                newTable.Add(newRow);
+
+            }
+
+            return Utilities.Table.Create(newTable, true);
+        }
+
         protected override string Convert(Utilities.Table table)
         {
+            if (bracketGuids) table = AddGuidBrackets(table);
+
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
             {
