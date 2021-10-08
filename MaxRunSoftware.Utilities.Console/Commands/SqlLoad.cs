@@ -164,8 +164,8 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
                 { typeof(byte[]), SqlDbType.Binary },
 
-                { typeof(Guid), SqlDbType.UniqueIdentifier },
-                { typeof(Guid?), SqlDbType.UniqueIdentifier },
+                { typeof(System.Guid), SqlDbType.UniqueIdentifier },
+                { typeof(System.Guid?), SqlDbType.UniqueIdentifier },
 
                 { typeof(string), SqlDbType.NVarChar },
 
