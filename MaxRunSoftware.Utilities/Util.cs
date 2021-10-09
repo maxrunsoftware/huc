@@ -1038,8 +1038,6 @@ namespace MaxRunSoftware.Utilities
             if (list.All(o => DateTime.TryParse(o, out var v))) return nullable ? typeof(DateTime?) : typeof(DateTime);
             if (list.All(o => Uri.TryCreate(o, UriKind.Absolute, out var vUri))) return typeof(Uri);
 
-
-
             return typeof(string);
         }
 
