@@ -116,28 +116,12 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             if (!isColumnGuidList.Any(o => o)) return table; // if none are GUID columns then just return
             var isColumnGuid = isColumnGuidList.ToArray(); // hopefully speed boost by using array
 
-            var newTable = new List<string[]>();
-            var newColumns = new string[width];
-            for (int i = 0; i < width; i++) newColumns[i] = table.Columns[i].Name;
-            newTable.Add(newColumns);
-
-            foreach (var row in table)
+            string handler(Utilities.Table table, TableColumn column, TableRow row, int rowIndex, string value)
             {
-                var newRow = new string[width];
-                for (int i = 0; i < width; i++)
-                {
-                    var val = row[i];
-                    if (val != null && isColumnGuid[i])
-                    {
-                        val = "{" + val + "}";
-                    }
-                    newRow[i] = val;
-                }
-                newTable.Add(newRow);
-
+                return isColumnGuid[column.Index] ? ("{" + value + "}") : value;
             }
 
-            return Utilities.Table.Create(newTable, true);
+            return table.Modify(handler);
         }
 
         protected override string Convert(Utilities.Table table)

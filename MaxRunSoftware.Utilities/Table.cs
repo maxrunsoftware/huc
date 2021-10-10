@@ -24,6 +24,8 @@ using System.Text;
 
 namespace MaxRunSoftware.Utilities
 {
+    public delegate string TableCellModificationHandler(Table table, TableColumn column, TableRow row, int rowIndex, string value);
+
     /// <summary>
     /// Encapsulates a 2-diminsional array of string data into immutable columns and rows. The table will never be jagged, all rows will have all columns.
     /// Fields can be null. Columns must have names or they will be generated. Row limit is limited to int.MaxValue.
@@ -350,6 +352,33 @@ namespace MaxRunSoftware.Utilities
             }
 
             return Create(list, Columns.ColumnNames);
+        }
+
+        public Table Modify(TableCellModificationHandler handler)
+        {
+            var width = Columns.Count;
+
+            var cols = Columns.ToArray();
+            var newTable = new List<string[]>();
+            var newColumns = new string[width];
+            for (int i = 0; i < width; i++) newColumns[i] = Columns[i].Name;
+            newTable.Add(newColumns);
+
+            int rowIndex = 0;
+            foreach (var row in this)
+            {
+                var newRow = new string[width];
+                for (int i = 0; i < width; i++)
+                {
+                    var val = row[i];
+                    val = handler(this, cols[i], row, rowIndex, val);
+                    newRow[i] = val;
+                }
+                newTable.Add(newRow);
+                rowIndex++;
+            }
+
+            return Create(newTable, true);
         }
 
         public override string ToString() => "Table[columns:" + Columns.Count + "][rows:" + Count + "]";
