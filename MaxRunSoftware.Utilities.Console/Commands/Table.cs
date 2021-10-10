@@ -108,25 +108,17 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             base.ExecuteInternal();
         }
 
-        private static Utilities.Table AddGuidBrackets(Utilities.Table table)
-        {
-            var width = table.Columns.Count;
-            var isColumnGuidList = new List<bool>();
-            foreach (var column in table.Columns) isColumnGuidList.Add(column.Type == typeof(System.Guid) || column.Type == typeof(System.Guid?));
-            if (!isColumnGuidList.Any(o => o)) return table; // if none are GUID columns then just return
-            var isColumnGuid = isColumnGuidList.ToArray(); // hopefully speed boost by using array
-
-            string handler(Utilities.Table table, TableColumn column, TableRow row, int rowIndex, string value)
-            {
-                return isColumnGuid[column.Index] ? ("{" + value + "}") : value;
-            }
-
-            return table.Modify(handler);
-        }
-
         protected override string Convert(Utilities.Table table)
         {
-            if (bracketGuids) table = AddGuidBrackets(table);
+            if (bracketGuids)
+            {
+                var isColumnGuid = table.Columns.Select(column => column.Type.In(typeof(System.Guid), typeof(System.Guid?))).ToArray();
+                if (isColumnGuid.Any(o => o))
+                {
+                    string handler(Utilities.Table table, TableColumn column, TableRow row, int rowIndex, string value) => isColumnGuid[column.Index] ? ("{" + value + "}") : value;
+                    table = table.Modify(handler);
+                }
+            }
 
             var sb = new StringBuilder();
             using (var writer = new StringWriter(sb))
