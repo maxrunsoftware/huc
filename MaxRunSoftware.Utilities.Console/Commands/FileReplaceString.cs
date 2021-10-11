@@ -28,7 +28,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         private static readonly IReadOnlyDictionary<string, string> OptionKeywordMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) {
             { "\\t", "\t" },
             { "\\s", " " },
-            //{ "None", "" },
+            { "None", "" },
             //{ "Empty", "" },
             { "SingleQuote", "'" },
             { "\\'", "'" },
@@ -79,6 +79,11 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddParameter(nameof(caseInsensitive), "i", "Ignore case when searching for the string to replace (false)");
             help.AddValue("<old string> <new string> <file to replace in>");
             help.AddExample("`Person` `Steve` mydoc.txt");
+            help.AddDetail("Keywords...");
+            foreach (var kw in OptionKeywordMap.Keys)
+            {
+                help.AddDetail("  " + kw);
+            }
         }
 
         private Encoding encoding;
