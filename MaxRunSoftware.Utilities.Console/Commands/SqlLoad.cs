@@ -251,11 +251,12 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             }
 
             var c = GetSqlHelper();
+            log.Debug("Created SQL Helper of type " + c.GetType().NameFormatted());
             var databaseSchemaTable = c.Escape(database);
             if (schema != null) databaseSchemaTable = databaseSchemaTable + "." + c.Escape(schema);
             databaseSchemaTable = databaseSchemaTable + "." + c.Escape(table);
 
-            log.Debug(nameof(databaseSchemaTable), databaseSchemaTable);
+            log.DebugParameter(nameof(databaseSchemaTable), databaseSchemaTable);
 
             var tableExists = c.GetTableExists(database, schema, table);
             if (tableExists && drop)
@@ -305,21 +306,25 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 log.Debug("Executing Create Table...");
                 log.Debug(sql.ToString());
                 c.ExecuteNonQuery(sql.ToString());
+                log.Debug("Created table " + databaseSchemaTable);
             }
 
-            var sqlColumns = c.GetColumns(database, schema, table)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var sqlColumnsList = c.GetColumns(database, schema, table).ToList();
+            log.Debug("Found " + sqlColumnsList.Count + " columns in table " + databaseSchemaTable + "  " + sqlColumnsList.ToStringDelimited(", "));
+            var sqlColumns = sqlColumnsList.ToHashSet();
 
             if (rowNumberColumnName != null)
             {
+                log.Debug("Adding RowNumber column: " + rowNumberColumnName);
                 int i = 1;
                 t = t.AddColumn(rowNumberColumnName, row => (i++).ToString(), newColumnIndex: 0);
             }
 
             if (currentUtcDateTimeColumnName != null)
             {
-                var now = DateTime.UtcNow;
-                t = t.AddColumn(currentUtcDateTimeColumnName, row => now.ToString("yyyy-MM-dd HH:mm:ss.fff"), newColumnIndex: 1);
+                var now = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                log.Debug("Adding UTC Timestemp column: " + currentUtcDateTimeColumnName + "  (" + now + ")");
+                t = t.AddColumn(currentUtcDateTimeColumnName, row => now, newColumnIndex: 1);
             }
 
             var columnsToInsert = new List<TableColumn>();

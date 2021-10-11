@@ -40,9 +40,18 @@ namespace MaxRunSoftware.Utilities
             return o;
         });
 
+        public static readonly Func<string, string> UNESCAPE_MYSQL = (o =>
+        {
+            if (o == null) return o;
+            if (o.StartsWith("`")) o = o.RemoveLeft(1);
+            if (o.EndsWith("`")) o = o.RemoveRight(1);
+            return o;
+        });
+
         public SqlMySQL(Func<IDbConnection> connectionFactory) : base(connectionFactory)
         {
             EscapeObject = ESCAPE_MYSQL;
+            UnescapeObject = UNESCAPE_MYSQL;
         }
 
 

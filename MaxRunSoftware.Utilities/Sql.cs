@@ -30,6 +30,7 @@ namespace MaxRunSoftware.Utilities
         public bool IsDisposed { get; private set; }
 
         public Func<string, string> EscapeObject { get; set; }
+        public Func<string, string> UnescapeObject { get; set; }
 
         public int CommandTimeout { get; set; } = 60 * 60 * 24;
 
@@ -173,6 +174,12 @@ namespace MaxRunSoftware.Utilities
         {
             var f = EscapeObject;
             return f != null ? f(objectToEscape) : objectToEscape;
+        }
+
+        public string Unescape(string objectToUnescape)
+        {
+            var f = UnescapeObject;
+            return f != null ? f(objectToUnescape) : objectToUnescape;
         }
 
         protected virtual IDataParameter AddParameter(IDbCommand command, SqlParameter parameter) => parameter == null ? null : command.AddParameter(dbType: parameter.Type, parameterName: CleanParameterName(parameter.Name), value: parameter.Value);

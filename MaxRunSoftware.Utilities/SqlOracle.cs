@@ -47,10 +47,18 @@ namespace MaxRunSoftware.Utilities
             if (!o.EndsWith("\"")) o = o + "\"";
             return o;
         });
+        public static readonly Func<string, string> UNESCAPE_ORACLE = (o =>
+        {
+            if (o == null) return o;
+            if (o.StartsWith("\"")) o = o.RemoveLeft(1);
+            if (o.EndsWith("\"")) o = o.RemoveRight(1);
+            return o;
+        });
 
         public SqlOracle(Func<IDbConnection> connectionFactory) : base(connectionFactory)
         {
             EscapeObject = ESCAPE_ORACLE;
+            UnescapeObject = UNESCAPE_ORACLE;
         }
 
 
