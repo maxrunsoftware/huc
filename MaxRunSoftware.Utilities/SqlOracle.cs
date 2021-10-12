@@ -26,10 +26,11 @@ namespace MaxRunSoftware.Utilities
         public override IEnumerable<string> GetTables(string database, string schema) => ExecuteQueryToList($"SELECT table_name FROM all_tables;");
         public override void DropTable(string database, string schema, string table)
         {
+            // TODO: Check if the DROP TABLE part needs escaping or not
             var sql = $@"
                 declare c int;
                 begin 
-                   select count(*) into c from user_tables where table_name = upper('{table}'); 
+                   select count(*) into c from user_tables where table_name = upper('{Unescape(table)}'); 
                    if c = 1 then
                       execute immediate 'drop table {table}'; 
                    end if;
@@ -38,7 +39,7 @@ namespace MaxRunSoftware.Utilities
             ExecuteNonQuery(sql);
         }
         public override IEnumerable<string> GetSchemas(string database) => ExecuteQueryToList($"SELECT username FROM dba_users");
-        public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT column_name FROM USER_TAB_COLUMNS WHERE table_name = '{table}';");
+        public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT column_name FROM USER_TAB_COLUMNS WHERE table_name = '{Unescape(table)}';");
 
         public static readonly Func<string, string> ESCAPE_ORACLE = (o =>
         {

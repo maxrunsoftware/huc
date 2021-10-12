@@ -22,7 +22,7 @@ namespace MaxRunSoftware.Utilities
     public class SqlMySQL : Sql
     {
         public override IEnumerable<string> GetDatabases() => ExecuteQueryToList("SELECT schema_name FROM information_schema.schemata;");
-        public override IEnumerable<string> GetTables(string database, string schema) => ExecuteQueryToList($"SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_SCHEMA='{database}';");
+        public override IEnumerable<string> GetTables(string database, string schema) => ExecuteQueryToList($"SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_SCHEMA='{Unescape(database)}';");
         public override void DropTable(string database, string schema, string table)
         {
             var dst = Escape(database) + "." + Escape(table);
@@ -30,7 +30,7 @@ namespace MaxRunSoftware.Utilities
             ExecuteNonQuery(sql);
         }
         public override IEnumerable<string> GetSchemas(string database) => new List<string>();
-        public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='{database}' AND TABLE_NAME = '{table}' ORDER BY ORDINAL_POSITION;");
+        public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='{Unescape(database)}' AND TABLE_NAME = '{Unescape(table)}' ORDER BY ORDINAL_POSITION;");
 
         public static readonly Func<string, string> ESCAPE_MYSQL = (o =>
         {
