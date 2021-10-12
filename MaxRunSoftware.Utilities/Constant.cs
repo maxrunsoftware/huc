@@ -24,12 +24,14 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
-[assembly: System.Runtime.InteropServices.Guid("461985d6-d681-4a0f-b110-547f3beaf967")]
+[assembly: System.Runtime.InteropServices.Guid(MaxRunSoftware.Utilities.Constant.ID)]
 
 namespace MaxRunSoftware.Utilities
 {
     public static class Constant
     {
+        public const string ID = "461985d6-d681-4a0f-b110-547f3beaf967";
+
         private const string BOOL_TRUE = "1 T TRUE Y YES";
         private const string BOOL_FALSE = "0 F FALSE N NO";
 
