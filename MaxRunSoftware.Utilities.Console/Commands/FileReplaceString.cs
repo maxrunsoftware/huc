@@ -80,10 +80,8 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddValue("<old string> <new string> <file to replace in>");
             help.AddExample("`Person` `Steve` mydoc.txt");
             help.AddDetail("Keywords...");
-            foreach (var kw in OptionKeywordMap.Keys)
-            {
-                help.AddDetail("  " + kw);
-            }
+            foreach (var kw in OptionKeywordMap.Keys.OrderBy(o => o.ToLower())) help.AddDetail("  " + kw);
+
         }
 
         private Encoding encoding;
