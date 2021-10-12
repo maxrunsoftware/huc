@@ -52,7 +52,7 @@ namespace MaxRunSoftware.Utilities.Console
                 return config;
             }
         }
-        protected string PasswordEncode(string password) => Config.PasswordEncode(password);
+        protected string Encrypt(string data) => Config.Encrypt(data);
 
         protected readonly ILogger log;
 

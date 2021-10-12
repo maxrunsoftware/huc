@@ -38,7 +38,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             log.DebugParameter(nameof(password), password);
             password.CheckValueNotNull(nameof(password), log);
 
-            var encodedPassword = PasswordEncode(password);
+            var encodedPassword = Encrypt(password);
             log.Info(encodedPassword);
 
         }

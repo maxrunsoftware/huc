@@ -28,7 +28,6 @@ namespace MaxRunSoftware.Utilities.Console
     {
         private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly IDictionary<string, string> values = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        private static readonly string PASSWORD = "kRdsf932kFf2iaknsa81haMch832jncMab891j";
 
         public static string Name => Path.GetFileName(FullPathName);
         public static string FullPathName => ProgramFullPathName + ".properties";
@@ -56,7 +55,7 @@ namespace MaxRunSoftware.Utilities.Console
                     if (v == null) return null;
                     if (v.StartsWith(ProgramPasswordEscape))
                     {
-                        return PasswordDecode(v);
+                        return Decrypt(v);
                     }
                     else
                     {
@@ -67,21 +66,21 @@ namespace MaxRunSoftware.Utilities.Console
             }
         }
 
-        public string PasswordEncode(string password)
+        public string Encrypt(string unencryptedData)
         {
-            var encrypted = Encryption.EncryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(PASSWORD), Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password));
-            var str = Util.Base64(encrypted);
-            str = ProgramPasswordEscape + str;
-            return str;
+            var encryptedData = Encryption.EncryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(Constant.ID), Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(unencryptedData));
+            var encryptedDataBase64 = Util.Base64(encryptedData);
+            var encryptedDataBase64Padded = ProgramPasswordEscape + encryptedDataBase64;
+            return encryptedDataBase64Padded;
         }
 
-        private string PasswordDecode(string encodedPassword)
+        private string Decrypt(string encryptedData)
         {
-            if (!encodedPassword.StartsWith(ProgramPasswordEscape)) return null;
-            var encodedPasswordBase64 = encodedPassword.Substring(ProgramPasswordEscape.Length);
-            var encodedBytes = Util.Base64(encodedPasswordBase64);
-            var decryptedPassword = Encryption.DecryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(PASSWORD), encodedBytes);
-            return Constant.ENCODING_UTF8_WITHOUT_BOM.GetString(decryptedPassword);
+            if (!encryptedData.StartsWith(ProgramPasswordEscape)) return null;
+            var encryptedDataBase64 = encryptedData.Substring(ProgramPasswordEscape.Length);
+            var encryptedDataBytes = Util.Base64(encryptedDataBase64);
+            var unencryptedData = Encryption.DecryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(Constant.ID), encryptedDataBytes);
+            return Constant.ENCODING_UTF8_WITHOUT_BOM.GetString(unencryptedData);
         }
 
 
