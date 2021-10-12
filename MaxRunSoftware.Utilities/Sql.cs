@@ -29,8 +29,8 @@ namespace MaxRunSoftware.Utilities
 
         public bool IsDisposed { get; private set; }
 
-        public Func<string, string> EscapeObject { get; set; }
-        public Func<string, string> UnescapeObject { get; set; }
+        protected Func<string, string> EscapeObject { get; set; }
+        protected Func<string, string> UnescapeObject { get; set; }
 
         public int CommandTimeout { get; set; } = 60 * 60 * 24;
 
