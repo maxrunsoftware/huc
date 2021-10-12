@@ -66,9 +66,11 @@ namespace MaxRunSoftware.Utilities.Console
             }
         }
 
+        private static string KEY => Constant.ID.Replace("-", "");
+
         public string Encrypt(string unencryptedData)
         {
-            var encryptedData = Encryption.EncryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(Constant.ID), Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(unencryptedData));
+            var encryptedData = Encryption.EncryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(KEY), Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(unencryptedData));
             var encryptedDataBase64 = Util.Base64(encryptedData);
             var encryptedDataBase64Padded = ProgramPasswordEscape + encryptedDataBase64;
             return encryptedDataBase64Padded;
@@ -79,7 +81,7 @@ namespace MaxRunSoftware.Utilities.Console
             if (!encryptedData.StartsWith(ProgramPasswordEscape)) return null;
             var encryptedDataBase64 = encryptedData.Substring(ProgramPasswordEscape.Length);
             var encryptedDataBytes = Util.Base64(encryptedDataBase64);
-            var unencryptedData = Encryption.DecryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(Constant.ID), encryptedDataBytes);
+            var unencryptedData = Encryption.DecryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(KEY), encryptedDataBytes);
             return Constant.ENCODING_UTF8_WITHOUT_BOM.GetString(unencryptedData);
         }
 
