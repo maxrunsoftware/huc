@@ -18,6 +18,6 @@ namespace MaxRunSoftware.Utilities.Console
 {
     public static class Version
     {
-        public static string Value => "1.12.11";
+        public static string Value => "1.12.12";
     }
 }
