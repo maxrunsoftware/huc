@@ -620,6 +620,14 @@ namespace MaxRunSoftware.Utilities
             return str.Split(stringsToSplitOn.ToArray(), StringSplitOptions.None);
         }
 
+        public static string Capitalize(this string str)
+        {
+            if (str == null) return null;
+            if (str.Length == 0) return str;
+            if (str.Length == 1) return str.ToUpper();
+            return str[0].ToString().ToUpper() + str.Substring(1);
+        }
+
         #region Equals
 
         public static bool Equals(this string str, string other, StringComparer comparer)
