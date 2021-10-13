@@ -15,6 +15,7 @@ HUC is a simple to use open source command line tool for performing various task
 - [File Appending](#file-appending)
 - [File Split](#file-split)
 - [File Checksums](#file-checksum)
+- [Directory List](#directory-list)
 - [Directory Flatten](#directory-flatten)
 - [Directory Remove Empty](#directory-remove-empty)
 - [Web Server](#web-server)
@@ -232,6 +233,12 @@ huc FileChecksum MyFile.zip
 Generate SHA512 checksum for files *.txt
 ```
 huc FileChecksum -t=SHA512 *.txt
+```
+&nbsp;
+### Directory List
+List some file and directory information to a tab delimited file
+```
+huc DirectoryList -creationTime -lastAccessTimeUtc -lastWriteTime -n -nf -p -s -recursiveDepth=10 -pattern=*.cs C:\temp\MyDirectory mydatafile.txt 
 ```
 &nbsp;
 ### Directory Flatten
