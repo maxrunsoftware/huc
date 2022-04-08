@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2021 Steven Foster (steven.d.foster@gmail.com)
+Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,6 +18,6 @@ namespace MaxRunSoftware.Utilities.Console
 {
     public static class Version
     {
-        public static string Value => "1.12.13";
+        public static string Value => "1.12.14";
     }
 }

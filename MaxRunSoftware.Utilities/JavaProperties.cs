@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2021 Steven Foster (steven.d.foster@gmail.com)
+Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ namespace MaxRunSoftware.Utilities
         /// <exception cref="ParseException">If the stream source is invalid.</exception>
         public void Load(Stream streamIn)
         {
-            var reader = new JavaPropertyReader( this );
+            var reader = new JavaPropertyReader(this);
             reader.Parse(streamIn);
         }
 
@@ -126,7 +126,7 @@ namespace MaxRunSoftware.Utilities
         /// <param name="encoding">The stream's encoding.</param>
         public void Load(Stream streamIn, Encoding encoding)
         {
-            var reader = new JavaPropertyReader( this );
+            var reader = new JavaPropertyReader(this);
             reader.Parse(streamIn, encoding);
         }
 
@@ -142,7 +142,7 @@ namespace MaxRunSoftware.Utilities
         /// <param name="encoding"></param>
         public void Store(Stream streamOut, string comments, Encoding encoding = null)
         {
-            var writer = new JavaPropertyWriter( this );
+            var writer = new JavaPropertyWriter(this);
             writer.Write(streamOut, comments, encoding ?? DefaultEncoding);
         }
 
@@ -154,7 +154,7 @@ namespace MaxRunSoftware.Utilities
         /// <returns>The value corresponding to the key - or null if not found.</returns>
         public string GetProperty(string key)
         {
-            var objectValue = this[ key ];
+            var objectValue = this[key];
             if (objectValue != null) return objectValue.ToString();
             if (defaults != null) return defaults[key]?.ToString();
             return null;
@@ -237,9 +237,9 @@ namespace MaxRunSoftware.Utilities
         private const int STATE_value_ws = 9;
         private const int STATE_finish = 10;
 
-        private const int bufferSize =  1000;
+        private const int bufferSize = 1000;
 
-        private static readonly int [][] states = new int[][] {
+        private static readonly int[][] states = new int[][] {
             new int[]{//STATE_start
                 MATCH_end_of_input, STATE_finish,           ACTION_ignore,
                 MATCH_terminator,   STATE_start,            ACTION_ignore,
@@ -651,7 +651,7 @@ namespace MaxRunSoftware.Utilities
         /// <param name="encoding">The <see cref="System.Text.Encoding">encoding</see> that is used to read the properies file stream.</param>
         public void Parse(Stream stream, Encoding encoding)
         {
-            var bufferedStream = new BufferedStream( stream, bufferSize );
+            var bufferedStream = new BufferedStream(stream, bufferSize);
             // the default encoding ISO-8859-1 (codepabe 28592) will be used if we do not pass explicitly different encoding
             var parserEncoding = encoding ?? JavaProperties.DefaultEncoding;
             reader = new BinaryReader(bufferedStream, parserEncoding);
@@ -844,7 +844,7 @@ namespace MaxRunSoftware.Utilities
         public void Write(Stream stream, string comments, Encoding encoding)
         {
             //  Create a writer to output to an ISO-8859-1 encoding (code page 28592).
-            var writer = new StreamWriter( stream, encoding);
+            var writer = new StreamWriter(stream, encoding);
 
             //TODO: Confirm correct codepage:
             //  28592              iso-8859-2                   Central European (ISO)
@@ -861,7 +861,7 @@ namespace MaxRunSoftware.Utilities
             for (var e = hashtable.Keys.GetEnumerator(); e.MoveNext();)
             {
                 var key = e.Current.ToString();
-                var val = hashtable[ key ].ToString();
+                var val = hashtable[key].ToString();
 
                 writer.WriteLine(EscapeKey(key) + "=" + EscapeValue(val));
             }

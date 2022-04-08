@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2021 Steven Foster (steven.d.foster@gmail.com)
+Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Data;
