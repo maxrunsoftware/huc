@@ -2653,6 +2653,7 @@ namespace MaxRunSoftware.Utilities
 
         public sealed class WebResponse
         {
+            public string Url { get; }
             public byte[] Data { get; }
             public IDictionary<string, List<string>> Headers { get; }
             public string ContentType
@@ -2671,8 +2672,9 @@ namespace MaxRunSoftware.Utilities
                 }
             }
 
-            public WebResponse(byte[] data, WebHeaderCollection headers)
+            public WebResponse(string url, byte[] data, WebHeaderCollection headers)
             {
+                this.Url = url;
                 Data = data;
                 var d = new SortedDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
                 for (int i = 0; i < headers.Count; i++)
@@ -2687,16 +2689,65 @@ namespace MaxRunSoftware.Utilities
 
                 Headers = d;
             }
+
+            public override string ToString()
+            {
+                return GetType().Name + $"[{Url}] Headers:{Headers.Count} Data:" + (Data == null ? "null" : Data.Length);
+            }
+            public string ToStringDetail()
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine(GetType().Name);
+                sb.AppendLine("\tUrl: " + Url);
+                sb.AppendLine("\tData: " + (Data == null ? "null" : Data.Length));
+                foreach (var kvp in Headers)
+                {
+                    var key = kvp.Key;
+                    var valList = kvp.Value;
+                    if (key == null) continue;
+                    if (valList == null) continue;
+                    if (valList.IsEmpty()) continue;
+                    if (valList.Count == 1)
+                    {
+                        sb.AppendLine("\t" + key + ": " + valList[0]);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < valList.Count; i++)
+                        {
+                            sb.AppendLine("\t" + key + "[" + i + "]: " + valList[i]);
+                        }
+                    }
+                }
+
+                return sb.ToString().TrimOrNull(); // remove trailing newline
+            }
         }
 
-        public static WebResponse WebDownload(string url, string username = null, string password = null) => WebDownloadInternal(url, null, username, password);
-
-        public static WebResponse WebDownload(string url, string outputFilename, string username = null, string password = null) => WebDownloadInternal(url, outputFilename, username, password);
-
-        private static WebResponse WebDownloadInternal(string url, string outFilename, string username, string password)
+        public static WebResponse WebDownload(string url, string outFilename = null, string username = null, string password = null, IDictionary<string, string> cookies = null)
         {
             using (var cli = new WebClient())
             {
+                // https://stackoverflow.com/a/7861726
+                var sb = new StringBuilder();
+                foreach (var kvp in cookies)
+                {
+                    var name = kvp.Key.TrimOrNull();
+                    var val = kvp.Value.TrimOrNull();
+                    if (name == null || val == null) continue;
+                    if (sb.Length > 0) sb.Append(";");
+                    sb.Append(kvp.Key + "=" + kvp.Value);
+                }
+                cli.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
+
+                if (outFilename != null)
+                {
+                    if (outFilename.ContainsAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString()))
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(outFilename));
+                    }
+                }
+
                 bool unauthorized = false;
                 try
                 {
@@ -2710,7 +2761,7 @@ namespace MaxRunSoftware.Utilities
                         cli.DownloadFile(url, outFilename);
                     }
 
-                    return new WebResponse(data, cli.ResponseHeaders);
+                    return new WebResponse(url, data, cli.ResponseHeaders);
                 }
                 catch (WebException we)
                 {
@@ -2739,7 +2790,7 @@ namespace MaxRunSoftware.Utilities
                         cli.DownloadFile(url, outFilename);
                     }
 
-                    return new WebResponse(data, cli.ResponseHeaders);
+                    return new WebResponse(url, data, cli.ResponseHeaders);
                 }
 
                 throw new NotImplementedException("Should not happen");

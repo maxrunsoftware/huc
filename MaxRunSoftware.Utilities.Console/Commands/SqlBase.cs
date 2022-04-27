@@ -40,7 +40,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         protected string HelpExamplePrefix => "-c=`Server=192.168.1.5;Database=NorthWind;User Id=testuser;Password=testpass;`";
 
         private string connectionString;
-        private int commandTimeout;
+        protected int commandTimeout { get; private set; }
         protected SqlServerType serverType { get; private set; }
 
         protected override void ExecuteInternal()
@@ -65,7 +65,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         }
 
 
-        private IDbConnection CreateConnectionMSSQL()
+        protected IDbConnection CreateConnectionMSSQL()
         {
             var conn = new SqlConnection(connectionString);
 

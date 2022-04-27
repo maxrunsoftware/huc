@@ -52,7 +52,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             log.DebugParameter(nameof(outputFile), outputFile);
             DeleteExistingFile(outputFile);
 
-            Util.WebDownload(sourceURL, outputFile, username: username, password: password);
+            Util.WebDownload(sourceURL, outFilename: outputFile, username: username, password: password);
             log.Info("File downloaded: " + outputFile);
         }
     }

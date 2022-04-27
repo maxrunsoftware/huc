@@ -21,52 +21,16 @@ using System.Linq;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public class Sql : SqlBase
+    public class Sql : SqlQueryBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             base.CreateHelp(help);
             help.AddSummary("Execute a SQL statement and/or script and optionally save the result(s) to a tab delimited file(s)");
-            help.AddParameter(nameof(sqlStatement), "s", "SQL statement to execute");
-            help.AddParameter(nameof(sqlScriptFile), "f", "SQL script file to execute");
             help.AddValue("<result file 1> <result file 2> <etc>");
             help.AddExample(HelpExamplePrefix + " -s=`SELECT TOP 100 * FROM Orders` Orders100.txt");
             help.AddExample(HelpExamplePrefix + " -s=`SELECT * FROM Orders; SELECT * FROM Employees` Orders.txt Employees.txt");
             help.AddExample(HelpExamplePrefix + " -f=`mssqlscript.sql` OrdersFromScript.txt");
-            help.AddDetail("If both -" + nameof(sqlStatement) + " and -" + nameof(sqlScriptFile) + " are specified then the SQL of both is combined with the -" + nameof(sqlStatement) + " executing first");
-        }
-
-        private string sqlStatement;
-        private string sqlScriptFile;
-
-        public Utilities.Table[] ExecuteTables()
-        {
-            base.ExecuteInternal();
-
-            sqlStatement = GetArgParameterOrConfig(nameof(sqlStatement), "s");
-            sqlScriptFile = GetArgParameterOrConfig(nameof(sqlScriptFile), "f").TrimOrNull();
-
-            string sqlScriptFileData = null;
-            if (sqlScriptFile != null) sqlScriptFileData = ReadFile(sqlScriptFile);
-            if (sqlScriptFileData.TrimOrNull() != null) log.DebugParameter(nameof(sqlScriptFileData), sqlScriptFileData.Length);
-
-            if (sqlStatement.TrimOrNull() == null && sqlScriptFileData.TrimOrNull() == null) throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
-            var sql = (sqlStatement ?? string.Empty) + Constant.NEWLINE_WINDOWS + (sqlScriptFileData ?? string.Empty);
-            sql = sql.TrimOrNull();
-            if (sql == null) throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
-            log.DebugParameter(nameof(sql), sql);
-
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            var c = GetSqlHelper();
-            var tables = c.ExecuteQuery(sql);
-            stopwatch.Stop();
-            var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
-            log.Info($"Completed SQL execution in {stopwatchtime} seconds");
-
-            log.Debug($"Successfully retrieved {tables.Length} results from SQL");
-
-            return tables;
         }
 
         protected override void ExecuteInternal()

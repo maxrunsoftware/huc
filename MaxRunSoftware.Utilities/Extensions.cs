@@ -1271,6 +1271,26 @@ namespace MaxRunSoftware.Utilities
             return list;
         }
 
+        public static int GetNameIndex(this IDataReader dataReader, string columnName)
+        {
+            var columnNames = dataReader.GetNames();
+
+            foreach (var sc in Constant.LIST_StringComparison)
+            {
+                for (int i = 0; i < columnNames.Count; i++)
+                {
+                    var c = columnNames[i].TrimOrNull();
+                    if (c == null) continue;
+                    if (string.Equals(columnName, c, sc))
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
         public static object[] GetValues(this IDataReader dataReader) => GetValues(dataReader, dataReader.FieldCount);
 
         public static object[] GetValues(this IDataReader dataReader, int fieldCount)

@@ -95,7 +95,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             }
             else
             {
-                Util.WebDownload(sourceUrl, outputFile, username: resourceName, password: password);
+                Util.WebDownload(sourceUrl, outFilename: outputFile, username: resourceName, password: password);
                 log.Info("File downloaded: " + outputFile);
             }
 
