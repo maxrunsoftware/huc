@@ -89,7 +89,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             DeleteExistingFile(outputFile);
 
             log.Info("Downloading: " + sourceURL);
-            Util.WebDownload(sourceURL);
+            Util.WebDownload(sourceURL, outFilename: outputFile);
             log.Info("Download complete: " + outputFile);
 
         }
