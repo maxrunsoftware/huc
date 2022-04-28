@@ -4,7 +4,7 @@
 		<TargetFramework>net5.0</TargetFramework>
 		<ReleaseVersion>1.12.15</ReleaseVersion>
 		<Description>Various helper methods and functions</Description>
-		<PackageVersion>1.12.14</PackageVersion>
+		<PackageVersion>$(ReleaseVersion)</PackageVersion>
 		<Authors>Max Run Software</Authors>
 		<PackOnBuild>true</PackOnBuild>
 		<PackageId>MaxRunSoftware.Utilities</PackageId>

@@ -54,6 +54,15 @@ rm -f ./publish/nuget/*
 
 rm -f ./publish/*.zip
 
+rm -f ./MaxRunSoftware.Utilities/bin/Debug/*.nupkg
+rm -f ./MaxRunSoftware.Utilities/bin/Release/*.nupkg
+
+rm -f ./MaxRunSoftware.Utilities.External/bin/Debug/*.nupkg
+rm -f ./MaxRunSoftware.Utilities.External/bin/Release/*.nupkg
+
+rm -f ./MaxRunSoftware.Utilities.Console/bin/Debug/*.nupkg
+rm -f ./MaxRunSoftware.Utilities.Console/bin/Release/*.nupkg
+
 cd MaxRunSoftware.Utilities.Console
 
 if [[ $runWin = 1 ]]; then
