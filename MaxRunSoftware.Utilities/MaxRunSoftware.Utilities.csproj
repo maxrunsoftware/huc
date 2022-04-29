@@ -10,6 +10,7 @@
 		<PackageId>MaxRunSoftware.Utilities</PackageId>
 		<PackageTags>Utility</PackageTags>
 		<PackageIconUrl>https://raw.githubusercontent.com/maxrunsoftware/huc/main/toolbox.png</PackageIconUrl>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
 		<Owners>Max Run Software</Owners>
 		<PackageProjectUrl>https://github.com/maxrunsoftware/huc</PackageProjectUrl>
