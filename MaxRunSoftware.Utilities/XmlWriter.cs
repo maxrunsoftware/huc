@@ -87,13 +87,13 @@ namespace MaxRunSoftware.Utilities
         public static string ApplyXslt(string xslt, string xml)
         {
             var xmlReader = new StringReader(xml);
-            var xmlXmlReader = XmlReader.Create(xmlReader);
+            var xmlXmlReader = System.Xml.XmlReader.Create(xmlReader);
 
             var transformedContent = new StringBuilder();
             var xmlWriter = System.Xml.XmlWriter.Create(transformedContent);
 
             var xsltReader = new StringReader(xslt);
-            var xsltXmlReader = XmlReader.Create(xsltReader);
+            var xsltXmlReader = System.Xml.XmlReader.Create(xsltReader);
             var myXslTrans = new XslCompiledTransform();
 
             myXslTrans.Load(xsltXmlReader);
