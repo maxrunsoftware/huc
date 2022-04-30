@@ -26,6 +26,9 @@
     <None Remove="HttpMultipartParser" />
     <None Remove="Newtonsoft.Json" />
     <None Remove="Octokit" />
+    <None Remove="Selenium.WebDriver" />
+    <None Remove="Selenium.Support" />
+    <None Remove="WebDriverManager" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EmbedIO" Version="3.4.3" />
@@ -43,6 +46,9 @@
     <PackageReference Include="HttpMultipartParser" Version="5.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Octokit" Version="0.51.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.1.1" />
+    <PackageReference Include="Selenium.Support" Version="4.1.1" />
+    <PackageReference Include="WebDriverManager" Version="2.12.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MaxRunSoftware.Utilities\MaxRunSoftware.Utilities.csproj" />
