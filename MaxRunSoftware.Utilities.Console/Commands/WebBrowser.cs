@@ -236,7 +236,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 ValueContains = element[nameof(WebBrowserElementSearch.ValueContains)].TrimOrNull(),
             };
 
-            if (s.Id == null && s.ClassName == null && s.Name == null && s.TagName == null && s.XPath == null)
+            if (s.Id == null && s.ClassName == null && s.Name == null && s.TagName == null && s.XPath == null && s.ValueEquals == null && s.ValueContains == null)
             {
                 var l = new List<string>
                 {
