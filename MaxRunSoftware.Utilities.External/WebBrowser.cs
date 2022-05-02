@@ -15,6 +15,7 @@
 // */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using OpenQA.Selenium;
@@ -32,26 +33,76 @@ using WebDriverManager.Helpers;
 
 namespace MaxRunSoftware.Utilities.External
 {
-    public enum WebBrowserType { Chrome, Edge, Firefox, InternetExplorer, Opera }
-    public enum WebBrowserArchitecture { X32, X64 }
-
     public class WebBrowser : IDisposable
     {
+        public static OperatingSystem os;
+
         private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private SingleUse isDisposed = new();
 
-        public string BrowserExecutableFilePath { get; set; }
-        public string BrowserDriverFilePath { get; private set; }
-        public WebBrowserType? BrowserType { get; set; }
-        public WebBrowserArchitecture? BrowserArchitecture { get; set; }
+        public WebBrowserLocation BrowserLocation { get; set; }
+        public string BrowserDriverDirectory { get; set; }
+        public string BrowserDriverDownloadDirectoryBase { get; set; }
+        public static string BrowserDriverDownloadDirectoryBaseDefault { get; } = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(Constant.CURRENT_EXE)), "WebBrowserDrivers");
         public string BrowserVersion { get; set; }
 
         public WebDriver Browser { get; private set; }
 
-        public WebBrowser()
+        private IDriverConfig CreateDriverConfig(WebBrowserType type) => type switch
+        {
+            WebBrowserType.Chrome => new ChromeConfig(),
+            WebBrowserType.Edge => new EdgeConfig(),
+            WebBrowserType.Firefox => new FirefoxConfig(),
+            WebBrowserType.InternetExplorer => new InternetExplorerConfig(),
+            WebBrowserType.Opera => new OperaConfig(),
+            _ => throw new NotImplementedException("Unknown [BrowserType] " + type),
+        };
+
+        private void SetupDriverManager()
         {
             // https://github.com/rosolko/WebDriverManager.Net/
+
+            var driverConfig = CreateDriverConfig(BrowserLocation.BrowserType);
+
+            var browserVersion = BrowserVersion;
+            if (browserVersion == null)
+            {
+                try
+                {
+                    browserVersion = driverConfig.GetMatchingBrowserVersion();
+                }
+                catch (Exception) { }
+            }
+            if (browserVersion == null)
+            {
+                try
+                {
+                    browserVersion = driverConfig.GetLatestVersion();
+                }
+                catch (Exception) { }
+            }
+            if (browserVersion == null) throw new Exception("Unable to determine browser version for automatic driver download");
+
+            var browserArchitecture = BrowserLocation.IsBrowser64Bit ? Architecture.X64 : Architecture.X32;
+
+            var driverUrl = browserArchitecture == Architecture.X32 ? driverConfig.GetUrl32() : driverConfig.GetUrl64();
+            driverUrl = UrlHelper.BuildUrl(driverUrl, browserVersion);
+
+            if (BrowserDriverDownloadDirectoryBase == null) BrowserDriverDownloadDirectoryBase = BrowserDriverDownloadDirectoryBaseDefault;
+
+            //var binDestination = Path.Combine(currentDirectory, driverConfig.GetName(), browserVersion, browserArchitecture.ToString(), driverConfig.GetBinaryName());
+            var browserDriverFile = Path.Combine(BrowserDriverDownloadDirectoryBase, driverConfig.GetName() + "_" + browserVersion + "_" + browserArchitecture.ToString(), driverConfig.GetBinaryName());
+            log.Debug($"DriverManager binary location: " + browserDriverFile);
+
+
+            var driverManager = new DriverManager();
+
+            log.Debug($"DriverManager.SetUpDriver({driverUrl}, {browserDriverFile})");
+            var driverManagerMsg = driverManager.SetUpDriver(driverUrl, browserDriverFile);
+            log.Debug("DriverManager.SetUpDriver: " + driverManagerMsg);
+
+            BrowserDriverDirectory = Path.GetDirectoryName(browserDriverFile);
         }
 
         public void Start()
@@ -60,42 +111,12 @@ namespace MaxRunSoftware.Utilities.External
 
             log.Debug("Starting Browser");
 
-            if (BrowserExecutableFilePath == null) throw new Exception($"Property [{nameof(BrowserExecutableFilePath)}] is not defined");
-            if (BrowserType == null) throw new Exception($"Property [{nameof(BrowserType)}] is not defined");
-            //if (BrowserArchitecture == null) throw new Exception($"Property [{nameof(BrowserArchitecture)}] is not defined");
+            if (BrowserLocation == null) throw new Exception($"Property [{nameof(BrowserLocation)}] is not defined");
 
-            var browserType = BrowserType.Value;
-            var browserVersion = BrowserVersion;
-            var browserArchitecture = Architecture.Auto;
-            if (BrowserArchitecture != null)
-            {
-                if (BrowserArchitecture.Value == WebBrowserArchitecture.X32) browserArchitecture = Architecture.X32;
-                else browserArchitecture = Architecture.X64;
-            }
+            log.Debug($"{nameof(BrowserLocation)}: {BrowserLocation}");
+            if (!BrowserLocation.IsExist) throw new Exception($"Browser executable does not exist {BrowserLocation.BrowserExecutable}");
 
-            if (browserVersion == null)
-            {
-                if (browserType == WebBrowserType.Chrome) browserVersion = VersionResolveStrategy.MatchingBrowser;
-                else browserVersion = VersionResolveStrategy.Latest;
-            }
-
-            var driverManager = new DriverManager();
-            IDriverConfig driverConfig;
-            if (browserType == WebBrowserType.Chrome) driverConfig = new ChromeConfig();
-            else if (browserType == WebBrowserType.Edge) driverConfig = new EdgeConfig();
-            else if (browserType == WebBrowserType.Firefox) driverConfig = new FirefoxConfig();
-            else if (browserType == WebBrowserType.InternetExplorer) driverConfig = new InternetExplorerConfig();
-            else if (browserType == WebBrowserType.Opera) driverConfig = new OperaConfig();
-            else throw new NotImplementedException("Unknown [BrowserType] " + browserType);
-
-            if (BrowserDriverFilePath == null)
-            {
-                log.Debug($"Setting up DriverManager({driverConfig.GetType().Name}, {browserVersion}, {BrowserArchitecture}");
-                var driverManagerMsg = driverManager.SetUpDriver(driverConfig, version: browserVersion, architecture: browserArchitecture);
-                log.Debug("DriverManager.SetUpDriver: " + driverManagerMsg);
-            }
-            var browserDriverFilePath = BrowserDriverFilePath ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
+            if (BrowserDriverDirectory == null) SetupDriverManager();
 
             var optionArguments = new List<string>
             {
@@ -115,71 +136,71 @@ namespace MaxRunSoftware.Utilities.External
                 "enable-logging"
             };
 
-
-            if (browserType == WebBrowserType.Chrome)
+            var bt = BrowserLocation.BrowserType;
+            if (bt == WebBrowserType.Chrome)
             {
                 var options = new ChromeOptions();
-                options.BinaryLocation = BrowserExecutableFilePath;
+                options.BinaryLocation = BrowserLocation.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = ChromeDriverService.CreateDefaultService(browserDriverFilePath);
+                var driverService = ChromeDriverService.CreateDefaultService(BrowserDriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 driverService.EnableVerboseLogging = false;
 
                 Browser = new ChromeDriver(driverService, options);
             }
-            else if (browserType == WebBrowserType.Edge)
+            else if (bt == WebBrowserType.Edge)
             {
                 var options = new EdgeOptions();
-                options.BinaryLocation = BrowserExecutableFilePath;
+                options.BinaryLocation = BrowserLocation.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = EdgeDriverService.CreateDefaultService(browserDriverFilePath);
+                var driverService = EdgeDriverService.CreateDefaultService(BrowserDriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 driverService.EnableVerboseLogging = false;
 
                 Browser = new EdgeDriver(driverService, options);
             }
-            else if (browserType == WebBrowserType.Firefox)
+            else if (bt == WebBrowserType.Firefox)
             {
                 var options = new FirefoxOptions();
-                options.BrowserExecutableLocation = BrowserExecutableFilePath;
+                options.BrowserExecutableLocation = BrowserLocation.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 //foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = FirefoxDriverService.CreateDefaultService(browserDriverFilePath);
+                var driverService = FirefoxDriverService.CreateDefaultService(BrowserDriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 //driverService.EnableVerboseLogging = false;
 
                 Browser = new FirefoxDriver(driverService, options);
             }
-            else if (browserType == WebBrowserType.InternetExplorer)
+            else if (bt == WebBrowserType.InternetExplorer)
             {
                 var options = new InternetExplorerOptions();
                 //options.BinaryLocation = BrowserExecutableFilePath;
                 //foreach (var a in optionArguments) options.AddArgument(a);
                 //foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = InternetExplorerDriverService.CreateDefaultService(browserDriverFilePath);
+                var driverService = InternetExplorerDriverService.CreateDefaultService(BrowserDriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 //driverService.EnableVerboseLogging = false;
 
                 Browser = new InternetExplorerDriver(driverService, options);
             }
-            else if (browserType == WebBrowserType.Opera)
+            else if (bt == WebBrowserType.Opera)
             {
                 var options = new OperaOptions();
-                options.BinaryLocation = BrowserExecutableFilePath;
+                options.BinaryLocation = BrowserLocation.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = OperaDriverService.CreateDefaultService(browserDriverFilePath);
+                var driverService = OperaDriverService.CreateDefaultService(BrowserDriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 driverService.EnableVerboseLogging = false;
@@ -188,11 +209,11 @@ namespace MaxRunSoftware.Utilities.External
             }
             else
             {
-                throw new NotImplementedException("Unknown [BrowserType] " + browserType);
+                throw new NotImplementedException("Unknown [BrowserType] " + bt);
             }
         }
 
-        public void GoToUrl(string url)
+        public void GoTo(string url)
         {
             Browser.Navigate().GoToUrl(url);
         }
@@ -226,13 +247,16 @@ namespace MaxRunSoftware.Utilities.External
             }
         }
 
-        public IDictionary<string, string> GetCookies(IEqualityComparer<string> comparer = null)
+        public IDictionary<string, string> GetCookies()
         {
-            var d = comparer == null ? new Dictionary<string, string>() : new Dictionary<string, string>(comparer);
+            var d = new Dictionary<string, string>();
 
+            int cookieCount = 0;
             foreach (var c in Browser.Manage().Cookies.AllCookies)
             {
+                log.Trace($"Cookie[{cookieCount}]  " + c);
                 d[c.Name] = c.Value;
+                cookieCount++;
             }
 
             return d;
