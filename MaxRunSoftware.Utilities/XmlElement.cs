@@ -23,6 +23,17 @@ namespace MaxRunSoftware.Utilities
         public string Value { get; set; }
         public IDictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
         public IList<XmlElement> Children { get; } = new List<XmlElement>();
+        public IEnumerable<XmlElement> ChildrenAll
+        {
+            get
+            {
+                foreach (var child in Children)
+                {
+                    yield return child;
+                    foreach (var child2 in child.ChildrenAll) yield return child2;
+                }
+            }
+        }
         public XmlElement Parent { get; set; }
 
         public string this[string attributeName] { get => Attributes.GetValueCaseInsensitive(attributeName); }
