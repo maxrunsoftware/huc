@@ -21,10 +21,11 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
-[assembly: System.Runtime.InteropServices.Guid(MaxRunSoftware.Utilities.Constant.ID)]
+[assembly: Guid(MaxRunSoftware.Utilities.Constant.ID)]
 
 namespace MaxRunSoftware.Utilities
 {
@@ -159,17 +160,42 @@ namespace MaxRunSoftware.Utilities
         /// <summary>
         /// Are we running on a Windows platform?
         /// </summary>
-        public static readonly bool OS_WINDOWS = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+        public static readonly bool OS_WINDOWS = OS_get() == OSPlatform.Windows;
 
         /// <summary>
         /// Are we running on a UNIX/LINUX platform?
         /// </summary>
-        public static readonly bool OS_UNIX = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux);
+        public static readonly bool OS_UNIX = OS_get() == OSPlatform.Linux || OS_get() == OSPlatform.FreeBSD;
 
         /// <summary>
         /// Are we running on a Mac/Apple platform?
         /// </summary>
-        public static readonly bool OS_MAC = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.OSX);
+        public static readonly bool OS_MAC = OS_get() == OSPlatform.OSX;
+
+        /// <summary>
+        /// Operating System are we currently running
+        /// </summary>
+        public static readonly OSPlatform OS = OS_get();
+        private static OSPlatform OS_get()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return OSPlatform.Windows;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return OSPlatform.OSX;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return OSPlatform.Linux;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) return OSPlatform.FreeBSD;
+
+            // Unknown OS
+            return OSPlatform.Windows;
+        }
+
+        /// <summary>
+        /// Are we running on a 32-bit operating system?
+        /// </summary>
+        public static readonly bool OS_X32 = !Environment.Is64BitOperatingSystem;
+
+        /// <summary>
+        /// Are we running on a 64-bit operating system?
+        /// </summary>
+        public static readonly bool OS_X64 = Environment.Is64BitOperatingSystem;
 
         /// <summary>
         /// Map of StringComparer to StringComparison
