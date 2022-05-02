@@ -386,6 +386,22 @@ namespace MaxRunSoftware.Utilities.Console
             return val;
         }
 
+        public string GetArgValueFile(int index, string valueName = "targetFile", bool isRequired = true)
+        {
+            var val = GetArgValueTrimmed(index);
+            log.DebugParameter(valueName, val);
+            if (val == null)
+            {
+                if (isRequired) throw ArgsException.ValueNotSpecified(valueName);
+                else return null;
+            }
+
+            val = Path.GetFullPath(val);
+            log.DebugParameter(valueName, val);
+
+            return val;
+        }
+
         #endregion Parameters
 
         public string DisplayEnumOptions<TEnum>() where TEnum : struct, IConvertible, IComparable, IFormattable => "[ " + Util.GetEnumItems<TEnum>().Select(o => o.ToString()).ToStringDelimited(" | ") + " ]";
