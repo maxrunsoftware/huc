@@ -66,7 +66,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             var sb = new StringBuilder();
             foreach (var kvp in d)
             {
-                var name = kvp.ToString().SplitOnCamelCase().ToStringDelimited(" ");
+                var name = kvp.Key.ToString().SplitOnCamelCase().ToStringDelimited(" ");
                 sb.AppendLine(name);
                 var padlength = kvp.Value.Select(o => o.Key.Length + 2).Max();
                 foreach (var kvp2 in kvp.Value)
