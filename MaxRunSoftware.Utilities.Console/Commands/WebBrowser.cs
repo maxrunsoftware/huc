@@ -36,6 +36,17 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             help.AddParameter(nameof(browserType), "t", "Browser type " + DisplayEnumOptions<WebBrowserType>());
             help.AddParameter(nameof(browserVersion), "v", "Browser version");
+
+            help.AddParameter(nameof(template1), "t1", "Replaces {t1} with this value in attributes and text in the <XML script file>");
+            help.AddParameter(nameof(template2), "t2", "Replaces {t2} with this value in attributes and text in the <XML script file>");
+            help.AddParameter(nameof(template3), "t3", "Replaces {t3} with this value in attributes and text in the <XML script file>");
+            help.AddParameter(nameof(template4), "t4", "Replaces {t4} with this value in attributes and text in the <XML script file>");
+            help.AddParameter(nameof(template5), "t5", "Replaces {t5} with this value in attributes and text in the <XML script file>");
+            help.AddParameter(nameof(template6), "t6", "Replaces {t6} with this value in attributes and text in the <XML script file>");
+            help.AddParameter(nameof(template7), "t7", "Replaces {t7} with this value in attributes and text in the <XML script file>");
+            help.AddParameter(nameof(template8), "t8", "Replaces {t8} with this value in attributes and text in the <XML script file>");
+            help.AddParameter(nameof(template9), "t9", "Replaces {t9} with this value in attributes and text in the <XML script file>");
+
             help.AddValue("<XML script file>");
             help.AddExample("myBrowserScript.xml");
 
@@ -79,10 +90,40 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
         private string scriptFile;
 
+        private string template1;
+        private string template2;
+        private string template3;
+        private string template4;
+        private string template5;
+        private string template6;
+        private string template7;
+        private string template8;
+        private string template9;
+
         private External.WebBrowser browser;
 
         protected override void ExecuteInternal()
         {
+            template1 = GetArgParameterOrConfig(nameof(template1), "t1");
+            template2 = GetArgParameterOrConfig(nameof(template2), "t2");
+            template3 = GetArgParameterOrConfig(nameof(template3), "t3");
+            template4 = GetArgParameterOrConfig(nameof(template4), "t4");
+            template5 = GetArgParameterOrConfig(nameof(template5), "t5");
+            template6 = GetArgParameterOrConfig(nameof(template6), "t6");
+            template7 = GetArgParameterOrConfig(nameof(template7), "t7");
+            template8 = GetArgParameterOrConfig(nameof(template8), "t8");
+            template9 = GetArgParameterOrConfig(nameof(template9), "t9");
+
+            var templates = new string[] { template1, template2, template3, template4, template5, template6, template7, template8, template9 };
+            var templatesD = new IndexedDictionary<string, string>();
+            for (int i = 0; i < templates.Length; i++)
+            {
+                var itemName = "{t" + (i + 1) + "}";
+                var itemValue = templates[i];
+                if (itemValue.TrimOrNull() == null) itemValue = null;
+                if (itemValue != null) templatesD[itemName] = itemValue;
+            }
+
             browserDriverDirectory = GetArgParameterOrConfig(nameof(browserDriverDirectory), "d");
             browserDriverDownloadDirectory = GetArgParameterOrConfig(nameof(browserDriverDownloadDirectory), "dd", External.WebBrowser.BrowserDriverDownloadDirectoryBaseDefault);
             browserVersion = GetArgParameterOrConfig(nameof(browserVersion), "v");
@@ -118,6 +159,29 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             var root = XmlReader.Read(scriptFileData);
             if (!root.Name.EqualsCaseInsensitive("browser")) throw new Exception("No <browser> root element is defined");
+            var allNodes = new List<XmlElement> { root };
+            allNodes.AddRange(root.ChildrenAll);
+            foreach (var node in allNodes)
+            {
+                foreach (var templatekvp in templatesD)
+                {
+                    var templateKey = templatekvp.Key;
+                    var templateVal = templatekvp.Value;
+
+                    foreach (var attributeKey in node.Attributes.Keys.ToArray())
+                    {
+                        if (node.Attributes[attributeKey].TrimOrNull() != null && node.Attributes[attributeKey].Contains(templateKey))
+                        {
+                            node.Attributes[attributeKey] = node.Attributes[attributeKey].Replace(templateKey, templateVal);
+                        }
+                    }
+                    if (node.Value.TrimOrNull() != null && node.Value.Contains(templateKey))
+                    {
+                        node.Value = node.Value.Replace(templateKey, templateVal);
+                    }
+                }
+            }
+
             var children = root.Children;
             if (children.IsEmpty()) throw new Exception("No action elements defined");
 
