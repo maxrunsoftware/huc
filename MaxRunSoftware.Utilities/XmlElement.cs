@@ -25,37 +25,6 @@ namespace MaxRunSoftware.Utilities
         public IList<XmlElement> Children { get; } = new List<XmlElement>();
         public XmlElement Parent { get; set; }
 
-        public string this[string attributeName] { get => GetAttributeValue(attributeName); }
-
-        public string GetAttributeValue(string attributeName)
-        {
-            if (Attributes.TryGetValue(attributeName, out var val)) return val;
-            foreach (var sc in Constant.LIST_StringComparison)
-            {
-                foreach (var kvp in Attributes)
-                {
-                    if (string.Equals(attributeName, kvp.Key, sc))
-                    {
-                        return kvp.Value;
-                    }
-                }
-            }
-            return null;
-        }
-
-        public IEnumerable<XmlElement> GetChildrenNamed(string name, bool caseSensitive = false)
-        {
-            foreach (var c in Children)
-            {
-                if (caseSensitive)
-                {
-                    if (string.Equals(name, c.Name)) yield return c;
-                }
-                else
-                {
-                    if (string.Equals(name, c.Name, System.StringComparison.OrdinalIgnoreCase)) yield return c;
-                }
-            }
-        }
+        public string this[string attributeName] { get => Attributes.GetValueCaseInsensitive(attributeName); }
     }
 }

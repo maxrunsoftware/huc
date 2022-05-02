@@ -69,13 +69,16 @@ namespace MaxRunSoftware.Utilities
             return toString;
         }
 
-        public IDisposable Element(string elementName, params (string attributeName, object attributeValue)[] attributes)
+        public IDisposable Element(string elementName, params (string attributeName, object attributeValue)[] attributes) => Element(elementName, null, attributes: attributes);
+
+        public IDisposable Element(string elementName, string elementValue, params (string attributeName, object attributeValue)[] attributes)
         {
             writer.WriteStartElement(elementName);
             foreach (var attr in attributes)
             {
                 Attribute(attr.attributeName, attr.attributeValue);
             }
+            if (elementValue != null) writer.WriteValue(elementValue);
             return new ElementToken(this);
         }
 
