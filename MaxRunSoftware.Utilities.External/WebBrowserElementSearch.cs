@@ -30,13 +30,25 @@ namespace MaxRunSoftware.Utilities.External
         public string Name { get; set; }
         public string TagName { get; set; }
         public string XPath { get; set; }
+        public string ValueEquals { get; set; }
+        public string ValueContains { get; set; }
 
         public List<IWebElement> FindElements(WebDriver driver)
         {
+            Id = Id.TrimOrNull();
+            ClassName = ClassName.TrimOrNull();
+            Name = Name.TrimOrNull();
+            TagName = TagName.TrimOrNull();
+            XPath = XPath.TrimOrNull();
+            ValueEquals = ValueEquals.TrimOrNull();
+            ValueContains = ValueContains.TrimOrNull();
+
             var searchedId = false;
             var searchedClassName = false;
             var searchedName = false;
             var searchedTagName = false;
+            var searchedValueEquals = false;
+            var searchedValueContains = false;
 
             var list = new List<IWebElement>();
             if (XPath != null)
@@ -79,7 +91,22 @@ namespace MaxRunSoftware.Utilities.External
                 searchedTagName = true;
                 list.AddRange(driver.FindElements(By.TagName(TagName)));
             }
+            else if (ValueEquals != null)
+            {
+                searchedValueEquals = true;
 
+                // https://stackoverflow.com/a/5075279
+                var xpath = $"//text()[. = '{ValueEquals}']";
+                list.AddRange(driver.FindElements(By.XPath(XPath)));
+            }
+            else if (ValueContains != null)
+            {
+                searchedValueContains = true;
+
+                // https://stackoverflow.com/a/5075279
+                var xpath = $"//text()[contains(.,'{ValueContains}')]";
+                list.AddRange(driver.FindElements(By.XPath(XPath)));
+            }
 
             if (Id != null && !searchedId)
             {
@@ -137,6 +164,30 @@ namespace MaxRunSoftware.Utilities.External
                     var val = element.TagName;
                     if (val == null) continue; // we are filtering on TagName and this element doesn't have an TagName so skip
                     if (string.Equals(TagName, val, StringComparison.OrdinalIgnoreCase)) list2.Add(element);
+                }
+                list = list2;
+            }
+
+            if (ValueEquals != null && !searchedValueEquals)
+            {
+                var list2 = new List<IWebElement>();
+                foreach (var element in list)
+                {
+                    var val = element.Text.TrimOrNull();
+                    if (val == null) continue; // we are filtering on Value and this element doesn't have a Value so skip
+                    if (string.Equals(ValueEquals, val, StringComparison.OrdinalIgnoreCase)) list2.Add(element);
+                }
+                list = list2;
+            }
+
+            if (ValueContains != null && !searchedValueContains)
+            {
+                var list2 = new List<IWebElement>();
+                foreach (var element in list)
+                {
+                    var val = element.Text.TrimOrNull();
+                    if (val == null) continue; // we are filtering on Value and this element doesn't have a Value so skip
+                    if (val.ToLower().Contains(ValueContains.ToLower())) list2.Add(element);
                 }
                 list = list2;
             }
