@@ -2044,6 +2044,36 @@ namespace MaxRunSoftware.Utilities
             return d;
         }
 
+        public static TValue GetValueCaseInsensitive<TValue>(this IDictionary<string, TValue> dictionary, string key) => TryGetValueCaseInsensitive(dictionary, key, out var val) ? val : default(TValue);
+
+        public static bool TryGetValueCaseInsensitive<TValue>(this IDictionary<string, TValue> dictionary, string key, out TValue value)
+        {
+            if (key == null)
+            {
+                value = default(TValue);
+                return false;
+            }
+
+            if (dictionary.TryGetValue(key, out value)) return true;
+            if (dictionary.TryGetValue(key.ToLower(), out value)) return true;
+            if (dictionary.TryGetValue(key.ToUpper(), out value)) return true;
+
+            foreach (var sc in Constant.LIST_StringComparison)
+            {
+                foreach (var kvp in dictionary)
+                {
+                    if (string.Equals(kvp.Key, key, sc))
+                    {
+                        value = kvp.Value;
+                        return true;
+                    }
+                }
+            }
+
+            value = default(TValue);
+            return false;
+        }
+
         public static T[] Add<T>(this T[] array, params T[] itemsToAdd) => array.Concat(itemsToAdd).ToArray();
 
         #region In
@@ -2644,6 +2674,20 @@ namespace MaxRunSoftware.Utilities
         public static string TrimOrNullUpper(this string str) => (str.TrimOrNull())?.ToUpper();
 
         public static string TrimOrNullLower(this string str) => (str.TrimOrNull())?.ToLower();
+
+        /// <summary>
+        /// Trims whitespace from a StringBuilder instance.
+        /// </summary>
+        /// <param name="stringBuilder">The StringBuilder to act on</param>
+        /// <returns>A reference to this instance after the TrimOrNull operation has completed.</returns>
+        public static StringBuilder TrimOrNull(this StringBuilder stringBuilder)
+        {
+            // TODO: Not very performant for large strings
+            var s = stringBuilder.ToString().TrimOrNull();
+            stringBuilder.Clear();
+            if (s != null) stringBuilder.Append(s);
+            return stringBuilder;
+        }
 
         #endregion TrimOrNull
 
