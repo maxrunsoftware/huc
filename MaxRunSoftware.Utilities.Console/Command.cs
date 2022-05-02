@@ -335,17 +335,29 @@ namespace MaxRunSoftware.Utilities.Console
 
         public T GetArgParameterOrConfigEnum<T>(string key1, string key2, T defaultValue) where T : struct, IConvertible, IComparable, IFormattable
         {
-            var v = GetArgParameter(key1, key2);
-            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
+            var v = GetArgParameterOrConfigEnum<T>(key1, key2);
+            if (v == null) return defaultValue;
+            else return v.Value;
+        }
+
+        public T? GetArgParameterOrConfigEnum<T>(string key1, string key2) where T : struct, IConvertible, IComparable, IFormattable
+        {
+            var v = GetArgParameter(key1, key2).TrimOrNull();
+            if (v == null) v = GetArgParameterConfig(key1);
             log.Debug($"{key1}String: {v}");
-            var o = defaultValue;
-            if (v.TrimOrNull() != null)
+
+            if (v == null)
             {
-                var onullable = Util.GetEnumItemNullable<T>(v);
-                if (onullable == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
-                o = onullable.Value;
+                log.Debug($"{key1}: {v}");
+                return null;
             }
+
+            var onullable = Util.GetEnumItemNullable<T>(v);
+            if (onullable == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
+
+            var o = onullable.Value;
             log.Debug($"{key1}: {o}");
+
             return o;
         }
 
