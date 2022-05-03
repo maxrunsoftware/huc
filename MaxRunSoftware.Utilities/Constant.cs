@@ -20,6 +20,8 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -72,15 +74,6 @@ namespace MaxRunSoftware.Utilities
         public static readonly ImmutableArray<char> CHARS_00000_00128_ARRAY = ImmutableArray.Create(CHARS_00000_00128.ToCharArray());
 
         #endregion CHARS
-
-        public const int BUFFER_SIZE_MINIMUM = 1024 * 4;
-
-        /// <summary>
-        /// We pick a value that is the largest multiple of 4096 that is still smaller than the
-        /// large object heap threshold (85K). The CopyTo/CopyToAsync buffer is short-lived and is
-        /// likely to be collected at Gen0, and it offers a significant improvement in Copy performance.
-        /// </summary>
-        public const int BUFFER_SIZE_OPTIMAL = 81920;
 
         public const string NEWLINE_WINDOWS = "\r\n";
         public const string NEWLINE_UNIX = "\n";
@@ -158,21 +151,6 @@ namespace MaxRunSoftware.Utilities
         public static readonly Encoding ENCODING_UTF8_WITH_BOM = new UTF8Encoding(true); // Threadsafe according to https://stackoverflow.com/a/3024405
 
         /// <summary>
-        /// Are we running on a Windows platform?
-        /// </summary>
-        public static readonly bool OS_WINDOWS = OS_get() == OSPlatform.Windows;
-
-        /// <summary>
-        /// Are we running on a UNIX/LINUX platform?
-        /// </summary>
-        public static readonly bool OS_UNIX = OS_get() == OSPlatform.Linux || OS_get() == OSPlatform.FreeBSD;
-
-        /// <summary>
-        /// Are we running on a Mac/Apple platform?
-        /// </summary>
-        public static readonly bool OS_MAC = OS_get() == OSPlatform.OSX;
-
-        /// <summary>
         /// Operating System are we currently running
         /// </summary>
         public static readonly OSPlatform OS = OS_get();
@@ -186,6 +164,21 @@ namespace MaxRunSoftware.Utilities
             // Unknown OS
             return OSPlatform.Windows;
         }
+
+        /// <summary>
+        /// Are we running on a Windows platform?
+        /// </summary>
+        public static readonly bool OS_WINDOWS = OS == OSPlatform.Windows;
+
+        /// <summary>
+        /// Are we running on a UNIX/LINUX platform?
+        /// </summary>
+        public static readonly bool OS_UNIX = OS == OSPlatform.Linux || OS == OSPlatform.FreeBSD;
+
+        /// <summary>
+        /// Are we running on a Mac/Apple platform?
+        /// </summary>
+        public static readonly bool OS_MAC = OS == OSPlatform.OSX;
 
         /// <summary>
         /// Are we running on a 32-bit operating system?
@@ -352,12 +345,12 @@ namespace MaxRunSoftware.Utilities
         /// <summary>
         /// Case-Insensitive hashset of boolean true values 
         /// </summary>
-        public static readonly IReadOnlyCollection<string> SET_Bool_True = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
+        public static readonly IReadOnlySet<string> SET_Bool_True = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Case-Insensitive hashset of boolean false values
         /// </summary>
-        public static readonly IReadOnlyCollection<string> SET_Bool_False = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
+        public static readonly IReadOnlySet<string> SET_Bool_False = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Case-Insensitive map of boolean string values to boolean values
@@ -372,53 +365,151 @@ namespace MaxRunSoftware.Utilities
             return (new Dictionary<string, bool>(d, StringComparer.OrdinalIgnoreCase));
         }
 
+
+        #region IO
+
+        public static readonly IReadOnlySet<char> PATH_DELIMITERS = (new HashSet<char>(new char[] { '/', '\\', System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }));
+        public static readonly IReadOnlySet<string> PATH_DELIMITERS_STRINGS = (new HashSet<string>(PATH_DELIMITERS.Select(o => o.ToString())));
+
+        public static readonly ImmutableArray<char> PATH_DELIMITERS_ARRAY = PATH_DELIMITERS.OrderBy(o => o).ToImmutableArray();
+        public static readonly ImmutableArray<string> PATH_DELIMITERS_STRINGS_ARRAY = PATH_DELIMITERS_ARRAY.Select(o => o.ToString()).ToArray().ToImmutableArray();
+
+        public static readonly bool PATH_CASE_SENSITIVE = !OS_WINDOWS;
+
+        public const int BUFFER_SIZE_MINIMUM = 1024 * 4;
+
+        /// <summary>
+        /// We pick a value that is the largest multiple of 4096 that is still smaller than the
+        /// large object heap threshold (85K). The CopyTo/CopyToAsync buffer is short-lived and is
+        /// likely to be collected at Gen0, and it offers a significant improvement in Copy performance.
+        /// </summary>
+        public const int BUFFER_SIZE_OPTIMAL = 81920;
+
+        #endregion
+
+        #region LOCATIONS
+
+        private static IReadOnlyList<string> CURRENT_POTENTIAL_LOCATIONS = CURRENT_POTENTIAL_LOCATIONS_get().AsReadOnly();
+        private static List<string> CURRENT_POTENTIAL_LOCATIONS_get()
+        {
+            // https://stackoverflow.com/questions/616584/how-do-i-get-the-name-of-the-current-executable-in-c
+
+            var list = new List<string>();
+            try
+            {
+                list.Add(Process.GetCurrentProcess()?.MainModule?.FileName);
+            }
+            catch (Exception) { }
+
+            try
+            {
+                list.Add(AppDomain.CurrentDomain?.FriendlyName);
+            }
+            catch (Exception) { }
+
+            try
+            {
+                list.Add(Process.GetCurrentProcess()?.ProcessName);
+            }
+            catch (Exception) { }
+
+            try
+            {
+                list.Add(Process.GetCurrentProcess()?.ProcessName);
+            }
+            catch (Exception) { }
+
+            try
+            {
+                list.Add(typeof(Constant).Assembly.Location);
+            }
+            catch (Exception) { }
+
+            try
+            {
+                list.Add(Path.GetFullPath("."));
+            }
+            catch (Exception) { }
+
+            try
+            {
+                list.Add(Environment.CurrentDirectory);
+            }
+            catch (Exception) { }
+
+            var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+            var list2 = new List<string>();
+            foreach (var item in list)
+            {
+                var v = TrimOrNull(item);
+                if (v == null) continue;
+                if (set.Add(v)) list2.Add(v);
+            }
+            return list2;
+        }
+
+        public static readonly ImmutableArray<string> CURRENT_EXE_DIRECTORIES = CURRENT_EXE_DIRECTORIES_get().ToImmutableArray();
+        private static List<string> CURRENT_EXE_DIRECTORIES_get()
+        {
+            var list = new List<string>();
+            foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
+            {
+                if (item.Any(o => PATH_DELIMITERS.Contains(o)))
+                {
+                    // contains directory delimiters
+                    try
+                    {
+                        var a = Path.GetFullPath(Path.GetDirectoryName(item));
+                        list.Add(a);
+                    }
+                    catch (Exception) { }
+                }
+            }
+
+            var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+            var list2 = new List<string>();
+            foreach (var item in list)
+            {
+                var v = TrimOrNull(item);
+                if (v == null) continue;
+                if (set.Add(v)) list2.Add(v);
+            }
+            return list2;
+        }
+
+        public static readonly string CURRENT_EXE_DIRECTORY = CURRENT_EXE_DIRECTORIES.FirstOrDefault();
+
+        public static readonly ImmutableArray<string> CURRENT_EXES = CURRENT_EXES_get().ToImmutableArray();
+        private static List<string> CURRENT_EXES_get()
+        {
+            var list = new List<string>();
+            foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
+            {
+                try
+                {
+                    var a = Path.GetFullPath(item);
+                    list.Add(a);
+                }
+                catch (Exception) { }
+            }
+
+            var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+            var list2 = new List<string>();
+            foreach (var item in list)
+            {
+                var v = TrimOrNull(item);
+                if (v == null) continue;
+                if (set.Add(v)) list2.Add(v);
+            }
+            return list2;
+        }
+
         /// <summary>
         /// The current EXE file name. Could be a full file path, or a partial file path, or null
         /// </summary>
-        public static readonly string CURRENT_EXE = CURRENT_EXE_get();
+        public static readonly string CURRENT_EXE = CURRENT_POTENTIAL_LOCATIONS.FirstOrDefault();
 
-        private static string CURRENT_EXE_get()
-        {
-            // https://stackoverflow.com/questions/616584/how-do-i-get-the-name-of-the-current-executable-in-c
-            string name = null;
-            try
-            {
-                name = Process.GetCurrentProcess()?.MainModule?.FileName;
-                if (name != null)
-                {
-                    name = name.Trim();
-                    if (name.Length == 0) name = null;
-                }
-            }
-            catch (Exception) { }
-            if (name != null) return name;
-
-            try
-            {
-                name = AppDomain.CurrentDomain?.FriendlyName;
-                if (name != null)
-                {
-                    name = name.Trim();
-                    if (name.Length == 0) name = null;
-                }
-            }
-            catch (Exception) { }
-            if (name != null) return name;
-
-            try
-            {
-                name = Process.GetCurrentProcess()?.ProcessName;
-                if (name != null)
-                {
-                    name = name.Trim();
-                    if (name.Length == 0) name = null;
-                }
-            }
-            catch (Exception) { }
-            if (name != null) return name;
-
-            return null;
-        }
+        #endregion
 
         /// <summary>
         /// Are we executing via a batchfile or script or running the command directly from the console window?
@@ -461,6 +552,14 @@ namespace MaxRunSoftware.Utilities
                 }
             }
             return false;
+        }
+
+        private static string TrimOrNull(string str)
+        {
+            if (str == null) return str;
+            str = str.Trim();
+            if (str.Length == 0) return null;
+            return str;
         }
     }
 }
