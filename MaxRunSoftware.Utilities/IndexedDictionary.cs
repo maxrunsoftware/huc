@@ -36,9 +36,13 @@ namespace MaxRunSoftware.Utilities
     public sealed class IndexedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
         // Non-generic version only in .NET 4.5
-        private readonly OrderedDictionary d = new();
+        private readonly OrderedDictionary d;
 
         private IEnumerable<KeyValuePair<TKey, TValue>> KeyValuePairs => d.OfType<DictionaryEntry>().Select(e => new KeyValuePair<TKey, TValue>((TKey)e.Key, (TValue)e.Value));
+
+        public IndexedDictionary() => d = new OrderedDictionary();
+
+        public IndexedDictionary(IEqualityComparer comparer) => d = new OrderedDictionary(comparer);
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => KeyValuePairs.GetEnumerator();
 
