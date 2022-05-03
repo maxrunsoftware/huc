@@ -2326,16 +2326,14 @@ namespace MaxRunSoftware.Utilities
 
         #region Path
 
-        private static readonly string[] PathDelimiters = new string[] { "/", "\\", Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString() };
-
-        public static string[] PathParse(string path) => PathParse(path, PathDelimiters);
+        public static string[] PathParse(string path) => PathParse(path, Constant.PATH_DELIMITERS_STRINGS);
 
         public static string[] PathParse(string path, params string[] pathDelimiters)
         {
             return PathParse(path.Yield(), pathDelimiters);
         }
 
-        public static string[] PathParse(IEnumerable<string> pathParts) => PathParse(pathParts, PathDelimiters);
+        public static string[] PathParse(IEnumerable<string> pathParts) => PathParse(pathParts, Constant.PATH_DELIMITERS_STRINGS);
 
         public static string[] PathParse(string path, IEnumerable<string> pathDelimiters) => PathParse(path.Yield(), pathDelimiters);
 
