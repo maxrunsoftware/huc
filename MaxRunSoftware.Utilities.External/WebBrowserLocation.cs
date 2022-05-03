@@ -66,6 +66,10 @@ namespace MaxRunSoftware.Utilities.External
             new WebBrowserLocation("C:\\Program Files\\Mozilla Firefox\\firefox.exe", browserType: WebBrowserType.Firefox, browserOS: OSPlatform.Windows, isBrowser64Bit: true),
             new WebBrowserLocation("C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe", browserType: WebBrowserType.Firefox, browserOS: OSPlatform.Windows, isBrowser64Bit: false),
 
+            new WebBrowserLocation("C:\\Program Files\\Internet Explorer\\iexplore.exe", browserType: WebBrowserType.InternetExplorer, browserOS: OSPlatform.Windows, isBrowser64Bit: true),
+            new WebBrowserLocation("C:\\Program Files (x86)\\Internet Explorer\\iexplore.exe", browserType: WebBrowserType.InternetExplorer, browserOS: OSPlatform.Windows, isBrowser64Bit: false),
+
+
 
         }.AsReadOnly();
 
@@ -79,6 +83,12 @@ namespace MaxRunSoftware.Utilities.External
                 return loc;
             }
             return null;
+        }
+
+        public WebBrowserLocation ChangeArchitecture(bool? isBrowser64Bit = null)
+        {
+            if (isBrowser64Bit == null) isBrowser64Bit = !IsBrowser64Bit;
+            return new WebBrowserLocation(BrowserExecutable, BrowserType, BrowserOS, isBrowser64Bit);
         }
 
         public override string ToString()

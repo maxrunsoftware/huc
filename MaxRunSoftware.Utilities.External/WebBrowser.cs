@@ -185,7 +185,6 @@ namespace MaxRunSoftware.Utilities.External
                 //options.BinaryLocation = BrowserExecutableFilePath;
                 //foreach (var a in optionArguments) options.AddArgument(a);
                 //foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
-
                 var driverService = InternetExplorerDriverService.CreateDefaultService(BrowserDriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;

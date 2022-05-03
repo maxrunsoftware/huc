@@ -27,6 +27,8 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 {
     public class WebBrowser : Command
     {
+        public enum WebBrowserArchitecture { X32, X64 }
+
         protected override void CreateHelp(CommandHelpBuilder help)
         {
             help.AddSummary("Executes scripted browser actions");
@@ -36,6 +38,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             help.AddParameter(nameof(browserType), "t", "Browser type " + DisplayEnumOptions<WebBrowserType>());
             help.AddParameter(nameof(browserVersion), "v", "Browser version");
+            help.AddParameter(nameof(WebBrowserArchitecture), "a", "Browser architecture " + DisplayEnumOptions<WebBrowserArchitecture>());
 
             help.AddParameter(nameof(template1), "t1", "Replaces {t1} with this value in attributes and text in the <XML script file>");
             help.AddParameter(nameof(template2), "t2", "Replaces {t2} with this value in attributes and text in the <XML script file>");
@@ -85,6 +88,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         private string browserDriverDownloadDirectory;
         private WebBrowserType? browserType;
         private string browserVersion;
+        private WebBrowserArchitecture? browserArchitecture;
 
         private WebBrowserLocation browserLocation;
 
@@ -127,6 +131,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             browserDriverDirectory = GetArgParameterOrConfig(nameof(browserDriverDirectory), "d");
             browserDriverDownloadDirectory = GetArgParameterOrConfig(nameof(browserDriverDownloadDirectory), "dd", External.WebBrowser.BrowserDriverDownloadDirectoryBaseDefault);
             browserVersion = GetArgParameterOrConfig(nameof(browserVersion), "v");
+            browserArchitecture = GetArgParameterOrConfigEnum<WebBrowserArchitecture>(nameof(browserArchitecture), "a");
 
             browserType = GetArgParameterOrConfigEnum<WebBrowserType>(nameof(browserType), "t");
             browserExecutableFile = GetArgParameterOrConfig(nameof(browserExecutableFile), "b");
@@ -150,6 +155,11 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 browserLocation = new WebBrowserLocation(browserExecutableFile, browserType, Constant.OS, null);
             }
             log.Debug(browserLocation.ToString());
+
+            if (browserArchitecture != null)
+            {
+                browserLocation = browserLocation.ChangeArchitecture(isBrowser64Bit: browserArchitecture.Value == WebBrowserArchitecture.X64);
+            }
 
             if (browserType == null) browserType = browserLocation.BrowserType;
             if (browserExecutableFile == null) browserExecutableFile = browserLocation.BrowserExecutable;
