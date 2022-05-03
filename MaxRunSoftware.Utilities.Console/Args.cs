@@ -16,6 +16,8 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MaxRunSoftware.Utilities.Console
@@ -33,6 +35,9 @@ namespace MaxRunSoftware.Utilities.Console
         public bool IsHelp { get; init; }
         public bool IsShowHidden { get; init; }
         public bool IsVersion { get; init; }
+        public bool IsExpandFileArgs { get; init; }
+        public bool IsExpandFileArgsNoTrim { get; init; }
+
         public string[] ArgsString => args.Copy();
         private readonly string[] args;
         public Args(params string[] args)
@@ -88,15 +93,65 @@ namespace MaxRunSoftware.Utilities.Console
 
             }
 
-            Values = values;
             IsDebug = d.Remove("DEBUG");
             IsTrace = d.Remove("TRACE");
             IsNoBanner = d.Remove("NOBANNER");
             IsShowHidden = d.Remove("SHOWHIDDEN");
             if (!IsHelp) IsHelp = d.Remove("HELP");
             IsVersion = d.Remove("VERSION");
+            IsExpandFileArgs = d.Remove("EXPANDFILEARGS");
+            IsExpandFileArgsNoTrim = d.Remove("EXPANDFILEARGSNOTRIM");
+
+            if (IsExpandFileArgs)
+            {
+                values = values.Select(o => ParseParameterFile(o)).ToList();
+                foreach (var key in d.Keys.ToArray())
+                {
+                    d[key] = ParseParameterFile(d[key]);
+                }
+            }
+
+            Values = values;
             Parameters = d;
 
+        }
+
+        private string ParseParameterFile(string str)
+        {
+            if (str == null) return str;
+            if (!str.Contains("F{")) return str;
+            if (!str.Contains("}")) return str;
+
+            var stack = new Stack<StringBuilder>();
+            stack.Push(new StringBuilder());
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                var c = str[i];
+                if (c == 'F' && str.GetAtIndexOrDefault(i + 1) == '{')
+                {
+                    i++;
+                    stack.Push(new StringBuilder());
+                }
+                else if (c == '}' && stack.Count > 1)
+                {
+                    var filename = stack.Pop().ToString().TrimOrNull();
+                    if (filename != null)
+                    {
+                        if (!File.Exists(filename)) throw new FileNotFoundException("File not found " + filename, filename);
+                        var filedata = Util.FileRead(filename, Constant.ENCODING_UTF8_WITHOUT_BOM);
+                        if (!IsExpandFileArgsNoTrim) filedata = filedata.TrimOrNull();
+                        filedata = filedata ?? "";
+                        stack.Peek().Append(filedata);
+                    }
+                }
+                else
+                {
+                    stack.Peek().Append(c);
+                }
+            }
+
+            return stack.ToListReversed().Select(o => o.ToString()).ToStringDelimited("");
         }
 
         public override string ToString()
