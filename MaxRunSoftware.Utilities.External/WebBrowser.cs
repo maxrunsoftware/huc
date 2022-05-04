@@ -46,6 +46,7 @@ namespace MaxRunSoftware.Utilities.External
         public string BrowserDriverDownloadDirectoryBase { get; set; }
         public static string BrowserDriverDownloadDirectoryBaseDefault { get; } = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(Constant.CURRENT_EXE)), "WebBrowserDrivers");
         public string BrowserVersion { get; set; }
+        public bool BrowserNativeEvents { get; set; } = true;
 
         public WebDriver Browser { get; private set; }
 
@@ -129,7 +130,8 @@ namespace MaxRunSoftware.Utilities.External
                 "--silent",
                 "--silentOutput",
                 "log-level=3",
-                "--log-level=3"
+                "--log-level=3",
+                "no-sandbox",
             };
             var optionArgumentsExcluded = new List<string>
             {
@@ -185,6 +187,8 @@ namespace MaxRunSoftware.Utilities.External
                 //options.BinaryLocation = BrowserExecutableFilePath;
                 //foreach (var a in optionArguments) options.AddArgument(a);
                 //foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
+                options.EnableNativeEvents = BrowserNativeEvents;
+
                 var driverService = InternetExplorerDriverService.CreateDefaultService(BrowserDriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
@@ -210,6 +214,10 @@ namespace MaxRunSoftware.Utilities.External
             {
                 throw new NotImplementedException("Unknown [BrowserType] " + bt);
             }
+
+            Browser.Manage().Timeouts().PageLoad.Add(TimeSpan.FromSeconds(60));
+            Browser.Manage().Timeouts().AsynchronousJavaScript.Add(TimeSpan.FromSeconds(60));
+
         }
 
         public void GoTo(string url)

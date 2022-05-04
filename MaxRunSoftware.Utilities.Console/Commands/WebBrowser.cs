@@ -40,6 +40,9 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddParameter(nameof(browserVersion), "v", "Browser version");
             help.AddParameter(nameof(WebBrowserArchitecture), "a", "Browser architecture " + DisplayEnumOptions<WebBrowserArchitecture>());
 
+            help.AddParameter(nameof(browserDisableNativeEvents), "dne", "Disables native events in " + WebBrowserType.InternetExplorer);
+
+
             help.AddParameter(nameof(template1), "t1", "Replaces {t1} with this value in attributes and text in the <XML script file>");
             help.AddParameter(nameof(template2), "t2", "Replaces {t2} with this value in attributes and text in the <XML script file>");
             help.AddParameter(nameof(template3), "t3", "Replaces {t3} with this value in attributes and text in the <XML script file>");
@@ -89,6 +92,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         private WebBrowserType? browserType;
         private string browserVersion;
         private WebBrowserArchitecture? browserArchitecture;
+        private bool browserDisableNativeEvents;
 
         private WebBrowserLocation browserLocation;
 
@@ -132,7 +136,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             browserDriverDownloadDirectory = GetArgParameterOrConfig(nameof(browserDriverDownloadDirectory), "dd", External.WebBrowser.BrowserDriverDownloadDirectoryBaseDefault);
             browserVersion = GetArgParameterOrConfig(nameof(browserVersion), "v");
             browserArchitecture = GetArgParameterOrConfigEnum<WebBrowserArchitecture>(nameof(browserArchitecture), "a");
-
+            browserDisableNativeEvents = GetArgParameterOrConfigBool(nameof(browserDisableNativeEvents), "dne", false);
             browserType = GetArgParameterOrConfigEnum<WebBrowserType>(nameof(browserType), "t");
             browserExecutableFile = GetArgParameterOrConfig(nameof(browserExecutableFile), "b");
 
@@ -201,6 +205,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 browser.BrowserDriverDirectory = browserDriverDirectory;
                 browser.BrowserDriverDownloadDirectoryBase = browserDriverDownloadDirectory;
                 browser.BrowserVersion = browserVersion;
+                browser.BrowserNativeEvents = !browserDisableNativeEvents;
 
                 browser.Start();
 
