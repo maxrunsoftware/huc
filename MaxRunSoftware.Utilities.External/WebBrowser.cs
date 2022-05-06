@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -41,12 +42,27 @@ namespace MaxRunSoftware.Utilities.External
 
         private SingleUse isDisposed = new();
 
-        public WebBrowserLocation BrowserLocation { get; set; }
-        public string BrowserDriverDirectory { get; set; }
-        public string BrowserDriverDownloadDirectoryBase { get; set; }
-        public static string BrowserDriverDownloadDirectoryBaseDefault { get; } = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(Constant.CURRENT_EXE)), "WebBrowserDrivers");
-        public string BrowserVersion { get; set; }
-        public bool BrowserNativeEvents { get; set; } = true;
+        public WebBrowserLocation Location { get; set; }
+        public string DriverDirectory { get; set; }
+        public string DriverDownloadDirectoryBase { get; set; }
+        public static string DriverDownloadDirectoryBaseDefault { get; } = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(Constant.CURRENT_EXE)), "WebBrowserDrivers");
+        public string Version { get; set; }
+        public bool NativeEvents { get; set; } = true;
+        public IList<string> OptionArguments { get; } = new List<string>()
+        {
+                "ignore-certificate-errors",
+                "disable-extensions",
+                "headless",
+                "disable-gpu",
+                "silent",
+                "silentOutput",
+                "log-level=3",
+                "no-sandbox",
+        };
+        public IList<string> OptionArgumentsExcluded { get; } = new List<string>()
+        {
+                "enable-logging"
+        };
 
         public WebDriver Browser { get; private set; }
 
@@ -64,9 +80,9 @@ namespace MaxRunSoftware.Utilities.External
         {
             // https://github.com/rosolko/WebDriverManager.Net/
 
-            var driverConfig = CreateDriverConfig(BrowserLocation.BrowserType);
+            var driverConfig = CreateDriverConfig(Location.BrowserType);
 
-            var browserVersion = BrowserVersion;
+            var browserVersion = Version;
             if (browserVersion == null)
             {
                 try
@@ -85,15 +101,15 @@ namespace MaxRunSoftware.Utilities.External
             }
             if (browserVersion == null) throw new Exception("Unable to determine browser version for automatic driver download");
 
-            var browserArchitecture = BrowserLocation.IsBrowser64Bit ? Architecture.X64 : Architecture.X32;
+            var browserArchitecture = Location.IsBrowser64Bit ? Architecture.X64 : Architecture.X32;
 
             var driverUrl = browserArchitecture == Architecture.X32 ? driverConfig.GetUrl32() : driverConfig.GetUrl64();
             driverUrl = UrlHelper.BuildUrl(driverUrl, browserVersion);
 
-            if (BrowserDriverDownloadDirectoryBase == null) BrowserDriverDownloadDirectoryBase = BrowserDriverDownloadDirectoryBaseDefault;
+            if (DriverDownloadDirectoryBase == null) DriverDownloadDirectoryBase = DriverDownloadDirectoryBaseDefault;
 
             //var binDestination = Path.Combine(currentDirectory, driverConfig.GetName(), browserVersion, browserArchitecture.ToString(), driverConfig.GetBinaryName());
-            var browserDriverFile = Path.Combine(BrowserDriverDownloadDirectoryBase, driverConfig.GetName() + "_" + browserVersion + "_" + browserArchitecture.ToString(), driverConfig.GetBinaryName());
+            var browserDriverFile = Path.Combine(DriverDownloadDirectoryBase, driverConfig.GetName() + "_" + browserVersion + "_" + browserArchitecture.ToString(), driverConfig.GetBinaryName());
             log.Debug($"DriverManager binary location: " + browserDriverFile);
 
 
@@ -103,7 +119,7 @@ namespace MaxRunSoftware.Utilities.External
             var driverManagerMsg = driverManager.SetUpDriver(driverUrl, browserDriverFile);
             log.Debug("DriverManager.SetUpDriver: " + driverManagerMsg);
 
-            BrowserDriverDirectory = Path.GetDirectoryName(browserDriverFile);
+            DriverDirectory = Path.GetDirectoryName(browserDriverFile);
         }
 
         public void Start()
@@ -112,41 +128,27 @@ namespace MaxRunSoftware.Utilities.External
 
             log.Debug("Starting Browser");
 
-            if (BrowserLocation == null) throw new Exception($"Property [{nameof(BrowserLocation)}] is not defined");
+            if (Location == null) throw new Exception($"Property [{nameof(Location)}] is not defined");
 
-            log.Debug($"{nameof(BrowserLocation)}: {BrowserLocation}");
-            if (!BrowserLocation.IsExist) throw new Exception($"Browser executable does not exist {BrowserLocation.BrowserExecutable}");
+            log.Debug($"{nameof(Location)}: {Location}");
+            if (!Location.IsExist) throw new Exception($"Browser executable does not exist {Location.BrowserExecutable}");
 
-            if (BrowserDriverDirectory == null) SetupDriverManager();
+            if (DriverDirectory == null) SetupDriverManager();
 
-            var optionArguments = new List<string>
-            {
-                "--ignore-certificate-errors",
-                "--disable-extensions",
-                "headless",
-                "--headless",
-                "disable-gpu",
-                "silent",
-                "--silent",
-                "--silentOutput",
-                "log-level=3",
-                "--log-level=3",
-                "no-sandbox",
-            };
-            var optionArgumentsExcluded = new List<string>
-            {
-                "enable-logging"
-            };
+            var optionArguments = OptionArguments.ToList();
+            optionArguments.AddRange(optionArguments.Where(o => !o.StartsWith("-")).Select(o => "--" + o).ToList());
 
-            var bt = BrowserLocation.BrowserType;
+            var optionArgumentsExcluded = OptionArgumentsExcluded.ToList();
+
+            var bt = Location.BrowserType;
             if (bt == WebBrowserType.Chrome)
             {
                 var options = new ChromeOptions();
-                options.BinaryLocation = BrowserLocation.BrowserExecutable;
+                options.BinaryLocation = Location.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = ChromeDriverService.CreateDefaultService(BrowserDriverDirectory);
+                var driverService = ChromeDriverService.CreateDefaultService(DriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 driverService.EnableVerboseLogging = false;
@@ -156,11 +158,11 @@ namespace MaxRunSoftware.Utilities.External
             else if (bt == WebBrowserType.Edge)
             {
                 var options = new EdgeOptions();
-                options.BinaryLocation = BrowserLocation.BrowserExecutable;
+                options.BinaryLocation = Location.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = EdgeDriverService.CreateDefaultService(BrowserDriverDirectory);
+                var driverService = EdgeDriverService.CreateDefaultService(DriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 driverService.EnableVerboseLogging = false;
@@ -170,11 +172,11 @@ namespace MaxRunSoftware.Utilities.External
             else if (bt == WebBrowserType.Firefox)
             {
                 var options = new FirefoxOptions();
-                options.BrowserExecutableLocation = BrowserLocation.BrowserExecutable;
+                options.BrowserExecutableLocation = Location.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 //foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = FirefoxDriverService.CreateDefaultService(BrowserDriverDirectory);
+                var driverService = FirefoxDriverService.CreateDefaultService(DriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 //driverService.EnableVerboseLogging = false;
@@ -187,9 +189,9 @@ namespace MaxRunSoftware.Utilities.External
                 //options.BinaryLocation = BrowserExecutableFilePath;
                 //foreach (var a in optionArguments) options.AddArgument(a);
                 //foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
-                options.EnableNativeEvents = BrowserNativeEvents;
+                options.EnableNativeEvents = NativeEvents;
 
-                var driverService = InternetExplorerDriverService.CreateDefaultService(BrowserDriverDirectory);
+                var driverService = InternetExplorerDriverService.CreateDefaultService(DriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 //driverService.EnableVerboseLogging = false;
@@ -199,11 +201,11 @@ namespace MaxRunSoftware.Utilities.External
             else if (bt == WebBrowserType.Opera)
             {
                 var options = new OperaOptions();
-                options.BinaryLocation = BrowserLocation.BrowserExecutable;
+                options.BinaryLocation = Location.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = OperaDriverService.CreateDefaultService(BrowserDriverDirectory);
+                var driverService = OperaDriverService.CreateDefaultService(DriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 driverService.EnableVerboseLogging = false;

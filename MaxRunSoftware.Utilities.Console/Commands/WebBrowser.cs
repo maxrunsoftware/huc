@@ -34,11 +34,11 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddSummary("Executes scripted browser actions");
             help.AddParameter(nameof(browserExecutableFile), "b", "Path to the browser executable");
             help.AddParameter(nameof(browserDriverDirectory), "d", "Path to the pre-downloaded Selenium browser driver directory");
-            help.AddParameter(nameof(browserDriverDownloadDirectory), "dd", "Path to the base directory to download and use Selenium drivers to (" + External.WebBrowser.BrowserDriverDownloadDirectoryBaseDefault + ")");
+            help.AddParameter(nameof(browserDriverDownloadDirectory), "dd", "Path to the base directory to download and use Selenium drivers to (" + External.WebBrowser.DriverDownloadDirectoryBaseDefault + ")");
 
             help.AddParameter(nameof(browserType), "t", "Browser type " + DisplayEnumOptions<WebBrowserType>());
             help.AddParameter(nameof(browserVersion), "v", "Browser version");
-            help.AddParameter(nameof(WebBrowserArchitecture), "a", "Browser architecture " + DisplayEnumOptions<WebBrowserArchitecture>());
+            help.AddParameter(nameof(browserArchitecture), "a", "Browser architecture " + DisplayEnumOptions<WebBrowserArchitecture>());
 
             help.AddParameter(nameof(browserDisableNativeEvents), "dne", "Disables native events in " + WebBrowserType.InternetExplorer);
 
@@ -133,7 +133,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             }
 
             browserDriverDirectory = GetArgParameterOrConfig(nameof(browserDriverDirectory), "d");
-            browserDriverDownloadDirectory = GetArgParameterOrConfig(nameof(browserDriverDownloadDirectory), "dd", External.WebBrowser.BrowserDriverDownloadDirectoryBaseDefault);
+            browserDriverDownloadDirectory = GetArgParameterOrConfig(nameof(browserDriverDownloadDirectory), "dd", External.WebBrowser.DriverDownloadDirectoryBaseDefault);
             browserVersion = GetArgParameterOrConfig(nameof(browserVersion), "v");
             browserArchitecture = GetArgParameterOrConfigEnum<WebBrowserArchitecture>(nameof(browserArchitecture), "a");
             browserDisableNativeEvents = GetArgParameterOrConfigBool(nameof(browserDisableNativeEvents), "dne", false);
@@ -201,11 +201,11 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             using (browser = new External.WebBrowser())
             {
-                browser.BrowserLocation = browserLocation;
-                browser.BrowserDriverDirectory = browserDriverDirectory;
-                browser.BrowserDriverDownloadDirectoryBase = browserDriverDownloadDirectory;
-                browser.BrowserVersion = browserVersion;
-                browser.BrowserNativeEvents = !browserDisableNativeEvents;
+                browser.Location = browserLocation;
+                browser.DriverDirectory = browserDriverDirectory;
+                browser.DriverDownloadDirectoryBase = browserDriverDownloadDirectory;
+                browser.Version = browserVersion;
+                browser.NativeEvents = !browserDisableNativeEvents;
 
                 browser.Start();
 
