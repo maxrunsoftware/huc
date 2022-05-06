@@ -43,6 +43,7 @@ namespace MaxRunSoftware.Utilities.External
                 else if (name.Contains("opera")) browserType = WebBrowserType.Opera;
                 else if (name.Contains("explorer")) browserType = WebBrowserType.InternetExplorer;
                 else if (name.Contains("ie")) browserType = WebBrowserType.InternetExplorer;
+                else if (name.Contains("iexplore")) browserType = WebBrowserType.InternetExplorer;
             }
             if (browserType == null) throw new Exception("Could not determine browser type from executable " + BrowserExecutable);
             BrowserType = browserType.Value;
