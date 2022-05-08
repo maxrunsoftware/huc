@@ -35,15 +35,12 @@ namespace MaxRunSoftware.Utilities.External
             BrowserExecutable = browserExecutable.CheckNotNullTrimmed(nameof(browserExecutable));
             if (browserType == null)
             {
-                // Chrome, Edge, Firefox, InternetExplorer, Opera 
                 var name = Path.GetFileName(BrowserExecutable).ToLower();
-                if (name.Contains("chrome")) browserType = WebBrowserType.Chrome;
-                else if (name.Contains("edge")) browserType = WebBrowserType.Edge;
-                else if (name.Contains("firefox")) browserType = WebBrowserType.Firefox;
-                else if (name.Contains("opera")) browserType = WebBrowserType.Opera;
-                else if (name.Contains("explorer")) browserType = WebBrowserType.InternetExplorer;
-                else if (name.Contains("ie")) browserType = WebBrowserType.InternetExplorer;
-                else if (name.Contains("iexplore")) browserType = WebBrowserType.InternetExplorer;
+                if (name.ContainsAny("chrome")) browserType = WebBrowserType.Chrome;
+                else if (name.ContainsAny("edge")) browserType = WebBrowserType.Edge;
+                else if (name.ContainsAny("firefox")) browserType = WebBrowserType.Firefox;
+                else if (name.ContainsAny("opera")) browserType = WebBrowserType.Opera;
+                else if (name.ContainsAny("explorer", "ie", "iexplore")) browserType = WebBrowserType.InternetExplorer;
             }
             if (browserType == null) throw new Exception("Could not determine browser type from executable " + BrowserExecutable);
             BrowserType = browserType.Value;
