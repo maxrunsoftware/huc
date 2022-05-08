@@ -24,11 +24,27 @@ namespace MaxRunSoftware.Utilities.External
 {
     public class WebBrowserLocation
     {
+        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public WebBrowserType BrowserType { get; }
         public OSPlatform BrowserOS { get; }
         public string BrowserExecutable { get; }
         public bool IsBrowser64Bit { get; }
-        public bool IsExist => File.Exists(BrowserExecutable);
+        public bool IsExist
+        {
+            get
+            {
+                try
+                {
+                    return File.Exists(BrowserExecutable);
+                }
+                catch (Exception e)
+                {
+                    log.Debug("Error on File.Exists(" + BrowserExecutable + ")", e);
+                }
+                return false;
+            }
+        }
 
         public WebBrowserLocation(string browserExecutable, WebBrowserType? browserType, OSPlatform? browserOS, bool? isBrowser64Bit)
         {
