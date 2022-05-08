@@ -67,9 +67,11 @@ namespace MaxRunSoftware.Utilities.External
             new WebBrowserLocation("C:\\Program Files\\Mozilla Firefox\\firefox.exe", browserType: WebBrowserType.Firefox, browserOS: OSPlatform.Windows, isBrowser64Bit: true),
             new WebBrowserLocation("C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe", browserType: WebBrowserType.Firefox, browserOS: OSPlatform.Windows, isBrowser64Bit: false),
 
+            new WebBrowserLocation("C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe", browserType: WebBrowserType.Edge, browserOS: OSPlatform.Windows, isBrowser64Bit: true),
+            new WebBrowserLocation("C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe", browserType: WebBrowserType.Edge, browserOS: OSPlatform.Windows, isBrowser64Bit: false),
+
             new WebBrowserLocation("C:\\Program Files\\Internet Explorer\\iexplore.exe", browserType: WebBrowserType.InternetExplorer, browserOS: OSPlatform.Windows, isBrowser64Bit: true),
             new WebBrowserLocation("C:\\Program Files (x86)\\Internet Explorer\\iexplore.exe", browserType: WebBrowserType.InternetExplorer, browserOS: OSPlatform.Windows, isBrowser64Bit: false),
-
 
 
         }.AsReadOnly();
@@ -92,17 +94,6 @@ namespace MaxRunSoftware.Utilities.External
             return new WebBrowserLocation(BrowserExecutable, BrowserType, BrowserOS, isBrowser64Bit);
         }
 
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append(GetType().Name + "(");
-            sb.Append(nameof(BrowserType) + "=" + BrowserType + ", ");
-            sb.Append(nameof(BrowserOS) + "=" + BrowserOS + ", ");
-            sb.Append(nameof(IsBrowser64Bit) + "=" + IsBrowser64Bit + ", ");
-            sb.Append(nameof(IsExist) + "=" + IsExist + ", ");
-            sb.Append(nameof(BrowserExecutable) + "=" + BrowserExecutable);
-            sb.Append(")");
-            return sb.ToString();
-        }
+        public override string ToString() => this.ToStringGenerated();
     }
 }
