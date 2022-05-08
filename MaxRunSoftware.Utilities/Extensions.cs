@@ -2805,6 +2805,37 @@ namespace MaxRunSoftware.Utilities
             foreach (var obj in enumerable.OrEmpty()) yield return obj.ToStringGuessFormat();
         }
 
+        public static string ToStringGenerated(this object obj, BindingFlags flags)
+        {
+            // TODO: Can add performance improvements if needed
+
+            obj.CheckNotNull(nameof(obj));
+
+            var t = obj.GetType();
+
+            var list = new List<string>();
+            foreach (var prop in t.GetProperties(flags))
+            {
+                if (prop == null) continue;
+                if (!prop.CanRead) continue;
+
+                var name = prop.Name;
+                var val = prop.GetValue(obj).ToStringGuessFormat() ?? "null";
+
+                list.Add(name + "=" + val);
+            }
+
+            var sb = new StringBuilder();
+            sb.Append(t.NameFormatted());
+            sb.Append("(");
+            sb.Append(list.ToStringDelimited(", "));
+            sb.Append(")");
+
+            return sb.ToString();
+        }
+
+        public static string ToStringGenerated(this object obj) => ToStringGenerated(obj, BindingFlags.Instance | BindingFlags.Public);
+
         public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter) => string.Join(delimiter, enumerable);
         public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter) => enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);
 
