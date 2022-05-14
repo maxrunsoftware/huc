@@ -20,6 +20,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Authentication;
 using System.Text;
+using System.Threading;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
@@ -37,6 +38,8 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddParameter(nameof(encryptionMode), "e", "Encryption Mode. NONE is for standard FTP. SSH is for SFTP. EXPLICIT and IMPLICIT are for FTPS [ NONE | SSH | Explicit | Implicit ] (NONE)");
             help.AddParameter(nameof(encryptionProtocol), "s", "FTPS encryption protocol [ None | Ssl2 | Ssl3 | Tls | Default | Tls11 | Tls12 ] (None)");
             help.AddParameter(nameof(bufferSizeMegabytes), "b", "SFTP buffer size in megabytes (10)");
+            help.AddParameter(nameof(retryCount), "rc", "Number of times to retry connecting on failure (0)");
+            help.AddParameter(nameof(retryDelay), "rd", "Seconds to wait before retrying connection on failure (5)");
             help.AddParameter(nameof(privateKey1File), "pk1", "SFTP private key 1 filename");
             help.AddParameter(nameof(privateKey1Password), "pk1pass", "SFTP private key 1 password");
             help.AddParameter(nameof(privateKey2File), "pk2", "SFTP private key 2 filename");
@@ -107,6 +110,8 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         private FTPEncryptionMode encryptionMode;
         private SslProtocols encryptionProtocol;
         private uint bufferSizeMegabytes;
+        private uint retryCount;
+        private uint retryDelay;
         private string privateKey1File;
         private string privateKey1Password;
         private string privateKey2File;
@@ -134,6 +139,9 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             encryptionProtocol = GetArgParameterOrConfigEnum(nameof(encryptionProtocol), "s", SslProtocols.None);
 
             bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10).ToString().ToUInt();
+
+            retryCount = GetArgParameterOrConfigInt(nameof(retryCount), "rc", 0).ToString().ToUInt();
+            retryDelay = GetArgParameterOrConfigInt(nameof(retryDelay), "rd", 5).ToString().ToUInt();
 
             privateKey1File = GetArgParameterOrConfig(nameof(privateKey1File), "pk1").TrimOrNull();
             if (privateKey1File != null)
@@ -207,14 +215,35 @@ namespace MaxRunSoftware.Utilities.Console.Commands
         protected IFtpClient OpenClient()
         {
             if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-            return encryptionMode switch
+
+            for (int i = 0; i <= retryCount; i++)
             {
-                FTPEncryptionMode.None => OpenClientFTP(),
-                FTPEncryptionMode.SSH => OpenClientSFTP(),
-                FTPEncryptionMode.Explicit => OpenClientFTPS(),
-                FTPEncryptionMode.Implicit => OpenClientFTPS(),
-                _ => throw new NotImplementedException($"No handler created for FTPEncryptionMode '{encryptionMode}'"),
-            };
+                try
+                {
+                    return encryptionMode switch
+                    {
+                        FTPEncryptionMode.None => OpenClientFTP(),
+                        FTPEncryptionMode.SSH => OpenClientSFTP(),
+                        FTPEncryptionMode.Explicit => OpenClientFTPS(),
+                        FTPEncryptionMode.Implicit => OpenClientFTPS(),
+                        _ => throw new NotImplementedException($"No handler created for FTPEncryptionMode '{encryptionMode}'"),
+                    };
+                }
+                catch (Exception e)
+                {
+                    if (i == retryCount) throw;
+                    else log.Warn("Error connecting to server", e);
+                }
+
+                if (retryDelay > 0)
+                {
+                    log.Info($"Waiting {retryDelay} seconds before retry");
+                    Thread.Sleep(1000 * (int)retryDelay);
+                    log.Debug("Retrying now");
+                }
+            }
+
+            throw new NotImplementedException("Should never get here");
         }
 
         #endregion OpenClient
