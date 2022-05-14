@@ -17,6 +17,7 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace MaxRunSoftware.Utilities
 {
@@ -32,6 +33,9 @@ namespace MaxRunSoftware.Utilities
         }
         public override IEnumerable<string> GetSchemas(string database) => new List<string>();
         public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='{Unescape(database)}' AND TABLE_NAME = '{Unescape(table)}' ORDER BY ORDINAL_POSITION;");
+
+        public override string GetCurrentDatabase() => ExecuteQueryToList("SELECT DATABASE();").FirstOrDefault();
+        public override string GetCurrentSchema() => null;
 
         public static readonly Func<string, string> ESCAPE_MYSQL = (o =>
         {

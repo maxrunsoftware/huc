@@ -17,6 +17,7 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace MaxRunSoftware.Utilities
 {
@@ -40,6 +41,26 @@ namespace MaxRunSoftware.Utilities
         }
         public override IEnumerable<string> GetSchemas(string database) => ExecuteQueryToList($"SELECT username FROM dba_users");
         public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT column_name FROM USER_TAB_COLUMNS WHERE table_name = '{Unescape(table)}';");
+
+        public override string GetCurrentDatabase() => ExecuteQueryToSingle("select name from v$database;", "select ora_database_name from dual;", "select global_name from global_name;");
+        public override string GetCurrentSchema() => ExecuteQueryToSingle("select SYS_CONTEXT('USERENV','CURRENT_SCHEMA') from dual;");
+
+        private string ExecuteQueryToSingle(params string[] sqls)
+        {
+            foreach (var sql in sqls)
+            {
+                try
+                {
+                    var val = ExecuteQueryToList(sql).FirstOrDefault();
+                    if (val != null) return val;
+                }
+                catch (Exception e)
+                {
+                    log.Debug("Error Executing SQL: " + sql, e);
+                }
+            }
+            return null;
+        }
 
         public static readonly Func<string, string> ESCAPE_ORACLE = (o =>
         {

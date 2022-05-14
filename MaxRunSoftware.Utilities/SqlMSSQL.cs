@@ -17,6 +17,7 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace MaxRunSoftware.Utilities
 {
@@ -34,6 +35,9 @@ namespace MaxRunSoftware.Utilities
         }
         public override IEnumerable<string> GetSchemas(string database) => ExecuteQueryToList($"SELECT DISTINCT [SCHEMA_NAME] FROM {Escape(database)}.INFORMATION_SCHEMA.SCHEMATA WHERE [CATALOG_NAME]='{Unescape(database)}';");
         public override IEnumerable<string> GetColumns(string database, string schema, string table) => ExecuteQueryToList($"SELECT [COLUMN_NAME] FROM {Escape(database)}.INFORMATION_SCHEMA.COLUMNS WHERE [TABLE_CATALOG]='{Unescape(database)}' AND [TABLE_SCHEMA]='{Unescape(schema)}' AND [TABLE_NAME]='{Unescape(table)}' ORDER BY [ORDINAL_POSITION];");
+
+        public override string GetCurrentDatabase() => ExecuteQueryToList("SELECT DB_NAME();").FirstOrDefault();
+        public override string GetCurrentSchema() => ExecuteQueryToList("SELECT SCHEMA_NAME();").FirstOrDefault();
 
         public static readonly Func<string, string> ESCAPE_MSSQL = (o =>
         {

@@ -47,6 +47,9 @@ namespace MaxRunSoftware.Utilities
         public abstract IEnumerable<string> GetColumns(string database, string schema, string table);
         public bool GetTableExists(string database, string schema, string table) => GetTables(database, schema).Where(o => string.Equals(table, o, StringComparison.OrdinalIgnoreCase)).Any();
 
+        public abstract string GetCurrentDatabase();
+        public abstract string GetCurrentSchema();
+
         public virtual void Insert(IDbConnection connection, string database, string schema, string table, IDictionary<string, string> columnsAndValues)
         {
             var list = new List<(string columnName, string columnValue)>();
