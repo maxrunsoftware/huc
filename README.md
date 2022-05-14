@@ -1,41 +1,9 @@
-# HUC: Various command line tools to make your life easier
-[Max Run Software](https://www.maxrunsoftware.com)
+# HUC: Various Command Line Tools To Make Your Life Easier
+## [Max Run Software](https://www.maxrunsoftware.com)
 
-HUC is a simple to use open source command line tool for performing various tasks including...
-- [FTP](#ftp-ftps-sftp) / [FTPS](#ftp-ftps-sftp) / [SFTP](#ftp-ftps-sftp)
-- [Email](#email)
-- [MSSQL / MySQL / Oracle](#sql)
-    - [Querying](#sql)
-    - [Importing Data](#sql)
-    - [Exporting Binary Data to Files](#sql)
-    - [Downloading Files Based on a SQL Query](#sql)
-- [ZIP](#zip)
-- [Windows Task Scheduler Management](#windows-task-scheduler)
-- [File Operations](#file-operations)
-    - [Delimited Data Conversion](#file-operations)
-    - [String Replacement](#file-operations)
-    - [Appending](#file-operations)
-    - [Split](#file-operations)
-    - [Checksums](#file-operations)
-    - [Encryption and Decryption](#file-operations)
-- [Directory Operations](#directory-operations)
-    - [List](#directory-operations)
-    - [Size](#directory-operations)
-    - [Flatten](#directory-operations)
-    - [Remove Empty](#directory-operations)
-- [Web Server](#web-server)
-- [SSH](#ssh)
-- [Active Directory Operations](#active-directory)
-- [Google Sheets Operations](#google-sheets)
-- [Generation of Public and Private Keys](#generate-public-and-private-keys)
-- [VMware Operations](#vmware)
-- [Properties File](#using-a-properties-file)
-- [Helper Utility Functions](#helper-functions)
-- [Logging](#logging)
+HUC is a simple to use open source command line tool for performing various tasks.
+It is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
 
-HUC is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
-
-## Examples:
 Get list of commands
 ```
 huc
@@ -48,6 +16,65 @@ huc FtpPut help
 huc Table help
 huc <command> help
 ```
+
+&nbsp;
+
+## Operations
+
+- [FTP / FTPS / SFTP](#ftp-ftps-sftp)
+- [SSH](#ssh)
+- [Email](#email)
+- [Microsoft SQL / MySQL / Oracle](#sql)
+    - [Querying](#sql)
+    - [Importing Tab Delimited Data](#sql)
+    - [Exporting Binary Data to Files](#sql)
+    - [Downloading Files Based on a SQL Query](#sql)
+- [ZIP](#zip)
+- [Windows Task Scheduler Management](#windows-task-scheduler)
+    - [List Tasks](#windows-task-scheduler)
+    - [Add Task](#windows-task-scheduler)
+    - [Remove Task](#windows-task-scheduler)
+- [File Operations](#file-operations)
+    - [Tab Delimited File Data Conversion](#file-operations)
+    - [Text Replacement](#file-operations)
+    - [Appending](#file-operations)
+    - [Split](#file-operations)
+    - [Generate File Checksums](#file-operations)
+    - [Encryption and Decryption](#file-operations)
+    - [Generate Random Data](#file-operations)
+- [Directory Operations](#directory-operations)
+    - [List Directory to Tab Delimited File](#directory-operations)
+    - [Get Directory Size](#directory-operations)
+    - [Flatten Directory Structure](#directory-operations)
+    - [Remove Empty Directories](#directory-operations)
+- [Web Server](#web-server)
+- [Active Directory](#active-directory)
+    - [List Objects](#active-directory)
+    - [List Object Details](#active-directory)
+    - [List Users / Groups / Computers](#active-directory)
+    - [List Users Of Group](#active-directory)
+    - [Add User / Group / OU](#active-directory)
+    - [Add User To Group](#active-directory)
+    - [Remove User / Group / OU](#active-directory)
+    - [Remove User From Group](#active-directory)
+    - [Move User / Group](#active-directory)
+    - [Enable / Disable User](#active-directory)
+    - [Change User Password](#active-directory)
+- [Google Sheets](#google-sheets)
+    - [Query](#google-sheets)
+    - [Import Into a Sheet](#google-sheets)
+    - [Add Row to Sheet](#google-sheets)
+    - [Clear Sheet](#google-sheets)
+    - [Format Cells](#google-sheets)
+- [VMware](#vmware)
+    - [List VMware Objects](#vmware)
+    - [List VMware Objects to JSON](#vmware)
+    - [Query Raw JSON Data](#vmware)
+    - [Perform Operations On VMs](#vmware)
+- [Generation of Public and Private Keys](#generate-public-and-private-keys)
+- [Using a Properties File](#using-a-properties-file)
+- [Helper Utility Functions](#helper-functions)
+- [Logging](#logging)
 
 &nbsp;
 <details>
@@ -330,6 +357,13 @@ huc <command> help
   Decrypt file with private key
   ```
   huc FileDecrypt -pk=MyPrivateKey.txt data.encrypted dataDecrypted.txt
+  ```
+  <br/>
+    
+  Generate file with random data
+  ```
+  huc GenerateRandomFile testdata.txt
+  huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
   ```
 
 </details>
@@ -660,7 +694,7 @@ huc <command> help
 <details>
   <summary>
       
-  ### Using a properties file
+  ### Using a Properties File
   </summary>
     
   When huc first runs, it attempts to generate a huc.properties file in the directory of the executable. This file contains all of the parameters for each command. You can populate this file with certain properties so you don't have to type them in every time. The huc program will first check if a parameter was supplied at the command line. If not, if will then check the properties file (commandline overrides properties file). If still not found it will attempt to use a default value for some parameters (not all, some are required to be provided).
@@ -695,13 +729,6 @@ huc <command> help
       
   ### Helper Functions
   </summary>
-    
-  Generate file with random data
-  ```
-  huc GenerateRandomFile testdata.txt
-  huc GenerateRandomFile -l=1000000 testdata1.txt testdata2.txt testdata3.txt
-  ```
-  <br/>
   
   Show current properties set in the properties file
   ```
