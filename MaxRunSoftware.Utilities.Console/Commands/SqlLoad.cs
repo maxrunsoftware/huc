@@ -205,10 +205,11 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddParameter(nameof(rowNumberColumnName), "rncn", "If provided, an extra column is inserted with the line number, -1 because excluding header");
             help.AddParameter(nameof(currentUtcDateTimeColumnName), "ctcn", "If provided, an extra column containing the UTC datetime is inserted");
             help.AddParameter(nameof(noHeader), "nh", "Set if your importing tab delimited file does not have a header row (false)");
-            help.AddParameter(nameof(database), "d", "Database name to load table");
+            help.AddParameter(nameof(database), "d", "Database name to load table (current database)");
             help.AddParameter(nameof(schema), "s", "Schema to load table");
-            help.AddParameter(nameof(table), "t", "Table name");
+            help.AddParameter(nameof(table), "t", "Table name (file name)");
             help.AddValue("<tab delimited file to load>");
+            help.AddExample(HelpExamplePrefix + " Orders.txt");
             help.AddExample(HelpExamplePrefix + " -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
             help.AddExample(HelpExamplePrefix + " -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt");
         }
@@ -235,9 +236,6 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             rowNumberColumnName = GetArgParameterOrConfig(nameof(rowNumberColumnName), "rncn").TrimOrNull();
             currentUtcDateTimeColumnName = GetArgParameterOrConfig(nameof(currentUtcDateTimeColumnName), "ctcn").TrimOrNull();
             noHeader = GetArgParameterOrConfigBool(nameof(noHeader), "nh", false);
-            database = GetArgParameterOrConfigRequired(nameof(database), "d").TrimOrNull();
-            schema = GetArgParameterOrConfig(nameof(schema), "s").TrimOrNull();
-            table = GetArgParameterOrConfigRequired(nameof(table), "t").TrimOrNull();
 
             var inputFile = GetArgValueTrimmed(0);
             inputFile.CheckValueNotNull(nameof(inputFile), log);
@@ -252,6 +250,24 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             var c = GetSqlHelper();
             log.Debug("Created SQL Helper of type " + c.GetType().NameFormatted());
+
+            database = GetArgParameterOrConfig(nameof(database), "d").TrimOrNull();
+            if (database == null) database = c.GetCurrentDatabase();
+            if (database == null) GetArgParameterOrConfigRequired(nameof(database), "d"); // will throw exception
+
+            schema = GetArgParameterOrConfig(nameof(schema), "s").TrimOrNull();
+            if (schema == null)
+            {
+                if (serverType == SqlServerType.MSSQL)
+                {
+                    schema = c.GetCurrentSchema();
+                }
+            }
+
+            table = GetArgParameterOrConfig(nameof(table), "t").TrimOrNull();
+            if (table == null) table = Path.GetFileNameWithoutExtension(inputFile).TrimOrNull();
+            if (table == null) table = GetArgParameterOrConfigRequired(nameof(table), "t"); // will throw exception
+
             var databaseSchemaTable = c.Escape(database);
             if (schema != null) databaseSchemaTable = databaseSchemaTable + "." + c.Escape(schema);
             databaseSchemaTable = databaseSchemaTable + "." + c.Escape(table);
