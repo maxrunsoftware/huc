@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 
 namespace MaxRunSoftware.Utilities
 {
@@ -37,6 +38,11 @@ namespace MaxRunSoftware.Utilities
         public override string GetCurrentDatabase() => ExecuteQueryToList("SELECT DATABASE();").FirstOrDefault();
         public override string GetCurrentSchema() => null;
 
+        public override string TextCreateTableColumn(TableColumn column)
+        {
+            throw new NotImplementedException();
+        }
+
         public static readonly Func<string, string> ESCAPE_MYSQL = (o =>
         {
             if (o == null) return o;
@@ -52,6 +58,8 @@ namespace MaxRunSoftware.Utilities
             if (o.EndsWith("`")) o = o.RemoveRight(1);
             return o;
         });
+
+        protected override string TextCreateTableColumnTextDataType => "LONGTEXT";
 
         public SqlMySQL(Func<IDbConnection> connectionFactory) : base(connectionFactory)
         {

@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 
 namespace MaxRunSoftware.Utilities
 {
@@ -55,13 +56,42 @@ namespace MaxRunSoftware.Utilities
             return o;
         });
 
+        protected override string TextCreateTableColumnTextDataType => SqlDbType.NVarChar.ToString() + "(MAX)";
+
         public SqlMSSQL(Func<IDbConnection> connectionFactory) : base(connectionFactory)
         {
             EscapeObject = ESCAPE_MSSQL;
             UnescapeObject = UNESCAPE_MSSQL;
         }
 
+        public override string TextCreateTableColumn(TableColumn column)
+        {
+            var sql = new StringBuilder();
 
+            sql.Append(Escape(column.Name));
+            sql.Append(' ');
+
+            var len = column.MaxLength;
+            if (len < 1) len = 1;
+
+            if (!Constant.MAP_Type_SqlDbType.TryGetValue(column.Type, out var sqlDbType)) sqlDbType = SqlDbType.NVarChar;
+
+            if (sqlDbType.In(SqlDbType.NChar) && len > 4000) sqlDbType = SqlDbType.NVarChar; // NChar doesn't support more then 4000
+            if (sqlDbType.In(SqlDbType.Char) && len > 8000) sqlDbType = SqlDbType.VarChar; // Char doesn't support more then 8000
+
+            sql.Append(sqlDbType);
+
+            if (sqlDbType.In(SqlDbType.NChar, SqlDbType.Char)) sql.Append("(" + len + ")");
+            else if (sqlDbType.In(SqlDbType.NVarChar)) sql.Append("(" + (len <= 4000 ? len : "MAX") + ")");
+            else if (sqlDbType.In(SqlDbType.VarChar)) sql.Append("(" + (len <= 8000 ? len : "MAX") + ")");
+
+            // TODO: fix this to not use 37 and instead calculate actual values
+            else if (sqlDbType.In(SqlDbType.Decimal)) sql.Append("(" + (37 - column.NumberOfDecimalDigits) + "," + column.NumberOfDecimalDigits + ")");
+
+            if (!column.IsNullable) sql.Append(" NOT");
+            sql.Append(" NULL");
+
+            return sql.ToString();
+        }
     }
-
 }

@@ -285,7 +285,8 @@ namespace MaxRunSoftware.Utilities
         /// <summary>
         /// Map of DbType to DotNet types
         /// </summary>
-        public static readonly IReadOnlyDictionary<DbType, Type> MAP_DbType_Type = new Dictionary<DbType, Type> {
+        public static readonly IReadOnlyDictionary<DbType, Type> MAP_DbType_Type = new Dictionary<DbType, Type>
+        {
                 { DbType.AnsiString, typeof(string) },
                 { DbType.AnsiStringFixedLength, typeof(string) },
                 { DbType.Binary, typeof(byte[]) },
@@ -314,6 +315,164 @@ namespace MaxRunSoftware.Utilities
                 { DbType.VarNumeric, typeof(decimal) },
                 { DbType.Xml, typeof(string) },
         };
+
+        public static readonly IReadOnlyDictionary<DbType, SqlDbType> MAP_DbType_SqlDbType = new Dictionary<DbType, SqlDbType>
+        {
+                { DbType.AnsiString, SqlDbType.NVarChar },
+                { DbType.Binary, SqlDbType.Binary },
+                { DbType.Byte, SqlDbType.SmallInt },
+                { DbType.Boolean, SqlDbType.Bit },
+                { DbType.Currency, SqlDbType.Money },
+                { DbType.Date, SqlDbType.Date },
+                { DbType.DateTime, SqlDbType.DateTime },
+                { DbType.Decimal, SqlDbType.Decimal },
+                { DbType.Double, SqlDbType.Float },
+                { DbType.Guid, SqlDbType.UniqueIdentifier },
+                { DbType.Int16, SqlDbType.SmallInt },
+                { DbType.Int32, SqlDbType.Int },
+                { DbType.Int64, SqlDbType.BigInt },
+                { DbType.Object, SqlDbType.Variant },
+                { DbType.SByte, SqlDbType.TinyInt },
+                { DbType.Single, SqlDbType.Real },
+                { DbType.String, SqlDbType.NVarChar },
+                { DbType.Time, SqlDbType.Time },
+                { DbType.UInt16, SqlDbType.Int },
+                { DbType.UInt32, SqlDbType.BigInt },
+                { DbType.UInt64, SqlDbType.BigInt },
+                { DbType.VarNumeric, SqlDbType.Decimal },
+                { DbType.AnsiStringFixedLength, SqlDbType.Char },
+                { DbType.StringFixedLength, SqlDbType.NChar },
+                { DbType.Xml, SqlDbType.Xml },
+                { DbType.DateTime2, SqlDbType.DateTime2 },
+                { DbType.DateTimeOffset, SqlDbType.DateTimeOffset },
+        };
+
+        public static readonly IReadOnlyDictionary<SqlDbType, DbType> MAP_SqlDbType_DbType = new Dictionary<SqlDbType, DbType>
+        {
+                { SqlDbType.BigInt, DbType.Int64 },
+                { SqlDbType.Binary, DbType.Binary },
+                { SqlDbType.Bit, DbType.Boolean },
+                { SqlDbType.Char, DbType.StringFixedLength },
+                { SqlDbType.DateTime, DbType.DateTime },
+                { SqlDbType.Decimal, DbType.Decimal },
+                { SqlDbType.Float, DbType.Double },
+                { SqlDbType.Image, DbType.Binary },
+                { SqlDbType.Int, DbType.Int32 },
+                { SqlDbType.Money, DbType.Currency },
+                { SqlDbType.NChar, DbType.StringFixedLength },
+                { SqlDbType.NText, DbType.String },
+                { SqlDbType.NVarChar, DbType.String },
+                { SqlDbType.Real, DbType.Single },
+                { SqlDbType.UniqueIdentifier, DbType.Guid },
+                { SqlDbType.SmallDateTime, DbType.DateTime },
+                { SqlDbType.SmallInt, DbType.Int16 },
+                { SqlDbType.SmallMoney, DbType.Currency },
+                { SqlDbType.Text, DbType.String },
+                { SqlDbType.Timestamp, DbType.Binary },
+                { SqlDbType.TinyInt, DbType.Byte },
+                { SqlDbType.VarBinary, DbType.Binary },
+                { SqlDbType.VarChar, DbType.String },
+                { SqlDbType.Variant, DbType.Object },
+                { SqlDbType.Xml, DbType.Xml },
+                { SqlDbType.Udt, DbType.Object },
+                { SqlDbType.Structured, DbType.Object },
+                { SqlDbType.Date, DbType.Date },
+                { SqlDbType.Time, DbType.Time },
+                { SqlDbType.DateTime2, DbType.DateTime2 },
+                { SqlDbType.DateTimeOffset, DbType.DateTimeOffset },
+        };
+
+        public static readonly IReadOnlyDictionary<SqlDbType, Type> MAP_SqlDbType_Type = new Dictionary<SqlDbType, Type>
+        {
+            { SqlDbType.BigInt, typeof(long) },
+            { SqlDbType.Binary, typeof(byte[]) },
+            { SqlDbType.Bit, typeof(bool) },
+            { SqlDbType.Char, typeof(char[]) },
+            { SqlDbType.DateTime, typeof(DateTime) },
+            { SqlDbType.Decimal, typeof(decimal) },
+            { SqlDbType.Float, typeof(double) },
+            { SqlDbType.Image, typeof(byte[]) },
+            { SqlDbType.Int, typeof(int) },
+            { SqlDbType.Money, typeof(decimal) },
+            { SqlDbType.NChar, typeof(char[]) },
+            { SqlDbType.NText, typeof(string) },
+            { SqlDbType.NVarChar, typeof(string) },
+            { SqlDbType.Real, typeof(float) },
+            { SqlDbType.UniqueIdentifier, typeof(Guid) },
+            { SqlDbType.SmallDateTime, typeof(DateTime) },
+            { SqlDbType.SmallInt, typeof(short) },
+            { SqlDbType.SmallMoney, typeof(decimal) },
+            { SqlDbType.Text, typeof(string) },
+            { SqlDbType.Timestamp, typeof(byte[]) },
+            { SqlDbType.TinyInt, typeof(byte) },
+            { SqlDbType.VarBinary, typeof(byte[]) },
+            { SqlDbType.VarChar, typeof(string) },
+            { SqlDbType.Variant, typeof(object) },
+            { SqlDbType.Xml, typeof(string) },
+            { SqlDbType.Udt, typeof(object) },
+            { SqlDbType.Structured, typeof(object) },
+            { SqlDbType.Date, typeof(DateTime) },
+            { SqlDbType.Time, typeof(DateTime) },
+            { SqlDbType.DateTime2, typeof(DateTime) },
+            { SqlDbType.DateTimeOffset, typeof(DateTimeOffset) },
+        };
+
+        public static readonly IReadOnlyDictionary<Type, SqlDbType> MAP_Type_SqlDbType = new Dictionary<Type, SqlDbType>
+        {
+                { typeof(bool), SqlDbType.Bit },
+                { typeof(bool?), SqlDbType.Bit },
+
+                { typeof(byte), SqlDbType.TinyInt },
+                { typeof(byte?), SqlDbType.TinyInt },
+                { typeof(sbyte), SqlDbType.SmallInt },
+                { typeof(sbyte?), SqlDbType.SmallInt },
+
+                { typeof(short), SqlDbType.SmallInt },
+                { typeof(short?), SqlDbType.SmallInt },
+                { typeof(ushort), SqlDbType.Int },
+                { typeof(ushort?), SqlDbType.Int },
+
+                { typeof(char), SqlDbType.NChar },
+                { typeof(char?), SqlDbType.NChar },
+                { typeof(char[]), SqlDbType.NChar },
+
+                { typeof(int), SqlDbType.Int },
+                { typeof(int?), SqlDbType.Int },
+                { typeof(uint), SqlDbType.BigInt },
+                { typeof(uint?), SqlDbType.BigInt },
+
+                { typeof(long), SqlDbType.BigInt },
+                { typeof(long?), SqlDbType.BigInt },
+                { typeof(ulong), SqlDbType.BigInt }, // TODO: unsafe
+                { typeof(ulong?), SqlDbType.BigInt }, // TODO: unsafe
+
+                { typeof(float), SqlDbType.Real },
+                { typeof(float?), SqlDbType.Real },
+                { typeof(double), SqlDbType.Float },
+                { typeof(double?), SqlDbType.Float },
+                { typeof(decimal), SqlDbType.Decimal },
+                { typeof(decimal?), SqlDbType.Decimal },
+
+                { typeof(byte[]), SqlDbType.Binary },
+
+                { typeof(System.Guid), SqlDbType.UniqueIdentifier },
+                { typeof(System.Guid?), SqlDbType.UniqueIdentifier },
+
+                { typeof(string), SqlDbType.NVarChar },
+
+                { typeof(System.Net.IPAddress), SqlDbType.NVarChar },
+                { typeof(Uri), SqlDbType.NVarChar },
+
+                { typeof(System.Numerics.BigInteger), SqlDbType.NVarChar }, // TODO: is this correct
+                { typeof(System.Numerics.BigInteger?), SqlDbType.NVarChar }, // TODO: is this correct
+
+                { typeof(DateTime), SqlDbType.DateTime },
+                { typeof(DateTime?), SqlDbType.DateTime },
+                { typeof(DateTimeOffset), SqlDbType.DateTimeOffset },
+                { typeof(DateTimeOffset?), SqlDbType.DateTimeOffset },
+        };
+
+
 
         /// <summary>
         /// Case-Sensitive map of Color names to Colors

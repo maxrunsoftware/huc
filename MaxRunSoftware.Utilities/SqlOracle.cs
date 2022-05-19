@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 
 namespace MaxRunSoftware.Utilities
 {
@@ -62,6 +63,11 @@ namespace MaxRunSoftware.Utilities
             return null;
         }
 
+        public override string TextCreateTableColumn(TableColumn column)
+        {
+            throw new NotImplementedException();
+        }
+
         public static readonly Func<string, string> ESCAPE_ORACLE = (o =>
         {
             if (o == null) return o;
@@ -76,6 +82,8 @@ namespace MaxRunSoftware.Utilities
             if (o.EndsWith("\"")) o = o.RemoveRight(1);
             return o;
         });
+
+        protected override string TextCreateTableColumnTextDataType => "CLOB";
 
         public SqlOracle(Func<IDbConnection> connectionFactory) : base(connectionFactory)
         {

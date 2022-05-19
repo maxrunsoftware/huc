@@ -24,173 +24,6 @@ using System.Text;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public static class SqlLoadExtensions
-    {
-        private static readonly IReadOnlyDictionary<DbType, SqlDbType> DBTYPE_SQLDBTYPE_MAP = new Dictionary<DbType, SqlDbType>
-            {
-                { DbType.AnsiString, SqlDbType.NVarChar },
-                { DbType.Binary, SqlDbType.Binary },
-                { DbType.Byte, SqlDbType.SmallInt },
-                { DbType.Boolean, SqlDbType.Bit },
-                { DbType.Currency, SqlDbType.Money },
-                { DbType.Date, SqlDbType.Date },
-                { DbType.DateTime, SqlDbType.DateTime },
-                { DbType.Decimal, SqlDbType.Decimal },
-                { DbType.Double, SqlDbType.Float },
-                { DbType.Guid, SqlDbType.UniqueIdentifier },
-                { DbType.Int16, SqlDbType.SmallInt },
-                { DbType.Int32, SqlDbType.Int },
-                { DbType.Int64, SqlDbType.BigInt },
-                { DbType.Object, SqlDbType.Variant },
-                { DbType.SByte, SqlDbType.TinyInt },
-                { DbType.Single, SqlDbType.Real },
-                { DbType.String, SqlDbType.NVarChar },
-                { DbType.Time, SqlDbType.Time },
-                { DbType.UInt16, SqlDbType.Int },
-                { DbType.UInt32, SqlDbType.BigInt },
-                { DbType.UInt64, SqlDbType.BigInt },
-                { DbType.VarNumeric, SqlDbType.Decimal },
-                { DbType.AnsiStringFixedLength, SqlDbType.Char },
-                { DbType.StringFixedLength, SqlDbType.NChar },
-                { DbType.Xml, SqlDbType.Xml },
-                { DbType.DateTime2, SqlDbType.DateTime2 },
-                { DbType.DateTimeOffset, SqlDbType.DateTimeOffset },
-        }.AsReadOnly();
-
-        private static readonly IReadOnlyDictionary<SqlDbType, DbType> SQLDBTYPE_DBTYPE_MAP = new Dictionary<SqlDbType, DbType>
-            {
-                { SqlDbType.BigInt, DbType.Int64 },
-                { SqlDbType.Binary, DbType.Binary },
-                { SqlDbType.Bit, DbType.Boolean },
-                { SqlDbType.Char, DbType.StringFixedLength },
-                { SqlDbType.DateTime, DbType.DateTime },
-                { SqlDbType.Decimal, DbType.Decimal },
-                { SqlDbType.Float, DbType.Double },
-                { SqlDbType.Image, DbType.Binary },
-                { SqlDbType.Int, DbType.Int32 },
-                { SqlDbType.Money, DbType.Currency },
-                { SqlDbType.NChar, DbType.StringFixedLength },
-                { SqlDbType.NText, DbType.String },
-                { SqlDbType.NVarChar, DbType.String },
-                { SqlDbType.Real, DbType.Single },
-                { SqlDbType.UniqueIdentifier, DbType.Guid },
-                { SqlDbType.SmallDateTime, DbType.DateTime },
-                { SqlDbType.SmallInt, DbType.Int16 },
-                { SqlDbType.SmallMoney, DbType.Currency },
-                { SqlDbType.Text, DbType.String },
-                { SqlDbType.Timestamp, DbType.Binary },
-                { SqlDbType.TinyInt, DbType.Byte },
-                { SqlDbType.VarBinary, DbType.Binary },
-                { SqlDbType.VarChar, DbType.String },
-                { SqlDbType.Variant, DbType.Object },
-                { SqlDbType.Xml, DbType.Xml },
-                { SqlDbType.Udt, DbType.Object },
-                { SqlDbType.Structured, DbType.Object },
-                { SqlDbType.Date, DbType.Date },
-                { SqlDbType.Time, DbType.Time },
-                { SqlDbType.DateTime2, DbType.DateTime2 },
-                { SqlDbType.DateTimeOffset, DbType.DateTimeOffset },
-        }.AsReadOnly();
-
-        private static readonly IReadOnlyDictionary<SqlDbType, Type> SQLDBTYPE_TYPE_MAP = new Dictionary<SqlDbType, Type> {
-            { SqlDbType.BigInt, typeof(long) },
-            { SqlDbType.Binary, typeof(byte[]) },
-            { SqlDbType.Bit, typeof(bool) },
-            { SqlDbType.Char, typeof(char[]) },
-            { SqlDbType.DateTime, typeof(DateTime) },
-            { SqlDbType.Decimal, typeof(decimal) },
-            { SqlDbType.Float, typeof(double) },
-            { SqlDbType.Image, typeof(byte[]) },
-            { SqlDbType.Int, typeof(int) },
-            { SqlDbType.Money, typeof(decimal) },
-            { SqlDbType.NChar, typeof(char[]) },
-            { SqlDbType.NText, typeof(string) },
-            { SqlDbType.NVarChar, typeof(string) },
-            { SqlDbType.Real, typeof(float) },
-            { SqlDbType.UniqueIdentifier, typeof(Guid) },
-            { SqlDbType.SmallDateTime, typeof(DateTime) },
-            { SqlDbType.SmallInt, typeof(short) },
-            { SqlDbType.SmallMoney, typeof(decimal) },
-            { SqlDbType.Text, typeof(string) },
-            { SqlDbType.Timestamp, typeof(byte[]) },
-            { SqlDbType.TinyInt, typeof(byte) },
-            { SqlDbType.VarBinary, typeof(byte[]) },
-            { SqlDbType.VarChar, typeof(string) },
-            { SqlDbType.Variant, typeof(object) },
-            { SqlDbType.Xml, typeof(string) },
-            { SqlDbType.Udt, typeof(object) },
-            { SqlDbType.Structured, typeof(object) },
-            { SqlDbType.Date, typeof(DateTime) },
-            { SqlDbType.Time, typeof(DateTime) },
-            { SqlDbType.DateTime2, typeof(DateTime) },
-            { SqlDbType.DateTimeOffset, typeof(DateTimeOffset) },
-        }.AsReadOnly();
-
-        private static readonly IReadOnlyDictionary<Type, SqlDbType> TYPE_SQLDBTYPE_MAP = new Dictionary<Type, SqlDbType>
-            {
-                { typeof(bool), SqlDbType.Bit },
-                { typeof(bool?), SqlDbType.Bit },
-
-                { typeof(byte), SqlDbType.TinyInt },
-                { typeof(byte?), SqlDbType.TinyInt },
-                { typeof(sbyte), SqlDbType.SmallInt },
-                { typeof(sbyte?), SqlDbType.SmallInt },
-
-                { typeof(short), SqlDbType.SmallInt },
-                { typeof(short?), SqlDbType.SmallInt },
-                { typeof(ushort), SqlDbType.Int },
-                { typeof(ushort?), SqlDbType.Int },
-
-                { typeof(char), SqlDbType.NChar },
-                { typeof(char?), SqlDbType.NChar },
-                { typeof(char[]), SqlDbType.NChar },
-
-                { typeof(int), SqlDbType.Int },
-                { typeof(int?), SqlDbType.Int },
-                { typeof(uint), SqlDbType.BigInt },
-                { typeof(uint?), SqlDbType.BigInt },
-
-                { typeof(long), SqlDbType.BigInt },
-                { typeof(long?), SqlDbType.BigInt },
-                { typeof(ulong), SqlDbType.BigInt }, // TODO: unsafe
-                { typeof(ulong?), SqlDbType.BigInt }, // TODO: unsafe
-
-                { typeof(float), SqlDbType.Real },
-                { typeof(float?), SqlDbType.Real },
-                { typeof(double), SqlDbType.Float },
-                { typeof(double?), SqlDbType.Float },
-                { typeof(decimal), SqlDbType.Decimal },
-                { typeof(decimal?), SqlDbType.Decimal },
-
-                { typeof(byte[]), SqlDbType.Binary },
-
-                { typeof(System.Guid), SqlDbType.UniqueIdentifier },
-                { typeof(System.Guid?), SqlDbType.UniqueIdentifier },
-
-                { typeof(string), SqlDbType.NVarChar },
-
-                { typeof(System.Net.IPAddress), SqlDbType.NVarChar },
-                { typeof(Uri), SqlDbType.NVarChar },
-
-                { typeof(System.Numerics.BigInteger), SqlDbType.NVarChar }, // TODO: is this correct
-                { typeof(System.Numerics.BigInteger?), SqlDbType.NVarChar }, // TODO: is this correct
-
-                { typeof(DateTime), SqlDbType.DateTime },
-                { typeof(DateTime?), SqlDbType.DateTime },
-                { typeof(DateTimeOffset), SqlDbType.DateTimeOffset },
-                { typeof(DateTimeOffset?), SqlDbType.DateTimeOffset },
-            }.AsReadOnly();
-
-
-        public static DbType GetDbType(this SqlDbType sqlDbType) => SQLDBTYPE_DBTYPE_MAP.TryGetValue(sqlDbType, out var dbType) ? dbType : DbType.String;
-
-        public static SqlDbType GetSqlDbType(this DbType dbType) => DBTYPE_SQLDBTYPE_MAP.TryGetValue(dbType, out var sqlDbType) ? sqlDbType : SqlDbType.NVarChar;
-
-        public static Type GetDotNetType(this SqlDbType sqlDbType) => SQLDBTYPE_TYPE_MAP.TryGetValue(sqlDbType, out var type) ? type : typeof(string);
-
-        public static SqlDbType GetSqlDbType(this Type type) => TYPE_SQLDBTYPE_MAP.TryGetValue(type, out var sqlDbType) ? sqlDbType : SqlDbType.NVarChar;
-    }
-
     public class SqlLoad : SqlBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
@@ -274,6 +107,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             log.DebugParameter(nameof(databaseSchemaTable), databaseSchemaTable);
 
+            // Drop table
             var tableExists = c.GetTableExists(database, schema, table);
             if (tableExists && drop)
             {
@@ -281,61 +115,49 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 c.DropTable(database, schema, table);
             }
 
+            // Create table
             tableExists = c.GetTableExists(database, schema, table);
             if (!tableExists)
             {
-                var sql = new StringBuilder();
+                var columnList = new List<string>();
+                if (rowNumberColumnName != null) columnList.Add(c.Escape(rowNumberColumnName) + " INTEGER NULL");
+                if (currentUtcDateTimeColumnName != null) columnList.Add(c.Escape(currentUtcDateTimeColumnName) + " DATETIME NULL");
 
-                sql.Append($"CREATE TABLE {databaseSchemaTable} (");
-                if (rowNumberColumnName != null) sql.Append(c.Escape(rowNumberColumnName) + " INTEGER NULL,");
-                if (currentUtcDateTimeColumnName != null) sql.Append(c.Escape(currentUtcDateTimeColumnName) + " DATETIME NULL,");
-                for (var i = 0; i < t.Columns.Count; i++)
+                foreach (var col in t.Columns)
                 {
-                    var column = t.Columns[i];
-                    if (i > 0) sql.Append(",");
-                    sql.Append(c.Escape(column.Name));
-                    sql.Append(" ");
-                    if (detectColumnTypes)
-                    {
-                        if (serverType.NotIn(SqlServerType.MSSQL)) throw new NotImplementedException($"detectColumnTypes for SqlServerType {serverType} has not been implemented yet");
-
-                        // MSSQL
-                        var sqlDbType = column.Type.GetSqlDbType();
-                        log.Debug("Column[" + column.Index + ":" + column.Name + "] " + column.Type.NameFormatted() + "  -->  " + sqlDbType);
-                        sql.Append(sqlDbType);
-                        if (sqlDbType.In(SqlDbType.NVarChar, SqlDbType.VarChar)) sql.Append("(" + (column.MaxLength > 4000 ? "MAX" : column.MaxLength) + ")");
-                        else if (sqlDbType.In(SqlDbType.NChar, SqlDbType.Char)) sql.Append("(" + column.MaxLength + ")");
-                        else if (sqlDbType.In(SqlDbType.Decimal)) sql.Append("(" + (37 - column.NumberOfDecimalDigits) + "," + column.NumberOfDecimalDigits + ")");
-
-
-
-                    }
-                    else
-                    {
-                        if (serverType == SqlServerType.MSSQL) sql.Append("NVARCHAR(MAX)");
-                        else if (serverType == SqlServerType.MySQL) sql.Append("LONGTEXT");
-                        else throw new NotImplementedException($"SqlServerType {serverType} has not been implemented yet");
-                    }
-                    sql.Append(" ");
+                    columnList.Add(detectColumnTypes ? c.TextCreateTableColumn(col) : c.TextCreateTableColumnText(col.Name, true));
                 }
-                sql.Append(");");
+
                 log.Debug("Executing Create Table...");
-                log.Debug(sql.ToString());
-                c.ExecuteNonQuery(sql.ToString());
-                log.Debug("Created table " + databaseSchemaTable);
+
+                var sql = $"CREATE TABLE {databaseSchemaTable} (" + columnList.ToStringDelimited(",") + ");";
+                log.Trace(sql);
+
+                var sqlLog = Environment.NewLine +
+                    $"CREATE TABLE {databaseSchemaTable} (" + Environment.NewLine +
+                    "\t" + columnList.ToStringDelimited(Environment.NewLine + ",\t") +
+                    Environment.NewLine + ");";
+                log.Debug(sqlLog);
+
+                c.ExecuteNonQuery(sql);
+
+                log.Debug("Created Table " + databaseSchemaTable);
             }
+
 
             var sqlColumnsList = c.GetColumns(database, schema, table).ToList();
             log.Debug("Found " + sqlColumnsList.Count + " columns in table " + databaseSchemaTable + "  " + sqlColumnsList.ToStringDelimited(", "));
-            var sqlColumns = sqlColumnsList.ToHashSet();
 
+            // TODO: Oracle is weird. Oracle column names are case-sensitive when escaping column name, which we always do. See https://seeq.atlassian.net/wiki/spaces/KB/pages/443088907/SQL+Column+Names+and+Case+Sensitivity#Oracle 
+            var sqlColumns = sqlColumnsList.ToHashSet(serverType.In(SqlServerType.Oracle) ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+
+            // Add RowNumber and Timestamp columns if specified
             if (rowNumberColumnName != null)
             {
                 log.Debug("Adding RowNumber column: " + rowNumberColumnName);
                 int i = 1;
                 t = t.AddColumn(rowNumberColumnName, row => (i++).ToString(), newColumnIndex: 0);
             }
-
             if (currentUtcDateTimeColumnName != null)
             {
                 var now = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
@@ -343,56 +165,40 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 t = t.AddColumn(currentUtcDateTimeColumnName, row => now, newColumnIndex: 1);
             }
 
+            // Compare file table columns to SQL table columns
             var columnsToInsert = new List<TableColumn>();
-
             foreach (var tablecolumn in t.Columns)
             {
-                if (sqlColumns.Contains(tablecolumn.Name)) // Found column in table
+                if (sqlColumns.Contains(tablecolumn.Name))
                 {
+                    // Found column in SQL table
                     columnsToInsert.Add(tablecolumn);
                 }
-                else if (!errorOnNonexistentColumns) // Didn't find column, but that is OK we'll just not import it
+                else if (!errorOnNonexistentColumns)
                 {
+                    // Didn't find column in SQL table, but that is OK we'll just not import it
                     log.Info($"Ignoring column {tablecolumn.Name} because it does not exist as a column in table {table}");
                 }
-                else // Didn't find column, and it is required, so we should fail here
+                else
                 {
+                    // Didn't find column in SQL table, and it is required, so we should fail here
                     throw new Exception($"DataFile contains column {tablecolumn.Name} but existing SQL table {table} does not contain this column.");
                 }
             }
 
-            /*
-            var dataToInsert = new List<DatabaseCrudParameter[]>();
-            foreach (var row in t)
-            {
-                foreach (var column in columnsToInsert)
-                {
-                    var dcp = new DatabaseCrudParameter(column.Name, row[column], System.Data.DbType.String);
-                }
-                dataToInsert.Add(columnsToInsert.Select(o => new DatabaseCrudParameter(o.Name, row[o], System.Data.DbType.String)).ToArray());
-            }
-            */
-
+            // Remove columns from file table that do not exist in SQL table
             var columnsToRemove = t.Columns.Select(o => o.Name).Except(columnsToInsert.Select(o => o.Name), StringComparer.OrdinalIgnoreCase);
             t = t.RemoveColumns(columnsToRemove.ToArray());
 
-            log.Info($"Writing {t.Count} rows to database in columns " + string.Join(", ", columnsToInsert.Select(o => o.Name)));
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            log.Info($"Writing {t.Count} rows to database in columns " + columnsToInsert.Select(o => o.Name).ToStringDelimited(", "));
 
-            //foreach (var row in dataToInsert) c.Insert(databaseSchemaTable, row);
+            var stopwatch = Stopwatch.StartNew();
             c.Insert(database, schema, table, t);
-
             stopwatch.Stop();
-            var stopwatchtime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
-            log.Info($"Completed writing {t.Count} rows to database in {stopwatchtime} seconds");
+            log.Info($"Completed writing {t.Count} rows to database in {stopwatch.Elapsed.ToStringTotalSeconds(3)} seconds");
 
 
         }
-
-
-
-
 
 
     }

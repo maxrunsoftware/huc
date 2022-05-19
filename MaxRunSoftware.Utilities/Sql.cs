@@ -47,8 +47,25 @@ namespace MaxRunSoftware.Utilities
         public abstract IEnumerable<string> GetColumns(string database, string schema, string table);
         public bool GetTableExists(string database, string schema, string table) => GetTables(database, schema).Where(o => string.Equals(table, o, StringComparison.OrdinalIgnoreCase)).Any();
 
+        public abstract string TextCreateTableColumn(TableColumn column);
+        public virtual string TextCreateTableColumnText(string columnName, bool isNullable)
+        {
+            var sql = new StringBuilder();
+
+            sql.Append(Escape(columnName));
+            sql.Append(' ');
+            sql.Append(TextCreateTableColumnTextDataType);
+
+            if (!isNullable) sql.Append(" NOT");
+            sql.Append(" NULL");
+
+            return sql.ToString();
+        }
+
         public abstract string GetCurrentDatabase();
         public abstract string GetCurrentSchema();
+
+        protected abstract string TextCreateTableColumnTextDataType { get; }
 
         public virtual void Insert(IDbConnection connection, string database, string schema, string table, IDictionary<string, string> columnsAndValues)
         {
