@@ -76,10 +76,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             CheckFileExists(inputFile);
 
             var t = ReadTableTab(inputFile, headerRow: !noHeader);
-            if (t.Columns.IsEmpty())
-            {
-                throw new Exception("No columns in import file");
-            }
+            if (t.Columns.IsEmpty()) throw new Exception("No columns in import file");
 
             var c = GetSqlHelper();
             log.Debug("Created SQL Helper of type " + c.GetType().NameFormatted());
@@ -89,13 +86,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             if (database == null) GetArgParameterOrConfigRequired(nameof(database), "d"); // will throw exception
 
             schema = GetArgParameterOrConfig(nameof(schema), "s").TrimOrNull();
-            if (schema == null)
-            {
-                if (serverType == SqlServerType.MSSQL)
-                {
-                    schema = c.GetCurrentSchema();
-                }
-            }
+            if (schema == null && serverType.In(SqlServerType.MSSQL)) schema = c.GetCurrentSchema();
 
             table = GetArgParameterOrConfig(nameof(table), "t").TrimOrNull();
             if (table == null) table = Path.GetFileNameWithoutExtension(inputFile).TrimOrNull();
