@@ -45,8 +45,8 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             d[nameof(os.Platform)] = os.Platform;
             d[nameof(os.VersionString)] = os.VersionString;
-            d["VersionMajor"] = os.Version.Major;
-            d["VersionMinor"] = os.Version.Minor;
+            d[nameof(os.Version) + nameof(os.Version.Major)] = os.Version.Major;
+            d[nameof(os.Version) + nameof(os.Version.Minor)] = os.Version.Minor;
             d[nameof(os.ServicePack)] = os.ServicePack;
         }
 
