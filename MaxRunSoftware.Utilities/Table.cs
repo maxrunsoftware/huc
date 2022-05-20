@@ -537,10 +537,10 @@ namespace MaxRunSoftware.Utilities
             Table = table;
             Index = index;
             Name = name ?? ("Column" + (index + 1));
-            maxLength = new Lazy<int>(() => table.Max(row => row[Index] == null ? 0 : row[Index].Length));
-            isNullable = new Lazy<bool>(() => table.Any(row => row[Index] == null));
-            type = new Lazy<Type>(() => Util.GuessType(table.Select(o => o[Index])));
-            numberOfDecimalDigits = new Lazy<int>(() => GetNumberOfDecimalPlaces(table, Index));
+            maxLength = new Lazy<int>(() => table.Count == 0 ? 0 : table.Max(row => row[Index] == null ? 0 : row[Index].Length));
+            isNullable = new Lazy<bool>(() => table.Count == 0 ? false : table.Any(row => row[Index] == null));
+            type = new Lazy<Type>(() => table.Count == 0 ? typeof(string) : Util.GuessType(table.Select(o => o[Index])));
+            numberOfDecimalDigits = new Lazy<int>(() => table.Count == 0 ? 0 : GetNumberOfDecimalPlaces(table, Index));
         }
 
         private int GetNumberOfDecimalPlaces(Table table, int index)
