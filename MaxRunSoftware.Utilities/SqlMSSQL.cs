@@ -51,8 +51,8 @@ namespace MaxRunSoftware.Utilities
         public static readonly Func<string, string> UNESCAPE_MSSQL = (o =>
         {
             if (o == null) return o;
-            if (o.StartsWith("[")) o = o.RemoveLeft(1);
-            if (o.EndsWith("]")) o = o.RemoveRight(1);
+            while (o.Length > 0 && o.StartsWith("[")) o = o.RemoveLeft(1);
+            while (o.Length > 0 && o.EndsWith("]")) o = o.RemoveRight(1);
             return o;
         });
 
