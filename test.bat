@@ -4,8 +4,10 @@ SET username=testadmin
 SET password=mySecretAdmin1
 
 huc ActiveDirectoryAddUser -h=%host% -u=%username% -p=%password% -fn=Test1 -ln=Doe -dn="John1 Doe" -ea="jd1@aol.com" jd1
+::huc ActiveDirectoryDisableUsers -h=%host% -u=%username% -p=%password% -l=5
 huc ActiveDirectoryDisableUser -h=%host% -u=%username% -p=%password% jd1
-huc ActiveDirectoryEnableUser -h=%host% -u=%username% -p=%password% jd1
+huc ActiveDirectoryListObjectDetails -h=%host% -u=%username% -p=%password% Administrator
+
 huc ActiveDirectoryChangePassword -h=%host% -u=%username% -p=%password% jd1 myNew29Password
 huc ActiveDirectoryAddGroup -h=%host% -u=%username% -p=%password% TestGroup1
 huc ActiveDirectoryAddOU -h=%host% -u=%username% -p=%password% OU1
