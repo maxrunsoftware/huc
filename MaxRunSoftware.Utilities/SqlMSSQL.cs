@@ -24,8 +24,8 @@ namespace MaxRunSoftware.Utilities
 {
     public class SqlMSSQL : Sql
     {
-        public override IEnumerable<string> GetDatabases() => ExecuteQueryToList("SELECT name FROM master.sys.databases;");
-        public override IEnumerable<string> GetTables(string database, string schema) => ExecuteQueryToList($"SELECT DISTINCT [TABLE_NAME] FROM {Escape(database)}.INFORMATION_SCHEMA.TABLES WHERE [TABLE_TYPE]='BASE TABLE' AND [TABLE_SCHEMA]='{Unescape(schema)}';");
+        public override IEnumerable<string> GetDatabases() => ExecuteQueryToList("SELECT name FROM sys.databases;");
+        public override IEnumerable<string> GetTables(string database, string schema) => ExecuteQueryToList($"SELECT DISTINCT [TABLE_NAME] FROM {Escape(database)}.INFORMATION_SCHEMA.TABLES WHERE [TABLE_TYPE]='BASE TABLE'" + (schema == null ? "" : $" AND [TABLE_SCHEMA]='{Unescape(schema)}'") + ";");
         public override void DropTable(string database, string schema, string table)
         {
             schema = schema ?? "dbo";
