@@ -215,32 +215,48 @@ namespace MaxRunSoftware.Utilities.Console
             return t;
         }
 
+        protected void WriteTableTab(Utilities.Table table, TextWriter writer)
+        {
+            table.CheckNotNull(nameof(table));
+
+            table.ToDelimited(
+                o => writer.Write(o),
+                headerDelimiter: "\t",
+                headerQuoting: null,
+                includeHeader: true,
+                dataDelimiter: "\t",
+                dataQuoting: null,
+                includeRows: true,
+                newLine: Utilities.Constant.NEWLINE_WINDOWS,
+                headerDelimiterReplacement: "        ",
+                dataDelimiterReplacement: "        "
+                );
+            writer.Flush();
+        }
+
+
         protected void WriteTableTab(string fileName, Utilities.Table table, string suffix = null)
         {
             fileName = Path.GetFullPath(fileName);
-            table.CheckNotNull(nameof(table));
 
             log.Debug("Writing TAB delimited Table to file " + fileName);
             using (var stream = Util.FileOpenWrite(fileName))
-            using (var streamWriter = new StreamWriter(stream, Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM))
+            using (var writer = new StreamWriter(stream, Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM))
             {
-                table.ToDelimited(
-                    o => streamWriter.Write(o),
-                    headerDelimiter: "\t",
-                    headerQuoting: null,
-                    includeHeader: true,
-                    dataDelimiter: "\t",
-                    dataQuoting: null,
-                    includeRows: true,
-                    newLine: Utilities.Constant.NEWLINE_WINDOWS,
-                    headerDelimiterReplacement: "        ",
-                    dataDelimiterReplacement: "        "
-                    );
-                streamWriter.Flush();
+                WriteTableTab(table, writer);
                 stream.Flush(true);
             }
 
             log.Info("Successfully wrote " + table.ToString() + " to file " + fileName + (suffix ?? string.Empty));
+        }
+
+        protected string WriteTableTab(Utilities.Table table)
+        {
+            using (var writer = new StringWriter())
+            {
+                WriteTableTab(table, writer);
+                return writer.ToString();
+            }
         }
 
         #endregion File

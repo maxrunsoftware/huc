@@ -381,7 +381,34 @@ namespace MaxRunSoftware.Utilities
             return Create(newTable, true);
         }
 
+        public Table Transpose()
+        {
+            var rowsOldCount = Count;
+            var colsOldCount = Columns.Count;
+            var rowsNewCount = Columns.Count;
+            var colsNewCount = Count + 1;
+
+            var list = new List<string[]>(rowsNewCount + 1);
+            for (int i = 0; i < rowsNewCount; i++) list.Add(new string[colsNewCount]);
+
+            for (int i = 0; i < colsOldCount; i++)
+            {
+                list[i][0] = Columns.ColumnNames[i];
+            }
+
+            for (int newRowIndex = 0; newRowIndex < rowsNewCount; newRowIndex++)
+            {
+                for (int newColIndex = 1; newColIndex < colsNewCount; newColIndex++)
+                {
+                    list[newRowIndex][newColIndex] = this[newColIndex - 1][newRowIndex];
+                }
+            }
+
+            return Create(list, true);
+        }
+
         public override string ToString() => "Table[columns:" + Columns.Count + "][rows:" + Count + "]";
+
     }
 
     public sealed class TableColumnCollection : IReadOnlyList<TableColumn>, IBucketReadOnly<string, TableColumn>
