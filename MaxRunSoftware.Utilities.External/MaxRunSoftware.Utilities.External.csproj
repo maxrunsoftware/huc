@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <ReleaseVersion>1.13.0</ReleaseVersion>
+    <TargetFramework>net6.0</TargetFramework>
+    <ReleaseVersion>2.0.0</ReleaseVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\net5.0\MaxRunSoftware.Utilities.External.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\net6.0\MaxRunSoftware.Utilities.External.xml</DocumentationFile>
     <NoWarn>1701;1702;1591;CA1416</NoWarn>
   </PropertyGroup>
   <ItemGroup>
