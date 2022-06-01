@@ -757,7 +757,7 @@ namespace MaxRunSoftware.Utilities.External
                 }
                 try
                 {
-                    d[prop.Name] = Util.GetPropertyValue(this, prop.Name);
+                    d[prop.Name] = ObjectReaderWriter.GetPropertyValue(this, prop.Name);
                 }
                 catch (Exception e)
                 {

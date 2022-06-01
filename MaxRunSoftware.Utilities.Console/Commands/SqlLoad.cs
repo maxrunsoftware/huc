@@ -33,6 +33,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddDetail("It is expected that the table being imported is in Tab delimited format, and that there is a header row. If there is no header row set the -noHeader option");
             help.AddParameter(nameof(drop), "dp", "Drop existing table if it exists (false)");
             help.AddParameter(nameof(detectColumnTypes), "dct", "Attempts to detect column types and lengths (false)");
+            help.AddParameter(nameof(coerceValues), "cv", "Attempts to convert values to fit into the columns (false)");
             help.AddParameter(nameof(errorOnNonexistentColumns), "ec", "When inserting to an existing table, whether to error if columns in the data file don't have cooresponding columns in the existing SQL table (false)");
             help.AddParameter(nameof(batchSize), "bs", "Number of insert commands to batch. Set to zero if having issues (1000)");
             help.AddParameter(nameof(rowNumberColumnName), "rncn", "If provided, an extra column is inserted with the line number, -1 because excluding header");
@@ -49,6 +50,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
         private bool drop;
         private bool detectColumnTypes;
+        private bool coerceValues;
         private bool errorOnNonexistentColumns;
         private int batchSize;
         private string rowNumberColumnName;
@@ -64,6 +66,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             drop = GetArgParameterOrConfigBool(nameof(drop), "dp", false);
             detectColumnTypes = GetArgParameterOrConfigBool(nameof(detectColumnTypes), "dct", false);
+            coerceValues = GetArgParameterOrConfigBool(nameof(coerceValues), "cv", false);
             errorOnNonexistentColumns = GetArgParameterOrConfigBool(nameof(errorOnNonexistentColumns), "ec", false);
             batchSize = GetArgParameterOrConfigInt(nameof(batchSize), "bs", 1000);
             rowNumberColumnName = GetArgParameterOrConfig(nameof(rowNumberColumnName), "rncn").TrimOrNull();
@@ -82,21 +85,19 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             log.Debug("Created SQL Helper of type " + c.GetType().NameFormatted());
 
             database = GetArgParameterOrConfig(nameof(database), "d").TrimOrNull();
-            if (database == null) database = c.GetCurrentDatabase();
-            if (database == null) GetArgParameterOrConfigRequired(nameof(database), "d"); // will throw exception
+            if (database == null) database = c.GetCurrentDatabaseName();
 
             schema = GetArgParameterOrConfig(nameof(schema), "s").TrimOrNull();
-            if (schema == null && serverType.In(SqlServerType.MSSQL)) schema = c.GetCurrentSchema();
+            if (schema == null) schema = c.GetCurrentSchemaName();
 
             table = GetArgParameterOrConfig(nameof(table), "t").TrimOrNull();
             if (table == null) table = Path.GetFileNameWithoutExtension(inputFile).TrimOrNull();
             if (table == null) table = GetArgParameterOrConfigRequired(nameof(table), "t"); // will throw exception
 
-            var databaseSchemaTable = c.Escape(database);
-            if (schema != null) databaseSchemaTable = databaseSchemaTable + "." + c.Escape(schema);
-            databaseSchemaTable = databaseSchemaTable + "." + c.Escape(table);
-
+            var databaseSchemaTable = c.Escape(database, schema, table);
             log.DebugParameter(nameof(databaseSchemaTable), databaseSchemaTable);
+
+            c.InsertCoerceValues = coerceValues;
 
             // Drop table
             var tableExists = c.GetTableExists(database, schema, table);
@@ -111,7 +112,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             if (!tableExists)
             {
                 var columnList = new List<string>();
-                if (rowNumberColumnName != null) columnList.Add(c.Escape(rowNumberColumnName) + " INTEGER NULL");
+                if (rowNumberColumnName != null) columnList.Add(c.Escape(rowNumberColumnName) + $" INTEGER NULL");
                 if (currentUtcDateTimeColumnName != null) columnList.Add(c.Escape(currentUtcDateTimeColumnName) + " DATETIME NULL");
 
                 foreach (var col in t.Columns)
@@ -136,7 +137,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             }
 
 
-            var sqlColumnsList = c.GetColumns(database, schema, table).ToList();
+            var sqlColumnsList = c.GetTableColumns(database, schema, table).Select(o => o.ColumnName).ToList();
             log.Debug("Found " + sqlColumnsList.Count + " columns in table " + databaseSchemaTable + "  " + sqlColumnsList.ToStringDelimited(", "));
 
             // TODO: Oracle is weird. Oracle column names are case-sensitive when escaping column name, which we always do. See https://seeq.atlassian.net/wiki/spaces/KB/pages/443088907/SQL+Column+Names+and+Case+Sensitivity#Oracle 

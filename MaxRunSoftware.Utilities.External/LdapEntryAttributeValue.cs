@@ -105,7 +105,7 @@ namespace MaxRunSoftware.Utilities.External
             {
                 string s = null;
                 if (b == null) return null; // null byte[], don't return anything
-                if (Util.IsValidUTF8(b)) s = Encoding.UTF8.GetString(b); // If it is a valid string convert it to a string
+                if (b.IsValidUTF8()) s = Encoding.UTF8.GetString(b); // If it is a valid string convert it to a string
                 return new LdapEntryAttributeValue(b, s);
             }
             else

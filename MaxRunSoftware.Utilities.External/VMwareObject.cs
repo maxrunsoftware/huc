@@ -73,7 +73,7 @@ namespace MaxRunSoftware.Utilities.External
             sb.AppendLine(GetType().NameFormatted());
             foreach (var property in GetProperties())
             {
-                var val = Util.GetPropertyValue(this, property.Name);
+                var val = ObjectReaderWriter.GetPropertyValue(this, property.Name);
                 if (val == null)
                 {
                     sb.AppendLine("  " + property.Name + ": ");
@@ -91,7 +91,7 @@ namespace MaxRunSoftware.Utilities.External
                         sb.AppendLine("  " + vitem.GetType().NameFormatted() + "[" + count + "]");
                         foreach (var prop in vitem.GetProperties())
                         {
-                            sb.AppendLine("    " + prop.Name + ": " + Util.GetPropertyValue(vitem, prop.Name).ToStringGuessFormat());
+                            sb.AppendLine("    " + prop.Name + ": " + ObjectReaderWriter.GetPropertyValue(vitem, prop.Name).ToStringGuessFormat());
                         }
                         count++;
                     }

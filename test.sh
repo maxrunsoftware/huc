@@ -8,7 +8,8 @@ else
     exit 1
 fi
 
-set -x #echo on
+set -x # echo on
+set -e # exit on error
 
 mssql="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;"
 mysql="Server=$ip;Database=NorthWind;User Id=testuser;Password=testpass;"
@@ -20,6 +21,7 @@ mkdir ./test
 cp ./publish/osx-x64/huc ./test
 cd test
 
+#clear
 
 echo --- SQL MSSQL ---
 ./huc sql -c="$mssql" -s="SELECT TOP 100 * FROM Orders" Orders100.txt
@@ -30,6 +32,7 @@ printf "SELECT TOP 100 *\nFROM Orders" > mssqlscript.sql
 ./huc sql -c="$mssql" -s="if exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'TempOrders' AND TABLE_SCHEMA = 'dbo') DROP TABLE NorthWind.dbo.TempOrders;" 
 
 echo --- SQLLOAD MSSQL ---
+./huc sqlload -c="$mssql" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders -dct -cv Orders.txt
 ./huc sqlload -c="$mssql" -drop -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 ./huc sqlload -c="$mssql" -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -s=dbo -t=TempOrders Orders.txt
 ./huc sqlload -c="$mssql" -d=NorthWind -s=dbo -t=TempOrders Orders.txt
@@ -41,7 +44,7 @@ printf "SMALLINTS,-32768,-1,0,1,32767,0,0,0,0,0 \n" >> mssqldct.txt
 printf "INTS,-2147483648,-1,0,1,2147483647,0,0,0,0,0 \n" >> mssqldct.txt
 ./huc FileReplaceString "," "\\t" mssqldct.txt
 ./huc TableTranspose mssqldct.txt
-./huc sqlload -c="$mssql" -drop -d=NorthWind -dct mssqldct.txt
+./huc sqlload -c="$mssql" -drop -d=NorthWind -dct -cv mssqldct.txt
 
 
 
@@ -55,7 +58,6 @@ echo --- SQLLOAD MySQL ---
 ./huc sqlload -st=MySQL -c="$mysql" -rowNumberColumnName=RowNumber -currentUtcDateTimeColumnName=UploadTime -d=NorthWind -t=TempProducts Products.txt
 ./huc sqlload -st=MySQL -c="$mysql" -d=NorthWind -t=TempProducts Products.txt
 ./huc sql -st=MySQL -c="$mysql" -s="SELECT * FROM TempProducts;" TempProducts.txt
-
 
 
 echo --- TABLE ---

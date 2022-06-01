@@ -104,7 +104,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             var sql = GetSql();
 
-            if (serverType.NotIn(SqlServerType.MSSQL))
+            if (serverType.NotIn(SqlServerType.MsSql))
             {
                 throw new Exception("SQL server type [" + serverType + "] is currently unsupported");
             }
@@ -112,9 +112,9 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            if (serverType == SqlServerType.MSSQL)
+            if (serverType == SqlServerType.MsSql)
             {
-                using (var connection = CreateConnectionMSSQL())
+                using (var connection = CreateConnectionMsSql())
                 {
                     connection.Open();
                     using (var command = connection.CreateCommand())

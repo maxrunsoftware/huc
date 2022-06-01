@@ -518,7 +518,7 @@ namespace MaxRunSoftware.Utilities.External
                 object val = null;
                 try
                 {
-                    val = Util.GetPropertyValue(o, prop.Name);
+                    val = ObjectReaderWriter.GetPropertyValue(o, prop.Name);
                 }
                 catch (Exception e)
                 {
