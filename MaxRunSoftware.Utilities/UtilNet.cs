@@ -38,7 +38,9 @@ namespace MaxRunSoftware.Utilities
             ServicePointManager.SecurityProtocol = (SecurityProtocolType)(0xc0 | 0x300 | 0xc00);
             // SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
 
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create("http://worldtimeapi.org/api/timezone/Europe/London.txt");
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
             request.Method = "GET";
             request.Accept = "text/html, application/xhtml+xml, */*";
             request.UserAgent = "p2pcopy";
@@ -206,7 +208,11 @@ namespace MaxRunSoftware.Utilities
 
         public static WebResponse WebDownload(string url, string outFilename = null, string username = null, string password = null, IDictionary<string, string> cookies = null)
         {
-            using (var cli = new WebClient())
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+            var cli = new WebClient();
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+
+            using (cli)
             {
                 // https://stackoverflow.com/a/7861726
                 var sb = new StringBuilder();

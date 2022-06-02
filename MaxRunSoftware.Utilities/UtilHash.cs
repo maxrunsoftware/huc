@@ -56,29 +56,29 @@ namespace MaxRunSoftware.Utilities
 
         public static string GenerateHashMD5(string file) => GenerateHashInternal(MD5.Create(), file);
 
-        public static string GenerateHashSHA1(Stream stream) => GenerateHashInternal(SHA1Managed.Create(), stream);
+        public static string GenerateHashSHA1(Stream stream) => GenerateHashInternal(SHA1.Create(), stream);
 
-        public static string GenerateHashSHA1(byte[] bytes) => GenerateHashInternal(SHA1Managed.Create(), bytes);
+        public static string GenerateHashSHA1(byte[] bytes) => GenerateHashInternal(SHA1.Create(), bytes);
 
-        public static string GenerateHashSHA1(string file) => GenerateHashInternal(SHA1Managed.Create(), file);
+        public static string GenerateHashSHA1(string file) => GenerateHashInternal(SHA1.Create(), file);
 
-        public static string GenerateHashSHA256(Stream stream) => GenerateHashInternal(SHA256Managed.Create(), stream);
+        public static string GenerateHashSHA256(Stream stream) => GenerateHashInternal(SHA256.Create(), stream);
 
-        public static string GenerateHashSHA256(byte[] bytes) => GenerateHashInternal(SHA256Managed.Create(), bytes);
+        public static string GenerateHashSHA256(byte[] bytes) => GenerateHashInternal(SHA256.Create(), bytes);
 
-        public static string GenerateHashSHA256(string file) => GenerateHashInternal(SHA256Managed.Create(), file);
+        public static string GenerateHashSHA256(string file) => GenerateHashInternal(SHA256.Create(), file);
 
-        public static string GenerateHashSHA384(Stream stream) => GenerateHashInternal(SHA384Managed.Create(), stream);
+        public static string GenerateHashSHA384(Stream stream) => GenerateHashInternal(SHA384.Create(), stream);
 
-        public static string GenerateHashSHA384(byte[] bytes) => GenerateHashInternal(SHA384Managed.Create(), bytes);
+        public static string GenerateHashSHA384(byte[] bytes) => GenerateHashInternal(SHA384.Create(), bytes);
 
-        public static string GenerateHashSHA384(string file) => GenerateHashInternal(SHA384Managed.Create(), file);
+        public static string GenerateHashSHA384(string file) => GenerateHashInternal(SHA384.Create(), file);
 
-        public static string GenerateHashSHA512(Stream stream) => GenerateHashInternal(SHA512Managed.Create(), stream);
+        public static string GenerateHashSHA512(Stream stream) => GenerateHashInternal(SHA512.Create(), stream);
 
-        public static string GenerateHashSHA512(byte[] bytes) => GenerateHashInternal(SHA512Managed.Create(), bytes);
+        public static string GenerateHashSHA512(byte[] bytes) => GenerateHashInternal(SHA512.Create(), bytes);
 
-        public static string GenerateHashSHA512(string file) => GenerateHashInternal(SHA512Managed.Create(), file);
+        public static string GenerateHashSHA512(string file) => GenerateHashInternal(SHA512.Create(), file);
 
     }
 }

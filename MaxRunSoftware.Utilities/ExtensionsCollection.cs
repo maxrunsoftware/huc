@@ -81,8 +81,10 @@ namespace MaxRunSoftware.Utilities
         {
             T[] result = new T[array.Length + otherArray.Length];
 
-            Buffer.BlockCopy(array, 0, result, 0, array.Length);
-            Buffer.BlockCopy(otherArray, 0, result, array.Length, otherArray.Length);
+            //Buffer.BlockCopy(array, 0, result, 0, array.Length);
+            //Buffer.BlockCopy(otherArray, 0, result, array.Length, otherArray.Length);
+            for (int i = 0; i < array.Length; i++) result[i] = array[i];
+            for (int i = 0; i < otherArray.Length; i++) result[array.Length + i] = otherArray[i];
 
             return result;
         }
@@ -386,8 +388,12 @@ namespace MaxRunSoftware.Utilities
             var array1 = new T[index];
             var array2 = new T[array.Length - index];
 
-            Buffer.BlockCopy(array, 0, array1, 0, array1.Length);
-            Buffer.BlockCopy(array, index, array2, 0, array2.Length);
+            //Buffer.BlockCopy(array, 0, array1, 0, array1.Length);
+            //Buffer.BlockCopy(array, index, array2, 0, array2.Length);
+
+            for (int i = 0; i < array1.Length; i++) array1[i] = array[i];
+            for (int i = 0; i < array2.Length; i++) array2[i] = array[array1.Length + i];
+
 
             return (array1, array2);
         }

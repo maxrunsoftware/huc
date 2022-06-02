@@ -68,7 +68,8 @@ namespace MaxRunSoftware.Utilities
             // https://stackoverflow.com/a/1344255
 
             var data = new byte[4 * size];
-            using (var crypto = new RNGCryptoServiceProvider())
+
+            using (var crypto = RandomNumberGenerator.Create())
             {
                 crypto.GetBytes(data);
             }

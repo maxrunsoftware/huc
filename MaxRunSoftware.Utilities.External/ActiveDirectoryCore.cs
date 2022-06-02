@@ -342,7 +342,7 @@ namespace MaxRunSoftware.Utilities.External
                 attributes.AddToList("objectClass", "top", "account", "simpleSecurityObject");
                 var userpassword = "badPassword1!";
                 string encodedPassword;
-                using (var sha1 = new SHA1Managed())
+                using (var sha1 = SHA1.Create())
                 {
                     var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(userpassword)));
                     encodedPassword = "{SHA}" + digest;
