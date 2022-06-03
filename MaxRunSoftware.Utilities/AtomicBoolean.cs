@@ -26,14 +26,9 @@ namespace MaxRunSoftware.Utilities
     public struct AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, IComparable<AtomicBoolean>, IEquatable<AtomicBoolean>
     {
         private int m_value;
-
         public bool Value => m_value == 1;
 
         public AtomicBoolean(bool startingValue) => m_value = startingValue ? 1 : 0;
-
-        public static implicit operator bool(AtomicBoolean atomicBoolean) => atomicBoolean.Value;
-
-        public static implicit operator AtomicBoolean(bool boolean) => new AtomicBoolean(boolean);
 
         /// <summary>
         /// Sets this value to true
@@ -57,17 +52,23 @@ namespace MaxRunSoftware.Utilities
         public override int GetHashCode() => ((bool)this).GetHashCode();
 
         public int CompareTo(object obj) => ((bool)this).CompareTo(obj);
-
         public int CompareTo(bool other) => ((bool)this).CompareTo(other);
-
         public int CompareTo(AtomicBoolean other) => ((bool)this).CompareTo(other);
 
         public bool Equals(bool other) => ((bool)this).Equals(other);
-
         public bool Equals(AtomicBoolean other) => ((bool)this).Equals(other);
-
         public override bool Equals(object obj) => ((bool)this).Equals(obj);
 
         public override string ToString() => ((bool)this).ToString();
+
+        public static implicit operator bool(AtomicBoolean atomicBoolean) => atomicBoolean.Value;
+        public static implicit operator AtomicBoolean(bool boolean) => new AtomicBoolean(boolean);
+
+        public static bool operator ==(AtomicBoolean left, AtomicBoolean right) => left.Equals(right);
+        public static bool operator !=(AtomicBoolean left, AtomicBoolean right) => !(left == right);
+        public static bool operator <(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) < 0;
+        public static bool operator <=(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) <= 0;
+        public static bool operator >(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) > 0;
+        public static bool operator >=(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) >= 0;
     }
 }
