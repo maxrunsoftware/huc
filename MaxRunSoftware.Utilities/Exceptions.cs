@@ -36,6 +36,8 @@ namespace MaxRunSoftware.Utilities
 
         public SqlException(Exception innerException, IDbCommand command, bool showFullSql) : base(ParseMessage(command, showFullSql), innerException) { }
 
+        #endregion Constructors
+
         private static string ParseMessage(IDbCommand command, bool showFullSql)
         {
             var defaultMsg = "Error Executing SQL";
@@ -97,7 +99,6 @@ namespace MaxRunSoftware.Utilities
             }
         }
 
-        #endregion Constructors
     }
 
 
