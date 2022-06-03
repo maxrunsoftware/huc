@@ -13,19 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // */
+
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Chromium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
-using OpenQA.Selenium.Opera;
 using OpenQA.Selenium.Support.UI;
 using WebDriverManager;
 using WebDriverManager.DriverConfigs;
@@ -200,17 +197,29 @@ namespace MaxRunSoftware.Utilities.External
             }
             else if (bt == WebBrowserType.Opera)
             {
-                var options = new OperaOptions();
+                //var options = new OperaOptions();
+                var options = new ChromeOptions();
                 options.BinaryLocation = Location.BrowserExecutable;
                 foreach (var a in optionArguments) options.AddArgument(a);
                 foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
-                var driverService = OperaDriverService.CreateDefaultService(DriverDirectory);
+                //var driverService = OperaDriverService.CreateDefaultService(DriverDirectory);
+                var driverService = ChromeDriverService.CreateDefaultService(DriverDirectory);
                 driverService.HideCommandPromptWindow = true;
                 driverService.SuppressInitialDiagnosticInformation = true;
                 driverService.EnableVerboseLogging = false;
 
-                Browser = new OperaDriver(driverService, options);
+                // Browser = new OperaDriver(driverService, options);
+                Browser = new ChromeDriver(driverService, options);
+
+                options.BinaryLocation = Location.BrowserExecutable;
+                foreach (var a in optionArguments) options.AddArgument(a);
+                foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
+
+                driverService.HideCommandPromptWindow = true;
+                driverService.SuppressInitialDiagnosticInformation = true;
+                driverService.EnableVerboseLogging = false;
+
             }
             else
             {
