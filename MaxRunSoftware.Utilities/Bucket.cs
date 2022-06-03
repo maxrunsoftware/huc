@@ -74,6 +74,24 @@ namespace MaxRunSoftware.Utilities
         /// <returns>A simple bucket wrapper around 3 functions</returns>
         public static IBucket<TKey, TValue> CreateBucket<TKey, TValue>(Func<TKey, TValue> getValue, Func<IEnumerable<TKey>> getKeys, Action<TKey, TValue> setValue) => new BucketFunc<TKey, TValue>(getValue, getKeys, setValue);
 
+        private sealed class BucketDictionaryWrapper<TKey, TValue> : IBucket<TKey, TValue>
+        {
+            private readonly IDictionary<TKey, TValue> dictionary;
+
+            public BucketDictionaryWrapper(IDictionary<TKey, TValue> dictionary)
+            {
+                this.dictionary = dictionary;
+            }
+
+            public TValue this[TKey key] { get => dictionary[key]; set => dictionary[key] = value; }
+
+            TValue IBucketReadOnly<TKey, TValue>.this[TKey key] => dictionary[key];
+
+            public IEnumerable<TKey> Keys => dictionary.Keys;
+        }
+
+        public static IBucket<TKey, TValue> AsBucket<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) => new BucketDictionaryWrapper<TKey, TValue>(dictionary);
+
     }
 
     /// <summary>

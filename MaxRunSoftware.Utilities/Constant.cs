@@ -162,10 +162,17 @@ namespace MaxRunSoftware.Utilities
         public static readonly OSPlatform OS = OS_get();
         private static OSPlatform OS_get()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return OSPlatform.Windows;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return OSPlatform.OSX;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return OSPlatform.Linux;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) return OSPlatform.FreeBSD;
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return OSPlatform.Windows;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return OSPlatform.OSX;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return OSPlatform.Linux;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) return OSPlatform.FreeBSD;
+            }
+            catch (Exception e)
+            {
+                LogError(e);
+            }
 
             // Unknown OS
             return OSPlatform.Windows;
@@ -385,22 +392,32 @@ namespace MaxRunSoftware.Utilities
             // https://stackoverflow.com/a/3821197
 
             var d = new Dictionary<string, Color>();
-            Type colorType = typeof(System.Drawing.Color);
-            // We take only static property to avoid properties like Name, IsSystemColor ...
-            PropertyInfo[] propInfos = colorType.GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public);
-            foreach (PropertyInfo propInfo in propInfos)
+
+            try
             {
-                var colorGetMethod = propInfo.GetGetMethod();
-                if (colorGetMethod == null) continue;
-                var colorObject = colorGetMethod.Invoke(null, null);
-                if (colorObject == null) continue;
-                var colorObjectType = colorObject.GetType();
-                if (!colorObjectType.Equals(typeof(Color))) continue;
-                var color = (Color)colorObject;
-                var colorName = propInfo.Name;
-                d[colorName] = color;
+                Type colorType = typeof(System.Drawing.Color);
+                // We take only static property to avoid properties like Name, IsSystemColor ...
+                PropertyInfo[] propInfos = colorType.GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public);
+                foreach (PropertyInfo propInfo in propInfos)
+                {
+                    var colorGetMethod = propInfo.GetGetMethod();
+                    if (colorGetMethod == null) continue;
+                    var colorObject = colorGetMethod.Invoke(null, null);
+                    if (colorObject == null) continue;
+                    var colorObjectType = colorObject.GetType();
+                    if (!colorObjectType.Equals(typeof(Color))) continue;
+                    var color = (Color)colorObject;
+                    var colorName = propInfo.Name;
+                    d[colorName] = color;
+                }
+
             }
-            return d.AsReadOnly();
+            catch (Exception e)
+            {
+                LogError(e);
+            }
+
+            return d;
         }
 
         /// <summary>
@@ -589,30 +606,63 @@ namespace MaxRunSoftware.Utilities
             }
             catch (Exception e)
             {
+                LogError(e);
+            }
+            return false;
+        }
+
+        private static void LogError(Exception exception, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "")
+        {
+            var msg = nameof(Constant) + "." + memberName + "() failed.";
+            if (exception != null)
+            {
                 try
                 {
-                    System.Diagnostics.Debug.WriteLine("Constant.IS_BATCHFILE_EXECUTED_get() failed. " + e?.ToString());
+                    var err = exception.ToString();
+                    msg = msg + " " + err;
                 }
                 catch (Exception)
                 {
                     try
                     {
-                        Console.Error.WriteLine("Constant.IS_BATCHFILE_EXECUTED_get() failed. " + e?.ToString());
+                        var err = exception.Message;
+                        msg = msg + " " + err;
                     }
                     catch (Exception)
                     {
                         try
                         {
-                            Console.WriteLine("Constant.IS_BATCHFILE_EXECUTED_get() failed. " + e?.ToString());
+                            var err = exception.GetType().FullName;
+                            msg = msg + " " + err;
                         }
-                        catch (Exception)
-                        {
-                            ; // Just swallow it I guess
-                        }
+                        catch (Exception) { }
+
                     }
                 }
             }
-            return false;
+
+            try
+            {
+                Debug.WriteLine(msg);
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    Console.Error.WriteLine(msg);
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        Console.WriteLine(msg);
+                    }
+                    catch (Exception)
+                    {
+                        ; // Just swallow it I guess
+                    }
+                }
+            }
         }
 
         private static string TrimOrNull(string str)
