@@ -40,12 +40,22 @@ public class BucketReadOnlyTests
         Assert.Null(val);
         Assert.Equal(3, cgf.TimesCalled);
         Assert.Equal(3, bro.Keys.Count());
+
+        try
+        {
+            val = bro[null];
+            Assert.True(false, "Expecting exception to be thrown");
+        }
+        catch (Exception)
+        {
+            Assert.True(true);
+        }
     }
 
     private class CacheGenFunc
     {
         public int TimesCalled { get; set; }
-        public string? GenVal(string key)
+        public string GenVal(string key)
         {
             TimesCalled++;
             if (key == "n") return null;
