@@ -71,9 +71,10 @@ namespace MaxRunSoftware.Utilities.External
         {
             var sb = new StringBuilder();
             sb.AppendLine(GetType().NameFormatted());
-            foreach (var property in GetProperties())
+
+            foreach (var property in ClassReaderWriter.GetProperties(GetType(), isInstance: true, canGet: true))
             {
-                var val = ObjectReaderWriter.GetPropertyValue(this, property.Name);
+                var val = property.GetValue(this);
                 if (val == null)
                 {
                     sb.AppendLine("  " + property.Name + ": ");
@@ -88,10 +89,11 @@ namespace MaxRunSoftware.Utilities.External
                     foreach (var item in (IEnumerable)val)
                     {
                         var vitem = (VMwareObject)item;
-                        sb.AppendLine("  " + vitem.GetType().NameFormatted() + "[" + count + "]");
-                        foreach (var prop in vitem.GetProperties())
+                        var vItemType = vitem.GetType();
+                        sb.AppendLine("  " + vItemType.NameFormatted() + "[" + count + "]");
+                        foreach (var prop in ClassReaderWriter.GetProperties(vItemType, canGet: true, isInstance: true))
                         {
-                            sb.AppendLine("    " + prop.Name + ": " + ObjectReaderWriter.GetPropertyValue(vitem, prop.Name).ToStringGuessFormat());
+                            sb.AppendLine("    " + prop.Name + ": " + prop.GetValue(vitem).ToStringGuessFormat());
                         }
                         count++;
                     }

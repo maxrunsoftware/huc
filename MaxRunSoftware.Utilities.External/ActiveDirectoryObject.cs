@@ -743,6 +743,7 @@ namespace MaxRunSoftware.Utilities.External
         {
             var d = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
+            var crw = ClassReaderWriter.Get(GetType());
             foreach (var prop in GetPropertyInfos(includeExpensiveObjects: true))
             {
                 if (!includeExpensiveObjects && ExpensiveProperties.Contains(prop.Name))
@@ -757,7 +758,7 @@ namespace MaxRunSoftware.Utilities.External
                 }
                 try
                 {
-                    d[prop.Name] = ObjectReaderWriter.GetPropertyValue(this, prop.Name);
+                    d[prop.Name] = crw.Properties[prop.Name].GetValue(this);
                 }
                 catch (Exception e)
                 {

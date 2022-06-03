@@ -512,13 +512,12 @@ namespace MaxRunSoftware.Utilities.External
         private static string ToStringDebugOutput(object o)
         {
             var sb = new StringBuilder();
-            foreach (var prop in o.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase))
+            foreach (var prop in ClassReaderWriter.GetProperties(o.GetType(), canGet: true, isInstance: true))
             {
-                if (!prop.CanRead) continue;
                 object val = null;
                 try
                 {
-                    val = ObjectReaderWriter.GetPropertyValue(o, prop.Name);
+                    val = prop.GetValue(o);
                 }
                 catch (Exception e)
                 {
