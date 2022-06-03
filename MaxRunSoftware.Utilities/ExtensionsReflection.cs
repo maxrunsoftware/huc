@@ -14,16 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Reflection;
+namespace MaxRunSoftware.Utilities;
 
-namespace MaxRunSoftware.Utilities
+public static class ExtensionsReflection
 {
-    public static class ExtensionsReflection
-    {
-        public static string GetFileVersion(this Assembly assembly) => System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location)?.FileVersion;
+    public static string GetFileVersion(this Assembly assembly) => System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location)?.FileVersion;
 
-        public static string GetVersion(this Assembly assembly) => assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version;
+    public static string GetVersion(this Assembly assembly) => assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version;
 
-    }
 }
 

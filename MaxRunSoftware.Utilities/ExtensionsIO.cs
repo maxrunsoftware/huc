@@ -14,72 +14,65 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+namespace MaxRunSoftware.Utilities;
 
-namespace MaxRunSoftware.Utilities
+public static class ExtensionsIO
 {
-    public static class ExtensionsIO
+    public static string[] RemoveBase(this FileSystemInfo info, DirectoryInfo baseToRemove, bool caseSensitive = false)
     {
-        public static string[] RemoveBase(this FileSystemInfo info, DirectoryInfo baseToRemove, bool caseSensitive = false)
+        var sourceParts = info.FullName.Split('/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Where(o => o.TrimOrNull() != null).ToArray();
+        var baseParts = baseToRemove.FullName.Split('/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Where(o => o.TrimOrNull() != null).ToArray();
+
+        var msgInvalidParent = $"{nameof(baseToRemove)} of {baseToRemove.FullName} is not a parent directory of {info.FullName}";
+
+        if (baseParts.Length > sourceParts.Length) throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
+
+        var list = new List<string>();
+        for (var i = 0; i < sourceParts.Length; i++)
         {
-            var sourceParts = info.FullName.Split('/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Where(o => o.TrimOrNull() != null).ToArray();
-            var baseParts = baseToRemove.FullName.Split('/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Where(o => o.TrimOrNull() != null).ToArray();
-
-            var msgInvalidParent = $"{nameof(baseToRemove)} of {baseToRemove.FullName} is not a parent directory of {info.FullName}";
-
-            if (baseParts.Length > sourceParts.Length) throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
-
-            var list = new List<string>();
-            for (var i = 0; i < sourceParts.Length; i++)
+            if (i >= baseParts.Length)
             {
-                if (i >= baseParts.Length)
+                list.Add(sourceParts[i]);
+            }
+            else
+            {
+                if (caseSensitive)
                 {
-                    list.Add(sourceParts[i]);
+                    if (!string.Equals(sourceParts[i], baseParts[i]))
+                    {
+                        throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
+                    }
                 }
                 else
                 {
-                    if (caseSensitive)
+                    if (!string.Equals(sourceParts[i], baseParts[i], StringComparison.OrdinalIgnoreCase))
                     {
-                        if (!string.Equals(sourceParts[i], baseParts[i]))
-                        {
-                            throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
-                        }
-                    }
-                    else
-                    {
-                        if (!string.Equals(sourceParts[i], baseParts[i], StringComparison.OrdinalIgnoreCase))
-                        {
-                            throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
-                        }
+                        throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
                     }
                 }
             }
-
-            return list.ToArray();
         }
 
-        public static long GetLength(this FileInfo file)
-        {
-            if (file == null) return -1;
-
-            // https://stackoverflow.com/a/26473940
-            if (file.Attributes.HasFlag(FileAttributes.ReparsePoint)) // probably symbolic link
-            {
-                // https://stackoverflow.com/a/57454136
-                using (Stream fs = Util.FileOpenRead(file.FullName))
-                {
-                    return fs.Length;
-                }
-            }
-            else // regular file
-            {
-                return file.Length;
-            }
-        }
-
+        return list.ToArray();
     }
-}
 
+    public static long GetLength(this FileInfo file)
+    {
+        if (file == null) return -1;
+
+        // https://stackoverflow.com/a/26473940
+        if (file.Attributes.HasFlag(FileAttributes.ReparsePoint)) // probably symbolic link
+        {
+            // https://stackoverflow.com/a/57454136
+            using (Stream fs = Util.FileOpenRead(file.FullName))
+            {
+                return fs.Length;
+            }
+        }
+        else // regular file
+        {
+            return file.Length;
+        }
+    }
+
+}

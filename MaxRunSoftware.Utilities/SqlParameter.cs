@@ -14,71 +14,68 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Data;
+namespace MaxRunSoftware.Utilities;
 
-namespace MaxRunSoftware.Utilities
+/// <summary>
+/// Parameter used for calling SQL stored procedure and functions
+/// </summary>
+public sealed class SqlParameter
 {
     /// <summary>
-    /// Parameter used for calling SQL stored procedure and functions
+    /// Parameter name
     /// </summary>
-    public sealed class SqlParameter
+    public string Name { get; }
+
+    /// <summary>
+    /// Parameter type
+    /// </summary>
+    public DbType Type { get; }
+
+    /// <summary>
+    /// Parameter value
+    /// </summary>
+    public object Value { get; }
+
+    /// <summary>
+    /// Constructs a new SqlParameter attempting to figure out the Type based on the value supplied
+    /// </summary>
+    /// <param name="name">Name</param>
+    /// <param name="value">Value</param>
+    public SqlParameter(string name, object value)
     {
-        /// <summary>
-        /// Parameter name
-        /// </summary>
-        public string Name { get; }
+        Name = name;
 
-        /// <summary>
-        /// Parameter type
-        /// </summary>
-        public DbType Type { get; }
-
-        /// <summary>
-        /// Parameter value
-        /// </summary>
-        public object Value { get; }
-
-        /// <summary>
-        /// Constructs a new SqlParameter attempting to figure out the Type based on the value supplied
-        /// </summary>
-        /// <param name="name">Name</param>
-        /// <param name="value">Value</param>
-        public SqlParameter(string name, object value)
+        if (value == null)
         {
-            Name = name;
-
-            if (value == null)
+            Type = DbType.String;
+            Value = value;
+        }
+        else
+        {
+            if (Constant.MAP_Type_DbType.TryGetValue(value.GetType(), out var dbType))
             {
-                Type = DbType.String;
+                Type = dbType;
                 Value = value;
             }
             else
             {
-                if (Constant.MAP_Type_DbType.TryGetValue(value.GetType(), out var dbType))
-                {
-                    Type = dbType;
-                    Value = value;
-                }
-                else
-                {
-                    Type = DbType.String;
-                    Value = value.ToStringGuessFormat();
-                }
+                Type = DbType.String;
+                Value = value.ToStringGuessFormat();
             }
-        }
-
-        /// <summary>
-        /// Constructs a new SqlParameter
-        /// </summary>
-        /// <param name="name">Name</param>
-        /// <param name="value">Value</param>
-        /// <param name="type"></param>
-        public SqlParameter(string name, object value, DbType type)
-        {
-            Name = name;
-            Value = value;
-            Type = type;
         }
     }
 
+    /// <summary>
+    /// Constructs a new SqlParameter
+    /// </summary>
+    /// <param name="name">Name</param>
+    /// <param name="value">Value</param>
+    /// <param name="type"></param>
+    public SqlParameter(string name, object value, DbType type)
+    {
+        Name = name;
+        Value = value;
+        Type = type;
+    }
 }
+

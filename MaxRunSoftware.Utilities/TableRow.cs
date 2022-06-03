@@ -14,53 +14,49 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Collections;
-using System.Collections.Generic;
+namespace MaxRunSoftware.Utilities;
 
-namespace MaxRunSoftware.Utilities
+public sealed class TableRow : IReadOnlyList<string>, IBucketReadOnly<string, string>, IBucketReadOnly<TableColumn, string>
 {
-    public sealed class TableRow : IReadOnlyList<string>, IBucketReadOnly<string, string>, IBucketReadOnly<TableColumn, string>
+    private readonly string[] data;
+    public Table Table { get; }
+    public int RowIndex { get; }
+
+    internal TableRow(Table table, string[] data, int rowIndex)
     {
-        private readonly string[] data;
-        public Table Table { get; }
-        public int RowIndex { get; }
-
-        internal TableRow(Table table, string[] data, int rowIndex)
-        {
-            Table = table;
-            this.data = data;
-            RowIndex = rowIndex;
-        }
-
-        public int GetNumberOfCharacters(int lengthOfNull) => data.GetNumberOfCharacters(lengthOfNull);
-
-        #region IBucketReadOnly<string, string>
-
-        public IEnumerable<string> Keys => Table.Columns.ColumnNames;
-        IEnumerable<string> IBucketReadOnly<string, string>.Keys => Keys;
-
-        public string this[string columnName] => this[Table.Columns[columnName].Index];
-
-        #endregion IBucketReadOnly<string, string>
-
-        #region IBucketReadOnly<TableColumn, string>
-
-        IEnumerable<TableColumn> IBucketReadOnly<TableColumn, string>.Keys => Table.Columns;
-        public string this[TableColumn column] => this[column.Index];
-
-        #endregion IBucketReadOnly<TableColumn, string>
-
-        #region IReadOnlyList<string>
-
-        public int Count => Table.Columns.Count;
-        public string this[int columnIndex] => data[columnIndex];
-
-        public IEnumerator<string> GetEnumerator() => ((IEnumerable<string>)data).GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        #endregion IReadOnlyList<string>
-
-        public string[] ToArray() => data.Copy();
+        Table = table;
+        this.data = data;
+        RowIndex = rowIndex;
     }
+
+    public int GetNumberOfCharacters(int lengthOfNull) => data.GetNumberOfCharacters(lengthOfNull);
+
+    #region IBucketReadOnly<string, string>
+
+    public IEnumerable<string> Keys => Table.Columns.ColumnNames;
+    IEnumerable<string> IBucketReadOnly<string, string>.Keys => Keys;
+
+    public string this[string columnName] => this[Table.Columns[columnName].Index];
+
+    #endregion IBucketReadOnly<string, string>
+
+    #region IBucketReadOnly<TableColumn, string>
+
+    IEnumerable<TableColumn> IBucketReadOnly<TableColumn, string>.Keys => Table.Columns;
+    public string this[TableColumn column] => this[column.Index];
+
+    #endregion IBucketReadOnly<TableColumn, string>
+
+    #region IReadOnlyList<string>
+
+    public int Count => Table.Columns.Count;
+    public string this[int columnIndex] => data[columnIndex];
+
+    public IEnumerator<string> GetEnumerator() => ((IEnumerable<string>)data).GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    #endregion IReadOnlyList<string>
+
+    public string[] ToArray() => data.Copy();
 }

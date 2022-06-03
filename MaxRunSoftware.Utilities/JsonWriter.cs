@@ -14,103 +14,98 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Text.Json;
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public class JsonWriter : IDisposable
 {
-    public class JsonWriter : IDisposable
+    private class ObjectToken : IDisposable
     {
-        private class ObjectToken : IDisposable
+        private readonly JsonWriter writer;
+        public ObjectToken(JsonWriter writer)
         {
-            private readonly JsonWriter writer;
-            public ObjectToken(JsonWriter writer)
-            {
-                this.writer = writer;
-            }
-            public void Dispose()
-            {
-                writer.EndObject();
-            }
+            this.writer = writer;
         }
-
-        private class ArrayToken : IDisposable
-        {
-            private readonly JsonWriter writer;
-            public ArrayToken(JsonWriter writer)
-            {
-                this.writer = writer;
-            }
-            public void Dispose()
-            {
-                writer.EndArray();
-            }
-        }
-
-        private MemoryStream stream;
-        private Utf8JsonWriter writer;
-        private string toString;
-        private SingleUse isDisposed = new SingleUse();
-        public JsonWriter(bool formatted = false)
-        {
-            stream = new MemoryStream();
-            writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = formatted });
-        }
-
         public void Dispose()
         {
-            if (!isDisposed.TryUse()) return;
-            ToString();
-            writer.Dispose();
-            stream.Dispose();
+            writer.EndObject();
         }
-
-        public override string ToString()
-        {
-            if (!isDisposed.IsUsed)
-            {
-                writer.Flush();
-                toString = Encoding.UTF8.GetString(stream.ToArray());
-            }
-            return toString;
-        }
-
-        public IDisposable Object() => Object(null);
-        public IDisposable Object(string objectName)
-        {
-            if (objectName == null) writer.WriteStartObject();
-            else writer.WriteStartObject(objectName);
-            return new ObjectToken(this);
-        }
-        public IDisposable Array() => Array((string)null);
-        public IDisposable Array(string arrayPropertyName)
-        {
-            if (arrayPropertyName == null) writer.WriteStartArray();
-            else writer.WriteStartArray(arrayPropertyName);
-            return new ArrayToken(this);
-        }
-        public void Array(string arrayPropertyName, IEnumerable<object> enumerable)
-        {
-            using (Array(arrayPropertyName))
-            {
-                foreach (var o in enumerable)
-                {
-                    Value(o);
-                }
-            }
-        }
-
-
-        public void EndObject() => writer.WriteEndObject();
-        public void EndArray() => writer.WriteEndArray();
-
-        public void Property(string propertyName, object propertyValue) => writer.WriteString(propertyName, propertyValue.ToStringGuessFormat());
-        public void Property(string propertyName, bool propertyValue) => writer.WriteBoolean(propertyName, propertyValue);
-        public void Value(object value) => writer.WriteStringValue(value.ToStringGuessFormat());
-
-
     }
+
+    private class ArrayToken : IDisposable
+    {
+        private readonly JsonWriter writer;
+        public ArrayToken(JsonWriter writer)
+        {
+            this.writer = writer;
+        }
+        public void Dispose()
+        {
+            writer.EndArray();
+        }
+    }
+
+    private MemoryStream stream;
+    private Utf8JsonWriter writer;
+    private string toString;
+    private SingleUse isDisposed = new SingleUse();
+    public JsonWriter(bool formatted = false)
+    {
+        stream = new MemoryStream();
+        writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = formatted });
+    }
+
+    public void Dispose()
+    {
+        if (!isDisposed.TryUse()) return;
+        ToString();
+        writer.Dispose();
+        stream.Dispose();
+    }
+
+    public override string ToString()
+    {
+        if (!isDisposed.IsUsed)
+        {
+            writer.Flush();
+            toString = Encoding.UTF8.GetString(stream.ToArray());
+        }
+        return toString;
+    }
+
+    public IDisposable Object() => Object(null);
+    public IDisposable Object(string objectName)
+    {
+        if (objectName == null) writer.WriteStartObject();
+        else writer.WriteStartObject(objectName);
+        return new ObjectToken(this);
+    }
+    public IDisposable Array() => Array((string)null);
+    public IDisposable Array(string arrayPropertyName)
+    {
+        if (arrayPropertyName == null) writer.WriteStartArray();
+        else writer.WriteStartArray(arrayPropertyName);
+        return new ArrayToken(this);
+    }
+    public void Array(string arrayPropertyName, IEnumerable<object> enumerable)
+    {
+        using (Array(arrayPropertyName))
+        {
+            foreach (var o in enumerable)
+            {
+                Value(o);
+            }
+        }
+    }
+
+
+    public void EndObject() => writer.WriteEndObject();
+    public void EndArray() => writer.WriteEndArray();
+
+    public void Property(string propertyName, object propertyValue) => writer.WriteString(propertyName, propertyValue.ToStringGuessFormat());
+    public void Property(string propertyName, bool propertyValue) => writer.WriteBoolean(propertyName, propertyValue);
+    public void Value(object value) => writer.WriteStringValue(value.ToStringGuessFormat());
+
+
 }

@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+/// <summary>
+/// https://docs.oracle.com/cd/B19306_01/em.102/b40103/app_oracle_reserved_words.htm
+/// </summary>
+public static class SqlOracleReservedWords
 {
-    /// <summary>
-    /// https://docs.oracle.com/cd/B19306_01/em.102/b40103/app_oracle_reserved_words.htm
-    /// </summary>
-    public static class SqlOracleReservedWords
-    {
-        public const string WORDS = @"
+    public const string WORDS = @"
 
 ACCESS
 ACCOUNT
@@ -508,5 +508,4 @@ ZONE
 
 ";
 
-    }
 }

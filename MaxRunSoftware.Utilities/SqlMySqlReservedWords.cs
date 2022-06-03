@@ -14,16 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+/// <summary>
+/// https://dev.mysql.com/doc/refman/8.0/en/keywords.html
+/// </summary>
+public static class SqlMySqlReservedWords
 {
-    /// <summary>
-    /// https://dev.mysql.com/doc/refman/8.0/en/keywords.html
-    /// </summary>
-    public static class SqlMySqlReservedWords
-    {
-        public const string WORDS = @"
-
-
+    public const string WORDS = @"
 
 ACCESSIBLE
 ACCOUNT
@@ -974,5 +972,4 @@ SQL_CACHE
 
 
 ";
-    }
 }

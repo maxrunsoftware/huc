@@ -14,143 +14,139 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Data;
 using System.Globalization;
-using System.Linq;
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public sealed class TableColumn : IEquatable<TableColumn>
 {
-    public sealed class TableColumn : IEquatable<TableColumn>
+    private readonly Lazy<Type> type;
+    private readonly Lazy<DbType> dbType;
+    private readonly Lazy<int> maxLength;
+    private readonly Lazy<bool> isNullable;
+    private readonly Lazy<int> numericPrecision;
+    private readonly Lazy<int> numericScale;
+    private readonly Lazy<int> hashCode;
+
+    /// <summary>
+    /// The Table this column is attached to
+    /// </summary>
+    public Table Table { get; }
+
+    /// <summary>
+    /// The zero-based index of this column
+    /// </summary>
+    public int Index { get; }
+
+    /// <summary>
+    /// The name of this column
+    /// </summary>
+    public string Name { get; }
+
+    /// <summary>
+    /// (lazy) The maximum string length for rows in this column
+    /// </summary>
+    public int MaxLength => maxLength.Value;
+
+    /// <summary>
+    /// (lazy) If there is any null values in this column
+    /// </summary>
+    public bool IsNullable => isNullable.Value;
+
+    /// <summary>
+    /// (lazy) Attempts to determine the type of this column by testing all values against various types
+    /// </summary>
+    public Type Type => type.Value;
+
+    /// <summary>
+    /// (lazy) Attempts to determine the DbType of this column by testing all values against various types
+    /// </summary>
+    public DbType DbType => dbType.Value;
+
+    /// <summary>
+    /// (lazy) If this column is a numeric then this is the max number of digits
+    /// </summary>
+    public int NumericPrecision => numericPrecision.Value;
+
+    /// <summary>
+    /// (lazy) If this column is a decimal, float, or double and has a decimal place then this is the max number of decimal digits
+    /// </summary>
+    public int NumericScale => numericScale.Value;
+
+    internal TableColumn(Table table, int index, string name)
     {
-        private readonly Lazy<Type> type;
-        private readonly Lazy<DbType> dbType;
-        private readonly Lazy<int> maxLength;
-        private readonly Lazy<bool> isNullable;
-        private readonly Lazy<int> numericPrecision;
-        private readonly Lazy<int> numericScale;
-        private readonly Lazy<int> hashCode;
-
-        /// <summary>
-        /// The Table this column is attached to
-        /// </summary>
-        public Table Table { get; }
-
-        /// <summary>
-        /// The zero-based index of this column
-        /// </summary>
-        public int Index { get; }
-
-        /// <summary>
-        /// The name of this column
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
-        /// (lazy) The maximum string length for rows in this column
-        /// </summary>
-        public int MaxLength => maxLength.Value;
-
-        /// <summary>
-        /// (lazy) If there is any null values in this column
-        /// </summary>
-        public bool IsNullable => isNullable.Value;
-
-        /// <summary>
-        /// (lazy) Attempts to determine the type of this column by testing all values against various types
-        /// </summary>
-        public Type Type => type.Value;
-
-        /// <summary>
-        /// (lazy) Attempts to determine the DbType of this column by testing all values against various types
-        /// </summary>
-        public DbType DbType => dbType.Value;
-
-        /// <summary>
-        /// (lazy) If this column is a numeric then this is the max number of digits
-        /// </summary>
-        public int NumericPrecision => numericPrecision.Value;
-
-        /// <summary>
-        /// (lazy) If this column is a decimal, float, or double and has a decimal place then this is the max number of decimal digits
-        /// </summary>
-        public int NumericScale => numericScale.Value;
-
-        internal TableColumn(Table table, int index, string name)
-        {
-            Table = table;
-            Index = index;
-            Name = name ?? ("Column" + (index + 1));
-            maxLength = new Lazy<int>(() => table.Count == 0 ? 0 : table.Max(row => row[Index] == null ? 0 : row[Index].Length));
-            isNullable = new Lazy<bool>(() => table.Count == 0 ? false : table.Any(row => row[Index] == null));
-            type = new Lazy<Type>(() => table.Count == 0 ? typeof(string) : Util.GuessType(table.Select(o => o[Index])));
-            dbType = new Lazy<DbType>(() => table.Count == 0 ? DbType.String : Util.GuessDbType(table.Select(o => o[Index])));
-            numericPrecision = new Lazy<int>(() => table.Count == 0 ? 0 : GetNumericPrecision(table, Index));
-            numericScale = new Lazy<int>(() => table.Count == 0 ? 0 : GetNumericScale(table, Index));
-            hashCode = new Lazy<int>(() => Util.GenerateHashCode(Table.Id, Index, Name.ToUpper()));
-        }
-
-        private int GetNumericPrecision(Table table, int index)
-        {
-            var type = table.Columns[index].Type;
-            type = Nullable.GetUnderlyingType(type) ?? type;
-            if (type.NotIn(Constant.TYPES_BASE_NUMERIC)) return 0;
-
-            int result = 0;
-            foreach (var row in table)
-            {
-                var val = row[index].TrimOrNull();
-                if (val == null) continue;
-
-                int digits = 0;
-                for (int i = 0; i < val.Length; i++)
-                {
-                    if (char.IsDigit(val[i])) digits++;
-                }
-                result = Math.Max(result, digits);
-            }
-            return result;
-        }
-
-        private int GetNumericScale(Table table, int index)
-        {
-            var decimalChar = (NumberFormatInfo.CurrentInfo.NumberDecimalSeparator.TrimOrNull() ?? ".")[0];
-
-            var type = table.Columns[index].Type;
-            if (type.NotIn(typeof(decimal), typeof(float), typeof(double))) return 0;
-            int result = 0;
-            foreach (var row in table)
-            {
-                var val = row[index].TrimOrNull();
-                if (val == null) continue;
-
-                bool foundDecimal = false;
-                int decimalDigits = 0;
-                for (int i = 0; i < val.Length; i++)
-                {
-                    var c = val[i];
-                    if (c == decimalChar) foundDecimal = true;
-                    else if (char.IsDigit(c) && foundDecimal) decimalDigits++;
-                }
-                result = Math.Max(result, decimalDigits);
-            }
-            return result;
-        }
-
-        public override string ToString() => Name;
-
-        public override bool Equals(object obj) => Equals(obj as TableColumn);
-
-        public bool Equals(TableColumn other)
-        {
-            if (other == null) return false;
-            if (other.GetHashCode() != GetHashCode()) return false;
-            if (!other.Table.Id.Equals(Table.Id)) return false;
-            if (!other.Index.Equals(Index)) return false;
-            if (!string.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase)) return false;
-            return true;
-        }
-
-        public override int GetHashCode() => hashCode.Value;
+        Table = table;
+        Index = index;
+        Name = name ?? ("Column" + (index + 1));
+        maxLength = new Lazy<int>(() => table.Count == 0 ? 0 : table.Max(row => row[Index] == null ? 0 : row[Index].Length));
+        isNullable = new Lazy<bool>(() => table.Count == 0 ? false : table.Any(row => row[Index] == null));
+        type = new Lazy<Type>(() => table.Count == 0 ? typeof(string) : Util.GuessType(table.Select(o => o[Index])));
+        dbType = new Lazy<DbType>(() => table.Count == 0 ? DbType.String : Util.GuessDbType(table.Select(o => o[Index])));
+        numericPrecision = new Lazy<int>(() => table.Count == 0 ? 0 : GetNumericPrecision(table, Index));
+        numericScale = new Lazy<int>(() => table.Count == 0 ? 0 : GetNumericScale(table, Index));
+        hashCode = new Lazy<int>(() => Util.GenerateHashCode(Table.Id, Index, Name.ToUpper()));
     }
+
+    private int GetNumericPrecision(Table table, int index)
+    {
+        var type = table.Columns[index].Type;
+        type = Nullable.GetUnderlyingType(type) ?? type;
+        if (type.NotIn(Constant.TYPES_BASE_NUMERIC)) return 0;
+
+        int result = 0;
+        foreach (var row in table)
+        {
+            var val = row[index].TrimOrNull();
+            if (val == null) continue;
+
+            int digits = 0;
+            for (int i = 0; i < val.Length; i++)
+            {
+                if (char.IsDigit(val[i])) digits++;
+            }
+            result = Math.Max(result, digits);
+        }
+        return result;
+    }
+
+    private int GetNumericScale(Table table, int index)
+    {
+        var decimalChar = (NumberFormatInfo.CurrentInfo.NumberDecimalSeparator.TrimOrNull() ?? ".")[0];
+
+        var type = table.Columns[index].Type;
+        if (type.NotIn(typeof(decimal), typeof(float), typeof(double))) return 0;
+        int result = 0;
+        foreach (var row in table)
+        {
+            var val = row[index].TrimOrNull();
+            if (val == null) continue;
+
+            bool foundDecimal = false;
+            int decimalDigits = 0;
+            for (int i = 0; i < val.Length; i++)
+            {
+                var c = val[i];
+                if (c == decimalChar) foundDecimal = true;
+                else if (char.IsDigit(c) && foundDecimal) decimalDigits++;
+            }
+            result = Math.Max(result, decimalDigits);
+        }
+        return result;
+    }
+
+    public override string ToString() => Name;
+
+    public override bool Equals(object obj) => Equals(obj as TableColumn);
+
+    public bool Equals(TableColumn other)
+    {
+        if (other == null) return false;
+        if (other.GetHashCode() != GetHashCode()) return false;
+        if (!other.Table.Id.Equals(Table.Id)) return false;
+        if (!other.Index.Equals(Index)) return false;
+        if (!string.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase)) return false;
+        return true;
+    }
+
+    public override int GetHashCode() => hashCode.Value;
 }

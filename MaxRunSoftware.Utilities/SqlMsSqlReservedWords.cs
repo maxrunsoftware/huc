@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+/// <summary>
+/// <see href="https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql">Reserved Words</see>
+/// </summary>
+public static class SqlMsSqlReservedWords
 {
-    /// <summary>
-    /// <see href="https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql">Reserved Words</see>
-    /// </summary>
-    public static class SqlMsSqlReservedWords
-    {
-        public const string WORDS = @"
+    public const string WORDS = @"
 
 ABSOLUTE
 ACTION
@@ -512,5 +512,4 @@ ZONE
 
 
 ";
-    }
 }

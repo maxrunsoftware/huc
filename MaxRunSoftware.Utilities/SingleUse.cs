@@ -14,19 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public class SingleUse
 {
-    public class SingleUse
-    {
-        private readonly AtomicBoolean boolean = false;
+    private readonly AtomicBoolean boolean = false;
 
-        public bool IsUsed => boolean;
+    public bool IsUsed => boolean;
 
-        /// <summary>
-        /// Attempts to 'use' this instance. If this is the first time using it, we will return
-        /// true. Otherwise we return false if we have already been used.
-        /// </summary>
-        /// <returns>true if we have never used before, false if we have already been used</returns>
-        public bool TryUse() => boolean.SetTrue();
-    }
+    /// <summary>
+    /// Attempts to 'use' this instance. If this is the first time using it, we will return
+    /// true. Otherwise we return false if we have already been used.
+    /// </summary>
+    /// <returns>true if we have never used before, false if we have already been used</returns>
+    public bool TryUse() => boolean.SetTrue();
 }

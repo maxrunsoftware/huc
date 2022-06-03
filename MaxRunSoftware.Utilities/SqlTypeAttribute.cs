@@ -14,27 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Data;
+namespace MaxRunSoftware.Utilities;
 
-namespace MaxRunSoftware.Utilities
+[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+public class SqlTypeAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class SqlTypeAttribute : Attribute
+    public DbType DbType { get; }
+    public Type DotNetType { get; set; }
+
+    public string SqlTypeNames { get; set; }
+    public object ActualSqlType { get; set; }
+
+    public SqlTypeAttribute(DbType dbType)
     {
-        public DbType DbType { get; }
-        public Type DotNetType { get; set; }
-
-        public string SqlTypeNames { get; set; }
-        public object ActualSqlType { get; set; }
-
-        public SqlTypeAttribute(DbType dbType)
-        {
-            DbType = dbType;
-        }
-
-
+        DbType = dbType;
     }
 
 }
+
 

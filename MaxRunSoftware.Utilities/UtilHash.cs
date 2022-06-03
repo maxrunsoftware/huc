@@ -14,71 +14,68 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.IO;
 using System.Security.Cryptography;
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public static partial class Util
 {
-    public static partial class Util
+    private static string GenerateHashInternal(HashAlgorithm hashAlgorithm, Stream stream)
     {
-        private static string GenerateHashInternal(HashAlgorithm hashAlgorithm, Stream stream)
+        using (hashAlgorithm)
         {
-            using (hashAlgorithm)
-            {
-                var hash = hashAlgorithm.ComputeHash(stream);
-                var str = BitConverter.ToString(hash);
-                return str.Replace("-", "").ToLower();
-            }
+            var hash = hashAlgorithm.ComputeHash(stream);
+            var str = BitConverter.ToString(hash);
+            return str.Replace("-", "").ToLower();
         }
-
-        private static string GenerateHashInternal(HashAlgorithm hashAlgorithm, byte[] bytes)
-        {
-            using (hashAlgorithm)
-            {
-                var hash = hashAlgorithm.ComputeHash(bytes);
-                var str = BitConverter.ToString(hash);
-                return str.Replace("-", "").ToLower();
-            }
-        }
-
-        private static string GenerateHashInternal(HashAlgorithm hashAlgorithm, string file)
-        {
-            using (var fs = FileOpenRead(file))
-            {
-                return GenerateHashInternal(hashAlgorithm, fs);
-            }
-        }
-
-        public static string GenerateHashMD5(Stream stream) => GenerateHashInternal(MD5.Create(), stream);
-
-        public static string GenerateHashMD5(byte[] bytes) => GenerateHashInternal(MD5.Create(), bytes);
-
-        public static string GenerateHashMD5(string file) => GenerateHashInternal(MD5.Create(), file);
-
-        public static string GenerateHashSHA1(Stream stream) => GenerateHashInternal(SHA1.Create(), stream);
-
-        public static string GenerateHashSHA1(byte[] bytes) => GenerateHashInternal(SHA1.Create(), bytes);
-
-        public static string GenerateHashSHA1(string file) => GenerateHashInternal(SHA1.Create(), file);
-
-        public static string GenerateHashSHA256(Stream stream) => GenerateHashInternal(SHA256.Create(), stream);
-
-        public static string GenerateHashSHA256(byte[] bytes) => GenerateHashInternal(SHA256.Create(), bytes);
-
-        public static string GenerateHashSHA256(string file) => GenerateHashInternal(SHA256.Create(), file);
-
-        public static string GenerateHashSHA384(Stream stream) => GenerateHashInternal(SHA384.Create(), stream);
-
-        public static string GenerateHashSHA384(byte[] bytes) => GenerateHashInternal(SHA384.Create(), bytes);
-
-        public static string GenerateHashSHA384(string file) => GenerateHashInternal(SHA384.Create(), file);
-
-        public static string GenerateHashSHA512(Stream stream) => GenerateHashInternal(SHA512.Create(), stream);
-
-        public static string GenerateHashSHA512(byte[] bytes) => GenerateHashInternal(SHA512.Create(), bytes);
-
-        public static string GenerateHashSHA512(string file) => GenerateHashInternal(SHA512.Create(), file);
-
     }
+
+    private static string GenerateHashInternal(HashAlgorithm hashAlgorithm, byte[] bytes)
+    {
+        using (hashAlgorithm)
+        {
+            var hash = hashAlgorithm.ComputeHash(bytes);
+            var str = BitConverter.ToString(hash);
+            return str.Replace("-", "").ToLower();
+        }
+    }
+
+    private static string GenerateHashInternal(HashAlgorithm hashAlgorithm, string file)
+    {
+        using (var fs = FileOpenRead(file))
+        {
+            return GenerateHashInternal(hashAlgorithm, fs);
+        }
+    }
+
+    public static string GenerateHashMD5(Stream stream) => GenerateHashInternal(MD5.Create(), stream);
+
+    public static string GenerateHashMD5(byte[] bytes) => GenerateHashInternal(MD5.Create(), bytes);
+
+    public static string GenerateHashMD5(string file) => GenerateHashInternal(MD5.Create(), file);
+
+    public static string GenerateHashSHA1(Stream stream) => GenerateHashInternal(SHA1.Create(), stream);
+
+    public static string GenerateHashSHA1(byte[] bytes) => GenerateHashInternal(SHA1.Create(), bytes);
+
+    public static string GenerateHashSHA1(string file) => GenerateHashInternal(SHA1.Create(), file);
+
+    public static string GenerateHashSHA256(Stream stream) => GenerateHashInternal(SHA256.Create(), stream);
+
+    public static string GenerateHashSHA256(byte[] bytes) => GenerateHashInternal(SHA256.Create(), bytes);
+
+    public static string GenerateHashSHA256(string file) => GenerateHashInternal(SHA256.Create(), file);
+
+    public static string GenerateHashSHA384(Stream stream) => GenerateHashInternal(SHA384.Create(), stream);
+
+    public static string GenerateHashSHA384(byte[] bytes) => GenerateHashInternal(SHA384.Create(), bytes);
+
+    public static string GenerateHashSHA384(string file) => GenerateHashInternal(SHA384.Create(), file);
+
+    public static string GenerateHashSHA512(Stream stream) => GenerateHashInternal(SHA512.Create(), stream);
+
+    public static string GenerateHashSHA512(byte[] bytes) => GenerateHashInternal(SHA512.Create(), bytes);
+
+    public static string GenerateHashSHA512(string file) => GenerateHashInternal(SHA512.Create(), file);
+
 }

@@ -14,97 +14,93 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.IO;
-using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public class XmlWriter : IDisposable
 {
-    public class XmlWriter : IDisposable
+    private class ElementToken : IDisposable
     {
-        private class ElementToken : IDisposable
+        private readonly XmlWriter writer;
+        public ElementToken(XmlWriter writer)
         {
-            private readonly XmlWriter writer;
-            public ElementToken(XmlWriter writer)
-            {
-                this.writer = writer;
-            }
-            public void Dispose()
-            {
-                writer.EndElement();
-            }
+            this.writer = writer;
         }
-
-        private StringBuilder stream;
-        private System.Xml.XmlWriter writer;
-        private string toString;
-        private SingleUse isDisposed = new SingleUse();
-        public XmlWriter(bool formatted = false)
-        {
-            stream = new StringBuilder();
-            var settings = new XmlWriterSettings();
-            settings.Encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
-            settings.Indent = formatted;
-            settings.NewLineOnAttributes = false;
-            settings.OmitXmlDeclaration = true;
-            writer = System.Xml.XmlWriter.Create(stream, settings);
-        }
-
         public void Dispose()
         {
-            if (!isDisposed.TryUse()) return;
-            ToString();
-            writer.Dispose();
+            writer.EndElement();
         }
+    }
 
-        public override string ToString()
+    private StringBuilder stream;
+    private System.Xml.XmlWriter writer;
+    private string toString;
+    private SingleUse isDisposed = new SingleUse();
+    public XmlWriter(bool formatted = false)
+    {
+        stream = new StringBuilder();
+        var settings = new XmlWriterSettings();
+        settings.Encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
+        settings.Indent = formatted;
+        settings.NewLineOnAttributes = false;
+        settings.OmitXmlDeclaration = true;
+        writer = System.Xml.XmlWriter.Create(stream, settings);
+    }
+
+    public void Dispose()
+    {
+        if (!isDisposed.TryUse()) return;
+        ToString();
+        writer.Dispose();
+    }
+
+    public override string ToString()
+    {
+        if (!isDisposed.IsUsed)
         {
-            if (!isDisposed.IsUsed)
-            {
-                writer.Flush();
-                toString = stream.ToString();
-            }
-            return toString;
+            writer.Flush();
+            toString = stream.ToString();
         }
+        return toString;
+    }
 
-        public IDisposable Element(string elementName, params (string attributeName, object attributeValue)[] attributes) => Element(elementName, null, attributes: attributes);
+    public IDisposable Element(string elementName, params (string attributeName, object attributeValue)[] attributes) => Element(elementName, null, attributes: attributes);
 
-        public IDisposable Element(string elementName, string elementValue, params (string attributeName, object attributeValue)[] attributes)
+    public IDisposable Element(string elementName, string elementValue, params (string attributeName, object attributeValue)[] attributes)
+    {
+        writer.WriteStartElement(elementName);
+        foreach (var attr in attributes)
         {
-            writer.WriteStartElement(elementName);
-            foreach (var attr in attributes)
-            {
-                Attribute(attr.attributeName, attr.attributeValue);
-            }
-            if (elementValue != null) writer.WriteValue(elementValue);
-            return new ElementToken(this);
+            Attribute(attr.attributeName, attr.attributeValue);
         }
+        if (elementValue != null) writer.WriteValue(elementValue);
+        return new ElementToken(this);
+    }
 
-        public void EndElement() => writer.WriteEndElement();
+    public void EndElement() => writer.WriteEndElement();
 
-        public void Attribute(string attributeName, object attributeValue) => writer.WriteAttributeString(attributeName, attributeValue.ToStringGuessFormat());
-        public void Value(string value) => writer.WriteString(value);
+    public void Attribute(string attributeName, object attributeValue) => writer.WriteAttributeString(attributeName, attributeValue.ToStringGuessFormat());
+    public void Value(string value) => writer.WriteString(value);
 
-        public static string ApplyXslt(string xslt, string xml)
-        {
-            var xmlReader = new StringReader(xml);
-            var xmlXmlReader = System.Xml.XmlReader.Create(xmlReader);
+    public static string ApplyXslt(string xslt, string xml)
+    {
+        var xmlReader = new StringReader(xml);
+        var xmlXmlReader = System.Xml.XmlReader.Create(xmlReader);
 
-            var transformedContent = new StringBuilder();
-            var xmlWriter = System.Xml.XmlWriter.Create(transformedContent);
+        var transformedContent = new StringBuilder();
+        var xmlWriter = System.Xml.XmlWriter.Create(transformedContent);
 
-            var xsltReader = new StringReader(xslt);
-            var xsltXmlReader = System.Xml.XmlReader.Create(xsltReader);
-            var myXslTrans = new XslCompiledTransform();
+        var xsltReader = new StringReader(xslt);
+        var xsltXmlReader = System.Xml.XmlReader.Create(xsltReader);
+        var myXslTrans = new XslCompiledTransform();
 
-            myXslTrans.Load(xsltXmlReader);
-            myXslTrans.Transform(xmlXmlReader, xmlWriter);
-            xmlWriter.Flush();
+        myXslTrans.Load(xsltXmlReader);
+        myXslTrans.Transform(xmlXmlReader, xmlWriter);
+        xmlWriter.Flush();
 
-            var data = transformedContent.ToString();
-            return data;
-        }
+        var data = transformedContent.ToString();
+        return data;
     }
 }

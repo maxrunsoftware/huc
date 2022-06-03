@@ -14,85 +14,82 @@
 // limitations under the License.
 // */
 
-using System;
 using System.Diagnostics;
-using System.IO;
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public static partial class Util
 {
-    public static partial class Util
+    /// <summary>
+    /// Diagnostic disposable token
+    /// </summary>
+    public sealed class DiagnosticToken : IDisposable
     {
-        /// <summary>
-        /// Diagnostic disposable token
-        /// </summary>
-        public sealed class DiagnosticToken : IDisposable
+        private static long idCounter;
+        private readonly Action<string> log;
+        private readonly Stopwatch stopwatch;
+        private readonly SingleUse isDisposed = new SingleUse();
+
+        public long Id { get; }
+        public string MemberName { get; }
+        public string SourceFilePath { get; }
+        public string SourceFileName { get; }
+        public int SourceLineNumber { get; }
+        public long MemoryStart { get; }
+        public int MemoryStartMB => (((double)MemoryStart) / ((double)Constant.BYTES_MEGA)).ToString(MidpointRounding.AwayFromZero, 0).ToInt();
+
+        public long MemoryEnd { get; private set; }
+        public int MemoryEndMB => (((double)MemoryStart) / ((double)Constant.BYTES_MEGA)).ToString(MidpointRounding.AwayFromZero, 0).ToInt();
+
+        public TimeSpan Time { get; private set; }
+
+        internal DiagnosticToken(Action<string> log, string memberName, string sourceFilePath, int sourceLineNumber)
         {
-            private static long idCounter;
-            private readonly Action<string> log;
-            private readonly Stopwatch stopwatch;
-            private readonly SingleUse isDisposed = new SingleUse();
-
-            public long Id { get; }
-            public string MemberName { get; }
-            public string SourceFilePath { get; }
-            public string SourceFileName { get; }
-            public int SourceLineNumber { get; }
-            public long MemoryStart { get; }
-            public int MemoryStartMB => (((double)MemoryStart) / ((double)Constant.BYTES_MEGA)).ToString(MidpointRounding.AwayFromZero, 0).ToInt();
-
-            public long MemoryEnd { get; private set; }
-            public int MemoryEndMB => (((double)MemoryStart) / ((double)Constant.BYTES_MEGA)).ToString(MidpointRounding.AwayFromZero, 0).ToInt();
-
-            public TimeSpan Time { get; private set; }
-
-            internal DiagnosticToken(Action<string> log, string memberName, string sourceFilePath, int sourceLineNumber)
+            Id = System.Threading.Interlocked.Increment(ref idCounter);
+            this.log = log.CheckNotNull(nameof(log));
+            MemberName = memberName.TrimOrNull();
+            SourceFilePath = sourceFilePath.TrimOrNull();
+            if (SourceFilePath != null)
             {
-                Id = System.Threading.Interlocked.Increment(ref idCounter);
-                this.log = log.CheckNotNull(nameof(log));
-                MemberName = memberName.TrimOrNull();
-                SourceFilePath = sourceFilePath.TrimOrNull();
-                if (SourceFilePath != null)
+                try
                 {
-                    try
-                    {
-                        SourceFileName = Path.GetFileName(SourceFilePath).TrimOrNull();
-                    }
-                    catch (Exception) { }
+                    SourceFileName = Path.GetFileName(SourceFilePath).TrimOrNull();
                 }
-                SourceLineNumber = sourceLineNumber;
-                MemoryStart = Environment.WorkingSet;
-                stopwatch = Stopwatch.StartNew();
-                var mn = MemberName ?? "?";
-                var sfn = SourceFileName ?? "?";
-                log($"+TRACE[{Id}]: {mn} ({sfn}:{SourceLineNumber})  {MemoryStartMB.ToStringCommas()} MB");
+                catch (Exception) { }
             }
-
-            public void Dispose()
-            {
-                if (!isDisposed.TryUse()) return;
-                MemoryEnd = Environment.WorkingSet;
-                stopwatch.Stop();
-                Time = stopwatch.Elapsed;
-                var mn = MemberName ?? "?";
-                var sfn = SourceFileName ?? "?";
-
-                var memDif = MemoryEndMB - MemoryStartMB;
-                var memDifString = memDif > 0 ? "(+" + memDif + ")" : memDif < 0 ? "(-" + memDif + ")" : "";
-                var time = Time.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
-
-                log($"-TRACE[{Id}]: {mn} ({sfn}:{SourceLineNumber})  {MemoryEndMB.ToStringCommas()} MB {memDifString}  {time}s");
-            }
+            SourceLineNumber = sourceLineNumber;
+            MemoryStart = Environment.WorkingSet;
+            stopwatch = Stopwatch.StartNew();
+            var mn = MemberName ?? "?";
+            var sfn = SourceFileName ?? "?";
+            log($"+TRACE[{Id}]: {mn} ({sfn}:{SourceLineNumber})  {MemoryStartMB.ToStringCommas()} MB");
         }
 
-        /// <summary>
-        /// With a using statement, logs start and stop time, memory difference, and souce line number. Only the log argument should be supplied
-        /// </summary>
-        /// <param name="log">Only provide this argument</param>
-        /// <param name="memberName">No not provide this argument</param>
-        /// <param name="sourceFilePath">No not provide this argument</param>
-        /// <param name="sourceLineNumber">No not provide this argument</param>
-        /// <returns>Disposable token when logging should end</returns>
-        public static IDisposable Diagnostic(Action<string> log, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "", [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) => new DiagnosticToken(log, memberName, sourceFilePath, sourceLineNumber);
+        public void Dispose()
+        {
+            if (!isDisposed.TryUse()) return;
+            MemoryEnd = Environment.WorkingSet;
+            stopwatch.Stop();
+            Time = stopwatch.Elapsed;
+            var mn = MemberName ?? "?";
+            var sfn = SourceFileName ?? "?";
 
+            var memDif = MemoryEndMB - MemoryStartMB;
+            var memDifString = memDif > 0 ? "(+" + memDif + ")" : memDif < 0 ? "(-" + memDif + ")" : "";
+            var time = Time.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
+
+            log($"-TRACE[{Id}]: {mn} ({sfn}:{SourceLineNumber})  {MemoryEndMB.ToStringCommas()} MB {memDifString}  {time}s");
+        }
     }
+
+    /// <summary>
+    /// With a using statement, logs start and stop time, memory difference, and souce line number. Only the log argument should be supplied
+    /// </summary>
+    /// <param name="log">Only provide this argument</param>
+    /// <param name="memberName">No not provide this argument</param>
+    /// <param name="sourceFilePath">No not provide this argument</param>
+    /// <param name="sourceLineNumber">No not provide this argument</param>
+    /// <returns>Disposable token when logging should end</returns>
+    public static IDisposable Diagnostic(Action<string> log, [System.Runtime.CompilerServices.CallerMemberName] string memberName = "", [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "", [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) => new DiagnosticToken(log, memberName, sourceFilePath, sourceLineNumber);
+
 }

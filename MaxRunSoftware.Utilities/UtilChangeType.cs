@@ -14,54 +14,51 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
 using System.Net;
 using System.Net.Mail;
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public static partial class Util
 {
-    public static partial class Util
+    public static TOutput ChangeType<TInput, TOutput>(TInput obj) => (TOutput)ChangeType(obj, typeof(TOutput));
+
+    public static TOutput ChangeType<TOutput>(object obj) => (TOutput)ChangeType(obj, typeof(TOutput));
+
+    public static object ChangeType(object obj, Type outputType)
     {
-
-        public static TOutput ChangeType<TInput, TOutput>(TInput obj) => (TOutput)ChangeType(obj, typeof(TOutput));
-
-        public static TOutput ChangeType<TOutput>(object obj) => (TOutput)ChangeType(obj, typeof(TOutput));
-
-        public static object ChangeType(object obj, Type outputType)
+        if (obj == null || obj == DBNull.Value)
         {
-            if (obj == null || obj == DBNull.Value)
-            {
-                if (!outputType.IsValueType) return null;
-                if (outputType.IsNullable()) return null;
-                return Convert.ChangeType(obj, outputType); // Should throw exception
-            }
-
-            if (outputType.IsNullable(out var underlyingTypeOutput))
-            {
-                return ChangeType(obj, underlyingTypeOutput);
-            }
-
-            var inputType = obj.GetType();
-            if (inputType.IsNullable(out var underlyingTypeInput)) inputType = underlyingTypeInput;
-
-            if (inputType == typeof(string))
-            {
-                var o = obj as string;
-                if (outputType == typeof(bool)) return o.ToBool();
-                if (outputType == typeof(DateTime)) return o.ToDateTime();
-                if (outputType == typeof(Guid)) return o.ToGuid();
-                if (outputType == typeof(MailAddress)) return o.ToMailAddress();
-                if (outputType == typeof(Uri)) return o.ToUri();
-                if (outputType == typeof(IPAddress)) return o.ToIPAddress();
-
-                if (outputType.IsEnum) return Util.GetEnumItem(outputType, o);
-            }
-
-            if (inputType.IsEnum) return ChangeType(obj.ToString(), outputType);
-
-            if (outputType == typeof(string)) return obj.ToStringGuessFormat();
-
-            return Convert.ChangeType(obj, outputType);
+            if (!outputType.IsValueType) return null;
+            if (outputType.IsNullable()) return null;
+            return Convert.ChangeType(obj, outputType); // Should throw exception
         }
+
+        if (outputType.IsNullable(out var underlyingTypeOutput))
+        {
+            return ChangeType(obj, underlyingTypeOutput);
+        }
+
+        var inputType = obj.GetType();
+        if (inputType.IsNullable(out var underlyingTypeInput)) inputType = underlyingTypeInput;
+
+        if (inputType == typeof(string))
+        {
+            var o = obj as string;
+            if (outputType == typeof(bool)) return o.ToBool();
+            if (outputType == typeof(DateTime)) return o.ToDateTime();
+            if (outputType == typeof(Guid)) return o.ToGuid();
+            if (outputType == typeof(MailAddress)) return o.ToMailAddress();
+            if (outputType == typeof(Uri)) return o.ToUri();
+            if (outputType == typeof(IPAddress)) return o.ToIPAddress();
+
+            if (outputType.IsEnum) return Util.GetEnumItem(outputType, o);
+        }
+
+        if (inputType.IsEnum) return ChangeType(obj.ToString(), outputType);
+
+        if (outputType == typeof(string)) return obj.ToStringGuessFormat();
+
+        return Convert.ChangeType(obj, outputType);
     }
 }

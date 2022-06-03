@@ -14,47 +14,43 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.Data;
+namespace MaxRunSoftware.Utilities;
 
-namespace MaxRunSoftware.Utilities
+public static class SqlExtensions
 {
-    public static class SqlExtensions
+    public static IDataReader ExecuteReaderExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
     {
-        public static IDataReader ExecuteReaderExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
+        try
         {
-            try
-            {
-                return command.ExecuteReader();
-            }
-            catch (Exception e)
-            {
-                throw new SqlException(e, command, exceptionShowFullSql);
-            }
+            return command.ExecuteReader();
         }
-
-        public static object ExecuteScalarExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
+        catch (Exception e)
         {
-            try
-            {
-                return command.ExecuteScalar();
-            }
-            catch (Exception e)
-            {
-                throw new SqlException(e, command, exceptionShowFullSql);
-            }
+            throw new SqlException(e, command, exceptionShowFullSql);
         }
+    }
 
-        public static int ExecuteNonQueryExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
+    public static object ExecuteScalarExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
+    {
+        try
         {
-            try
-            {
-                return command.ExecuteNonQuery();
-            }
-            catch (Exception e)
-            {
-                throw new SqlException(e, command, exceptionShowFullSql);
-            }
+            return command.ExecuteScalar();
+        }
+        catch (Exception e)
+        {
+            throw new SqlException(e, command, exceptionShowFullSql);
+        }
+    }
+
+    public static int ExecuteNonQueryExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
+    {
+        try
+        {
+            return command.ExecuteNonQuery();
+        }
+        catch (Exception e)
+        {
+            throw new SqlException(e, command, exceptionShowFullSql);
         }
     }
 }

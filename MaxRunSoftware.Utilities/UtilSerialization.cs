@@ -14,86 +14,83 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public static partial class Util
 {
-    public static partial class Util
+
+    /// <summary>
+    /// Deserializes an object from binary data
+    /// </summary>
+    /// <param name="data">The serialized binary data</param>
+    /// <returns>The deserialized object</returns>
+    public static object DeserializeBinary(byte[] data)
     {
+        IFormatter formatter = new BinaryFormatter();
 
-        /// <summary>
-        /// Deserializes an object from binary data
-        /// </summary>
-        /// <param name="data">The serialized binary data</param>
-        /// <returns>The deserialized object</returns>
-        public static object DeserializeBinary(byte[] data)
+        using (var stream = new MemoryStream(data))
         {
-            IFormatter formatter = new BinaryFormatter();
-
-            using (var stream = new MemoryStream(data))
-            {
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
-                return formatter.Deserialize(stream);
+            return formatter.Deserialize(stream);
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
-            }
+        }
+    }
+
+    /// <summary>
+    /// Serializes an object to binary data
+    /// </summary>
+    /// <param name="obj">The object to serialize</param>
+    /// <returns>The serialized binary data</returns>
+    public static byte[] SerializeBinary(object obj)
+    {
+        IFormatter formatter = new BinaryFormatter();
+
+        using (var stream = new MemoryStream())
+        {
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+            formatter.Serialize(stream, obj);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
+            stream.Flush();
+            stream.Close();
+            return stream.ToArray();
+        }
+    }
+
+    /// <summary>
+    /// Deep clones a serializable object
+    /// </summary>
+    /// <typeparam name="T">The type</typeparam>
+    /// <param name="obj">The object to clonse</param>
+    /// <returns>The clone</returns>
+    public static T Clone<T>(T obj)
+    {
+        // http://stackoverflow.com/a/78612
+        if (!typeof(T).IsSerializable)
+        {
+            throw new ArgumentException("The type must be serializable.", "obj");
         }
 
-        /// <summary>
-        /// Serializes an object to binary data
-        /// </summary>
-        /// <param name="obj">The object to serialize</param>
-        /// <returns>The serialized binary data</returns>
-        public static byte[] SerializeBinary(object obj)
+        // Don't serialize a null object, simply return the default for that object
+        if (ReferenceEquals(obj, null))
         {
-            IFormatter formatter = new BinaryFormatter();
+            return default;
+        }
 
-            using (var stream = new MemoryStream())
+        IFormatter formatter = new BinaryFormatter();
+        using (Stream stream = new MemoryStream())
+        {
+            using (stream)
             {
 #pragma warning disable SYSLIB0011 // Type or member is obsolete
                 formatter.Serialize(stream, obj);
+                stream.Seek(0, SeekOrigin.Begin);
+                return (T)formatter.Deserialize(stream);
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
-                stream.Flush();
-                stream.Close();
-                return stream.ToArray();
             }
         }
-
-        /// <summary>
-        /// Deep clones a serializable object
-        /// </summary>
-        /// <typeparam name="T">The type</typeparam>
-        /// <param name="obj">The object to clonse</param>
-        /// <returns>The clone</returns>
-        public static T Clone<T>(T obj)
-        {
-            // http://stackoverflow.com/a/78612
-            if (!typeof(T).IsSerializable)
-            {
-                throw new ArgumentException("The type must be serializable.", "obj");
-            }
-
-            // Don't serialize a null object, simply return the default for that object
-            if (ReferenceEquals(obj, null))
-            {
-                return default;
-            }
-
-            IFormatter formatter = new BinaryFormatter();
-            using (Stream stream = new MemoryStream())
-            {
-                using (stream)
-                {
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
-                    formatter.Serialize(stream, obj);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    return (T)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // Type or member is obsolete
-                }
-            }
-        }
-
     }
+
 }

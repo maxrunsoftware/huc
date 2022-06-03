@@ -14,61 +14,59 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
+namespace MaxRunSoftware.Utilities;
 
-namespace MaxRunSoftware.Utilities
+/// <summary>
+/// Simple atomic boolean value
+/// </summary>
+[Serializable]
+[System.Runtime.InteropServices.ComVisible(true)]
+public struct AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, IComparable<AtomicBoolean>, IEquatable<AtomicBoolean>
 {
+    private int m_value;
+    public bool Value => m_value == 1;
+
+    public AtomicBoolean(bool startingValue) => m_value = startingValue ? 1 : 0;
+
     /// <summary>
-    /// Simple atomic boolean value
+    /// Sets this value to true
     /// </summary>
-    [Serializable]
-    [System.Runtime.InteropServices.ComVisible(true)]
-    public struct AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, IComparable<AtomicBoolean>, IEquatable<AtomicBoolean>
-    {
-        private int m_value;
-        public bool Value => m_value == 1;
+    /// <returns>True if the current value was changed, else false</returns>
+    public bool SetTrue() => Set(true);
 
-        public AtomicBoolean(bool startingValue) => m_value = startingValue ? 1 : 0;
+    /// <summary>
+    /// Sets this value to false
+    /// </summary>
+    /// <returns>True if the current value was changed, else false</returns>
+    public bool SetFalse() => Set(false);
 
-        /// <summary>
-        /// Sets this value to true
-        /// </summary>
-        /// <returns>True if the current value was changed, else false</returns>
-        public bool SetTrue() => Set(true);
+    /// <summary>
+    /// Sets the value of this object
+    /// </summary>
+    /// <param name="value">Value</param>
+    /// <returns>True if the current value was changed, else false</returns>
+    public bool Set(bool value) => value ? 0 == System.Threading.Interlocked.Exchange(ref m_value, 1) : 1 == System.Threading.Interlocked.Exchange(ref m_value, 0);
 
-        /// <summary>
-        /// Sets this value to false
-        /// </summary>
-        /// <returns>True if the current value was changed, else false</returns>
-        public bool SetFalse() => Set(false);
+    public override int GetHashCode() => ((bool)this).GetHashCode();
 
-        /// <summary>
-        /// Sets the value of this object
-        /// </summary>
-        /// <param name="value">Value</param>
-        /// <returns>True if the current value was changed, else false</returns>
-        public bool Set(bool value) => value ? 0 == System.Threading.Interlocked.Exchange(ref m_value, 1) : 1 == System.Threading.Interlocked.Exchange(ref m_value, 0);
+    public int CompareTo(object obj) => ((bool)this).CompareTo(obj);
+    public int CompareTo(bool other) => ((bool)this).CompareTo(other);
+    public int CompareTo(AtomicBoolean other) => ((bool)this).CompareTo(other);
 
-        public override int GetHashCode() => ((bool)this).GetHashCode();
+    public bool Equals(bool other) => ((bool)this).Equals(other);
+    public bool Equals(AtomicBoolean other) => ((bool)this).Equals(other);
+    public override bool Equals(object obj) => ((bool)this).Equals(obj);
 
-        public int CompareTo(object obj) => ((bool)this).CompareTo(obj);
-        public int CompareTo(bool other) => ((bool)this).CompareTo(other);
-        public int CompareTo(AtomicBoolean other) => ((bool)this).CompareTo(other);
+    public override string ToString() => ((bool)this).ToString();
 
-        public bool Equals(bool other) => ((bool)this).Equals(other);
-        public bool Equals(AtomicBoolean other) => ((bool)this).Equals(other);
-        public override bool Equals(object obj) => ((bool)this).Equals(obj);
+    public static implicit operator bool(AtomicBoolean atomicBoolean) => atomicBoolean.Value;
+    public static implicit operator AtomicBoolean(bool boolean) => new AtomicBoolean(boolean);
 
-        public override string ToString() => ((bool)this).ToString();
-
-        public static implicit operator bool(AtomicBoolean atomicBoolean) => atomicBoolean.Value;
-        public static implicit operator AtomicBoolean(bool boolean) => new AtomicBoolean(boolean);
-
-        public static bool operator ==(AtomicBoolean left, AtomicBoolean right) => left.Equals(right);
-        public static bool operator !=(AtomicBoolean left, AtomicBoolean right) => !(left == right);
-        public static bool operator <(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) < 0;
-        public static bool operator <=(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) <= 0;
-        public static bool operator >(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) > 0;
-        public static bool operator >=(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) >= 0;
-    }
+    public static bool operator ==(AtomicBoolean left, AtomicBoolean right) => left.Equals(right);
+    public static bool operator !=(AtomicBoolean left, AtomicBoolean right) => !(left == right);
+    public static bool operator <(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) < 0;
+    public static bool operator <=(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) <= 0;
+    public static bool operator >(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) > 0;
+    public static bool operator >=(AtomicBoolean left, AtomicBoolean right) => left.CompareTo(right) >= 0;
 }
+

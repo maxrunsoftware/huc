@@ -13,29 +13,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // */
-using System.Collections.Generic;
 
-namespace MaxRunSoftware.Utilities
+namespace MaxRunSoftware.Utilities;
+
+public class XmlElement
 {
-    public class XmlElement
+    public string Name { get; set; }
+    public string Value { get; set; }
+    public IDictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
+    public IList<XmlElement> Children { get; } = new List<XmlElement>();
+    public IEnumerable<XmlElement> ChildrenAll
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
-        public IDictionary<string, string> Attributes { get; } = new Dictionary<string, string>();
-        public IList<XmlElement> Children { get; } = new List<XmlElement>();
-        public IEnumerable<XmlElement> ChildrenAll
+        get
         {
-            get
+            foreach (var child in Children)
             {
-                foreach (var child in Children)
-                {
-                    yield return child;
-                    foreach (var child2 in child.ChildrenAll) yield return child2;
-                }
+                yield return child;
+                foreach (var child2 in child.ChildrenAll) yield return child2;
             }
         }
-        public XmlElement Parent { get; set; }
-
-        public string this[string attributeName] { get => Attributes.GetValueCaseInsensitive(attributeName); }
     }
+    public XmlElement Parent { get; set; }
+
+    public string this[string attributeName] { get => Attributes.GetValueCaseInsensitive(attributeName); }
 }
