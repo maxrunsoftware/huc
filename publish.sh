@@ -69,17 +69,17 @@ cd MaxRunSoftware.Utilities.Console
 # https://github.com/dotnet/sdk/issues/24269
 
 if [[ $runWin = 1 ]]; then
-    dotnet publish -o ../publish/win-x64   -r win-x64  -p:NoWarn=NETSDK1179  -p:PublishSingleFile=true --self-contained --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
+    dotnet publish -o ../publish/win-x64   -r win-x64  -p:PublishSingleFile=true --self-contained --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
     mv ../publish/win-x64/MaxRunSoftware.Utilities.Console.exe ../publish/win-x64/huc.exe
 fi
 
 if [[ $runOSX = 1 ]]; then
-    dotnet publish -o ../publish/osx-x64   -r osx-x64   -p:NoWarn=NETSDK1179  -p:PublishSingleFile=true --self-contained --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
+    dotnet publish -o ../publish/osx-x64   -r osx-x64  -p:PublishSingleFile=true --self-contained --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
     mv ../publish/osx-x64/MaxRunSoftware.Utilities.Console ../publish/osx-x64/huc
 fi
 
 if [[ $runLinux = 1 ]]; then
-    dotnet publish -o ../publish/linux-x64 -r linux-x64  -p:NoWarn=NETSDK1179  -p:PublishSingleFile=true --self-contained --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
+    dotnet publish -o ../publish/linux-x64 -r linux-x64  -p:PublishSingleFile=true --self-contained --nologo -p:PublishReadyToRunShowWarnings=true -p:PublishReadyToRun=false -p:IncludeAllContentForSelfExtract=true -p:DebugType=embedded
     mv ../publish/linux-x64/MaxRunSoftware.Utilities.Console ../publish/linux-x64/huc
 fi
 
