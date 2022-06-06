@@ -123,7 +123,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             template9 = GetArgParameterOrConfig(nameof(template9), "t9");
 
             var templates = new string[] { template1, template2, template3, template4, template5, template6, template7, template8, template9 };
-            var templatesD = new IndexedDictionary<string, string>();
+            var templatesD = new DictionaryIndexed<string, string>();
             for (int i = 0; i < templates.Length; i++)
             {
                 var itemName = "{t" + (i + 1) + "}";
