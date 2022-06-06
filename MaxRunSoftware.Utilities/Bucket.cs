@@ -89,6 +89,7 @@ public static class Bucket
 
     public static IBucket<TKey, TValue> AsBucket<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) => new BucketDictionaryWrapper<TKey, TValue>(dictionary);
 
+    public static IEnumerable<(TKey key, TValue value)> GetItems<TKey, TValue>(this IBucketReadOnly<TKey, TValue> bucket) => bucket.Keys.Select(key => (key, bucket[key]));
 }
 
 /// <summary>

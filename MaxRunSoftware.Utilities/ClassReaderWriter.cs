@@ -88,9 +88,19 @@ public sealed class PropertyReaderWriter
         return action;
     }
 
-    public void SetValueRaw(object instance, object propertyValue)
+    public void SetValue(object instance, object propertyValue, TypeConverter converter = null)
     {
         if (!CanSet) throw new InvalidOperationException("Cannot SET property " + ToString());
+
+        if (converter != null && propertyValue != null)
+        {
+            var tSource = propertyValue.GetType();
+            var tTarget = PropertyInfo.PropertyType;
+            if (tSource != tTarget && !tTarget.IsAssignableFrom(tSource))
+            {
+                propertyValue = converter(propertyValue, tTarget);
+            }
+        }
         if (propertyValue == null)
         {
             propertySetter(instance, DefaultNullValue);
@@ -101,69 +111,19 @@ public sealed class PropertyReaderWriter
         }
     }
 
-    public void SetValue(object instance, object propertyValue, TypeConverter converter = null)
-    {
-        if (propertyValue != null)
-        {
-            var tSource = propertyValue.GetType();
-            var tTarget = PropertyInfo.PropertyType;
-            if (tSource != tTarget)
-            {
-                if (!tTarget.IsAssignableFrom(tSource))
-                {
-                    if (converter == null)
-                    {
-                        // throw new ArgumentException($"No converter available for property
-                        // {p} to convert {tSource.FullNameFormatted()} to
-                        // {tTarget.FullNameFormatted()} value:
-                        // {propertyValue.ToStringGuessFormat()}", nameof(converter));
-                        propertyValue = Util.ChangeType(propertyValue, tTarget);
-                    }
-                    else
-                    {
-                        propertyValue = converter(propertyValue, tTarget);
-                    }
-                }
-            }
-        }
-
-        SetValueRaw(instance, propertyValue);
-    }
-
-    public object GetValueRaw(object instance)
+    public object GetValue(object instance)
     {
         if (!CanGet) throw new InvalidOperationException("Cannot GET property " + ToString());
-        return propertyGetter(instance);
-    }
 
-    public object GetValue(object instance, TypeConverter converter = null, Type returnType = null)
-    {
-        if (converter != null && returnType == null) throw new ArgumentNullException(nameof(returnType), "If argument '" + nameof(converter) + "' is provided then argument '" + nameof(returnType) + "' must also be provided");
-        if (converter == null && returnType != null) throw new ArgumentNullException(nameof(converter), "If argument '" + nameof(returnType) + "' is provided then argument '" + nameof(converter) + "' must also be provided");
-
-        var o = GetValueRaw(instance);
-
-        if (o != null)
-        {
-            if (converter != null)
-            {
-                var tSource = PropertyInfo.PropertyType;
-                var tTarget = returnType;
-                if (tSource != tTarget)
-                {
-                    if (converter == null) throw new ArgumentException($"No converter available for property {ToString()} to convert {tSource.FullNameFormatted()} to {tTarget.FullNameFormatted()} value: {o.ToStringGuessFormat()}", nameof(converter));
-                    o = converter(o, tTarget);
-                }
-            }
-        }
+        var o = propertyGetter(instance);
 
         return o;
     }
 
     public object CopyValue(object sourceInstance, object targetInstance)
     {
-        var o = GetValueRaw(sourceInstance);
-        SetValueRaw(targetInstance, o);
+        var o = GetValue(sourceInstance);
+        SetValue(targetInstance, o);
         return o;
     }
 
@@ -197,7 +157,8 @@ public sealed class ClassReaderWriter
         {
             d.Add(prop.Name, prop);
         }
-        Properties = d.AsReadOnly();
+
+        Properties = new DictionaryReadOnlyStringCaseInsensitive<PropertyReaderWriter>(d);
     }
 
     public static ClassReaderWriter Get(Type type) => cache[type.CheckNotNull(nameof(type))];
@@ -218,7 +179,8 @@ public sealed class ClassReaderWriter
             if (!isStatic && !isInstance) continue; // don't include anything? maybe throw exception because you probably forgot something
             if (!isStatic && isInstance && prop.IsStatic) continue; // don't include static
             if (isStatic && !isInstance && prop.IsInstance) continue; // don't include instance
-                                                                      //if (isStatic && isInstance) ; // include everything
+
+            //if (isStatic && isInstance) ; // include everything
 
             list.Add(prop);
         }

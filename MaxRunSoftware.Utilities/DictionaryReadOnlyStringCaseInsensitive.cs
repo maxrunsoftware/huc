@@ -35,8 +35,6 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
 
     public DictionaryReadOnlyStringCaseInsensitive(IDictionary<string, TValue> dictionary) : this(dictionary.ToArray()) { }
 
-    public DictionaryReadOnlyStringCaseInsensitive(IReadOnlyDictionary<string, TValue> dictionary) : this(dictionary.ToArray()) { }
-
     public DictionaryReadOnlyStringCaseInsensitive(IEnumerable<KeyValuePair<string, TValue>> dictionary)
     {
         dictionaryCache = new(dictionary, StringComparer.Ordinal);
