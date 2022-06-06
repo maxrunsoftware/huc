@@ -182,6 +182,8 @@ public static class ExtensionsType
 
     public static TAttribute GetEnumItemAttribute<TAttribute>(this Type enumType, string enumItemName) where TAttribute : Attribute => GetEnumItemAttributes<TAttribute>(enumType, enumItemName).FirstOrDefault();
 
+    public static bool IsStatic(this PropertyInfo info, bool nonPublic = false) => info.GetAccessors(nonPublic).Any(x => x.IsStatic); // https://stackoverflow.com/a/51441889
+
 }
 
 

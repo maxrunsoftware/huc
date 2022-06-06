@@ -30,11 +30,11 @@ public sealed class PropertyReaderWriter
     public bool IsStatic { get; }
     public bool IsInstance => !IsStatic;
 
-    public PropertyReaderWriter(PropertyInfo propertyInfo, bool isStatic)
+    public PropertyReaderWriter(PropertyInfo propertyInfo, bool? isStatic = null)
     {
         PropertyInfo = propertyInfo.CheckNotNull(nameof(propertyInfo));
         Name = propertyInfo.Name;
-        IsStatic = isStatic;
+        IsStatic = isStatic ?? propertyInfo.IsStatic();
 
         // https://stackoverflow.com/questions/16436323/reading-properties-of-an-object-with-expression-trees
         var pt = propertyInfo.PropertyType;
@@ -184,11 +184,11 @@ public sealed class ClassReaderWriter
         var list = new List<PropertyReaderWriter>();
         foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            list.Add(new PropertyReaderWriter(propertyInfo, false));
+            list.Add(new PropertyReaderWriter(propertyInfo, isStatic: false));
         }
         foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
         {
-            list.Add(new PropertyReaderWriter(propertyInfo, true));
+            list.Add(new PropertyReaderWriter(propertyInfo, isStatic: true));
         }
         list = list.Where(o => o.CanGet || o.CanSet).ToList();
 
