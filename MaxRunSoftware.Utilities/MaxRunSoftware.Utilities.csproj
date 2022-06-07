@@ -38,7 +38,6 @@
 		<None Remove="Table\" />
 		<None Remove="Bucket\" />
 		<None Remove="Log\" />
-		<None Remove="Thread\" />
 		<None Remove="Data\" />
 		<None Remove="Utils\" />
 		<None Remove="Threading\" />
@@ -55,7 +54,6 @@
 	  <Folder Include="Table\" />
 	  <Folder Include="Bucket\" />
 	  <Folder Include="Log\" />
-	  <Folder Include="Thread\" />
 	  <Folder Include="Data\" />
 	  <Folder Include="Utils\" />
 	  <Folder Include="Threading\" />
