@@ -31,6 +31,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
     /// A unique ID for this table
     /// </summary>
     public Guid Id { get; init; }
+
     private readonly IReadOnlyList<TableRow> rows;
 
     /// <summary>
@@ -86,17 +87,13 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
 
     #region ISerializable
 
-    private Table(SerializationInfo info, StreamingContext context) : this(info.GetValue<string[][]>(typeof(Table).Name), true)
-    {
-    }
-
+    private Table(SerializationInfo info, StreamingContext context) : this(info.GetValue<string[][]>(typeof(Table).Name), true) { }
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-        var list = new List<string[]>(rows.Count + 1)
-        {
-            Columns.ColumnNames.ToArray()
-        };
+        var list = new List<string[]>(rows.Count + 1);
+
+        list.Add(Columns.ColumnNames.ToArray());
         list.AddRange(this.Select(o => o.ToArray()));
 
         info.AddValue(typeof(Table).Name, list.ToArray());
