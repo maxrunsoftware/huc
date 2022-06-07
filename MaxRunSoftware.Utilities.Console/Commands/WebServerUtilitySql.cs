@@ -112,10 +112,10 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
         public override string HandleHtml()
         {
-            var html = new HtmlBuilder();
+            var html = new HtmlWriter();
             html.Title = "SQL";
-            html.CSS(HtmlBuilder.CSS_TABLE);
-            html.Javascript(HtmlBuilder.JS_TABLE);
+            html.CSS(HtmlWriter.CSS_TABLE);
+            html.Javascript(HtmlWriter.JS_TABLE);
             try
             {
                 var result = Handle();

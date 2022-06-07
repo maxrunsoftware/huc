@@ -26,7 +26,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
         public override string HandleHtml()
         {
-            var html = new HtmlBuilder();
+            var html = new HtmlWriter();
             html.Title = "Encrypt File";
             var files = Files;
             var password = GetParameterString("password").TrimOrNull();

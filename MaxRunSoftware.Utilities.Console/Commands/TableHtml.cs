@@ -57,7 +57,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
         protected override string Convert(Utilities.Table table)
         {
-            var html = new HtmlBuilder();
+            var html = new HtmlWriter();
             html.Title = Path.GetFileName(CurrentOutputFile).EscapeHtml();
             html.Javascript(js);
             html.CSS(css);
@@ -70,12 +70,12 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             noCSS = GetArgParameterOrConfigBool(nameof(noCSS), "nc", false);
             cssFile = GetArgParameterOrConfig(nameof(cssFile), "css");
             css = ReadFileContent(cssFile);
-            if (css == null && !noCSS) css = HtmlBuilder.CSS_TABLE;
+            if (css == null && !noCSS) css = HtmlWriter.CSS_TABLE;
 
             noJavascript = GetArgParameterOrConfigBool(nameof(noJavascript), "nj", false);
             javascriptFile = GetArgParameterOrConfig(nameof(javascriptFile), "js");
             js = ReadFileContent(javascriptFile);
-            if (js == null && !noJavascript) js = HtmlBuilder.JS_TABLE;
+            if (js == null && !noJavascript) js = HtmlWriter.JS_TABLE;
 
             base.ExecuteInternal();
         }

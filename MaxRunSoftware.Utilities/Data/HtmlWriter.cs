@@ -17,7 +17,7 @@ limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
-public class HtmlBuilder
+public class HtmlWriter
 {
     public static readonly string JS_TABLE = @"
 window.onload=function(){
