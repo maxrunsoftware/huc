@@ -34,7 +34,7 @@ public class SqlObjectDatabase : SqlObject, IEquatable<SqlObjectDatabase>
     public bool Equals(SqlObjectDatabase other)
     {
         if (other == null) return false;
-        if (!string.Equals(DatabaseName, other.DatabaseName, StringComparison.OrdinalIgnoreCase)) return false;
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName)) return false;
         return true;
     }
     public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper());
@@ -55,8 +55,7 @@ public class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
     public bool Equals(SqlObjectSchema other)
     {
         if (other == null) return false;
-        if (!string.Equals(DatabaseName, other.DatabaseName, StringComparison.OrdinalIgnoreCase)) return false;
-        if (!string.Equals(SchemaName, other.SchemaName, StringComparison.OrdinalIgnoreCase)) return false;
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName)) return false;
         return true;
     }
     public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper());
@@ -79,9 +78,7 @@ public class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
     public bool Equals(SqlObjectTable other)
     {
         if (other == null) return false;
-        if (!string.Equals(DatabaseName, other.DatabaseName, StringComparison.OrdinalIgnoreCase)) return false;
-        if (!string.Equals(SchemaName, other.SchemaName, StringComparison.OrdinalIgnoreCase)) return false;
-        if (!string.Equals(TableName, other.TableName, StringComparison.OrdinalIgnoreCase)) return false;
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName, TableName, other.TableName)) return false;
         return true;
     }
     public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
@@ -139,10 +136,7 @@ public class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableColumn>
     public bool Equals(SqlObjectTableColumn other)
     {
         if (other == null) return false;
-        if (!string.Equals(DatabaseName, other.DatabaseName, StringComparison.OrdinalIgnoreCase)) return false;
-        if (!string.Equals(SchemaName, other.SchemaName, StringComparison.OrdinalIgnoreCase)) return false;
-        if (!string.Equals(TableName, other.TableName, StringComparison.OrdinalIgnoreCase)) return false;
-        if (!string.Equals(ColumnName, other.ColumnName, StringComparison.OrdinalIgnoreCase)) return false;
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName, TableName, other.TableName, ColumnName, other.ColumnName)) return false;
         if (Ordinal != other.Ordinal) return false;
         return true;
     }
