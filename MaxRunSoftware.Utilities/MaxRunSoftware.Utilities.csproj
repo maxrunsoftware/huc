@@ -40,7 +40,6 @@
 		<None Remove="Threading\" />
 		<None Remove="Logging\" />
 		<None Remove="Buckets\" />
-		<None Remove="Exceptions\" />
 		<None Remove="Collections\" />
 		<None Remove="Reflection\" />
 	</ItemGroup>
@@ -58,7 +57,6 @@
 	  <Folder Include="Threading\" />
 	  <Folder Include="Logging\" />
 	  <Folder Include="Buckets\" />
-	  <Folder Include="Exceptions\" />
 	  <Folder Include="Collections\" />
 	  <Folder Include="Reflection\" />
 	</ItemGroup>
