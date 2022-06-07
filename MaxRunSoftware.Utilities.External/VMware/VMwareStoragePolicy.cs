@@ -42,7 +42,7 @@ namespace MaxRunSoftware.Utilities.External
         public string Policy { get; }
         public IReadOnlyList<Disk> Disks { get; }
 
-        public VMwareStoragePolicy(VMware vmware, JToken obj)
+        public VMwareStoragePolicy(VMwareClient vmware, JToken obj)
         {
             Name = obj.ToString("name");
             Description = obj.ToString("description");
@@ -51,7 +51,7 @@ namespace MaxRunSoftware.Utilities.External
             Disks = vmware.GetValueArray($"/rest/vcenter/storage/policies/{Policy}/vm").OrEmpty().Select(o => new Disk(o)).ToList();
         }
 
-        public static IEnumerable<VMwareStoragePolicy> Query(VMware vmware)
+        public static IEnumerable<VMwareStoragePolicy> Query(VMwareClient vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/storage/policies"))
             {

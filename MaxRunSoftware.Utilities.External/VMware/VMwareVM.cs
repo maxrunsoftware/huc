@@ -257,7 +257,7 @@ namespace MaxRunSoftware.Utilities.External
         public IReadOnlyList<GuestLocalFilesystem> GuestLocalFilesystems { get; }
         public bool IsVMwareToolsInstalled { get; }
         public string LibraryItem { get; }
-        public VMwareVM(VMware vmware, JToken obj)
+        public VMwareVM(VMwareClient vmware, JToken obj)
         {
             VM = obj.ToString("vm");
             Name = obj.ToString("name");
@@ -315,7 +315,7 @@ namespace MaxRunSoftware.Utilities.External
             }
         }
 
-        public static IEnumerable<VMwareVM> Query(VMware vmware)
+        public static IEnumerable<VMwareVM> Query(VMwareClient vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/vm").OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase))
             {
@@ -323,7 +323,7 @@ namespace MaxRunSoftware.Utilities.External
             }
         }
 
-        private static VMwareVM QueryBy(VMware vmware, string fieldName, string fieldValue)
+        private static VMwareVM QueryBy(VMwareClient vmware, string fieldName, string fieldValue)
         {
             var obj = vmware.GetValueArray("/rest/vcenter/vm")
                 .OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase)
@@ -333,8 +333,8 @@ namespace MaxRunSoftware.Utilities.External
             if (obj == null) return null;
             return new VMwareVM(vmware, obj);
         }
-        public static VMwareVM QueryByName(VMware vmware, string name) => QueryBy(vmware, "name", name);
-        public static VMwareVM QueryByVM(VMware vmware, string vm) => QueryBy(vmware, "vm", vm);
+        public static VMwareVM QueryByName(VMwareClient vmware, string name) => QueryBy(vmware, "name", name);
+        public static VMwareVM QueryByVM(VMwareClient vmware, string vm) => QueryBy(vmware, "vm", vm);
 
 
     }

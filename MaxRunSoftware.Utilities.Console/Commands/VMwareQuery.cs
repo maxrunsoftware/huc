@@ -30,13 +30,13 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddDetail("https://developer.vmware.com/docs/vsphere-automation/latest/vcenter/index.html");
         }
 
-        protected override void ExecuteInternal(VMware vmware)
+        protected override void ExecuteInternal(VMwareClient vmware)
         {
             var path = GetArgValueTrimmed(0);
             path.CheckValueNotNull(nameof(path), log);
 
             var obj = vmware.Get(path);
-            var json = VMware.FormatJson(obj);
+            var json = VMwareClient.FormatJson(obj);
             log.Info(json);
         }
     }

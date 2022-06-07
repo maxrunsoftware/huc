@@ -24,13 +24,13 @@ namespace MaxRunSoftware.Utilities.External
         public string Name { get; }
         public string ResourcePool { get; }
 
-        public VMwareResourcePool(VMware vmware, JToken obj)
+        public VMwareResourcePool(VMwareClient vmware, JToken obj)
         {
             Name = obj.ToString("name");
             ResourcePool = obj.ToString("resource_pool");
         }
 
-        public static IEnumerable<VMwareResourcePool> Query(VMware vmware)
+        public static IEnumerable<VMwareResourcePool> Query(VMwareClient vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/resource-pool"))
             {

@@ -46,7 +46,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
 
 
-        protected override void ExecuteInternal(VMware vmware)
+        protected override void ExecuteInternal(VMwareClient vmware)
         {
             var vm = GetArgValueTrimmed(0);
             vm.CheckValueNotNull(nameof(vm), log);

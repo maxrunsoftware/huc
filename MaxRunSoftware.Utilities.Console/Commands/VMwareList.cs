@@ -40,7 +40,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             .Select(o => o.Substring("VMware".Length))
             .ToList();
 
-        private Dictionary<string, Func<VMware, IEnumerable>> Funcs = new()
+        private Dictionary<string, Func<VMwareClient, IEnumerable>> Funcs = new()
         {
             { nameof(VMwareDatacenter), VMwareDatacenter.Query },
             { nameof(VMwareDatastore), VMwareDatastore.Query },
@@ -60,7 +60,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             { "VMwareVM_IsoAttached", VMwareVMSlim.QueryIsoAttached },
         };
 
-        protected override void ExecuteInternal(VMware vmware)
+        protected override void ExecuteInternal(VMwareClient vmware)
         {
             var objectTypes = GetArgValuesTrimmed();
             if (objectTypes.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(objectTypes));
@@ -85,7 +85,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
         }
 
-        private Func<VMware, IEnumerable> GetFunc(string objectType)
+        private Func<VMwareClient, IEnumerable> GetFunc(string objectType)
         {
             objectType = "VMware" + objectType;
             foreach (var kvp in Funcs)

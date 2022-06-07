@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -26,7 +25,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MaxRunSoftware.Utilities.External
 {
-    public class VMware : IDisposable
+    public class VMwareClient : IDisposable
     {
         // https://developer.vmware.com/docs/vsphere-automation/v7.0U1/
 
@@ -48,7 +47,7 @@ namespace MaxRunSoftware.Utilities.External
         public IEnumerable<VMwareStoragePolicy> StoragePolicies => VMwareStoragePolicy.Query(this);
         [JsonIgnore] public IEnumerable<VMwareVMSlim> VMsSlim => VMwareVMSlim.Query(this);
 
-        public VMware(string hostname, string username, string password)
+        public VMwareClient(string hostname, string username, string password)
         {
             this.hostname = hostname.CheckNotNullTrimmed(nameof(hostname));
             this.username = username.CheckNotNullTrimmed(nameof(username));

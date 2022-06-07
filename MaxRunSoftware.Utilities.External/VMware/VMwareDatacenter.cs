@@ -28,7 +28,7 @@ namespace MaxRunSoftware.Utilities.External
         public string NetworkFolder { get; }
         public string VMFolder { get; }
 
-        public VMwareDatacenter(VMware vmware, JToken obj)
+        public VMwareDatacenter(VMwareClient vmware, JToken obj)
         {
             Name = obj.ToString("name");
             Datacenter = obj.ToString("datacenter");
@@ -43,7 +43,7 @@ namespace MaxRunSoftware.Utilities.External
             }
         }
 
-        public static IEnumerable<VMwareDatacenter> Query(VMware vmware)
+        public static IEnumerable<VMwareDatacenter> Query(VMwareClient vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/datacenter"))
             {

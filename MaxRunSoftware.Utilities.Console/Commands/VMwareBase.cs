@@ -46,12 +46,12 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             }
         }
 
-        protected abstract void ExecuteInternal(VMware vmware);
+        protected abstract void ExecuteInternal(VMwareClient vmware);
 
-        protected VMware GetVMware()
+        protected VMwareClient GetVMware()
         {
             if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-            return new VMware(host, username, password);
+            return new VMwareClient(host, username, password);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             help.AddExample(HelpExamplePrefix + " MyVMwareStuff.json");
         }
 
-        protected override void ExecuteInternal(VMware vmware)
+        protected override void ExecuteInternal(VMwareClient vmware)
         {
             var outputFile = GetArgValueTrimmed(0);
             outputFile.CheckValueNotNull(nameof(outputFile), log);

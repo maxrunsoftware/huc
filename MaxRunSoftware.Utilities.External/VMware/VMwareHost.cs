@@ -28,7 +28,7 @@ namespace MaxRunSoftware.Utilities.External
         public HostConnectionState ConnectionState { get; }
         public HostPowerState PowerState { get; }
 
-        public VMwareHost(VMware vmware, JToken obj)
+        public VMwareHost(VMwareClient vmware, JToken obj)
         {
             Name = obj.ToString("name");
             Host = obj.ToString("host");
@@ -46,7 +46,7 @@ namespace MaxRunSoftware.Utilities.External
             else if (powerState.EqualsCaseInsensitive("STANDBY")) PowerState = HostPowerState.Standby;
         }
 
-        public static IEnumerable<VMwareHost> Query(VMware vmware)
+        public static IEnumerable<VMwareHost> Query(VMwareClient vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/host"))
             {

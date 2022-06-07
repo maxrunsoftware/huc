@@ -34,7 +34,7 @@ namespace MaxRunSoftware.Utilities.External
         public bool? MultipleHostAccess { get; }
         public bool? ThinProvisioningSupported { get; }
 
-        public VMwareDatastore(VMware vmware, JToken obj)
+        public VMwareDatastore(VMwareClient vmware, JToken obj)
         {
             Name = obj.ToString("name");
             Datastore = obj.ToString("datastore");
@@ -51,7 +51,7 @@ namespace MaxRunSoftware.Utilities.External
             }
         }
 
-        public static IEnumerable<VMwareDatastore> Query(VMware vmware)
+        public static IEnumerable<VMwareDatastore> Query(VMwareClient vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/datastore"))
             {

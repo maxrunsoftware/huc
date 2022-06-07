@@ -25,14 +25,14 @@ namespace MaxRunSoftware.Utilities.External
         public string Folder { get; }
         public string Type { get; }
 
-        public VMwareFolder(VMware vmware, JToken obj)
+        public VMwareFolder(VMwareClient vmware, JToken obj)
         {
             Name = obj.ToString("name");
             Folder = obj.ToString("folder");
             Type = obj.ToString("type");
         }
 
-        public static IEnumerable<VMwareFolder> Query(VMware vmware)
+        public static IEnumerable<VMwareFolder> Query(VMwareClient vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/folder"))
             {

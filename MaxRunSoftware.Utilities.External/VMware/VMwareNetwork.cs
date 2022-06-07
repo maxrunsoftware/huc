@@ -25,14 +25,14 @@ namespace MaxRunSoftware.Utilities.External
         public string Network { get; }
         public string Type { get; }
 
-        public VMwareNetwork(VMware vmware, JToken obj)
+        public VMwareNetwork(VMwareClient vmware, JToken obj)
         {
             Name = obj.ToString("name");
             Network = obj.ToString("network");
             Type = obj.ToString("type");
         }
 
-        public static IEnumerable<VMwareNetwork> Query(VMware vmware)
+        public static IEnumerable<VMwareNetwork> Query(VMwareClient vmware)
         {
             foreach (var obj in vmware.GetValueArray("/rest/vcenter/network"))
             {

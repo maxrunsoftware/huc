@@ -30,7 +30,7 @@ namespace MaxRunSoftware.Utilities.External
     {
         private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public JToken QueryValueObjectSafe(VMware vmware, string path)
+        public JToken QueryValueObjectSafe(VMwareClient vmware, string path)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace MaxRunSoftware.Utilities.External
             return null;
         }
 
-        public IEnumerable<JToken> QueryValueArraySafe(VMware vmware, string path)
+        public IEnumerable<JToken> QueryValueArraySafe(VMwareClient vmware, string path)
         {
             try
             {
