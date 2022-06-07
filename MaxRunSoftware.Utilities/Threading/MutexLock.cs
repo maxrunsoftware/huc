@@ -105,15 +105,3 @@ public sealed class MutexLock : IDisposable
         return fn;
     }
 }
-
-public sealed class MutexLockTimeoutException : System.Threading.WaitHandleCannotBeOpenedException
-{
-    public string MutexName { get; }
-    public TimeSpan Timeout { get; }
-
-    public MutexLockTimeoutException(string mutexName, TimeSpan timeout) : base("Failed to aquire mutex [" + mutexName + "] after waiting " + timeout.ToStringTotalSeconds(numberOfDecimalDigits: 3) + "s")
-    {
-        MutexName = mutexName;
-        Timeout = timeout;
-    }
-}
