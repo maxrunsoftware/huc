@@ -41,6 +41,7 @@
 		<None Remove="Logging\" />
 		<None Remove="Buckets\" />
 		<None Remove="Exceptions\" />
+		<None Remove="Collections\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NuGet.Build.Packaging" Version="0.2.5-pr174.14">
@@ -57,5 +58,6 @@
 	  <Folder Include="Logging\" />
 	  <Folder Include="Buckets\" />
 	  <Folder Include="Exceptions\" />
+	  <Folder Include="Collections\" />
 	</ItemGroup>
 </Project>
