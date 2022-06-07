@@ -35,6 +35,7 @@
 		<None Remove="NuGet.Build.Packaging" />
 		<None Remove="Extensions\" />
 		<None Remove="Sql\" />
+		<None Remove="Util\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NuGet.Build.Packaging" Version="0.2.5-pr174.14">
@@ -45,5 +46,6 @@
 	<ItemGroup>
 	  <Folder Include="Extensions\" />
 	  <Folder Include="Sql\" />
+	  <Folder Include="Util\" />
 	</ItemGroup>
 </Project>
