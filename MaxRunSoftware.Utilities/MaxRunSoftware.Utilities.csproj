@@ -41,6 +41,7 @@
 		<None Remove="Log\" />
 		<None Remove="Thread\" />
 		<None Remove="Data\" />
+		<None Remove="Utils\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NuGet.Build.Packaging" Version="0.2.5-pr174.14">
@@ -57,5 +58,6 @@
 	  <Folder Include="Log\" />
 	  <Folder Include="Thread\" />
 	  <Folder Include="Data\" />
+	  <Folder Include="Utils\" />
 	</ItemGroup>
 </Project>
