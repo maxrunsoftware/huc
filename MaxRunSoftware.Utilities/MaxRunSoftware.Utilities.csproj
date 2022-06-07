@@ -41,6 +41,7 @@
 		<None Remove="Thread\" />
 		<None Remove="Data\" />
 		<None Remove="Utils\" />
+		<None Remove="Threading\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NuGet.Build.Packaging" Version="0.2.5-pr174.14">
@@ -57,5 +58,6 @@
 	  <Folder Include="Thread\" />
 	  <Folder Include="Data\" />
 	  <Folder Include="Utils\" />
+	  <Folder Include="Threading\" />
 	</ItemGroup>
 </Project>
