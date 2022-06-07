@@ -40,6 +40,7 @@
 		<None Remove="Bucket\" />
 		<None Remove="Log\" />
 		<None Remove="Thread\" />
+		<None Remove="Data\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NuGet.Build.Packaging" Version="0.2.5-pr174.14">
@@ -55,5 +56,6 @@
 	  <Folder Include="Bucket\" />
 	  <Folder Include="Log\" />
 	  <Folder Include="Thread\" />
+	  <Folder Include="Data\" />
 	</ItemGroup>
 </Project>
