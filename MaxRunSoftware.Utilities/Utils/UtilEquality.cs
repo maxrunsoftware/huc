@@ -20,13 +20,15 @@ public static partial class Util
 {
     #region IsEqual
 
-    public static bool IsEqual<T1>(T1 o11, T1 o21) => object.Equals(o11, o21);
+    public static bool IsEqual<T1>(T1 o11, T1 o21) => EqualityComparer<T1>.Default.Equals(o11, o21);
+    public static bool IsEqual<T1, T2>(T1 o11, T1 o21, T2 o12, T2 o22) => EqualityComparer<T1>.Default.Equals(o11, o21) && EqualityComparer<T2>.Default.Equals(o12, o22);
+    public static bool IsEqual<T1, T2, T3>(T1 o11, T1 o21, T2 o12, T2 o22, T3 o13, T3 o23) => EqualityComparer<T1>.Default.Equals(o11, o21) && EqualityComparer<T2>.Default.Equals(o12, o22) && EqualityComparer<T3>.Default.Equals(o13, o23);
+    public static bool IsEqual<T1, T2, T3, T4>(T1 o11, T1 o21, T2 o12, T2 o22, T3 o13, T3 o23, T4 o14, T4 o24) => EqualityComparer<T1>.Default.Equals(o11, o21) && EqualityComparer<T2>.Default.Equals(o12, o22) && EqualityComparer<T3>.Default.Equals(o13, o23) && EqualityComparer<T4>.Default.Equals(o14, o24);
 
-    public static bool IsEqual<T1, T2>(T1 o11, T1 o21, T2 o12, T2 o22) => object.Equals(o11, o21) && object.Equals(o12, o22);
-
-    public static bool IsEqual<T1, T2, T3>(T1 o11, T1 o21, T2 o12, T2 o22, T3 o13, T3 o23) => object.Equals(o11, o21) && object.Equals(o12, o22) && object.Equals(o13, o23);
-
-    public static bool IsEqual<T1, T2, T3, T4>(T1 o11, T1 o21, T2 o12, T2 o22, T3 o13, T3 o23, T4 o14, T4 o24) => object.Equals(o11, o21) && object.Equals(o12, o22) && object.Equals(o13, o23) && object.Equals(o14, o24);
+    public static bool IsEqualCaseInsensitive(string o11, string o21) => StringComparer.OrdinalIgnoreCase.Equals(o11, o21);
+    public static bool IsEqualCaseInsensitive(string o11, string o21, string o12, string o22) => StringComparer.OrdinalIgnoreCase.Equals(o11, o21) && StringComparer.OrdinalIgnoreCase.Equals(o12, o22);
+    public static bool IsEqualCaseInsensitive(string o11, string o21, string o12, string o22, string o13, string o23) => StringComparer.OrdinalIgnoreCase.Equals(o11, o21) && StringComparer.OrdinalIgnoreCase.Equals(o12, o22) && StringComparer.OrdinalIgnoreCase.Equals(o13, o23);
+    public static bool IsEqualCaseInsensitive(string o11, string o21, string o12, string o22, string o13, string o23, string o14, string o24) => StringComparer.OrdinalIgnoreCase.Equals(o11, o21) && StringComparer.OrdinalIgnoreCase.Equals(o12, o22) && StringComparer.OrdinalIgnoreCase.Equals(o13, o23) && StringComparer.OrdinalIgnoreCase.Equals(o14, o24);
 
     #endregion IsEqual
 
