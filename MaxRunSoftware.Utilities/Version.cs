@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-namespace MaxRunSoftware.Utilities.Console;
+namespace MaxRunSoftware.Utilities;
 
 public static class Version
 {
-    public static string Value => Utilities.Version.Value;
+    public static string Value => "2.0.0";
 }
