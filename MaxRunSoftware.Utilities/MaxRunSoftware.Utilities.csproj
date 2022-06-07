@@ -35,12 +35,12 @@
 		<None Remove="NuGet.Build.Packaging" />
 		<None Remove="Extensions\" />
 		<None Remove="Sql\" />
-		<None Remove="Bucket\" />
 		<None Remove="Data\" />
 		<None Remove="Utils\" />
 		<None Remove="Threading\" />
 		<None Remove="Logging\" />
 		<None Remove="Buckets\" />
+		<None Remove="Exceptions\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NuGet.Build.Packaging" Version="0.2.5-pr174.14">
@@ -51,11 +51,11 @@
 	<ItemGroup>
 	  <Folder Include="Extensions\" />
 	  <Folder Include="Sql\" />
-	  <Folder Include="Bucket\" />
 	  <Folder Include="Data\" />
 	  <Folder Include="Utils\" />
 	  <Folder Include="Threading\" />
 	  <Folder Include="Logging\" />
 	  <Folder Include="Buckets\" />
+	  <Folder Include="Exceptions\" />
 	</ItemGroup>
 </Project>
