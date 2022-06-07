@@ -37,6 +37,7 @@
 		<None Remove="Sql\" />
 		<None Remove="Util\" />
 		<None Remove="Table\" />
+		<None Remove="Bucket\" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="NuGet.Build.Packaging" Version="0.2.5-pr174.14">
@@ -49,5 +50,6 @@
 	  <Folder Include="Sql\" />
 	  <Folder Include="Util\" />
 	  <Folder Include="Table\" />
+	  <Folder Include="Bucket\" />
 	</ItemGroup>
 </Project>
