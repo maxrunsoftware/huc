@@ -29,6 +29,13 @@
     <None Remove="Selenium.WebDriver" />
     <None Remove="Selenium.Support" />
     <None Remove="WebDriverManager" />
+    <None Remove="ActiveDirectory\" />
+    <None Remove="Ldap\" />
+    <None Remove="VMware\" />
+    <None Remove="WindowsTaskScheduler\" />
+    <None Remove="WebBrowser\" />
+    <None Remove="WebServer\" />
+    <None Remove="Ftp\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EmbedIO" Version="3.4.3" />
@@ -52,5 +59,14 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MaxRunSoftware.Utilities\MaxRunSoftware.Utilities.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ActiveDirectory\" />
+    <Folder Include="Ldap\" />
+    <Folder Include="VMware\" />
+    <Folder Include="WindowsTaskScheduler\" />
+    <Folder Include="WebBrowser\" />
+    <Folder Include="WebServer\" />
+    <Folder Include="Ftp\" />
   </ItemGroup>
 </Project>
