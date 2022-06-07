@@ -35,7 +35,6 @@
 		<None Remove="NuGet.Build.Packaging" />
 		<None Remove="Extensions\" />
 		<None Remove="Sql\" />
-		<None Remove="Util\" />
 		<None Remove="Table\" />
 		<None Remove="Bucket\" />
 		<None Remove="Log\" />
@@ -52,7 +51,6 @@
 	<ItemGroup>
 	  <Folder Include="Extensions\" />
 	  <Folder Include="Sql\" />
-	  <Folder Include="Util\" />
 	  <Folder Include="Table\" />
 	  <Folder Include="Bucket\" />
 	  <Folder Include="Log\" />
