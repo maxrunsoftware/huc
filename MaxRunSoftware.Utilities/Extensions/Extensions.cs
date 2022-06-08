@@ -28,21 +28,21 @@ public static class Extensions
     /// <param name="type">The DotNet type</param>
     /// <param name="defaultDbType">The default DbType</param>
     /// <returns>The DbType</returns>
-    public static DbType GetDbType(this Type type, DbType defaultDbType) => Constant.MAP_Type_DbType.TryGetValue(type, out var dbType) ? dbType : defaultDbType;
+    public static DbType GetDbType(this Type type, DbType defaultDbType) => Constant.Type_DbType.TryGetValue(type, out var dbType) ? dbType : defaultDbType;
 
     /// <summary>
     /// Attempts to convert the DotNet type to a DbType
     /// </summary>
     /// <param name="type">The DotNet type</param>
     /// <returns>The DbType</returns>
-    public static DbType? GetDbType(this Type type) => Constant.MAP_Type_DbType.TryGetValue(type, out var dbType) ? dbType : null;
+    public static DbType? GetDbType(this Type type) => Constant.Type_DbType.TryGetValue(type, out var dbType) ? dbType : null;
 
     /// <summary>
     /// Converts a DbType to a DotNet type
     /// </summary>
     /// <param name="dbType">The DbType</param>
     /// <returns>The DotNet type</returns>
-    public static Type GetDotNetType(this DbType dbType) => Constant.MAP_DbType_Type.TryGetValue(dbType, out var type) ? type : typeof(string);
+    public static Type GetDotNetType(this DbType dbType) => Constant.DbType_Type.TryGetValue(dbType, out var type) ? type : typeof(string);
 
     /// <summary>
     /// Gets a typed service from a IServiceProvider

@@ -59,7 +59,7 @@ public class SqlException : Exception
                     val = "byte[" + bytes.Length + "]";
 
                 }
-                else if (Constant.SET_DbType_Numeric.Contains(p.DbType))
+                else if (Constant.DBTYPES_NUMERIC.Contains(p.DbType))
                 {
                     val = p.Value.ToString();
                 }

@@ -37,21 +37,25 @@ public static class Constant
     /// Characters A-Z
     /// </summary>
     public const string CHARS_A_Z_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static readonly ImmutableArray<char> CHARS_A_Z_UPPER_ARRAY = ImmutableArray.Create(CHARS_A_Z_UPPER.ToCharArray());
 
     /// <summary>
     /// Characters a-z
     /// </summary>
     public const string CHARS_A_Z_LOWER = "abcdefghijklmnopqrstuvwxyz";
+    public static readonly ImmutableArray<char> CHARS_A_Z_LOWER_ARRAY = ImmutableArray.Create(CHARS_A_Z_LOWER.ToCharArray());
 
     /// <summary>
     /// Numbers 0-9
     /// </summary>
     public const string CHARS_0_9 = "0123456789";
+    public static readonly ImmutableArray<char> CHARS_0_9_ARRAY = ImmutableArray.Create(CHARS_0_9.ToCharArray());
 
     /// <summary>
     /// A-Z a-z 0-9
     /// </summary>
     public const string CHARS_ALPHANUMERIC = CHARS_A_Z_UPPER + CHARS_A_Z_LOWER + CHARS_0_9;
+    public static readonly ImmutableArray<char> CHARS_ALPHANUMERIC_ARRAY = ImmutableArray.Create(CHARS_ALPHANUMERIC.ToCharArray());
 
     /// <summary>
     /// First 128 characters
@@ -66,10 +70,6 @@ public static class Constant
             "\u0060" + "\u0061" + "\u0062" + "\u0063" + "\u0064" + "\u0065" + "\u0066" + "\u0067" + "\u0068" + "\u0069" + "\u006A" + "\u006B" + "\u006C" + "\u006D" + "\u006E" + "\u006F" +
             "\u0070" + "\u0071" + "\u0072" + "\u0073" + "\u0074" + "\u0075" + "\u0076" + "\u0077" + "\u0078" + "\u0079" + "\u007A" + "\u007B" + "\u007C" + "\u007D" + "\u007E" + "\u007F";
 
-    public static readonly ImmutableArray<char> CHARS_A_Z_UPPER_ARRAY = ImmutableArray.Create(CHARS_A_Z_UPPER.ToCharArray());
-    public static readonly ImmutableArray<char> CHARS_A_Z_LOWER_ARRAY = ImmutableArray.Create(CHARS_A_Z_LOWER.ToCharArray());
-    public static readonly ImmutableArray<char> CHARS_0_9_ARRAY = ImmutableArray.Create(CHARS_0_9.ToCharArray());
-    public static readonly ImmutableArray<char> CHARS_ALPHANUMERIC_ARRAY = ImmutableArray.Create(CHARS_ALPHANUMERIC.ToCharArray());
     public static readonly ImmutableArray<char> CHARS_00000_00128_ARRAY = ImmutableArray.Create(CHARS_00000_00128.ToCharArray());
 
     #endregion CHARS
@@ -199,7 +199,7 @@ public static class Constant
     /// <summary>
     /// Map of StringComparer to StringComparison
     /// </summary>
-    public static readonly IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison = MAP_StringComparer_StringComparison_Create();
+    public static readonly IReadOnlyDictionary<StringComparer, StringComparison> StringComparer_StringComparison = MAP_StringComparer_StringComparison_Create();
     private static IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison_Create()
     {
         var d = new Dictionary<StringComparer, StringComparison>();
@@ -215,7 +215,7 @@ public static class Constant
     /// <summary>
     /// Map of StringComparison to StringComparer
     /// </summary>
-    public static readonly IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer = MAP_StringComparison_StringComparer_Create();
+    public static readonly IReadOnlyDictionary<StringComparison, StringComparer> StringComparison_StringComparer = MAP_StringComparison_StringComparer_Create();
     private static IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer_Create()
     {
         var d = new Dictionary<StringComparison, StringComparer>();
@@ -250,7 +250,7 @@ public static class Constant
     /// <summary>
     /// Map of DotNet types to DbType
     /// </summary>
-    public static readonly IReadOnlyDictionary<Type, DbType> MAP_Type_DbType = new Dictionary<Type, DbType>
+    public static readonly IReadOnlyDictionary<Type, DbType> Type_DbType = new Dictionary<Type, DbType>
             {
                 { typeof(bool), DbType.Boolean },
                 { typeof(bool?), DbType.Boolean },
@@ -310,7 +310,7 @@ public static class Constant
     /// <summary>
     /// Map of DbType to DotNet types
     /// </summary>
-    public static readonly IReadOnlyDictionary<DbType, Type> MAP_DbType_Type = new Dictionary<DbType, Type>
+    public static readonly IReadOnlyDictionary<DbType, Type> DbType_Type = new Dictionary<DbType, Type>
         {
                 { DbType.AnsiString, typeof(string) },
                 { DbType.AnsiStringFixedLength, typeof(char[]) },
@@ -341,7 +341,7 @@ public static class Constant
                 { DbType.Xml, typeof(string) },
         };
 
-    public static readonly IReadOnlySet<DbType> SET_DbType_Numeric = new HashSet<DbType>
+    public static readonly IReadOnlySet<DbType> DBTYPES_NUMERIC = new HashSet<DbType>
         {
             DbType.Byte,
             DbType.Currency,
@@ -358,7 +358,7 @@ public static class Constant
             DbType.VarNumeric,
         };
 
-    public static readonly IReadOnlySet<DbType> SET_DbType_Character = new HashSet<DbType>
+    public static readonly IReadOnlySet<DbType> DBTYPES_CHARACTERS = new HashSet<DbType>
         {
             DbType.AnsiString,
             DbType.AnsiStringFixedLength,
@@ -367,7 +367,7 @@ public static class Constant
             DbType.Xml,
         };
 
-    public static readonly IReadOnlySet<DbType> SET_DbType_DateTime = new HashSet<DbType>
+    public static readonly IReadOnlySet<DbType> DBTYPES_DATETIME = new HashSet<DbType>
         {
             DbType.Date,
             DbType.DateTime,
@@ -416,19 +416,19 @@ public static class Constant
     /// <summary>
     /// Case-Insensitive hashset of boolean true values 
     /// </summary>
-    public static readonly IReadOnlySet<string> SET_Bool_True = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
+    public static readonly IReadOnlySet<string> BOOLS_TRUE = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Case-Insensitive hashset of boolean false values
     /// </summary>
-    public static readonly IReadOnlySet<string> SET_Bool_False = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
+    public static readonly IReadOnlySet<string> BOOLS_FALSE = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Case-Insensitive map of boolean string values to boolean values
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, bool> MAP_String_Bool = MAP_String_Bool_get();
+    public static readonly IReadOnlyDictionary<string, bool> String_Bool = String_Bool_get();
 
-    private static IReadOnlyDictionary<string, bool> MAP_String_Bool_get()
+    private static IReadOnlyDictionary<string, bool> String_Bool_get()
     {
         var d = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in BOOL_TRUE.Split(' ')) d.Add(item, true);
@@ -440,9 +440,9 @@ public static class Constant
     #region IO
 
     public static readonly IReadOnlySet<char> PATH_DELIMITERS = (new HashSet<char>(new char[] { '/', '\\', System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar }));
-    public static readonly IReadOnlySet<string> PATH_DELIMITERS_STRINGS = (new HashSet<string>(PATH_DELIMITERS.Select(o => o.ToString())));
-
     public static readonly ImmutableArray<char> PATH_DELIMITERS_ARRAY = PATH_DELIMITERS.OrderBy(o => o).ToImmutableArray();
+
+    public static readonly IReadOnlySet<string> PATH_DELIMITERS_STRINGS = (new HashSet<string>(PATH_DELIMITERS.Select(o => o.ToString())));
     public static readonly ImmutableArray<string> PATH_DELIMITERS_STRINGS_ARRAY = PATH_DELIMITERS_ARRAY.Select(o => o.ToString()).ToArray().ToImmutableArray();
 
     public static readonly bool PATH_CASE_SENSITIVE = !OS_WINDOWS;

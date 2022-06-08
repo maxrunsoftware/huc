@@ -52,7 +52,7 @@ public sealed class SqlParameter
         }
         else
         {
-            if (Constant.MAP_Type_DbType.TryGetValue(value.GetType(), out var dbType))
+            if (Constant.Type_DbType.TryGetValue(value.GetType(), out var dbType))
             {
                 Type = dbType;
                 Value = value;
