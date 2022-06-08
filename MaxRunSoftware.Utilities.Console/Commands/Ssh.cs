@@ -23,7 +23,7 @@ using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public class SSH : Command
+    public class Ssh : Command
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {

@@ -20,7 +20,7 @@ using Renci.SshNet.Common;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public class FTPList : FTPBase
+    public class FtpList : FtpBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {

@@ -25,7 +25,7 @@ using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public abstract class FTPBase : Command
+    public abstract class FtpBase : Command
     {
         public enum FTPEncryptionMode { None, SSH, Explicit, Implicit }
 

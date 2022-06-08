@@ -20,7 +20,7 @@ using System.IO;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public class JSAS : Command
+    public class Jsas : Command
     {
         private static readonly string[] MIME_TEXT = new string[] {
         "text/plain",

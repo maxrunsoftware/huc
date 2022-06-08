@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public class FTPPut : FTPBase
+    public class FtpPut : FtpBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {

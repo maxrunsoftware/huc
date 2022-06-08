@@ -18,7 +18,7 @@ using System;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public class FTPDelete : FTPBase
+    public class FtpDelete : FtpBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {

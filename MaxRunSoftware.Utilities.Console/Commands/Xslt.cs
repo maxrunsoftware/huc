@@ -16,7 +16,7 @@ limitations under the License.
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public class XSLT : Command
+    public class Xslt : Command
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {

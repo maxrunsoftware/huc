@@ -22,7 +22,7 @@ using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
-    public class FTPGet : FTPBase
+    public class FtpGet : FtpBase
     {
         protected override void CreateHelp(CommandHelpBuilder help)
         {
