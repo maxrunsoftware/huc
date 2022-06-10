@@ -227,4 +227,10 @@ public static class ExtensionsData
         return sb.ToString();
     }
 
+    public static IReadOnlyList<SqlDataReaderSchemaColumn> GetSchema(this IDataReader reader) => SqlDataReaderSchemaColumn.Create(reader);
+
+
+
 }
+
+

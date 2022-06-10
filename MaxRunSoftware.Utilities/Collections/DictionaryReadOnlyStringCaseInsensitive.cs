@@ -28,20 +28,35 @@ namespace MaxRunSoftware.Utilities;
 public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictionary<string, TValue>, IBucketReadOnly<string, TValue>
 {
     private readonly IReadOnlyList<KeyValuePair<string, TValue>> items;
-    private readonly Dictionary<string, TValue> dictionaryCaseInsensitive;
+    private readonly Dictionary<string, TValue> dictionaryOriginal;
     private readonly Dictionary<string, TValue> dictionaryCache;
     private readonly IReadOnlyList<string> keys;
     private readonly IReadOnlyList<TValue> values;
+    private readonly object locker = new();
+    private readonly HashSet<string> invalidKeys = new();
 
     public DictionaryReadOnlyStringCaseInsensitive(IDictionary<string, TValue> dictionary) : this(dictionary.ToArray()) { }
 
-    public DictionaryReadOnlyStringCaseInsensitive(IEnumerable<KeyValuePair<string, TValue>> dictionary)
+    public DictionaryReadOnlyStringCaseInsensitive(IEnumerable<(string Key, TValue Value)> items) : this(items.Select(o => new KeyValuePair<string, TValue>(o.Key, o.Value))) { }
+
+    public DictionaryReadOnlyStringCaseInsensitive(IEnumerable<KeyValuePair<string, TValue>> items)
     {
-        dictionaryCache = new(dictionary, StringComparer.Ordinal);
-        dictionaryCaseInsensitive = new(dictionaryCache, StringComparer.OrdinalIgnoreCase);
-        items = dictionaryCaseInsensitive.ToList().AsReadOnly();
-        keys = dictionaryCaseInsensitive.Keys.ToList();
-        values = dictionaryCaseInsensitive.Values.ToList();
+        dictionaryOriginal = new Dictionary<string, TValue>(items, StringComparer.Ordinal);
+        dictionaryCache = new(items, StringComparer.Ordinal);
+
+        this.items = dictionaryOriginal.ToList().AsReadOnly();
+        keys = dictionaryOriginal.Keys.ToList();
+        values = dictionaryOriginal.Values.ToList();
+    }
+
+    public static DictionaryReadOnlyStringCaseInsensitive<TValue> Create(Func<TValue, string> keySelector, IEnumerable<TValue> values)
+    {
+        var d = new Dictionary<string, TValue>();
+        foreach (var value in values)
+        {
+            d.Add(keySelector(value), value);
+        }
+        return new DictionaryReadOnlyStringCaseInsensitive<TValue>(d);
     }
 
     public TValue this[string key]
@@ -52,7 +67,7 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
             {
                 return val;
             }
-            return dictionaryCache[key]; // Should throw exception
+            return dictionaryOriginal[key]; // Should throw exception
         }
     }
 
@@ -68,19 +83,49 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
 
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
     {
-        if (dictionaryCache.TryGetValue(key, out value))
+        lock (locker)
         {
-            return true;
-        }
+            if (dictionaryCache.TryGetValue(key, out value))
+            {
+                return true;
+            }
 
-        if (dictionaryCaseInsensitive.TryGetValue(key, out value))
-        {
-            dictionaryCache[key] = value;
-            return true;
-        }
+            if (invalidKeys.Contains(key)) return false;
 
-        return false;
+            // Do a hard search
+            var itemsFound = new List<KeyValuePair<string, TValue>>();
+            var itemsCurrentD = new Dictionary<int, KeyValuePair<string, TValue>>();
+            for (int i = 0; i < items.Count; i++) itemsCurrentD.Add(i, items[i]);
+
+            foreach (var sc in Constant.LIST_StringComparer)
+            {
+                foreach (var item in itemsCurrentD.ToArray())
+                {
+                    if (sc.Equals(key, item.Value.Key))
+                    {
+                        itemsFound.Add(item.Value);
+                        itemsCurrentD.Remove(item.Key);
+                    }
+                }
+            }
+
+            if (itemsFound.Count > 1) throw new ArgumentException($"For key '{key}' found multiple matching items: " + itemsFound.Select(o => o.Key).ToStringDelimited(", "), nameof(key));
+            if (itemsFound.Count == 1)
+            {
+                var v = itemsFound[0].Value;
+                dictionaryCache.Add(key, v);
+                value = v;
+                return true;
+            }
+
+            invalidKeys.Add(key);
+            return false;
+
+
+        }
     }
+
+
 
     IEnumerator IEnumerable.GetEnumerator() => items.GetEnumerator();
 }

@@ -259,6 +259,20 @@ public abstract class Sql
 
     #region Execute
 
+    public void ExecuteQuery(string sql, Action<IDataReader> action, params SqlParameter[] parameters)
+    {
+        using (var connection = OpenConnection())
+        using (var command = CreateCommand(connection, sql))
+        {
+            AddParameters(command, parameters);
+            log.Trace($"ExecuteQuery: {sql}");
+            using (var reader = command.ExecuteReaderExceptionWrapped(ExceptionShowFullSql))
+            {
+                action(reader);
+            }
+        }
+    }
+
     public Table[] ExecuteQuery(string sql, params SqlParameter[] parameters)
     {
         using (var connection = OpenConnection())

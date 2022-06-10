@@ -24,6 +24,5 @@ public class AtomicBooleanTests
         Assert.False(ab1.Equals(ab2));
         Assert.False(ab2.Equals(ab1));
 
-        Assert.False(true);
     }
 }

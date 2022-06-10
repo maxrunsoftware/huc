@@ -93,13 +93,24 @@ public static class ExtensionsToString
     public static string ToStringGuessFormat(this object obj)
     {
         if (obj == null) return null;
+        if (obj == DBNull.Value) return null;
+
+        if (obj is string objString) return objString;
+        if (obj is DateTime objDateTime) return objDateTime.ToStringYYYYMMDDHHMMSS();
+        if (obj is byte[] objBytes) return "0x" + Util.Base16(objBytes);
+        if (obj is Type objType) return objType.FullNameFormatted();
+
         var t = obj.GetType();
         if (t.IsNullable(out var underlyingType)) t = underlyingType;
+
         if (t == typeof(string)) return (string)obj;
         if (t == typeof(DateTime)) return ((DateTime)obj).ToStringYYYYMMDDHHMMSS();
         if (t == typeof(DateTime?)) return ((DateTime?)obj).Value.ToStringYYYYMMDDHHMMSS();
         if (t == typeof(byte[])) return "0x" + Util.Base16((byte[])obj);
+        if (t == typeof(Type)) return ((Type)obj).FullNameFormatted();
+
         if (obj is IEnumerable enumerable) return enumerable.ToStringItems();
+
         return obj.ToString();
     }
     public static IEnumerable<string> ToStringsGuessFormat(this IEnumerable<object> enumerable)
