@@ -53,10 +53,10 @@ public class SqlResultColumnCollection : IReadOnlyList<SqlResultColumn>, IBucket
     private readonly IReadOnlyList<string> columnNames;
     private readonly IReadOnlyList<int> columnIndexes;
 
-    public SqlResultColumnCollection(IDataReader reader)
+    public SqlResultColumnCollection(IDataReader reader, bool fullSchemaDetails = true)
     {
-        columns = reader.GetSchema().Select(o => new SqlResultColumn(o)).OrderBy(o => o.Index).ToList().AsReadOnly();
-        columnsByName = DictionaryReadOnlyStringCaseInsensitive<SqlResultColumn>.Create(o => o.Name, columns);
+        columns = reader.GetSchema(fullSchemaDetails).Select(o => new SqlResultColumn(o)).OrderBy(o => o.Index).ToList().AsReadOnly();
+        columnsByName = columns.ToDictionaryReadOnlyStringCaseInsensitive(o => o.Name);
         columnNames = columns.Select(o => o.Name).ToList().AsReadOnly();
         columnIndexes = columns.Select(o => o.Index).ToList().AsReadOnly();
     }
@@ -79,7 +79,7 @@ public class SqlResultColumnCollection : IReadOnlyList<SqlResultColumn>, IBucket
 
 public class SqlResultColumn
 {
-    public SqlDataReaderSchemaColumn SchemaColumn { get; }
+    private SqlDataReaderSchemaColumn SchemaColumn { get; }
 
     public int Index => SchemaColumn.Index;
     public string Name => SchemaColumn.Name;
@@ -97,6 +97,8 @@ public class SqlResultRow
 {
 
 }
+
+
 
 
 

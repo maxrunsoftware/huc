@@ -41,35 +41,17 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
 
     public DictionaryReadOnlyStringCaseInsensitive(IEnumerable<KeyValuePair<string, TValue>> items)
     {
-        dictionaryOriginal = new Dictionary<string, TValue>(items, StringComparer.Ordinal);
-        dictionaryCache = new(items, StringComparer.Ordinal);
+        var keyValuePairs = items.ToList();
+        dictionaryOriginal = new(keyValuePairs, StringComparer.Ordinal);
+        dictionaryCache = new(keyValuePairs, StringComparer.Ordinal);
 
         this.items = dictionaryOriginal.ToList().AsReadOnly();
         keys = dictionaryOriginal.Keys.ToList();
         values = dictionaryOriginal.Values.ToList();
     }
 
-    public static DictionaryReadOnlyStringCaseInsensitive<TValue> Create(Func<TValue, string> keySelector, IEnumerable<TValue> values)
-    {
-        var d = new Dictionary<string, TValue>();
-        foreach (var value in values)
-        {
-            d.Add(keySelector(value), value);
-        }
-        return new DictionaryReadOnlyStringCaseInsensitive<TValue>(d);
-    }
 
-    public TValue this[string key]
-    {
-        get
-        {
-            if (TryGetValue(key, out var val)) // Call this to search for key and build cache
-            {
-                return val;
-            }
-            return dictionaryOriginal[key]; // Should throw exception
-        }
-    }
+    public TValue this[string key] => TryGetValue(key, out var val) ? val : dictionaryOriginal[key];
 
     public IEnumerable<string> Keys => keys;
 
@@ -95,17 +77,15 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
             // Do a hard search
             var itemsFound = new List<KeyValuePair<string, TValue>>();
             var itemsCurrentD = new Dictionary<int, KeyValuePair<string, TValue>>();
-            for (int i = 0; i < items.Count; i++) itemsCurrentD.Add(i, items[i]);
+            for (var i = 0; i < items.Count; i++) itemsCurrentD.Add(i, items[i]);
 
             foreach (var sc in Constant.LIST_StringComparer)
             {
                 foreach (var item in itemsCurrentD.ToArray())
                 {
-                    if (sc.Equals(key, item.Value.Key))
-                    {
-                        itemsFound.Add(item.Value);
-                        itemsCurrentD.Remove(item.Key);
-                    }
+                    if (!sc.Equals(key, item.Value.Key)) continue;
+                    itemsFound.Add(item.Value);
+                    itemsCurrentD.Remove(item.Key);
                 }
             }
 
@@ -125,7 +105,10 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
         }
     }
 
-
-
     IEnumerator IEnumerable.GetEnumerator() => items.GetEnumerator();
+}
+
+public static class DictionaryReadOnlyStringCaseInsensitiveExtensions
+{
+    public static DictionaryReadOnlyStringCaseInsensitive<TValue> ToDictionaryReadOnlyStringCaseInsensitive<TValue>(this IEnumerable<TValue> values, Func<TValue, string> keySelector) => new DictionaryReadOnlyStringCaseInsensitive<TValue>(values.ToDictionary(keySelector));
 }

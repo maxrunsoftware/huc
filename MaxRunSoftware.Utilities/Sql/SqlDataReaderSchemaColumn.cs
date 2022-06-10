@@ -81,10 +81,11 @@ public class SqlDataReaderSchemaColumn
         }
     }
 
-    public static IReadOnlyList<SqlDataReaderSchemaColumn> Create(IDataReader reader)
+    public static IReadOnlyList<SqlDataReaderSchemaColumn> Create(IDataReader reader, bool fullSchemaDetails = true)
     {
         var pairs = SqlDataReaderSchemaColumnBasic.Create(reader).Select(o => new Pair(new WrapperBasic(o))).ToList();
-        var extendeds = SqlDataReaderSchemaColumnExtended.Create(reader).Select(o => new WrapperExtended(o)).ToList();
+        var extendeds = new List<WrapperExtended>();
+        if (fullSchemaDetails) extendeds = SqlDataReaderSchemaColumnExtended.Create(reader).Select(o => new WrapperExtended(o)).ToList();
 
         // Short circuit if no extendeds
         if (extendeds.IsEmpty()) return pairs.Select(o => new SqlDataReaderSchemaColumn(o)).ToList();
@@ -205,8 +206,8 @@ public class SqlDataReaderSchemaColumnExtended
 
         if (dataTable == null) return columns.AsReadOnly();
 
-        var d = new Dictionary<string, DataColumn>();
-        foreach (DataColumn col in dataTable.Columns) d.Add(col.ColumnName, col);
+        var d = dataTable.Columns.Cast<DataColumn>().ToDictionary(col => col.ColumnName);
+
         var cols = new DictionaryReadOnlyStringCaseInsensitive<DataColumn>(d);
 
         var props = ClassReaderWriter.GetProperties(typeof(SqlDataReaderSchemaColumnExtended), canSet: true, isInstance: true).ToList();
@@ -229,9 +230,9 @@ public class SqlDataReaderSchemaColumnExtended
 
     public override string ToString()
     {
-        var props = ClassReaderWriter.GetPropertiesValues(this).Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToStringGuessFormat() ?? ""));
+        var props = ClassReaderWriter.GetPropertiesValues(this).Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToStringGuessFormat() ?? "")).ToList();
 
-        int maxColumnLen = props.Select(o => o.Key.Length).Max() + 2;
+        var maxColumnLen = props.Select(o => o.Key.Length).Max() + 2;
 
         var sb = new StringBuilder();
         sb.AppendLine(GetType().FullNameFormatted() + " {");
