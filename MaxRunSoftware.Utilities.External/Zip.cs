@@ -18,57 +18,56 @@ using System.IO;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class Zip
 {
-    public class Zip
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+    public static void AddFileToZip(FileInfo file, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, int bufferSize, string zipFileName, bool encrypt = false)
     {
-        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        public static void AddFileToZip(FileInfo file, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, int bufferSize, string zipFileName, bool encrypt = false)
+        var entryPath = CleanName(file, baseDirectoryToRemove, false);
+        log.Debug($"Adding: {file.FullName} --> {zipFileName}/{entryPath}");
+        var newEntry = new ZipEntry(entryPath)
         {
-            var entryPath = CleanName(file, baseDirectoryToRemove, false);
-            log.Debug($"Adding: {file.FullName} --> {zipFileName}/{entryPath}");
-            var newEntry = new ZipEntry(entryPath)
-            {
-                DateTime = file.LastWriteTime,
-                Size = file.GetLength()
-            };
-            if (encrypt) newEntry.AESKeySize = 256;
-            zos.PutNextEntry(newEntry);
-            //var buffer = new byte[bufferSize];
-            using (var fs = Util.FileOpenRead(file.FullName))
-            {
-                //StreamUtils.Copy(fs, zos, buffer);
-                var bytes = fs.CopyToWithCount(zos);
-                log.Debug($"Wrote: {file.Name} ({bytes})");
-            }
-            zos.CloseEntry();
-            log.Info($"Added: {file.FullName} --> {zipFileName}/{entryPath}");
-
-
-        }
-
-        public static void AddDirectoryToZip(DirectoryInfo directory, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, string zipFileName, bool encrypt = false)
+            DateTime = file.LastWriteTime,
+            Size = file.GetLength()
+        };
+        if (encrypt) newEntry.AESKeySize = 256;
+        zos.PutNextEntry(newEntry);
+        //var buffer = new byte[bufferSize];
+        using (var fs = Util.FileOpenRead(file.FullName))
         {
-            var entryPath = CleanName(directory, baseDirectoryToRemove, true);
-            log.Debug($"Adding: {directory.FullName} --> {zipFileName}/{entryPath}");
-            var newEntry = new ZipEntry(entryPath)
-            {
-                DateTime = directory.LastWriteTime,
-            };
-            if (encrypt) newEntry.AESKeySize = 256;
-            zos.PutNextEntry(newEntry);
-            zos.CloseEntry();
-            log.Info($"Added: {directory.FullName} --> {zipFileName}/{entryPath}");
+            //StreamUtils.Copy(fs, zos, buffer);
+            var bytes = fs.CopyToWithCount(zos);
+            log.Debug($"Wrote: {file.Name} ({bytes})");
         }
+        zos.CloseEntry();
+        log.Info($"Added: {file.FullName} --> {zipFileName}/{entryPath}");
 
-        private static string CleanName(FileSystemInfo item, DirectoryInfo baseDirectoryToRemove, bool isDirectory)
+
+    }
+
+    public static void AddDirectoryToZip(DirectoryInfo directory, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, string zipFileName, bool encrypt = false)
+    {
+        var entryPath = CleanName(directory, baseDirectoryToRemove, true);
+        log.Debug($"Adding: {directory.FullName} --> {zipFileName}/{entryPath}");
+        var newEntry = new ZipEntry(entryPath)
         {
-            var pathParts = item.RemoveBase(baseDirectoryToRemove);
-            var newPath = pathParts.ToStringDelimited("/");
-            if (isDirectory) newPath = newPath + "/";
-            newPath = ZipEntry.CleanName(newPath);
-            return newPath;
-        }
+            DateTime = directory.LastWriteTime,
+        };
+        if (encrypt) newEntry.AESKeySize = 256;
+        zos.PutNextEntry(newEntry);
+        zos.CloseEntry();
+        log.Info($"Added: {directory.FullName} --> {zipFileName}/{entryPath}");
+    }
+
+    private static string CleanName(FileSystemInfo item, DirectoryInfo baseDirectoryToRemove, bool isDirectory)
+    {
+        var pathParts = item.RemoveBase(baseDirectoryToRemove);
+        var newPath = pathParts.ToStringDelimited("/");
+        if (isDirectory) newPath = newPath + "/";
+        newPath = ZipEntry.CleanName(newPath);
+        return newPath;
     }
 }

@@ -17,20 +17,19 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public interface IFtpClient : IDisposable
 {
-    public interface IFtpClient : IDisposable
-    {
-        string ServerInfo { get; }
+    string ServerInfo { get; }
 
-        string WorkingDirectory { get; }
+    string WorkingDirectory { get; }
 
-        void GetFile(string remoteFile, string localFile);
+    void GetFile(string remoteFile, string localFile);
 
-        void PutFile(string remoteFile, string localFile);
+    void PutFile(string remoteFile, string localFile);
 
-        void DeleteFile(string remoteFile);
+    void DeleteFile(string remoteFile);
 
-        IEnumerable<FtpClientFile> ListFiles(string remotePath);
-    }
+    IEnumerable<FtpClientFile> ListFiles(string remotePath);
 }

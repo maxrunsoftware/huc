@@ -21,153 +21,152 @@ using System.Net;
 using System.Security.Authentication;
 using FluentFTP;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class FtpClientFtp : FtpClientBase
 {
-    public class FtpClientFtp : FtpClientBase
+    private FtpClient _client;
+
+    private FtpClient Client
     {
-        private FtpClient _client;
-
-        private FtpClient Client
-        {
-            get
-            {
-                var c = _client;
-                if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
-                return c;
-            }
-        }
-
-        public override string WorkingDirectory => Client.GetWorkingDirectory();
-
-        public FtpClientFtp(string host, ushort port, string username, string password)
-        {
-            host = host.CheckNotNullTrimmed(nameof(host));
-            port = port.CheckNotZero(nameof(port));
-            username = username.TrimOrNull();
-            password = password.TrimOrNull();
-            if (username == null) username = password = "anonymous";
-            _client = new FtpClient(host, port, new System.Net.NetworkCredential(username, password));
-            log.Debug("Connecting to FTP server " + host + ":" + port + " with username " + username);
-            //FtpTrace.LogPassword = true;
-            //FtpTrace.LogPrefix = true;
-            _client.OnLogEvent = LogMessage;
-            _client.Connect();
-            log.Debug("Connection successful");
-        }
-
-        public FtpClientFtp(string host, ushort port, string username, string password, FtpClientFtpSEncryptionMode encryptionMode, SslProtocols sslProtocols = SslProtocols.None)
-        {
-            host = host.CheckNotNullTrimmed(nameof(host));
-            port = port.CheckNotZero(nameof(port));
-            username = username.TrimOrNull();
-            password = password.TrimOrNull();
-            if (username == null) username = password = "anonymous";
-
-            _client = new FtpClient(host, port, new System.Net.NetworkCredential(username, password));
-            _client.ValidateCertificate += new FtpSslValidation((control, e) => { log.Debug("Cert: " + e.Certificate.GetRawCertDataString()); e.Accept = true; });
-            _client.EncryptionMode = Util.GetEnumItem<FtpEncryptionMode>(encryptionMode.ToString());
-
-            _client.SslProtocols = sslProtocols;
-
-            log.Debug("Connecting to FTPS server " + host + ":" + port + " with username " + username);
-            //FtpTrace.LogPassword = true;
-            //FtpTrace.LogPrefix = true;
-            _client.OnLogEvent = LogMessage;
-            _client.Connect();
-            log.Debug("Connection successful");
-        }
-
-        private void LogMessage(FtpTraceLevel ftpTraceLevel, string message)
-        {
-            var msg = "FTP: " + message;
-            if (ftpTraceLevel == FtpTraceLevel.Verbose) log.Trace(msg);
-            else if (ftpTraceLevel == FtpTraceLevel.Info) log.Debug(msg);
-            else if (ftpTraceLevel == FtpTraceLevel.Warn) log.Warn(msg);
-            else if (ftpTraceLevel == FtpTraceLevel.Error) log.Error(msg);
-        }
-
-        protected override void GetFile(string remoteFile, Stream localStream) => Client.Download(localStream, remoteFile);
-
-        protected override void PutFile(string remoteFile, Stream localStream)
-        {
-            bool success = false;
-            try
-            {
-                Client.Upload(localStream, remoteFile);
-                success = true;
-            }
-            catch (Exception e)
-            {
-                log.Warn("Error putting file using security protocol, retrying with all known security protocols", e);
-            }
-
-            if (!success)
-            {
-                try
-                {
-                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-                    Client.Upload(localStream, remoteFile);
-                }
-                catch (Exception ee)
-                {
-                    log.Error("Error putting file (second time)", ee);
-                    throw;
-                }
-
-            }
-        }
-
-        protected override void ListFiles(string remotePath, List<FtpClientFile> fileList)
-        {
-            foreach (var file in remotePath.TrimOrNull() == null ? Client.GetListing() : Client.GetListing(remotePath))
-            {
-                var name = file.Name;
-                var fullName = file.FullName;
-                if (!fullName.StartsWith("/")) fullName = "/" + fullName;
-
-                var type = FtpClientFileType.Unknown;
-                if (file.Type == FtpFileSystemObjectType.Directory) type = FtpClientFileType.Directory;
-                else if (file.Type == FtpFileSystemObjectType.File) type = FtpClientFileType.File;
-                else if (file.Type == FtpFileSystemObjectType.Link) type = FtpClientFileType.Link;
-
-                fileList.Add(new FtpClientFile(name, fullName, type));
-            }
-        }
-
-        protected override string GetServerInfo() => Client.ServerOS.ToString() + " : " + Client.ServerType.ToString();
-
-        protected override void DeleteFileSingle(string remoteFile)
-        {
-            log.Debug("Deleting remote file: " + remoteFile);
-            Client.DeleteFile(remoteFile);
-        }
-
-        public override void Dispose()
+        get
         {
             var c = _client;
-            _client = null;
+            if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
+            return c;
+        }
+    }
 
-            if (c == null) return;
-            try
-            {
-                c.Disconnect();
-            }
-            catch (Exception e)
-            {
-                log.Warn($"Error disconnecting from server", e);
-            }
+    public override string WorkingDirectory => Client.GetWorkingDirectory();
 
-            try
-            {
-                c.Dispose();
-            }
-            catch (Exception e)
-            {
-                log.Warn($"Error disposing of {c.GetType().FullNameFormatted()}", e);
-            }
+    public FtpClientFtp(string host, ushort port, string username, string password)
+    {
+        host = host.CheckNotNullTrimmed(nameof(host));
+        port = port.CheckNotZero(nameof(port));
+        username = username.TrimOrNull();
+        password = password.TrimOrNull();
+        if (username == null) username = password = "anonymous";
+        _client = new FtpClient(host, port, new System.Net.NetworkCredential(username, password));
+        log.Debug("Connecting to FTP server " + host + ":" + port + " with username " + username);
+        //FtpTrace.LogPassword = true;
+        //FtpTrace.LogPrefix = true;
+        _client.OnLogEvent = LogMessage;
+        _client.Connect();
+        log.Debug("Connection successful");
+    }
+
+    public FtpClientFtp(string host, ushort port, string username, string password, FtpClientFtpSEncryptionMode encryptionMode, SslProtocols sslProtocols = SslProtocols.None)
+    {
+        host = host.CheckNotNullTrimmed(nameof(host));
+        port = port.CheckNotZero(nameof(port));
+        username = username.TrimOrNull();
+        password = password.TrimOrNull();
+        if (username == null) username = password = "anonymous";
+
+        _client = new FtpClient(host, port, new System.Net.NetworkCredential(username, password));
+        _client.ValidateCertificate += new FtpSslValidation((control, e) => { log.Debug("Cert: " + e.Certificate.GetRawCertDataString()); e.Accept = true; });
+        _client.EncryptionMode = Util.GetEnumItem<FtpEncryptionMode>(encryptionMode.ToString());
+
+        _client.SslProtocols = sslProtocols;
+
+        log.Debug("Connecting to FTPS server " + host + ":" + port + " with username " + username);
+        //FtpTrace.LogPassword = true;
+        //FtpTrace.LogPrefix = true;
+        _client.OnLogEvent = LogMessage;
+        _client.Connect();
+        log.Debug("Connection successful");
+    }
+
+    private void LogMessage(FtpTraceLevel ftpTraceLevel, string message)
+    {
+        var msg = "FTP: " + message;
+        if (ftpTraceLevel == FtpTraceLevel.Verbose) log.Trace(msg);
+        else if (ftpTraceLevel == FtpTraceLevel.Info) log.Debug(msg);
+        else if (ftpTraceLevel == FtpTraceLevel.Warn) log.Warn(msg);
+        else if (ftpTraceLevel == FtpTraceLevel.Error) log.Error(msg);
+    }
+
+    protected override void GetFile(string remoteFile, Stream localStream) => Client.Download(localStream, remoteFile);
+
+    protected override void PutFile(string remoteFile, Stream localStream)
+    {
+        bool success = false;
+        try
+        {
+            Client.Upload(localStream, remoteFile);
+            success = true;
+        }
+        catch (Exception e)
+        {
+            log.Warn("Error putting file using security protocol, retrying with all known security protocols", e);
         }
 
-        protected override bool ExistsFile(string remoteFile) => Client.FileExists(remoteFile);
-        protected override bool ExistsDirectory(string remoteDirectory) => Client.DirectoryExists(remoteDirectory);
+        if (!success)
+        {
+            try
+            {
+                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+                Client.Upload(localStream, remoteFile);
+            }
+            catch (Exception ee)
+            {
+                log.Error("Error putting file (second time)", ee);
+                throw;
+            }
+
+        }
     }
+
+    protected override void ListFiles(string remotePath, List<FtpClientFile> fileList)
+    {
+        foreach (var file in remotePath.TrimOrNull() == null ? Client.GetListing() : Client.GetListing(remotePath))
+        {
+            var name = file.Name;
+            var fullName = file.FullName;
+            if (!fullName.StartsWith("/")) fullName = "/" + fullName;
+
+            var type = FtpClientFileType.Unknown;
+            if (file.Type == FtpFileSystemObjectType.Directory) type = FtpClientFileType.Directory;
+            else if (file.Type == FtpFileSystemObjectType.File) type = FtpClientFileType.File;
+            else if (file.Type == FtpFileSystemObjectType.Link) type = FtpClientFileType.Link;
+
+            fileList.Add(new FtpClientFile(name, fullName, type));
+        }
+    }
+
+    protected override string GetServerInfo() => Client.ServerOS.ToString() + " : " + Client.ServerType.ToString();
+
+    protected override void DeleteFileSingle(string remoteFile)
+    {
+        log.Debug("Deleting remote file: " + remoteFile);
+        Client.DeleteFile(remoteFile);
+    }
+
+    public override void Dispose()
+    {
+        var c = _client;
+        _client = null;
+
+        if (c == null) return;
+        try
+        {
+            c.Disconnect();
+        }
+        catch (Exception e)
+        {
+            log.Warn($"Error disconnecting from server", e);
+        }
+
+        try
+        {
+            c.Dispose();
+        }
+        catch (Exception e)
+        {
+            log.Warn($"Error disposing of {c.GetType().FullNameFormatted()}", e);
+        }
+    }
+
+    protected override bool ExistsFile(string remoteFile) => Client.FileExists(remoteFile);
+    protected override bool ExistsDirectory(string remoteDirectory) => Client.DirectoryExists(remoteDirectory);
 }

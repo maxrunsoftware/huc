@@ -17,47 +17,45 @@ limitations under the License.
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class VMwareDatastore : VMwareObject
 {
-    public class VMwareDatastore : VMwareObject
+    public string Name { get; }
+    public string Datastore { get; }
+    public string Type { get; }
+    public long? FreeSpace { get; }
+    public long? Capacity { get; }
+    public long? Used => FreeSpace == null || Capacity == null ? null : Capacity.Value - FreeSpace.Value;
+    public byte? PercentFree => FreeSpace == null || Capacity == null ? null : (byte)((double)FreeSpace.Value / (double)Capacity.Value * (double)100);
+    public byte? PercentUsed => PercentFree == null ? null : (byte)((double)100 - (double)PercentFree.Value);
+
+    public bool? Accessible { get; }
+    public bool? MultipleHostAccess { get; }
+    public bool? ThinProvisioningSupported { get; }
+
+    public VMwareDatastore(VMwareClient vmware, JToken obj)
     {
-        public string Name { get; }
-        public string Datastore { get; }
-        public string Type { get; }
-        public long? FreeSpace { get; }
-        public long? Capacity { get; }
-        public long? Used => FreeSpace == null || Capacity == null ? null : Capacity.Value - FreeSpace.Value;
-        public byte? PercentFree => FreeSpace == null || Capacity == null ? null : (byte)((double)FreeSpace.Value / (double)Capacity.Value * (double)100);
-        public byte? PercentUsed => PercentFree == null ? null : (byte)((double)100 - (double)PercentFree.Value);
+        Name = obj.ToString("name");
+        Datastore = obj.ToString("datastore");
+        Type = obj.ToString("type");
+        FreeSpace = obj.ToLong("free_space");
+        Capacity = obj.ToLong("capacity");
 
-        public bool? Accessible { get; }
-        public bool? MultipleHostAccess { get; }
-        public bool? ThinProvisioningSupported { get; }
-
-        public VMwareDatastore(VMwareClient vmware, JToken obj)
+        obj = QueryValueObjectSafe(vmware, "/rest/vcenter/datastore/" + Datastore);
+        if (obj != null)
         {
-            Name = obj.ToString("name");
-            Datastore = obj.ToString("datastore");
-            Type = obj.ToString("type");
-            FreeSpace = obj.ToLong("free_space");
-            Capacity = obj.ToLong("capacity");
-
-            obj = QueryValueObjectSafe(vmware, "/rest/vcenter/datastore/" + Datastore);
-            if (obj != null)
-            {
-                Accessible = obj.ToBool("accessible");
-                MultipleHostAccess = obj.ToBool("multiple_host_access");
-                ThinProvisioningSupported = obj.ToBool("thin_provisioning_supported");
-            }
-        }
-
-        public static IEnumerable<VMwareDatastore> Query(VMwareClient vmware)
-        {
-            foreach (var obj in vmware.GetValueArray("/rest/vcenter/datastore"))
-            {
-                yield return new VMwareDatastore(vmware, obj);
-            }
+            Accessible = obj.ToBool("accessible");
+            MultipleHostAccess = obj.ToBool("multiple_host_access");
+            ThinProvisioningSupported = obj.ToBool("thin_provisioning_supported");
         }
     }
 
+    public static IEnumerable<VMwareDatastore> Query(VMwareClient vmware)
+    {
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/datastore"))
+        {
+            yield return new VMwareDatastore(vmware, obj);
+        }
+    }
 }

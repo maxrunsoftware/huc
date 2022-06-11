@@ -18,133 +18,109 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+/// <summary>
+/// Holds a byte[] or string attribute value, which can then be converted to whatever format is required
+/// </summary>
+public class LdapEntryAttributeValue
 {
-    /// <summary>
-    /// Holds a byte[] or string attribute value, which can then be converted to whatever format is required
-    /// </summary>
-    public class LdapEntryAttributeValue
+    public byte[] Bytes { get; }
+    public string String { get; }
+    public uint? UInt => String != null && uint.TryParse(String, out var o) ? o : (uint?)null;
+    public int? Int => String != null && int.TryParse(String, out var o) ? o : (int?)null;
+    public long? Long => String != null && long.TryParse(String, out var o) ? o : (long?)null;
+    public bool? Bool => String != null && String.ToBoolNullableTry(out var o) ? o : null;
+
+    public DateTime? DateTimeUtc
     {
-        public byte[] Bytes { get; }
-        public string String { get; }
-        public uint? UInt => String != null && uint.TryParse(String, out var o) ? o : (uint?)null;
-        public int? Int => String != null && int.TryParse(String, out var o) ? o : (int?)null;
-        public long? Long => String != null && long.TryParse(String, out var o) ? o : (long?)null;
-        public bool? Bool => String != null && String.ToBoolNullableTry(out var o) ? o : null;
-
-        public DateTime? DateTimeUtc
+        get
         {
-            get
+            var s = String;
+            if (s == null) return null;
+            if (s.EndsWith("Z") || s.EndsWith("z"))
             {
-                var s = String;
-                if (s == null) return null;
-                if (s.EndsWith("Z") || s.EndsWith("z"))
+                if (DateTime.TryParseExact(s, "yyyyMMddHHmmss.0Z", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var dt))
                 {
-                    if (DateTime.TryParseExact(s, "yyyyMMddHHmmss.0Z", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var dt))
-                    {
-                        return dt.ToUniversalTime();
-                    }
+                    return dt.ToUniversalTime();
                 }
-                if (Long != null)
+            }
+            if (Long != null)
+            {
+                var l = Long.Value;
+                try
                 {
-                    var l = Long.Value;
-                    try
+                    if (l == long.MaxValue)
                     {
-                        if (l == long.MaxValue)
-                        {
-                            return DateTime.MaxValue.ToUniversalTime();
-                        }
-
-                        if (Long.Value == 0)
-                        {
-                            return DateTime.MinValue.ToUniversalTime();
-                        }
-
-                        var ft = DateTime.FromFileTimeUtc(Long.Value);
-                        return ft;
+                        return DateTime.MaxValue.ToUniversalTime();
                     }
-                    catch { }
+
+                    if (Long.Value == 0)
+                    {
+                        return DateTime.MinValue.ToUniversalTime();
+                    }
+
+                    var ft = DateTime.FromFileTimeUtc(Long.Value);
+                    return ft;
                 }
-                return null;
+                catch { }
             }
-        }
-
-        private LdapEntryAttributeValue(byte[] bytes, string str)
-        {
-            Bytes = bytes;
-            String = str;
-        }
-
-        public static IEnumerable<LdapEntryAttributeValue> Parse(System.DirectoryServices.Protocols.DirectoryAttribute attribute)
-        {
-            foreach (var obj in attribute)
-            {
-                var leav = Parse(obj);
-                if (leav != null) yield return leav;
-            }
-        }
-
-        public static LdapEntryAttributeValue Parse(object obj)
-        {
-            if (obj == null) return null;
-            if (obj is string str)
-            {
-                var s = str.TrimOrNull();
-                if (s == null) return null; // Empty value string, don't return anything
-                var bytes = Encoding.UTF8.GetBytes(s);
-                return new LdapEntryAttributeValue(bytes, s);
-            }
-            else if (obj is Uri uri)
-            {
-                var s = uri.ToString().TrimOrNull();
-                if (s == null) return null; // Empty value URI, don't return anything
-                var bytes = Encoding.UTF8.GetBytes(s);
-                return new LdapEntryAttributeValue(bytes, s);
-            }
-            else if (obj is byte[] b)
-            {
-                string s = null;
-                if (b == null) return null; // null byte[], don't return anything
-                if (b.IsValidUTF8()) s = Encoding.UTF8.GetString(b); // If it is a valid string convert it to a string
-                return new LdapEntryAttributeValue(b, s);
-            }
-            else
-            {
-                throw new ArgumentException("Unable to parse type: " + obj.GetType().FullNameFormatted());
-            }
-        }
-
-        public override string ToString()
-        {
-            if (DateTimeUtc != null && DateTimeUtc != DateTime.MinValue.ToUniversalTime()) return DateTimeUtc.Value.ToStringISO8601();
-            if (Int != null) return Int.ToString();
-            if (UInt != null) return UInt.ToString();
-            if (Long != null) return Long.ToString();
-            if (String != null) return String;
-            return Bytes.ToStringGuessFormat();
+            return null;
         }
     }
 
+    private LdapEntryAttributeValue(byte[] bytes, string str)
+    {
+        Bytes = bytes;
+        String = str;
+    }
 
+    public static IEnumerable<LdapEntryAttributeValue> Parse(System.DirectoryServices.Protocols.DirectoryAttribute attribute)
+    {
+        foreach (var obj in attribute)
+        {
+            var leav = Parse(obj);
+            if (leav != null) yield return leav;
+        }
+    }
 
+    public static LdapEntryAttributeValue Parse(object obj)
+    {
+        if (obj == null) return null;
+        if (obj is string str)
+        {
+            var s = str.TrimOrNull();
+            if (s == null) return null; // Empty value string, don't return anything
+            var bytes = Encoding.UTF8.GetBytes(s);
+            return new LdapEntryAttributeValue(bytes, s);
+        }
+        else if (obj is Uri uri)
+        {
+            var s = uri.ToString().TrimOrNull();
+            if (s == null) return null; // Empty value URI, don't return anything
+            var bytes = Encoding.UTF8.GetBytes(s);
+            return new LdapEntryAttributeValue(bytes, s);
+        }
+        else if (obj is byte[] b)
+        {
+            string s = null;
+            if (b == null) return null; // null byte[], don't return anything
+            if (b.IsValidUTF8()) s = Encoding.UTF8.GetString(b); // If it is a valid string convert it to a string
+            return new LdapEntryAttributeValue(b, s);
+        }
+        else
+        {
+            throw new ArgumentException("Unable to parse type: " + obj.GetType().FullNameFormatted());
+        }
+    }
 
-
-
-
+    public override string ToString()
+    {
+        if (DateTimeUtc != null && DateTimeUtc != DateTime.MinValue.ToUniversalTime()) return DateTimeUtc.Value.ToStringISO8601();
+        if (Int != null) return Int.ToString();
+        if (UInt != null) return UInt.ToString();
+        if (Long != null) return Long.ToString();
+        if (String != null) return String;
+        return Bytes.ToStringGuessFormat();
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

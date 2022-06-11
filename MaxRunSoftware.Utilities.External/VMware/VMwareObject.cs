@@ -24,88 +24,86 @@ using System.Text;
 using System.Text.Json;
 using Newtonsoft.Json.Linq;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public abstract class VMwareObject
 {
-    public abstract class VMwareObject
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+    public JToken QueryValueObjectSafe(VMwareClient vmware, string path)
     {
-        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        public JToken QueryValueObjectSafe(VMwareClient vmware, string path)
+        try
         {
-            try
-            {
-                return vmware.GetValue(path);
-            }
-            catch (Exception e)
-            {
-                log.Warn("Error querying " + path, e);
-            }
-            return null;
+            return vmware.GetValue(path);
         }
-
-        public IEnumerable<JToken> QueryValueArraySafe(VMwareClient vmware, string path)
+        catch (Exception e)
         {
-            try
-            {
-                return vmware.GetValueArray(path);
-            }
-            catch (Exception e)
-            {
-                log.Warn("Error querying " + path, e);
-            }
-            return Array.Empty<JObject>();
+            log.Warn("Error querying " + path, e);
         }
-
-        protected PropertyInfo[] GetProperties()
-        {
-            var list = new List<PropertyInfo>();
-            foreach (var prop in GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
-            {
-                if (!prop.CanRead) continue;
-                list.Add(prop);
-            }
-            return list.OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToArray();
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine(GetType().NameFormatted());
-
-            foreach (var property in ClassReaderWriter.GetProperties(GetType(), isInstance: true, canGet: true))
-            {
-                var val = property.GetValue(this);
-                if (val == null)
-                {
-                    sb.AppendLine("  " + property.Name + ": ");
-                }
-                else if (val is string)
-                {
-                    sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
-                }
-                else if (val is IEnumerable)
-                {
-                    int count = 0;
-                    foreach (var item in (IEnumerable)val)
-                    {
-                        var vitem = (VMwareObject)item;
-                        var vItemType = vitem.GetType();
-                        sb.AppendLine("  " + vItemType.NameFormatted() + "[" + count + "]");
-                        foreach (var prop in ClassReaderWriter.GetProperties(vItemType, canGet: true, isInstance: true))
-                        {
-                            sb.AppendLine("    " + prop.Name + ": " + prop.GetValue(vitem).ToStringGuessFormat());
-                        }
-                        count++;
-                    }
-                }
-                else
-                {
-                    sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
-                }
-            }
-
-            return sb.ToString();
-        }
+        return null;
     }
 
+    public IEnumerable<JToken> QueryValueArraySafe(VMwareClient vmware, string path)
+    {
+        try
+        {
+            return vmware.GetValueArray(path);
+        }
+        catch (Exception e)
+        {
+            log.Warn("Error querying " + path, e);
+        }
+        return Array.Empty<JObject>();
+    }
+
+    protected PropertyInfo[] GetProperties()
+    {
+        var list = new List<PropertyInfo>();
+        foreach (var prop in GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+        {
+            if (!prop.CanRead) continue;
+            list.Add(prop);
+        }
+        return list.OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToArray();
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine(GetType().NameFormatted());
+
+        foreach (var property in ClassReaderWriter.GetProperties(GetType(), isInstance: true, canGet: true))
+        {
+            var val = property.GetValue(this);
+            if (val == null)
+            {
+                sb.AppendLine("  " + property.Name + ": ");
+            }
+            else if (val is string)
+            {
+                sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
+            }
+            else if (val is IEnumerable)
+            {
+                int count = 0;
+                foreach (var item in (IEnumerable)val)
+                {
+                    var vitem = (VMwareObject)item;
+                    var vItemType = vitem.GetType();
+                    sb.AppendLine("  " + vItemType.NameFormatted() + "[" + count + "]");
+                    foreach (var prop in ClassReaderWriter.GetProperties(vItemType, canGet: true, isInstance: true))
+                    {
+                        sb.AppendLine("    " + prop.Name + ": " + prop.GetValue(vitem).ToStringGuessFormat());
+                    }
+                    count++;
+                }
+            }
+            else
+            {
+                sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
+            }
+        }
+
+        return sb.ToString();
+    }
 }

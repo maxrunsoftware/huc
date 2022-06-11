@@ -14,7 +14,6 @@
 // limitations under the License.
 // */
 
-namespace MaxRunSoftware.Utilities.External
-{
-    public enum WebBrowserType { Chrome, Edge, Firefox, InternetExplorer, Opera }
-}
+namespace MaxRunSoftware.Utilities.External;
+
+public enum WebBrowserType { Chrome, Edge, Firefox, InternetExplorer, Opera }

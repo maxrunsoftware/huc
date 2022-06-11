@@ -17,39 +17,37 @@ limitations under the License.
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class VMwareDatacenter : VMwareObject
 {
-    public class VMwareDatacenter : VMwareObject
+    public string Name { get; }
+    public string Datacenter { get; }
+    public string DatastoreFolder { get; }
+    public string HostFolder { get; }
+    public string NetworkFolder { get; }
+    public string VMFolder { get; }
+
+    public VMwareDatacenter(VMwareClient vmware, JToken obj)
     {
-        public string Name { get; }
-        public string Datacenter { get; }
-        public string DatastoreFolder { get; }
-        public string HostFolder { get; }
-        public string NetworkFolder { get; }
-        public string VMFolder { get; }
+        Name = obj.ToString("name");
+        Datacenter = obj.ToString("datacenter");
 
-        public VMwareDatacenter(VMwareClient vmware, JToken obj)
+        obj = QueryValueObjectSafe(vmware, "/rest/vcenter/datacenter/" + Datacenter);
+        if (obj != null)
         {
-            Name = obj.ToString("name");
-            Datacenter = obj.ToString("datacenter");
-
-            obj = QueryValueObjectSafe(vmware, "/rest/vcenter/datacenter/" + Datacenter);
-            if (obj != null)
-            {
-                DatastoreFolder = obj.ToString("datastore_folder");
-                HostFolder = obj.ToString("host_folder");
-                NetworkFolder = obj.ToString("network_folder");
-                VMFolder = obj.ToString("vm_folder");
-            }
-        }
-
-        public static IEnumerable<VMwareDatacenter> Query(VMwareClient vmware)
-        {
-            foreach (var obj in vmware.GetValueArray("/rest/vcenter/datacenter"))
-            {
-                yield return new VMwareDatacenter(vmware, obj);
-            }
+            DatastoreFolder = obj.ToString("datastore_folder");
+            HostFolder = obj.ToString("host_folder");
+            NetworkFolder = obj.ToString("network_folder");
+            VMFolder = obj.ToString("vm_folder");
         }
     }
 
+    public static IEnumerable<VMwareDatacenter> Query(VMwareClient vmware)
+    {
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/datacenter"))
+        {
+            yield return new VMwareDatacenter(vmware, obj);
+        }
+    }
 }

@@ -17,26 +17,24 @@ limitations under the License.
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class VMwareResourcePool : VMwareObject
 {
-    public class VMwareResourcePool : VMwareObject
+    public string Name { get; }
+    public string ResourcePool { get; }
+
+    public VMwareResourcePool(VMwareClient vmware, JToken obj)
     {
-        public string Name { get; }
-        public string ResourcePool { get; }
-
-        public VMwareResourcePool(VMwareClient vmware, JToken obj)
-        {
-            Name = obj.ToString("name");
-            ResourcePool = obj.ToString("resource_pool");
-        }
-
-        public static IEnumerable<VMwareResourcePool> Query(VMwareClient vmware)
-        {
-            foreach (var obj in vmware.GetValueArray("/rest/vcenter/resource-pool"))
-            {
-                yield return new VMwareResourcePool(vmware, obj);
-            }
-        }
+        Name = obj.ToString("name");
+        ResourcePool = obj.ToString("resource_pool");
     }
 
+    public static IEnumerable<VMwareResourcePool> Query(VMwareClient vmware)
+    {
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/resource-pool"))
+        {
+            yield return new VMwareResourcePool(vmware, obj);
+        }
+    }
 }

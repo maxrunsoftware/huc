@@ -17,28 +17,26 @@ limitations under the License.
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class VMwareFolder : VMwareObject
 {
-    public class VMwareFolder : VMwareObject
+    public string Name { get; }
+    public string Folder { get; }
+    public string Type { get; }
+
+    public VMwareFolder(VMwareClient vmware, JToken obj)
     {
-        public string Name { get; }
-        public string Folder { get; }
-        public string Type { get; }
-
-        public VMwareFolder(VMwareClient vmware, JToken obj)
-        {
-            Name = obj.ToString("name");
-            Folder = obj.ToString("folder");
-            Type = obj.ToString("type");
-        }
-
-        public static IEnumerable<VMwareFolder> Query(VMwareClient vmware)
-        {
-            foreach (var obj in vmware.GetValueArray("/rest/vcenter/folder"))
-            {
-                yield return new VMwareFolder(vmware, obj);
-            }
-        }
+        Name = obj.ToString("name");
+        Folder = obj.ToString("folder");
+        Type = obj.ToString("type");
     }
 
+    public static IEnumerable<VMwareFolder> Query(VMwareClient vmware)
+    {
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/folder"))
+        {
+            yield return new VMwareFolder(vmware, obj);
+        }
+    }
 }

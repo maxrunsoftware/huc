@@ -16,12 +16,10 @@ limitations under the License.
 
 using Microsoft.Win32.TaskScheduler;
 
-namespace MaxRunSoftware.Utilities.External
-{
-    public static class WindowsTaskSchedulerExtensions
-    {
-        public static WindowsTaskSchedulerPath GetPath(this Task task) => new WindowsTaskSchedulerPath(task);
-        public static WindowsTaskSchedulerPath GetPath(this TaskFolder folder) => new WindowsTaskSchedulerPath(folder);
-    }
+namespace MaxRunSoftware.Utilities.External;
 
+public static class WindowsTaskSchedulerExtensions
+{
+    public static WindowsTaskSchedulerPath GetPath(this Task task) => new WindowsTaskSchedulerPath(task);
+    public static WindowsTaskSchedulerPath GetPath(this TaskFolder folder) => new WindowsTaskSchedulerPath(folder);
 }

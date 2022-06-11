@@ -14,36 +14,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class FtpClientFile
 {
-    public class FtpClientFile
+    public string Name { get; }
+
+    public string FullName { get; }
+
+    public FtpClientFileType Type { get; }
+
+    public FtpClientFile(string name, string fullName, FtpClientFileType type)
     {
-        public string Name { get; }
+        Name = name;
+        FullName = fullName;
+        Type = type;
+    }
 
-        public string FullName { get; }
-
-        public FtpClientFileType Type { get; }
-
-        public FtpClientFile(string name, string fullName, FtpClientFileType type)
-        {
-            Name = name;
-            FullName = fullName;
-            Type = type;
-        }
-
-        /// <summary>
-        /// Checks to see if our FullName matches a pathOrPattern value.
-        /// if FullName=/dir1/file1.txt  pathOrPattern=/*/file?.txt  isCaseSensitive=true  IsMatch=true
-        /// if FullName=/dir1/file1.txt  pathOrPattern=/*/FILE?.TXT  isCaseSensitive=true  IsMatch=false
-        /// </summary>
-        /// <param name="pathOrPattern"></param>
-        /// <param name="isCaseSensitive"></param>
-        /// <returns></returns>
-        public bool IsMatch(string pathOrPattern, bool isCaseSensitive)
-        {
-            pathOrPattern = pathOrPattern.CheckNotNullTrimmed(nameof(pathOrPattern));
-            var source = pathOrPattern.StartsWith("/") ? FullName : Name;
-            return source.EqualsWildcard(pathOrPattern, !isCaseSensitive);
-        }
+    /// <summary>
+    /// Checks to see if our FullName matches a pathOrPattern value.
+    /// if FullName=/dir1/file1.txt  pathOrPattern=/*/file?.txt  isCaseSensitive=true  IsMatch=true
+    /// if FullName=/dir1/file1.txt  pathOrPattern=/*/FILE?.TXT  isCaseSensitive=true  IsMatch=false
+    /// </summary>
+    /// <param name="pathOrPattern"></param>
+    /// <param name="isCaseSensitive"></param>
+    /// <returns></returns>
+    public bool IsMatch(string pathOrPattern, bool isCaseSensitive)
+    {
+        pathOrPattern = pathOrPattern.CheckNotNullTrimmed(nameof(pathOrPattern));
+        var source = pathOrPattern.StartsWith("/") ? FullName : Name;
+        return source.EqualsWildcard(pathOrPattern, !isCaseSensitive);
     }
 }

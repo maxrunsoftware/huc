@@ -16,67 +16,66 @@
 using System;
 using OpenQA.Selenium;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public static class WebBrowserExtensions
 {
-    public static class WebBrowserExtensions
+    public static string GetId(this IWebElement element)
     {
-        public static string GetId(this IWebElement element)
+        // TODO: All kinds of potential performance issues with this.
+        var namesId = new string[] { "id", "Id", "ID", "iD" };
+        for (int i = 0; i < namesId.Length; i++)
         {
-            // TODO: All kinds of potential performance issues with this.
-            var namesId = new string[] { "id", "Id", "ID", "iD" };
-            for (int i = 0; i < namesId.Length; i++)
-            {
-                var val = element.GetDomAttribute(namesId[i]).TrimOrNull();
-                if (val != null) return val;
-            }
-            for (int i = 0; i < namesId.Length; i++)
-            {
-                var val = element.GetAttribute(namesId[i]).TrimOrNull();
-                if (val != null) return val;
-            }
-            return null;
+            var val = element.GetDomAttribute(namesId[i]).TrimOrNull();
+            if (val != null) return val;
         }
-
-        public static string GetName(this IWebElement element)
+        for (int i = 0; i < namesId.Length; i++)
         {
-            // TODO: All kinds of potential performance issues with this.
-            var namesId = new string[] { "name", "Name", "NAME" };
-            for (int i = 0; i < namesId.Length; i++)
-            {
-                var val = element.GetDomAttribute(namesId[i]).TrimOrNull();
-                if (val != null) return val;
-            }
-            for (int i = 0; i < namesId.Length; i++)
-            {
-                var val = element.GetAttribute(namesId[i]).TrimOrNull();
-                if (val != null) return val;
-            }
-            return null;
+            var val = element.GetAttribute(namesId[i]).TrimOrNull();
+            if (val != null) return val;
         }
+        return null;
+    }
 
-        public static string GetClassName(this IWebElement element)
+    public static string GetName(this IWebElement element)
+    {
+        // TODO: All kinds of potential performance issues with this.
+        var namesId = new string[] { "name", "Name", "NAME" };
+        for (int i = 0; i < namesId.Length; i++)
         {
-            // TODO: All kinds of potential performance issues with this.
-            var namesClass = new string[] { "class", "Class", "CLASS", "classname", "className", "Classname", "ClassName", "CLASSNAME" };
-            for (int i = 0; i < namesClass.Length; i++)
-            {
-                var val = element.GetDomAttribute(namesClass[i]).TrimOrNull();
-                if (val != null) return val;
-            }
-            for (int i = 0; i < namesClass.Length; i++)
-            {
-                var val = element.GetAttribute(namesClass[i]).TrimOrNull();
-                if (val != null) return val;
-            }
-            return null;
+            var val = element.GetDomAttribute(namesId[i]).TrimOrNull();
+            if (val != null) return val;
         }
-
-        public static string[] GetClassNames(this IWebElement element)
+        for (int i = 0; i < namesId.Length; i++)
         {
-            var v = GetClassName(element);
-            if (v == null) return Array.Empty<string>();
-
-            return v.Split(' ').TrimOrNull().WhereNotNull();
+            var val = element.GetAttribute(namesId[i]).TrimOrNull();
+            if (val != null) return val;
         }
+        return null;
+    }
+
+    public static string GetClassName(this IWebElement element)
+    {
+        // TODO: All kinds of potential performance issues with this.
+        var namesClass = new string[] { "class", "Class", "CLASS", "classname", "className", "Classname", "ClassName", "CLASSNAME" };
+        for (int i = 0; i < namesClass.Length; i++)
+        {
+            var val = element.GetDomAttribute(namesClass[i]).TrimOrNull();
+            if (val != null) return val;
+        }
+        for (int i = 0; i < namesClass.Length; i++)
+        {
+            var val = element.GetAttribute(namesClass[i]).TrimOrNull();
+            if (val != null) return val;
+        }
+        return null;
+    }
+
+    public static string[] GetClassNames(this IWebElement element)
+    {
+        var v = GetClassName(element);
+        if (v == null) return Array.Empty<string>();
+
+        return v.Split(' ').TrimOrNull().WhereNotNull();
     }
 }

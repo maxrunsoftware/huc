@@ -18,93 +18,76 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class ActiveDirectoryObjectCache
 {
-    public class ActiveDirectoryObjectCache
+    private static readonly IEnumerable<ActiveDirectoryObject> EMPTY = Enumerable.Empty<ActiveDirectoryObject>();
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+    private readonly Dictionary<string, List<ActiveDirectoryObject>> cache = new Dictionary<string, List<ActiveDirectoryObject>>(StringComparer.OrdinalIgnoreCase);
+
+    public void Add(string filter, IEnumerable<ActiveDirectoryObject> activeDirectoryObjects, LdapQueryConfig queryConfig)
     {
-        private static readonly IEnumerable<ActiveDirectoryObject> EMPTY = Enumerable.Empty<ActiveDirectoryObject>();
-        private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        var hc = queryConfig.GetHashCode().ToString();
+        var queryKey = (filter ?? string.Empty) + hc;
+        var objs = activeDirectoryObjects.OrEmpty().ToList();
+        Add(queryKey, objs);
 
-        private readonly Dictionary<string, List<ActiveDirectoryObject>> cache = new Dictionary<string, List<ActiveDirectoryObject>>(StringComparer.OrdinalIgnoreCase);
-
-        public void Add(string filter, IEnumerable<ActiveDirectoryObject> activeDirectoryObjects, LdapQueryConfig queryConfig)
+        foreach (var obj in objs)
         {
-            var hc = queryConfig.GetHashCode().ToString();
-            var queryKey = (filter ?? string.Empty) + hc;
-            var objs = activeDirectoryObjects.OrEmpty().ToList();
-            Add(queryKey, objs);
-
-            foreach (var obj in objs)
+            var distinguishedName = obj.DistinguishedName;
+            if (distinguishedName != null)
             {
-                var distinguishedName = obj.DistinguishedName;
-                if (distinguishedName != null)
-                {
-                    var key = nameof(ActiveDirectoryObject.DistinguishedName);
-                    var val = distinguishedName;
-                    Add($"({key}={val})" + hc, obj);
-                }
+                var key = nameof(ActiveDirectoryObject.DistinguishedName);
+                var val = distinguishedName;
+                Add($"({key}={val})" + hc, obj);
+            }
 
-                var objectGuid = obj.ObjectGUID;
-                if (!objectGuid.Equals(Guid.Empty))
-                {
-                    var key = nameof(ActiveDirectoryObject.ObjectGUID);
-                    var val = Ldap.Guid2String(objectGuid);
-                    Add($"({key}={val})" + hc, obj);
-                }
+            var objectGuid = obj.ObjectGUID;
+            if (!objectGuid.Equals(Guid.Empty))
+            {
+                var key = nameof(ActiveDirectoryObject.ObjectGUID);
+                var val = Ldap.Guid2String(objectGuid);
+                Add($"({key}={val})" + hc, obj);
+            }
 
-                var samAccountName = obj.SAMAccountName;
-                if (samAccountName != null)
-                {
-                    var key = nameof(ActiveDirectoryObject.SAMAccountName);
-                    var val = samAccountName;
-                    Add($"({key}={val})" + hc, obj);
-                }
+            var samAccountName = obj.SAMAccountName;
+            if (samAccountName != null)
+            {
+                var key = nameof(ActiveDirectoryObject.SAMAccountName);
+                var val = samAccountName;
+                Add($"({key}={val})" + hc, obj);
             }
         }
-
-        private void Add(string cacheKey, List<ActiveDirectoryObject> objects)
-        {
-            if (objects.Count == 0) return;
-            else if (objects.Count == 1) log.Trace($"Cache[{cacheKey}]: " + objects.First());
-            else
-            {
-                for (int i = 0; i < objects.Count; i++)
-                {
-                    log.Trace($"Cache[{cacheKey}][{i}]: " + objects[i]);
-                }
-            }
-            cache[cacheKey] = objects;
-        }
-        private void Add(string cacheKey, ActiveDirectoryObject obj) => Add(cacheKey, new List<ActiveDirectoryObject>(1) { obj });
-
-        public IEnumerable<ActiveDirectoryObject> Get(string filter, LdapQueryConfig queryConfig)
-        {
-            var hc = queryConfig.GetHashCode().ToString();
-            var queryKey = (filter ?? string.Empty) + hc;
-
-            if (cache.TryGetValue(queryKey, out var l))
-            {
-                return l;
-            }
-            return null;
-        }
-
-        public void Clear() => cache.Clear();
     }
+
+    private void Add(string cacheKey, List<ActiveDirectoryObject> objects)
+    {
+        if (objects.Count == 0) return;
+        else if (objects.Count == 1) log.Trace($"Cache[{cacheKey}]: " + objects.First());
+        else
+        {
+            for (int i = 0; i < objects.Count; i++)
+            {
+                log.Trace($"Cache[{cacheKey}][{i}]: " + objects[i]);
+            }
+        }
+        cache[cacheKey] = objects;
+    }
+    private void Add(string cacheKey, ActiveDirectoryObject obj) => Add(cacheKey, new List<ActiveDirectoryObject>(1) { obj });
+
+    public IEnumerable<ActiveDirectoryObject> Get(string filter, LdapQueryConfig queryConfig)
+    {
+        var hc = queryConfig.GetHashCode().ToString();
+        var queryKey = (filter ?? string.Empty) + hc;
+
+        if (cache.TryGetValue(queryKey, out var l))
+        {
+            return l;
+        }
+        return null;
+    }
+
+    public void Clear() => cache.Clear();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

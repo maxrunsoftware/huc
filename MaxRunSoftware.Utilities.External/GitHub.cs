@@ -19,35 +19,34 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Octokit;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class GitHub
 {
-    public class GitHub
+    private readonly string username;
+    private readonly string repositoryName;
+    public GitHub(string username, string repositoryName)
     {
-        private readonly string username;
-        private readonly string repositoryName;
-        public GitHub(string username, string repositoryName)
-        {
-            this.username = username.CheckNotNullTrimmed(nameof(username));
-            this.repositoryName = repositoryName.CheckNotNullTrimmed(nameof(repositoryName));
-        }
+        this.username = username.CheckNotNullTrimmed(nameof(username));
+        this.repositoryName = repositoryName.CheckNotNullTrimmed(nameof(repositoryName));
+    }
 
-        public IReadOnlyList<Release> Releases
+    public IReadOnlyList<Release> Releases
+    {
+        get
         {
-            get
-            {
-                // https://api.github.com/repos/maxrunsoftware/huc/releases
-                var releasesTask = Task.Run(async () => await GetReleasesAsync());
-                var releases = releasesTask.Result;
-                return releases;
-            }
+            // https://api.github.com/repos/maxrunsoftware/huc/releases
+            var releasesTask = Task.Run(async () => await GetReleasesAsync());
+            var releases = releasesTask.Result;
+            return releases;
         }
+    }
 
-        private async Task<IReadOnlyList<Release>> GetReleasesAsync()
-        {
-            var client = new GitHubClient(new ProductHeaderValue(username));
+    private async Task<IReadOnlyList<Release>> GetReleasesAsync()
+    {
+        var client = new GitHubClient(new ProductHeaderValue(username));
 
-            var result = await client.Repository.Release.GetAll(username, repositoryName);
-            return result;
-        }
+        var result = await client.Repository.Release.GetAll(username, repositoryName);
+        return result;
     }
 }

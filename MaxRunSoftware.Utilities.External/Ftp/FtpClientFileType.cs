@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-namespace MaxRunSoftware.Utilities.External
-{
-    public enum FtpClientFileType { Unknown, Directory, File, Link }
-}
+namespace MaxRunSoftware.Utilities.External;
+
+public enum FtpClientFileType { Unknown, Directory, File, Link }

@@ -14,58 +14,41 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+/// <summary>
+/// GroupType enumerates the type of group objects in Active Directory.
+/// </summary>
+public enum ActiveDirectoryGroupType : int
 {
     /// <summary>
-    /// GroupType enumerates the type of group objects in Active Directory.
+    /// Specifies a group that can contain accounts from the domain and other global
+    /// groups from the same domain. This type of group can be exported to a different
+    /// domain.
     /// </summary>
-    public enum ActiveDirectoryGroupType : int
-    {
-        /// <summary>
-        /// Specifies a group that can contain accounts from the domain and other global
-        /// groups from the same domain. This type of group can be exported to a different
-        /// domain.
-        /// </summary>
-        GlobalDistributionGroup = 2,
+    GlobalDistributionGroup = 2,
 
-        /// <summary>
-        /// Specifies a group that can contain accounts from any domain, other domain
-        /// local groups from the same domain, global groups from any domain, and
-        /// universal groups. This type of group should not be included in access-control
-        /// lists of resouces in other domains. This type of group is intended for use
-        /// with the LDAP provider.
-        /// </summary>
-        LocalDistributionGroup = 4,
+    /// <summary>
+    /// Specifies a group that can contain accounts from any domain, other domain
+    /// local groups from the same domain, global groups from any domain, and
+    /// universal groups. This type of group should not be included in access-control
+    /// lists of resouces in other domains. This type of group is intended for use
+    /// with the LDAP provider.
+    /// </summary>
+    LocalDistributionGroup = 4,
 
-        /// <summary>
-        /// Specifies a group that can contain accounts from any domain, global
-        /// groups from any domain, and other universal groups. This type of group
-        /// cannot contain domain local groups.
-        /// </summary>
-        UniversalDistributionGroup = 8,
+    /// <summary>
+    /// Specifies a group that can contain accounts from any domain, global
+    /// groups from any domain, and other universal groups. This type of group
+    /// cannot contain domain local groups.
+    /// </summary>
+    UniversalDistributionGroup = 8,
 
-        GlobalSecurityGroup = -2147483646,
+    GlobalSecurityGroup = -2147483646,
 
-        LocalSecurityGroup = -2147483644,
+    LocalSecurityGroup = -2147483644,
 
-        BuiltInGroup = -2147483643,
+    BuiltInGroup = -2147483643,
 
-        UniversalSecurityGroup = -2147483640
-    }
+    UniversalSecurityGroup = -2147483640
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

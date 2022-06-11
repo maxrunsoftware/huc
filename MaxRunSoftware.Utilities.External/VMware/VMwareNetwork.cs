@@ -17,28 +17,26 @@ limitations under the License.
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace MaxRunSoftware.Utilities.External
+namespace MaxRunSoftware.Utilities.External;
+
+public class VMwareNetwork : VMwareObject
 {
-    public class VMwareNetwork : VMwareObject
+    public string Name { get; }
+    public string Network { get; }
+    public string Type { get; }
+
+    public VMwareNetwork(VMwareClient vmware, JToken obj)
     {
-        public string Name { get; }
-        public string Network { get; }
-        public string Type { get; }
-
-        public VMwareNetwork(VMwareClient vmware, JToken obj)
-        {
-            Name = obj.ToString("name");
-            Network = obj.ToString("network");
-            Type = obj.ToString("type");
-        }
-
-        public static IEnumerable<VMwareNetwork> Query(VMwareClient vmware)
-        {
-            foreach (var obj in vmware.GetValueArray("/rest/vcenter/network"))
-            {
-                yield return new VMwareNetwork(vmware, obj);
-            }
-        }
+        Name = obj.ToString("name");
+        Network = obj.ToString("network");
+        Type = obj.ToString("type");
     }
 
+    public static IEnumerable<VMwareNetwork> Query(VMwareClient vmware)
+    {
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/network"))
+        {
+            yield return new VMwareNetwork(vmware, obj);
+        }
+    }
 }
