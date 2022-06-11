@@ -33,7 +33,7 @@ public class SqlDataReaderSchemaColumn
         NumericScale = Extended?.NumericScale;
         DataType = Extended?.DataType ?? Basic.FieldType;
         DataTypeName = Extended?.DataTypeName?.TrimOrNull() ?? Basic.DataTypeName.TrimOrNull();
-        IsNullable = Extended?.AllowDBNull;
+        IsNullable = Extended?.AllowDbNull;
     }
     private SqlDataReaderSchemaColumn(Pair pair) : this(pair.basic.basic, pair.extended?.extended) { }
 
@@ -48,16 +48,16 @@ public class SqlDataReaderSchemaColumn
 
     private class Pair
     {
-        public WrapperBasic basic;
+        public readonly WrapperBasic basic;
         public WrapperExtended extended;
         public Pair(WrapperBasic b) => basic = b;
     }
     private class WrapperBasic
     {
-        public SqlDataReaderSchemaColumnBasic basic;
-        public int index;
-        public string name;
-        public Type type;
+        public readonly SqlDataReaderSchemaColumnBasic basic;
+        public readonly int index;
+        public readonly string name;
+        public readonly Type type;
         public WrapperBasic(SqlDataReaderSchemaColumnBasic o)
         {
             basic = o;
@@ -68,10 +68,10 @@ public class SqlDataReaderSchemaColumn
     }
     private class WrapperExtended
     {
-        public SqlDataReaderSchemaColumnExtended extended;
+        public readonly SqlDataReaderSchemaColumnExtended extended;
         public int index;
-        public string name;
-        public Type type;
+        public readonly string name;
+        public readonly Type type;
         public WrapperExtended(SqlDataReaderSchemaColumnExtended o)
         {
             extended = o;
@@ -173,7 +173,7 @@ public class SqlDataReaderSchemaColumnExtended
     public string BaseSchemaName { get; set; }
     public string BaseTableName { get; set; }
     public Type DataType { get; set; }
-    public bool? AllowDBNull { get; set; }
+    public bool? AllowDbNull { get; set; }
     public int? ProviderType { get; set; }
     public bool? IsAliased { get; set; }
     public bool? IsByteSemantic { get; set; }

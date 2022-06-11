@@ -18,6 +18,25 @@ namespace MaxRunSoftware.Utilities;
 
 public abstract class LoggerBase : ILogger
 {
+    private sealed class LoggerNull : LoggerBase
+    {
+        protected override void Log(string message, Exception exception, LogLevel level) {}
+    }
+
+    private sealed class LoggerWrapper : LoggerBase
+    {
+        private readonly Action<string, Exception, LogLevel> action;
+        public LoggerWrapper(Action<string, Exception, LogLevel> action)
+        {
+            this.action = action.CheckNotNull(nameof(action));
+        }
+        protected override void Log(string message, Exception exception, LogLevel level) => action(message, exception, level);
+    }
+
+    public static ILogger Create(Action<string, Exception, LogLevel> action) => new LoggerWrapper(action);
+
+    public static readonly ILogger NULL_LOGGER = new LoggerNull();
+
     protected abstract void Log(string message, Exception exception, LogLevel level);
 
     public void Trace(string message) => Trace(message, null);

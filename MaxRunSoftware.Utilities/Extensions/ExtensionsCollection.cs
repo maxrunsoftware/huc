@@ -951,6 +951,10 @@ public static class ExtensionsCollection
 
     public static bool AddToList<K, V>(this IDictionary<K, List<V>> dictionary, K key, IEnumerable<V> values) => AddToList(dictionary, key, values.ToArray());
 
+    public static void AddRange<K, V>(this IDictionary<K, V> dictionary, IEnumerable<K> keys, V value) => keys.ForEach(o => dictionary.Add(o, value));
+
+    public static void AddRange<K, V>(this IDictionary<K, V> dictionary, V value, params K[] keys) => keys.ForEach(o => dictionary.Add(o, value));
+    
     #endregion Dictionary
 
     #region Set
