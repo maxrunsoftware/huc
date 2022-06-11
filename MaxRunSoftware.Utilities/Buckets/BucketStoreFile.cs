@@ -1,37 +1,37 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
 public class BucketStoreFile : BucketStoreBase<string, string>
 {
     public StringComparer Comparer;
-    public string File { get; }
-    public StringComparison Comparison { get; }
-    public string BucketNameDelimiter { get; }
 
-    public IEnumerable<string> BucketNames => ReadFile().Keys;
-
-    public BucketStoreFile(string file, StringComparison comparison = StringComparison.OrdinalIgnoreCase, string bucketNameDelimiter = ".")
+    public BucketStoreFile(string file, StringComparison comparison = StringComparison.OrdinalIgnoreCase,
+        string bucketNameDelimiter = ".")
     {
         File = Path.GetFullPath(file);
         Comparison = comparison;
         Comparer = Constant.StringComparison_StringComparer[comparison];
         BucketNameDelimiter = bucketNameDelimiter.CheckNotNull(nameof(bucketNameDelimiter));
     }
+
+    public string File { get; }
+    public StringComparison Comparison { get; }
+    public string BucketNameDelimiter { get; }
+
+    public IEnumerable<string> BucketNames => ReadFile().Keys;
 
     protected IDictionary<string, IDictionary<string, string>> ReadFile()
     {
@@ -54,13 +54,10 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         }
 
         var jpd = jp.ToDictionary();
-        foreach (var kl in jpd)
-        {
-            props[kl.Key.TrimOrNull()] = kl.Value.TrimOrNull().WhereNotNull().LastOrDefault();
-        }
+        foreach (var kl in jpd) props[kl.Key.TrimOrNull()] = kl.Value.TrimOrNull().WhereNotNull().LastOrDefault();
 
         var d = new Dictionary<string, IDictionary<string, string>>(Comparer);
-        var bucketKeySplit = new string[] { BucketNameDelimiter };
+        var bucketKeySplit = new[] { BucketNameDelimiter };
         foreach (var kvp in props)
         {
             var key = kvp.Key;
@@ -77,6 +74,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
                 dd = new Dictionary<string, string>(Comparer);
                 d.Add(bucketName, dd);
             }
+
             dd[bucketKey] = bucketValue;
         }
 
@@ -90,12 +88,8 @@ public class BucketStoreFile : BucketStoreBase<string, string>
 
         var d = ReadFile();
         if (d.TryGetValue(bucketName, out var dd))
-        {
             if (dd.TryGetValue(bucketKey, out var v))
-            {
                 return v;
-            }
-        }
 
         return null;
     }
@@ -104,18 +98,24 @@ public class BucketStoreFile : BucketStoreBase<string, string>
     {
         bucketName = bucketName.CheckNotNullTrimmed(nameof(bucketName));
         var d = ReadFile();
-        if (d.TryGetValue(bucketName, out var dd))
-        {
-            return dd.Keys;
-        }
+        if (d.TryGetValue(bucketName, out var dd)) return dd.Keys;
         return null;
     }
 
-    protected override string CleanKey(string key) => base.CleanKey(key.TrimOrNull());
+    protected override string CleanKey(string key)
+    {
+        return base.CleanKey(key.TrimOrNull());
+    }
 
-    protected override string CleanName(string name) => base.CleanName(name.TrimOrNull());
+    protected override string CleanName(string name)
+    {
+        return base.CleanName(name.TrimOrNull());
+    }
 
-    protected override string CleanValue(string value) => base.CleanValue(value.TrimOrNull());
+    protected override string CleanValue(string value)
+    {
+        return base.CleanValue(value.TrimOrNull());
+    }
 
     protected override void SetValue(string bucketName, string bucketKey, string bucketValue)
     {
@@ -164,14 +164,11 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         {
             if (string.Equals(bucketValue, jpVal.TrimOrNull(), Comparison)) return;
             if (bucketValue == null)
-            {
                 jp.Remove(jpKey);
-            }
             else
-            {
                 jp.SetProperty(bucketNameKey, bucketValue);
-            }
         }
+
         try
         {
             using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
@@ -191,4 +188,3 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         }
     }
 }
-
