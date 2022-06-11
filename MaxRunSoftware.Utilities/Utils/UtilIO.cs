@@ -58,30 +58,30 @@ public static partial class Util
 
     public static string FileGetMD5(string file)
     {
-        using (var stream = FileOpenRead(file)) return Util.GenerateHashMD5(stream);
+        using (var stream = FileOpenRead(file)) return GenerateHashMD5(stream);
     }
 
     public static string FileGetSHA1(string file)
     {
-        using (var stream = FileOpenRead(file)) return Util.GenerateHashSHA1(stream);
+        using (var stream = FileOpenRead(file)) return GenerateHashSHA1(stream);
     }
 
     public static string FileGetSHA256(string file)
     {
-        using (var stream = FileOpenRead(file)) return Util.GenerateHashSHA256(stream);
+        using (var stream = FileOpenRead(file)) return GenerateHashSHA256(stream);
     }
 
     public static string FileGetSHA384(string file)
     {
-        using (var stream = FileOpenRead(file)) return Util.GenerateHashSHA384(stream);
+        using (var stream = FileOpenRead(file)) return GenerateHashSHA384(stream);
     }
 
     public static string FileGetSHA512(string file)
     {
-        using (var stream = FileOpenRead(file)) return Util.GenerateHashSHA512(stream);
+        using (var stream = FileOpenRead(file)) return GenerateHashSHA512(stream);
     }
 
-    public static long FileGetSize(string file) => (new System.IO.FileInfo(file)).Length;
+    public static long FileGetSize(string file) => (new FileInfo(file)).Length;
 
     public static string FileChangeName(string file, string newFileName)
     {

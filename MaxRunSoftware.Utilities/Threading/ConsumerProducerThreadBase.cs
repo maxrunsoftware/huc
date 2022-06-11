@@ -21,7 +21,7 @@ namespace MaxRunSoftware.Utilities;
 
 public abstract class ConsumerProducerThreadBase<TConsume, TProduce> : ConsumerThreadBase<TConsume>
 {
-    private static readonly ILogger log = LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
     private readonly BlockingCollection<TProduce> producerQueue;
     private readonly CancellationTokenSource cancellation = new CancellationTokenSource();

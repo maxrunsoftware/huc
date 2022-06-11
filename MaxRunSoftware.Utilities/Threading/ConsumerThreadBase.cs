@@ -22,7 +22,7 @@ namespace MaxRunSoftware.Utilities;
 
 public abstract class ConsumerThreadBase<T> : ThreadBase
 {
-    private static readonly ILogger log = LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
     private readonly BlockingCollection<T> queue;
     private readonly object locker = new object();
     private readonly CancellationTokenSource cancellation = new CancellationTokenSource();

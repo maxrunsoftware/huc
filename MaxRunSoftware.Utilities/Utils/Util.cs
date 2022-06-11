@@ -86,13 +86,13 @@ public static partial class Util
 
         switch (encoding.ToUpper())
         {
-            case "ASCII": return System.Text.Encoding.ASCII;
-            case "BIGENDIANUNICODE": return System.Text.Encoding.BigEndianUnicode;
-            case "DEFAULT": return System.Text.Encoding.Default;
-            case "UNICODE": return System.Text.Encoding.Unicode;
-            case "UTF32": return System.Text.Encoding.UTF32;
-            case "UTF8": return Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM;
-            case "UTF8BOM": return Utilities.Constant.ENCODING_UTF8_WITH_BOM;
+            case "ASCII": return Encoding.ASCII;
+            case "BIGENDIANUNICODE": return Encoding.BigEndianUnicode;
+            case "DEFAULT": return Encoding.Default;
+            case "UNICODE": return Encoding.Unicode;
+            case "UTF32": return Encoding.UTF32;
+            case "UTF8": return Constant.ENCODING_UTF8_WITHOUT_BOM;
+            case "UTF8BOM": return Constant.ENCODING_UTF8_WITH_BOM;
         }
 
         throw new Exception("Unknown encoding type specified: " + encoding);

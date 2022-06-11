@@ -225,6 +225,6 @@ public static class SqlOracleTypeExtensions
         DbType.Xml => SqlOracleType.NClob,
         DbType.DateTime2 => SqlOracleType.DateTime,
         DbType.DateTimeOffset => SqlOracleType.DateTime,
-        _ => throw new System.NotImplementedException(),
+        _ => throw new NotImplementedException(),
     };
 }

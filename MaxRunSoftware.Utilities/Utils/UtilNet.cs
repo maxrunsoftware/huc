@@ -151,7 +151,7 @@ public static partial class Util
 
         public WebResponse(string url, byte[] data, WebHeaderCollection headers)
         {
-            this.Url = url;
+            Url = url;
             Data = data;
             var d = new SortedDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             for (int i = 0; i < headers.Count; i++)

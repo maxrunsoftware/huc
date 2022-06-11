@@ -128,8 +128,8 @@ public class LogFactory : ILogFactory
         }
         catch (Exception e)
         {
-            System.Console.Error.Write("ERROR DISPOSING OF " + GetType().FullNameFormatted());
-            System.Console.Error.WriteLine(e);
+            Console.Error.Write("ERROR DISPOSING OF " + GetType().FullNameFormatted());
+            Console.Error.WriteLine(e);
         }
     }
 

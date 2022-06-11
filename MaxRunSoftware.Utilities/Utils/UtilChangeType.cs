@@ -52,7 +52,7 @@ public static partial class Util
             if (outputType == typeof(Uri)) return o.ToUri();
             if (outputType == typeof(IPAddress)) return o.ToIPAddress();
 
-            if (outputType.IsEnum) return Util.GetEnumItem(outputType, o);
+            if (outputType.IsEnum) return GetEnumItem(outputType, o);
         }
 
         if (inputType.IsEnum) return ChangeType(obj.ToString(), outputType);

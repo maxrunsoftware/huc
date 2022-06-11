@@ -40,7 +40,7 @@ internal class LogBackgroundThread : IDisposable
         thread.Start();
     }
 
-    private static void LogError(object o) => System.Console.Error.WriteLine(o);
+    private static void LogError(object o) => Console.Error.WriteLine(o);
 
     private void Work()
     {

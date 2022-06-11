@@ -24,7 +24,7 @@ namespace MaxRunSoftware.Utilities;
 /// <typeparam name="T">Type of object to process</typeparam>
 public class ConsumerThreadPool<T> : IDisposable
 {
-    private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
     private readonly List<ConsumerThread<T>> threads = new List<ConsumerThread<T>>();
     private readonly BlockingCollection<T> queue = new BlockingCollection<T>();

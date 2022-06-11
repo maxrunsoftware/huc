@@ -239,7 +239,7 @@ public static class SqlMsSqlTypeExtensions
         DbType.Xml => SqlMsSqlType.Xml,
         DbType.DateTime2 => SqlMsSqlType.DateTime2,
         DbType.DateTimeOffset => SqlMsSqlType.DateTimeOffset,
-        _ => throw new System.NotImplementedException(),
+        _ => throw new NotImplementedException(),
     };
 }
 

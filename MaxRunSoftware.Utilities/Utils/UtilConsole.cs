@@ -27,8 +27,8 @@ public static partial class Util
 
         public ConsoleColorChanger(ConsoleColor? foreground, ConsoleColor? background)
         {
-            this.foreground = System.Console.ForegroundColor;
-            this.background = System.Console.BackgroundColor;
+            this.foreground = Console.ForegroundColor;
+            this.background = Console.BackgroundColor;
 
             var fswitch = false;
             if (foreground != null)
@@ -36,7 +36,7 @@ public static partial class Util
                 if (this.foreground != foreground.Value)
                 {
                     fswitch = true;
-                    System.Console.ForegroundColor = foreground.Value;
+                    Console.ForegroundColor = foreground.Value;
                 }
             }
             foregroundSwitched = fswitch;
@@ -47,7 +47,7 @@ public static partial class Util
                 if (this.background != background.Value)
                 {
                     bswitch = true;
-                    System.Console.BackgroundColor = background.Value;
+                    Console.BackgroundColor = background.Value;
                 }
             }
             backgroundSwitched = bswitch;
@@ -55,8 +55,8 @@ public static partial class Util
 
         public void Dispose()
         {
-            if (foregroundSwitched) System.Console.ForegroundColor = foreground;
-            if (backgroundSwitched) System.Console.BackgroundColor = background;
+            if (foregroundSwitched) Console.ForegroundColor = foreground;
+            if (backgroundSwitched) Console.BackgroundColor = background;
         }
     }
 

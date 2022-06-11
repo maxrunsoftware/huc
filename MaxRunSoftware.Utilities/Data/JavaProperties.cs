@@ -868,7 +868,7 @@ public class JavaPropertyWriter
 /// An exception thrown by <see cref="JavaPropertyReader"/> when parsing a properties stream.
 /// https://github.com/Kajabity/Kajabity-Tools/
 /// </summary>
-public class ParseException : System.Exception
+public class ParseException : Exception
 {
     /// <summary>
     /// Construct an exception with an error message.

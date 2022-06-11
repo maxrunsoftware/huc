@@ -35,7 +35,7 @@ public abstract class ThreadBase : IDisposable
     //public int DisposeTimeoutSeconds { get; set; } = 10;
     public bool IsRunning => thread.IsAlive;
 
-    public System.Threading.ThreadState ThreadState => thread.ThreadState;
+    public ThreadState ThreadState => thread.ThreadState;
     public Exception Exception { get; protected set; }
 
     protected ThreadBase() => thread = new Thread(new ThreadStart(WorkPrivate));
@@ -60,8 +60,8 @@ public abstract class ThreadBase : IDisposable
             if (Exception == null) Exception = e;
             else
             {
-                System.Console.Error.Write("Exception encountered while trying to dispose. ");
-                System.Console.Error.WriteLine(e);
+                Console.Error.Write("Exception encountered while trying to dispose. ");
+                Console.Error.WriteLine(e);
                 LogFactory.GetLogger<ThreadBase>().Error("Exception encountered while trying to dispose", e);
             }
         }

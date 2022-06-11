@@ -29,10 +29,10 @@ public static class LogFactoryExtensions
         private readonly string id;
         public FileLogger(LogLevel level, string filename)
         {
-            this.Level = level;
+            Level = level;
             this.filename = Path.GetFullPath(filename.CheckNotNullTrimmed(nameof(filename)));
-            this.file = new FileInfo(filename);
-            this.id = Guid.NewGuid().ToString().Replace("-", "");
+            file = new FileInfo(filename);
+            id = Guid.NewGuid().ToString().Replace("-", "");
         }
 
         public void Log(object sender, LogEventArgs e)
@@ -51,7 +51,7 @@ public static class LogFactoryExtensions
         public LogLevel Level { get; init; }
         public ConsoleLogger(LogLevel level)
         {
-            this.Level = level;
+            Level = level;
 
         }
         private IDisposable LogConsoleColor(LogLevel level)
@@ -75,13 +75,13 @@ public static class LogFactoryExtensions
             {
                 using (LogConsoleColor(e.Level))
                 {
-                    System.Console.WriteLine(e.ToStringDetailed());
+                    Console.WriteLine(e.ToStringDetailed());
                 }
             }
             else
             {
-                if (e.Message != null) System.Console.WriteLine(e.Message);
-                if (e.Exception != null) System.Console.WriteLine(e.Exception.ToString());
+                if (e.Message != null) Console.WriteLine(e.Message);
+                if (e.Exception != null) Console.WriteLine(e.Exception.ToString());
             }
         }
 

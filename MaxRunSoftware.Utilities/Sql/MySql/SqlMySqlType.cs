@@ -289,7 +289,7 @@ public static class SqlMySqlTypeExtensions
         DbType.Xml => SqlMySqlType.LongText,
         DbType.DateTime2 => SqlMySqlType.DateTime,
         DbType.DateTimeOffset => SqlMySqlType.DateTime,
-        _ => throw new System.NotImplementedException(dbType.GetType().FullNameFormatted() + "." + dbType.ToString()),
+        _ => throw new NotImplementedException(dbType.GetType().FullNameFormatted() + "." + dbType.ToString()),
     };
 }
 
