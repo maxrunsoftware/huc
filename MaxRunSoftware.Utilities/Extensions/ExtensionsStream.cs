@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
@@ -35,8 +33,10 @@ public static class ExtensionsStream
             {
                 action(buffer);
             }
+
             totalRead += read;
         }
+
         return totalRead;
     }
 
@@ -57,12 +57,17 @@ public static class ExtensionsStream
             {
                 action(buffer);
             }
+
             totalRead += read;
         }
+
         return totalRead;
     }
 
-    public static long CopyToWithCount(this Stream source, Stream target) => CopyToWithCount(source, target, Constant.BUFFER_SIZE_OPTIMAL);
+    public static long CopyToWithCount(this Stream source, Stream target)
+    {
+        return CopyToWithCount(source, target, Constant.BUFFER_SIZE_OPTIMAL);
+    }
 
     /// <summary>
     /// Reads all the bytes from the current stream and writes them to the destination stream
@@ -85,6 +90,7 @@ public static class ExtensionsStream
             totalCount += count;
             target.Write(array, 0, count);
         }
+
         return totalCount;
     }
 
@@ -99,11 +105,18 @@ public static class ExtensionsStream
         }
     }
 
-    public static void WriteToFile(this Stream stream, string path) => WriteToFile(stream, path, Constant.BUFFER_SIZE_OPTIMAL);
+    public static void WriteToFile(this Stream stream, string path)
+    {
+        WriteToFile(stream, path, Constant.BUFFER_SIZE_OPTIMAL);
+    }
 
     public static bool FlushSafe(this Stream stream)
     {
-        if (stream == null) return false;
+        if (stream == null)
+        {
+            return false;
+        }
+
         try
         {
             stream.Flush();
@@ -117,7 +130,11 @@ public static class ExtensionsStream
 
     public static bool CloseSafe(this Stream stream)
     {
-        if (stream == null) return false;
+        if (stream == null)
+        {
+            return false;
+        }
+
         try
         {
             stream.Close();
@@ -131,7 +148,11 @@ public static class ExtensionsStream
 
     public static bool FlushSafe(this StreamWriter writer)
     {
-        if (writer == null) return false;
+        if (writer == null)
+        {
+            return false;
+        }
+
         try
         {
             writer.Flush();
@@ -145,7 +166,11 @@ public static class ExtensionsStream
 
     public static bool CloseSafe(this StreamWriter writer)
     {
-        if (writer == null) return false;
+        if (writer == null)
+        {
+            return false;
+        }
+
         try
         {
             writer.Close();
@@ -159,7 +184,11 @@ public static class ExtensionsStream
 
     public static bool FlushSafe(this BinaryWriter writer)
     {
-        if (writer == null) return false;
+        if (writer == null)
+        {
+            return false;
+        }
+
         try
         {
             writer.Flush();
@@ -173,7 +202,11 @@ public static class ExtensionsStream
 
     public static bool CloseSafe(this BinaryWriter writer)
     {
-        if (writer == null) return false;
+        if (writer == null)
+        {
+            return false;
+        }
+
         try
         {
             writer.Close();
@@ -184,6 +217,4 @@ public static class ExtensionsStream
             return false;
         }
     }
-
 }
-

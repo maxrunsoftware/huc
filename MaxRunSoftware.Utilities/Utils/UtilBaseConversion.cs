@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
@@ -30,6 +28,7 @@ public static partial class Util
             var s = i.ToString("X2");
             result[i] = s[0] + ((uint)s[1] << 16);
         }
+
         return result;
     }
 
@@ -45,6 +44,7 @@ public static partial class Util
             result[2 * i] = (char)val;
             result[2 * i + 1] = (char)(val >> 16);
         }
+
         return new string(result);
     }
 
@@ -56,6 +56,7 @@ public static partial class Util
         {
             bytes[i / 2] = Convert.ToByte(base16string.Substring(i, 2), 16);
         }
+
         return bytes;
     }
 
@@ -63,9 +64,15 @@ public static partial class Util
 
     #region Base64
 
-    public static string Base64(byte[] bytes) => Convert.ToBase64String(bytes);
+    public static string Base64(byte[] bytes)
+    {
+        return Convert.ToBase64String(bytes);
+    }
 
-    public static byte[] Base64(string base64string) => Convert.FromBase64String(base64string);
+    public static byte[] Base64(string base64string)
+    {
+        return Convert.FromBase64String(base64string);
+    }
 
     #endregion Base64
 }

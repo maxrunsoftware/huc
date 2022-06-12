@@ -1,18 +1,16 @@
-﻿// /*
-// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// */
 
 namespace MaxRunSoftware.Utilities;
 
@@ -35,6 +33,7 @@ public class SqlDataReaderSchemaColumn
         DataTypeName = Extended?.DataTypeName?.TrimOrNull() ?? Basic.DataTypeName.TrimOrNull();
         IsNullable = Extended?.AllowDbNull;
     }
+
     private SqlDataReaderSchemaColumn(Pair pair) : this(pair.basic.basic, pair.extended?.extended) { }
 
     public int Index { get; }
@@ -50,14 +49,20 @@ public class SqlDataReaderSchemaColumn
     {
         public readonly WrapperBasic basic;
         public WrapperExtended extended;
-        public Pair(WrapperBasic b) => basic = b;
+
+        public Pair(WrapperBasic b)
+        {
+            basic = b;
+        }
     }
+
     private class WrapperBasic
     {
         public readonly SqlDataReaderSchemaColumnBasic basic;
         public readonly int index;
         public readonly string name;
         public readonly Type type;
+
         public WrapperBasic(SqlDataReaderSchemaColumnBasic o)
         {
             basic = o;
@@ -66,16 +71,18 @@ public class SqlDataReaderSchemaColumn
             type = o.FieldType;
         }
     }
+
     private class WrapperExtended
     {
         public readonly SqlDataReaderSchemaColumnExtended extended;
         public int index;
         public readonly string name;
         public readonly Type type;
+
         public WrapperExtended(SqlDataReaderSchemaColumnExtended o)
         {
             extended = o;
-            index = o.ColumnOrdinal ?? (1_673_452_543); // some random value that should never be used
+            index = o.ColumnOrdinal ?? 1_673_452_543; // some random value that should never be used
             name = o.ColumnName.TrimOrNull() ?? o.BaseColumnName.TrimOrNull();
             type = o.DataType ?? o.ProviderSpecificDataType;
         }
@@ -85,15 +92,24 @@ public class SqlDataReaderSchemaColumn
     {
         var pairs = SqlDataReaderSchemaColumnBasic.Create(reader).Select(o => new Pair(new WrapperBasic(o))).ToList();
         var extendeds = new List<WrapperExtended>();
-        if (fullSchemaDetails) extendeds = SqlDataReaderSchemaColumnExtended.Create(reader).Select(o => new WrapperExtended(o)).ToList();
+        if (fullSchemaDetails)
+        {
+            extendeds = SqlDataReaderSchemaColumnExtended.Create(reader).Select(o => new WrapperExtended(o)).ToList();
+        }
 
         // Short circuit if no extendeds
-        if (extendeds.IsEmpty()) return pairs.Select(o => new SqlDataReaderSchemaColumn(o)).ToList();
+        if (extendeds.IsEmpty())
+        {
+            return pairs.Select(o => new SqlDataReaderSchemaColumn(o)).ToList();
+        }
 
 
         // Fix for MySql adding +1 to column ordinal in schema
         var columnOrdinalOffset = extendeds.Select(o => o.index).Min();
-        foreach (var e in extendeds) e.index -= columnOrdinalOffset;
+        foreach (var e in extendeds)
+        {
+            e.index -= columnOrdinalOffset;
+        }
 
 
         // Try to match every basic with an extended
@@ -105,7 +121,7 @@ public class SqlDataReaderSchemaColumn
             (b, e) => b.index == e.index,
             (b, e) => b.name.EqualsCaseSensitive(e.name),
             (b, e) => b.name.EqualsCaseInsensitive(e.name),
-            (b, e) => b.type == e.type,
+            (b, e) => b.type == e.type
         };
         foreach (var matcher in matchers)
         {
@@ -113,22 +129,41 @@ public class SqlDataReaderSchemaColumn
             {
                 foreach (var e in extendeds)
                 {
-                    if (matcher(pair.basic, e)) pair.extended = e;
-                    if (pair.extended != null) break;
+                    if (matcher(pair.basic, e))
+                    {
+                        pair.extended = e;
+                    }
+
+                    if (pair.extended != null)
+                    {
+                        break;
+                    }
                 }
-                if (pair.extended != null) extendeds.Remove(pair.extended);
-                if (extendeds.IsEmpty()) break;
+
+                if (pair.extended != null)
+                {
+                    extendeds.Remove(pair.extended);
+                }
+
+                if (extendeds.IsEmpty())
+                {
+                    break;
+                }
             }
-            if (extendeds.IsEmpty()) break;
+
+            if (extendeds.IsEmpty())
+            {
+                break;
+            }
         }
 
-        if (extendeds.IsNotEmpty()) throw new SqlException($"Had extra {nameof(SqlDataReaderSchemaColumnExtended)} values that we could not match: " + extendeds.Select(o => o.name).ToStringDelimited(", "));
+        if (extendeds.IsNotEmpty())
+        {
+            throw new SqlException($"Had extra {nameof(SqlDataReaderSchemaColumnExtended)} values that we could not match: " + extendeds.Select(o => o.name).ToStringDelimited(", "));
+        }
 
         return pairs.Select(o => new SqlDataReaderSchemaColumn(o)).ToList();
     }
-
-
-
 }
 
 public class SqlDataReaderSchemaColumnBasic
@@ -143,7 +178,7 @@ public class SqlDataReaderSchemaColumnBasic
         var columns = new List<SqlDataReaderSchemaColumnBasic>();
 
         var colCount = reader.FieldCount;
-        for (int colIndex = 0; colIndex < colCount; colIndex++)
+        for (var colIndex = 0; colIndex < colCount; colIndex++)
         {
             var srmc = new SqlDataReaderSchemaColumnBasic();
             srmc.Index = colIndex;
@@ -204,7 +239,10 @@ public class SqlDataReaderSchemaColumnExtended
 
         var dataTable = reader.GetSchemaTable();
 
-        if (dataTable == null) return columns.AsReadOnly();
+        if (dataTable == null)
+        {
+            return columns.AsReadOnly();
+        }
 
         var d = dataTable.Columns.Cast<DataColumn>().ToDictionary(col => col.ColumnName);
 
@@ -216,10 +254,15 @@ public class SqlDataReaderSchemaColumnExtended
             var srmc = new SqlDataReaderSchemaColumnExtended();
             foreach (var prop in props)
             {
-                if (!cols.TryGetValue(prop.Name, out var dataColumn)) continue; // DataTable does not contain column
+                if (!cols.TryGetValue(prop.Name, out var dataColumn))
+                {
+                    continue; // DataTable does not contain column
+                }
+
                 var dataValue = dataRow[dataColumn];
                 prop.SetValue(srmc, dataValue, Util.ChangeType);
             }
+
             columns.Add(srmc);
         }
 
@@ -240,9 +283,9 @@ public class SqlDataReaderSchemaColumnExtended
         {
             sb.AppendLine("  " + (p.Key + ":").PadRight(maxColumnLen) + p.Value);
         }
+
         sb.AppendLine("} ");
 
         return sb.ToString();
     }
 }
-

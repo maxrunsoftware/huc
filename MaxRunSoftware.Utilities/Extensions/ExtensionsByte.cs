@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.IO.Compression;
 
@@ -22,7 +20,10 @@ public static class ExtensionsByte
 {
     #region IsValidUTF8
 
-    public static bool IsValidUTF8(this byte[] buffer) => IsValidUTF8(buffer, buffer.Length);
+    public static bool IsValidUTF8(this byte[] buffer)
+    {
+        return IsValidUTF8(buffer, buffer.Length);
+    }
 
     /// <summary></summary>
     /// <param name="buffer"></param>
@@ -38,8 +39,10 @@ public static class ExtensionsByte
             {
                 return false;
             }
+
             position += bytes;
         }
+
         return true;
     }
 
@@ -77,11 +80,13 @@ public static class ExtensionsByte
                 bytes = 0;
                 return false;
             }
+
             if (buffer[position + 1] < 0x80 || buffer[position + 1] > 0xbf)
             {
                 bytes = 0;
                 return false;
             }
+
             bytes = 2;
             return true;
         }
@@ -100,6 +105,7 @@ public static class ExtensionsByte
                 bytes = 0;
                 return false;
             }
+
             bytes = 3;
             return true;
         }
@@ -239,7 +245,11 @@ public static class ExtensionsByte
 
     #endregion Compression
 
-    public static bool EqualsBytes(this Span<byte> b1, Span<byte> b2) => b1.SequenceEqual(b2); // https://stackoverflow.com/a/48599119
+    public static bool EqualsBytes(this Span<byte> b1, Span<byte> b2)
+    {
+        return b1.SequenceEqual(b2);
+        // https://stackoverflow.com/a/48599119
+    }
 
     public static bool EqualsBytes(this byte[] b1, byte[] b2)
     {
@@ -249,29 +259,63 @@ public static class ExtensionsByte
 
     public static bool EqualsBytes(this byte[] b1, byte[] b2, bool reverse)
     {
-        if (b1 == b2) return true; //reference equality check
-        if (b1 == null || b2 == null) return false;
-        if (b1.Length != b2.Length) return false;
+        if (b1 == b2)
+        {
+            return true; //reference equality check
+        }
+
+        if (b1 == null || b2 == null)
+        {
+            return false;
+        }
+
+        if (b1.Length != b2.Length)
+        {
+            return false;
+        }
 
         var len = b1.Length;
-        if (len == 0) return true;
+        if (len == 0)
+        {
+            return true;
+        }
 
-        if (b1[0] != b2[0]) return false; // compare first byte
-        if (b1[len - 1] != b2[len - 1]) return false; // compare last byte
+        if (b1[0] != b2[0])
+        {
+            return false; // compare first byte
+        }
 
-        if (b1[len / 2] != b2[len / 2]) return false; // compare middle byte
+        if (b1[len - 1] != b2[len - 1])
+        {
+            return false; // compare last byte
+        }
+
+        if (b1[len / 2] != b2[len / 2])
+        {
+            return false; // compare middle byte
+        }
 
         if (reverse)
         {
-            for (int i = len - 1; i >= 0; i--) if (b1[i] != b2[i]) return false;
+            for (var i = len - 1; i >= 0; i--)
+            {
+                if (b1[i] != b2[i])
+                {
+                    return false;
+                }
+            }
         }
         else
         {
-            for (var i = 0; i < len; i++) if (b1[i] != b2[i]) return false;
+            for (var i = 0; i < len; i++)
+            {
+                if (b1[i] != b2[i])
+                {
+                    return false;
+                }
+            }
         }
 
         return true;
     }
-
 }
-

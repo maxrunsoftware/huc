@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
@@ -28,9 +26,20 @@ public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IC
 
     public int Compare(object x, object y)
     {
-        if (x == y) return 0;
-        if (x == null) return -1;
-        if (y == null) return 1;
+        if (x == y)
+        {
+            return 0;
+        }
+
+        if (x == null)
+        {
+            return -1;
+        }
+
+        if (y == null)
+        {
+            return 1;
+        }
 
         if (x is T sa)
         {
@@ -48,12 +57,22 @@ public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IC
         throw new ArgumentException("Argument_ImplementIComparable"); // TODO: Better error
     }
 
-    public virtual bool Equals(T x, T y) => Compare(x, y) == 0;
+    public virtual bool Equals(T x, T y)
+    {
+        return Compare(x, y) == 0;
+    }
 
     public new bool Equals(object x, object y)
     {
-        if (x == y) return true;
-        if (x == null || y == null) return false;
+        if (x == y)
+        {
+            return true;
+        }
+
+        if (x == null || y == null)
+        {
+            return false;
+        }
 
         if (x is T sa)
         {
@@ -62,6 +81,7 @@ public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IC
                 return Equals(sa, sb);
             }
         }
+
         return x.Equals(y);
     }
 
@@ -73,6 +93,7 @@ public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IC
         {
             return GetHashCode(s);
         }
+
         return obj.GetHashCode();
     }
 }

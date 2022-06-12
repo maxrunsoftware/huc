@@ -15,19 +15,19 @@
 namespace MaxRunSoftware.Utilities;
 
 /// <summary>
-///     Readonly Key+Value store
+/// Readonly Key+Value store
 /// </summary>
 /// <typeparam name="TKey">Key type</typeparam>
 /// <typeparam name="TValue">Value type</typeparam>
-public interface IBucketReadOnly<TKey, TValue>
+public interface IBucketReadOnly<TKey, out TValue>
 {
     /// <summary>
-    ///     Keys in bucket
+    /// Keys in bucket
     /// </summary>
     IEnumerable<TKey> Keys { get; }
 
     /// <summary>
-    ///     Gets value for a specific key
+    /// Gets value for a specific key
     /// </summary>
     /// <param name="key">Key</param>
     /// <returns>Value</returns>

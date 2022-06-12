@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Net;
 using System.Numerics;
@@ -27,21 +25,30 @@ public static class ExtensionsString
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The hashcode</returns>
-    public static int GetHashCodeCaseSensitive(this string str) => str == null ? 0 : StringComparer.Ordinal.GetHashCode(str);
+    public static int GetHashCodeCaseSensitive(this string str)
+    {
+        return str == null ? 0 : StringComparer.Ordinal.GetHashCode(str);
+    }
 
     /// <summary>
     /// Gets the OrdinalIgnoreCase hashcode
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The hashcode</returns>
-    public static int GetHashCodeCaseInsensitive(this string str) => str == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(str);
+    public static int GetHashCodeCaseInsensitive(this string str)
+    {
+        return str == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(str);
+    }
 
     /// <summary>
     /// Removes the first character from a string if there is one
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The string without the first character</returns>
-    public static string RemoveLeft(this string str) => RemoveLeft(str, out var c);
+    public static string RemoveLeft(this string str)
+    {
+        return RemoveLeft(str, out var c);
+    }
 
     /// <summary>
     /// Removes the leftmost character from a string
@@ -56,8 +63,13 @@ public static class ExtensionsString
             c = char.MinValue;
             return string.Empty;
         }
+
         c = str[0];
-        if (str.Length == 1) return string.Empty;
+        if (str.Length == 1)
+        {
+            return string.Empty;
+        }
+
         return str.Substring(1);
     }
 
@@ -67,7 +79,10 @@ public static class ExtensionsString
     /// <param name="str"></param>
     /// <param name="numberOfCharactersToRemove"></param>
     /// <returns></returns>
-    public static string RemoveLeft(this string str, int numberOfCharactersToRemove) => numberOfCharactersToRemove.CheckNotNegative(nameof(numberOfCharactersToRemove)) >= str.Length ? string.Empty : str.Substring(numberOfCharactersToRemove);
+    public static string RemoveLeft(this string str, int numberOfCharactersToRemove)
+    {
+        return numberOfCharactersToRemove.CheckNotNegative(nameof(numberOfCharactersToRemove)) >= str.Length ? string.Empty : str.Substring(numberOfCharactersToRemove);
+    }
 
     /// <summary>
     /// Removes the rightmost characters from a string
@@ -75,14 +90,20 @@ public static class ExtensionsString
     /// <param name="str"></param>
     /// <param name="numberOfCharactersToRemove"></param>
     /// <returns></returns>
-    public static string RemoveRight(this string str, int numberOfCharactersToRemove) => numberOfCharactersToRemove.CheckNotNegative(nameof(numberOfCharactersToRemove)) >= str.Length ? string.Empty : str.Substring(0, str.Length - numberOfCharactersToRemove);
+    public static string RemoveRight(this string str, int numberOfCharactersToRemove)
+    {
+        return numberOfCharactersToRemove.CheckNotNegative(nameof(numberOfCharactersToRemove)) >= str.Length ? string.Empty : str.Substring(0, str.Length - numberOfCharactersToRemove);
+    }
 
     /// <summary>
     /// Removes the rightmost character from a string
     /// </summary>
     /// <param name="str"></param>
     /// <returns></returns>
-    public static string RemoveRight(this string str) => RemoveRight(str, out var c);
+    public static string RemoveRight(this string str)
+    {
+        return RemoveRight(str, out var c);
+    }
 
     /// <summary>
     /// Removes the rightmost character from a string
@@ -97,8 +118,13 @@ public static class ExtensionsString
             c = char.MinValue;
             return string.Empty;
         }
+
         c = str[str.Length - 1];
-        if (str.Length == 1) return string.Empty;
+        if (str.Length == 1)
+        {
+            return string.Empty;
+        }
+
         return str.Substring(0, str.Length - 1);
     }
 
@@ -132,7 +158,10 @@ public static class ExtensionsString
         return strRemoved;
     }
 
-    public static string Remove(this string str, string toRemove) => Remove(str, toRemove, out var trash);
+    public static string Remove(this string str, string toRemove)
+    {
+        return Remove(str, toRemove, out var trash);
+    }
 
     public static string Right(this string str, int characterCount)
     {
@@ -150,13 +179,20 @@ public static class ExtensionsString
 
     public static string[] SplitIntoParts(this string str, int numberOfParts)
     {
-        if (numberOfParts < 1) numberOfParts = 1;
+        if (numberOfParts < 1)
+        {
+            numberOfParts = 1;
+        }
+
         var arraySize = str.Length;
         var div = arraySize / numberOfParts;
         var remainder = arraySize % numberOfParts;
 
         var partSizes = new int[numberOfParts];
-        for (var i = 0; i < numberOfParts; i++) partSizes[i] = div + (i < remainder ? 1 : 0);
+        for (var i = 0; i < numberOfParts; i++)
+        {
+            partSizes[i] = div + (i < remainder ? 1 : 0);
+        }
 
         var newArray = new string[numberOfParts];
         var counter = 0;
@@ -166,6 +202,7 @@ public static class ExtensionsString
             newArray[i] = str.Substring(counter, partSize);
             counter += partSize;
         }
+
         return newArray;
     }
 
@@ -178,7 +215,10 @@ public static class ExtensionsString
     // character in anyOf was found; -1 if no character in anyOf was found.
     //
     // Exceptions: T:System.ArgumentNullException: anyOf is null.
-    public static int IndexOfAny(this string str, params char[] chars) => str.IndexOfAny(chars);
+    public static int IndexOfAny(this string str, params char[] chars)
+    {
+        return str.IndexOfAny(chars);
+    }
 
     // Summary: Returns a value indicating whether a specified substring occurs within this string.
     //
@@ -188,7 +228,10 @@ public static class ExtensionsString
     // string (""); otherwise, false.
     //
     // Exceptions: T:System.ArgumentNullException: value is null.
-    public static bool ContainsAny(this string str, params string[] subStrings) => ContainsAny(str, default, subStrings);
+    public static bool ContainsAny(this string str, params string[] subStrings)
+    {
+        return ContainsAny(str, default, subStrings);
+    }
 
     // Summary: Returns a value indicating whether a specified substring occurs within this string.
     //
@@ -207,6 +250,7 @@ public static class ExtensionsString
                 return true;
             }
         }
+
         return false;
     }
 
@@ -215,26 +259,40 @@ public static class ExtensionsString
         var chars = str.ToCharArray();
         for (var i = 0; i < str.Length; i++)
         {
-            if (char.IsWhiteSpace(chars[i])) return true;
+            if (char.IsWhiteSpace(chars[i]))
+            {
+                return true;
+            }
         }
+
         return false;
     }
 
     public static string[] SplitOnCamelCase(this string str)
     {
-        if (str == null) return Array.Empty<string>();
-        if (str.Length == 0) return new string[] { str };
+        if (str == null)
+        {
+            return Array.Empty<string>();
+        }
+
+        if (str.Length == 0)
+        {
+            return new[] { str };
+        }
 
         // https://stackoverflow.com/a/37532157
-        string[] words = Regex.Matches(str, "(^[a-z]+|[A-Z]+(?![a-z])|[A-Z][a-z]+|[0-9]+|[a-z]+)")
-        .OfType<Match>()
-        .Select(m => m.Value)
-        .ToArray();
+        var words = Regex.Matches(str, "(^[a-z]+|[A-Z]+(?![a-z])|[A-Z][a-z]+|[0-9]+|[a-z]+)")
+            .OfType<Match>()
+            .Select(m => m.Value)
+            .ToArray();
 
         return words;
     }
 
-    public static string EscapeHtml(this string unescaped) => unescaped == null ? null : WebUtility.HtmlEncode(unescaped);
+    public static string EscapeHtml(this string unescaped)
+    {
+        return unescaped == null ? null : WebUtility.HtmlEncode(unescaped);
+    }
 
     public static string[] Split(this string str, IEnumerable<string> stringsToSplitOn)
     {
@@ -243,9 +301,21 @@ public static class ExtensionsString
 
     public static string Capitalize(this string str)
     {
-        if (str == null) return null;
-        if (str.Length == 0) return str;
-        if (str.Length == 1) return str.ToUpper();
+        if (str == null)
+        {
+            return null;
+        }
+
+        if (str.Length == 0)
+        {
+            return str;
+        }
+
+        if (str.Length == 1)
+        {
+            return str.ToUpper();
+        }
+
         return str[0].ToString().ToUpper() + str.Substring(1);
     }
 
@@ -254,14 +324,22 @@ public static class ExtensionsString
     public static bool Equals(this string str, string other, StringComparer comparer)
     {
         IEqualityComparer<string> ec = comparer;
-        if (ec == null) ec = EqualityComparer<string>.Default;
+        if (ec == null)
+        {
+            ec = EqualityComparer<string>.Default;
+        }
+
         return ec.Equals(str, other);
     }
 
     public static bool Equals(this string str, string[] others, out string match, StringComparer comparer)
     {
         IEqualityComparer<string> ec = comparer;
-        if (ec == null) ec = EqualityComparer<string>.Default;
+        if (ec == null)
+        {
+            ec = EqualityComparer<string>.Default;
+        }
+
         foreach (var other in others.OrEmpty())
         {
             if (ec.Equals(str, other))
@@ -270,21 +348,40 @@ public static class ExtensionsString
                 return true;
             }
         }
+
         match = null;
         return false;
     }
 
-    public static bool EqualsCaseSensitive(this string str, string other) => Equals(str, other, StringComparer.Ordinal);
+    public static bool EqualsCaseSensitive(this string str, string other)
+    {
+        return Equals(str, other, StringComparer.Ordinal);
+    }
 
-    public static bool EqualsCaseSensitive(this string str, string[] others, out string match) => Equals(str, others, out match, StringComparer.Ordinal);
+    public static bool EqualsCaseSensitive(this string str, string[] others, out string match)
+    {
+        return Equals(str, others, out match, StringComparer.Ordinal);
+    }
 
-    public static bool EqualsCaseSensitive(this string str, string[] others) => Equals(str, others, out _, StringComparer.Ordinal);
+    public static bool EqualsCaseSensitive(this string str, string[] others)
+    {
+        return Equals(str, others, out _, StringComparer.Ordinal);
+    }
 
-    public static bool EqualsCaseInsensitive(this string str, string other) => Equals(str, other, StringComparer.OrdinalIgnoreCase);
+    public static bool EqualsCaseInsensitive(this string str, string other)
+    {
+        return Equals(str, other, StringComparer.OrdinalIgnoreCase);
+    }
 
-    public static bool EqualsCaseInsensitive(this string str, string[] others, out string match) => Equals(str, others, out match, StringComparer.OrdinalIgnoreCase);
+    public static bool EqualsCaseInsensitive(this string str, string[] others, out string match)
+    {
+        return Equals(str, others, out match, StringComparer.OrdinalIgnoreCase);
+    }
 
-    public static bool EqualsCaseInsensitive(this string str, string[] others) => Equals(str, others, out _, StringComparer.OrdinalIgnoreCase);
+    public static bool EqualsCaseInsensitive(this string str, string[] others)
+    {
+        return Equals(str, others, out _, StringComparer.OrdinalIgnoreCase);
+    }
 
     public static bool EqualsWildcard(this string text, string wildcardString)
     {
@@ -337,17 +434,18 @@ public static class ExtensionsString
         switch (matchCase)
         {
             case 0:
-                isLike = (text == wildcardString);
+                isLike = text == wildcardString;
                 break;
 
             case 1:
                 for (var i = 0; i < text.Length; i++)
                 {
-                    if ((word[i] != filter[i]) && filter[i] != '?')
+                    if (word[i] != filter[i] && filter[i] != '?')
                     {
                         isLike = false;
                     }
                 }
+
                 break;
 
             case 2:
@@ -367,6 +465,7 @@ public static class ExtensionsString
                         break;
                     }
                 }
+
                 //Search Tail for matches until first *
                 for (var i = 0; i < filter.Length; i++)
                 {
@@ -392,6 +491,7 @@ public static class ExtensionsString
                 {
                     reversedWord[i] = word[word.Length - (i + 1) - lastCheckedTailIndex];
                 }
+
                 for (var i = 0; i < reversedFilter.Length; i++)
                 {
                     reversedFilter[i] = filter[filter.Length - (i + 1) - lastCheckedTailIndex];
@@ -409,8 +509,10 @@ public static class ExtensionsString
                             {
                                 pattern[j] = reversedFilter[currentPatternStartIndex + j];
                             }
+
                             reversedPatterns.Add(pattern);
                         }
+
                         currentPatternStartIndex = i + 1;
                     }
                 }
@@ -420,7 +522,7 @@ public static class ExtensionsString
                 {
                     for (var j = 0; j < reversedPatterns[i].Length; j++)
                     {
-                        if ((reversedPatterns[i].Length - 1 - j) > (reversedWord.Length - 1 - reversedWordIndex))
+                        if (reversedPatterns[i].Length - 1 - j > reversedWord.Length - 1 - reversedWordIndex)
                         {
                             return false;
                         }
@@ -439,6 +541,7 @@ public static class ExtensionsString
                         }
                     }
                 }
+
                 break;
 
             case 3:
@@ -459,6 +562,7 @@ public static class ExtensionsString
                         break;
                     }
                 }
+
                 //Search Tail for matches until first *
                 for (var i = 0; i < filter.Length; i++)
                 {
@@ -475,6 +579,7 @@ public static class ExtensionsString
                         break;
                     }
                 }
+
                 // Reverse and trim word and filter
                 reversedWord = new char[word.Length - lastCheckedHeadIndex - lastCheckedTailIndex];
                 reversedFilter = new char[filter.Length - lastCheckedHeadIndex - lastCheckedTailIndex];
@@ -483,6 +588,7 @@ public static class ExtensionsString
                 {
                     reversedWord[i] = word[word.Length - (i + 1) - lastCheckedTailIndex];
                 }
+
                 for (var i = 0; i < reversedFilter.Length; i++)
                 {
                     reversedFilter[i] = filter[filter.Length - (i + 1) - lastCheckedTailIndex];
@@ -499,18 +605,20 @@ public static class ExtensionsString
                             {
                                 pattern[j] = reversedFilter[currentPatternStartIndex + j];
                             }
+
                             reversedPatterns.Add(pattern);
                         }
 
                         currentPatternStartIndex = i + 1;
                     }
                 }
+
                 //Search for the patterns
                 for (var i = 0; i < reversedPatterns.Count; i++)
                 {
                     for (var j = 0; j < reversedPatterns[i].Length; j++)
                     {
-                        if ((reversedPatterns[i].Length - 1 - j) > (reversedWord.Length - 1 - reversedWordIndex))
+                        if (reversedPatterns[i].Length - 1 - j > reversedWord.Length - 1 - reversedWordIndex)
                         {
                             return false;
                         }
@@ -529,46 +637,61 @@ public static class ExtensionsString
                         }
                     }
                 }
+
                 break;
         }
+
         return isLike;
     }
 
     public static bool EqualsWildcard(this string text, string wildcardString, bool ignoreCase)
     {
-        if (text == null) return wildcardString == null;
+        if (text == null)
+        {
+            return wildcardString == null;
+        }
 
         // https://bitbucket.org/hasullivan/fast-wildcard-matching/src/7457d0dc1aee5ecd373f7c8a7785d5891b416201/FastWildcardMatching/WildcardMatch.cs?at=master&fileviewer=file-view-default
 
-        if (ignoreCase == true)
+        if (ignoreCase)
         {
             return text.ToLower().EqualsWildcard(wildcardString.ToLower());
         }
-        else
-        {
-            return text.EqualsWildcard(wildcardString);
-        }
+
+        return text.EqualsWildcard(wildcardString);
     }
 
     #endregion Equals
 
     #region NewLine
 
-    public static string[] SplitOnNewline(this string str) => SplitOnNewline(str, StringSplitOptions.None);
+    public static string[] SplitOnNewline(this string str)
+    {
+        return SplitOnNewline(str, StringSplitOptions.None);
+    }
 
-    public static string[] SplitOnNewline(this string str, StringSplitOptions options) => str.Split(new string[] { Constant.NEWLINE_WINDOWS, Constant.NEWLINE_UNIX, Constant.NEWLINE_MAC }, options);
+    public static string[] SplitOnNewline(this string str, StringSplitOptions options)
+    {
+        return str.Split(new[] { Constant.NEWLINE_WINDOWS, Constant.NEWLINE_UNIX, Constant.NEWLINE_MAC }, options);
+    }
 
     #endregion NewLine
 
     #region WhiteSpace
 
-    public static string[] SplitOnWhiteSpace(this string str) => SplitOnWhiteSpace(str, StringSplitOptions.None);
+    public static string[] SplitOnWhiteSpace(this string str)
+    {
+        return SplitOnWhiteSpace(str, StringSplitOptions.None);
+    }
 
     public static string[] SplitOnWhiteSpace(this string str, StringSplitOptions options)
     {
         var list = new List<string>();
 
-        if (str.Length == 0) return Array.Empty<string>();
+        if (str.Length == 0)
+        {
+            return Array.Empty<string>();
+        }
 
         var sb = new StringBuilder();
 
@@ -585,6 +708,7 @@ public static class ExtensionsString
                 {
                     list.Add(sb.ToString());
                 }
+
                 sb = new StringBuilder();
             }
             else
@@ -592,6 +716,7 @@ public static class ExtensionsString
                 sb.Append(c);
             }
         }
+
         if (sb.Length > 0)
         {
             list.Add(sb.ToString());
@@ -606,15 +731,27 @@ public static class ExtensionsString
 
     public static string TrimOrNull(this string str)
     {
-        if (str == null) return str;
+        if (str == null)
+        {
+            return str;
+        }
+
         str = str.Trim();
-        if (str.Length == 0) return null;
+        if (str.Length == 0)
+        {
+            return null;
+        }
+
         return str;
     }
 
     public static string[] TrimOrNull(this string[] strs)
     {
-        if (strs == null) return null;
+        if (strs == null)
+        {
+            return null;
+        }
+
         var width = strs.Length;
 
         var strsNew = new string[width];
@@ -630,18 +767,34 @@ public static class ExtensionsString
     public static List<string> TrimOrNull(this List<string> strs)
     {
         var l = new List<string>(strs.Count);
-        foreach (var str in strs) l.Add(str.TrimOrNull());
+        foreach (var str in strs)
+        {
+            l.Add(str.TrimOrNull());
+        }
+
         return l;
     }
 
     public static IEnumerable<string> TrimOrNull(this IEnumerable<string> strs)
     {
-        if (strs != null) foreach (var str in strs) yield return str.TrimOrNull();
+        if (strs != null)
+        {
+            foreach (var str in strs)
+            {
+                yield return str.TrimOrNull();
+            }
+        }
     }
 
-    public static string TrimOrNullUpper(this string str) => (str.TrimOrNull())?.ToUpper();
+    public static string TrimOrNullUpper(this string str)
+    {
+        return str.TrimOrNull()?.ToUpper();
+    }
 
-    public static string TrimOrNullLower(this string str) => (str.TrimOrNull())?.ToLower();
+    public static string TrimOrNullLower(this string str)
+    {
+        return str.TrimOrNull()?.ToLower();
+    }
 
     /// <summary>
     /// Trims whitespace from a StringBuilder instance.
@@ -653,7 +806,11 @@ public static class ExtensionsString
         // TODO: Not very performant for large strings
         var s = stringBuilder.ToString().TrimOrNull();
         stringBuilder.Clear();
-        if (s != null) stringBuilder.Append(s);
+        if (s != null)
+        {
+            stringBuilder.Append(s);
+        }
+
         return stringBuilder;
     }
 
@@ -661,20 +818,34 @@ public static class ExtensionsString
 
     public static char FindUnusedCharacter(this string str)
     {
-        if (str == null) throw new ArgumentNullException(nameof(str));
+        if (str == null)
+        {
+            throw new ArgumentNullException(nameof(str));
+        }
+
         const int threshold = 1000; // TODO: Fine tune this. It determines whether to use a simple loop or hashset.
 
         var c = 33;
         if (str.Length < threshold)
         {
-            while (str.IndexOf((char)c) >= 0) c++;
+            while (str.IndexOf((char)c) >= 0)
+            {
+                c++;
+            }
         }
         else
         {
             var hash = new HashSet<char>();
             var chars = str.ToCharArray();
-            for (var i = 0; i < chars.Length; i++) hash.Add(chars[i]);
-            while (hash.Contains((char)c)) c++;
+            for (var i = 0; i < chars.Length; i++)
+            {
+                hash.Add(chars[i]);
+            }
+
+            while (hash.Contains((char)c))
+            {
+                c++;
+            }
         }
 
         return (char)c;
@@ -686,8 +857,15 @@ public static class ExtensionsString
     public static string IdentifyNewLine(this string str)
     {
         var nl = Environment.NewLine;
-        if (str == null) return nl;
-        if (str.Length == 0) return nl;
+        if (str == null)
+        {
+            return nl;
+        }
+
+        if (str.Length == 0)
+        {
+            return nl;
+        }
 
         str = str.Remove(Constant.NEWLINE_WINDOWS, out var cWin);
         str = str.Remove(Constant.NEWLINE_UNIX, out var cUnix);
@@ -700,14 +878,38 @@ public static class ExtensionsString
 
         var list = d.ToListReversed().First().Value;
 
-        if (list.Count == 1) return list.First();
-        if (list.Count == 3) return nl;
+        if (list.Count == 1)
+        {
+            return list.First();
+        }
+
+        if (list.Count == 3)
+        {
+            return nl;
+        }
+
         if (list.Count == 2)
         {
-            if (nl.In(list[0], list[1])) return nl;
-            if (Constant.NEWLINE_WINDOWS.In(list[0], list[1])) return Constant.NEWLINE_WINDOWS;
-            if (Constant.NEWLINE_UNIX.In(list[0], list[1])) return Constant.NEWLINE_UNIX;
-            if (Constant.NEWLINE_MAC.In(list[0], list[1])) return Constant.NEWLINE_MAC;
+            if (nl.In(list[0], list[1]))
+            {
+                return nl;
+            }
+
+            if (Constant.NEWLINE_WINDOWS.In(list[0], list[1]))
+            {
+                return Constant.NEWLINE_WINDOWS;
+            }
+
+            if (Constant.NEWLINE_UNIX.In(list[0], list[1]))
+            {
+                return Constant.NEWLINE_UNIX;
+            }
+
+            if (Constant.NEWLINE_MAC.In(list[0], list[1]))
+            {
+                return Constant.NEWLINE_MAC;
+            }
+
             return nl;
         }
 
@@ -720,7 +922,10 @@ public static class ExtensionsString
     /// </summary>
     /// <param name="str">The string to guess</param>
     /// <returns>The best found Type or string type if a best guess couldn't be found</returns>
-    public static Type GuessType(this string str) => GuessType(str.CheckNotNull(nameof(str)).Yield());
+    public static Type GuessType(this string str)
+    {
+        return GuessType(str.CheckNotNull(nameof(str)).Yield());
+    }
 
     /// <summary>
     /// Tries to guess the best type for a group of strings. All strings provided must be convertable for the match to be made
@@ -735,33 +940,104 @@ public static class ExtensionsString
         var listcount = list.Count;
 
         list = list.WhereNotNull().ToList();
-        var nullable = (listcount != list.Count);
-        if (list.Count == 0) return typeof(string);
-
-        if (list.All(o => Guid.TryParse(o, out var v))) return nullable ? typeof(Guid?) : typeof(Guid);
-        if (list.All(o => o.CountOccurances(".") == 3))
+        var nullable = listcount != list.Count;
+        if (list.Count == 0)
         {
-            if (list.All(o => IPAddress.TryParse(o, out var v))) return typeof(IPAddress);
+            return typeof(string);
         }
 
-        if (list.All(o => o.ToBoolTry(out var v))) return nullable ? typeof(bool?) : typeof(bool);
-        if (list.All(o => o.ToByteTry(out var v))) return nullable ? typeof(byte?) : typeof(byte);
-        if (list.All(o => o.ToSByteTry(out var v))) return nullable ? typeof(sbyte?) : typeof(sbyte);
-        if (list.All(o => o.ToShortTry(out var v))) return nullable ? typeof(short?) : typeof(short);
-        if (list.All(o => o.ToUShortTry(out var v))) return nullable ? typeof(ushort?) : typeof(ushort);
-        if (list.All(o => o.ToIntTry(out var v))) return nullable ? typeof(int?) : typeof(int);
-        if (list.All(o => o.ToUIntTry(out var v))) return nullable ? typeof(uint?) : typeof(uint);
-        if (list.All(o => o.ToLongTry(out var v))) return nullable ? typeof(long?) : typeof(long);
-        if (list.All(o => o.ToULongTry(out var v))) return nullable ? typeof(ulong?) : typeof(ulong);
-        if (list.All(o => o.ToDecimalTry(out var v))) return nullable ? typeof(decimal?) : typeof(decimal);
-        if (list.All(o => o.ToFloatTry(out var v))) return nullable ? typeof(float?) : typeof(float);
-        if (list.All(o => o.ToDoubleTry(out var v))) return nullable ? typeof(double?) : typeof(double);
-        if (list.All(o => BigInteger.TryParse(o, out var v))) return nullable ? typeof(BigInteger?) : typeof(BigInteger);
+        if (list.All(o => Guid.TryParse(o, out var v)))
+        {
+            return nullable ? typeof(Guid?) : typeof(Guid);
+        }
 
-        if (list.All(o => o.Length == 1)) return nullable ? typeof(char?) : typeof(char);
+        if (list.All(o => o.CountOccurances(".") == 3))
+        {
+            if (list.All(o => IPAddress.TryParse(o, out var v)))
+            {
+                return typeof(IPAddress);
+            }
+        }
 
-        if (list.All(o => DateTime.TryParse(o, out var v))) return nullable ? typeof(DateTime?) : typeof(DateTime);
-        if (list.All(o => Uri.TryCreate(o, UriKind.Absolute, out var vUri))) return typeof(Uri);
+        if (list.All(o => o.ToBoolTry(out var v)))
+        {
+            return nullable ? typeof(bool?) : typeof(bool);
+        }
+
+        if (list.All(o => o.ToByteTry(out var v)))
+        {
+            return nullable ? typeof(byte?) : typeof(byte);
+        }
+
+        if (list.All(o => o.ToSByteTry(out var v)))
+        {
+            return nullable ? typeof(sbyte?) : typeof(sbyte);
+        }
+
+        if (list.All(o => o.ToShortTry(out var v)))
+        {
+            return nullable ? typeof(short?) : typeof(short);
+        }
+
+        if (list.All(o => o.ToUShortTry(out var v)))
+        {
+            return nullable ? typeof(ushort?) : typeof(ushort);
+        }
+
+        if (list.All(o => o.ToIntTry(out var v)))
+        {
+            return nullable ? typeof(int?) : typeof(int);
+        }
+
+        if (list.All(o => o.ToUIntTry(out var v)))
+        {
+            return nullable ? typeof(uint?) : typeof(uint);
+        }
+
+        if (list.All(o => o.ToLongTry(out var v)))
+        {
+            return nullable ? typeof(long?) : typeof(long);
+        }
+
+        if (list.All(o => o.ToULongTry(out var v)))
+        {
+            return nullable ? typeof(ulong?) : typeof(ulong);
+        }
+
+        if (list.All(o => o.ToDecimalTry(out var v)))
+        {
+            return nullable ? typeof(decimal?) : typeof(decimal);
+        }
+
+        if (list.All(o => o.ToFloatTry(out var v)))
+        {
+            return nullable ? typeof(float?) : typeof(float);
+        }
+
+        if (list.All(o => o.ToDoubleTry(out var v)))
+        {
+            return nullable ? typeof(double?) : typeof(double);
+        }
+
+        if (list.All(o => BigInteger.TryParse(o, out var v)))
+        {
+            return nullable ? typeof(BigInteger?) : typeof(BigInteger);
+        }
+
+        if (list.All(o => o.Length == 1))
+        {
+            return nullable ? typeof(char?) : typeof(char);
+        }
+
+        if (list.All(o => DateTime.TryParse(o, out var v)))
+        {
+            return nullable ? typeof(DateTime?) : typeof(DateTime);
+        }
+
+        if (list.All(o => Uri.TryCreate(o, UriKind.Absolute, out var vUri)))
+        {
+            return typeof(Uri);
+        }
 
         return typeof(string);
     }
@@ -769,14 +1045,17 @@ public static class ExtensionsString
     #region SplitDelimited
 
     /// <summary>http://stackoverflow.com/a/3776617</summary>
-    private static readonly Regex SplitDelimitedCommaRegex = new Regex("(?:^|,)(\"(?:[^\"]+|\"\")*\"|[^,]*)", RegexOptions.Compiled);
+    private static readonly Regex SplitDelimitedCommaRegex = new("(?:^|,)(\"(?:[^\"]+|\"\")*\"|[^,]*)", RegexOptions.Compiled);
 
-    private static readonly string[] SplitDelimitedTabArray = new string[] { "\t" };
+    private static readonly string[] SplitDelimitedTabArray = { "\t" };
 
     public static List<string[]> SplitDelimitedComma(this string text)
     {
         var result = new List<string[]>();
-        if (text == null) return result;
+        if (text == null)
+        {
+            return result;
+        }
 
         var lines = text.SplitOnNewline().TrimOrNull().WhereNotNull().ToList();
 
@@ -799,7 +1078,10 @@ public static class ExtensionsString
     public static List<string[]> SplitDelimitedTab(this string text)
     {
         var result = new List<string[]>();
-        if (text == null) return result;
+        if (text == null)
+        {
+            return result;
+        }
 
         var lines = text.SplitOnNewline().Where(o => o.TrimOrNull() != null).ToList();
 
@@ -821,4 +1103,3 @@ public static class ExtensionsString
 
     #endregion SplitDelimited
 }
-

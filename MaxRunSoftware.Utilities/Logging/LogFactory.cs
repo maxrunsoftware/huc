@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Diagnostics;
 
@@ -22,9 +20,9 @@ public class LogFactory : ILogFactory
 {
     public static ILogFactory LogFactoryImpl { get; } = new LogFactory();
 
-    private readonly object locker = new object();
+    private readonly object locker = new();
     private readonly LogBackgroundThread thread;
-    private volatile Dictionary<Type, ILogger> loggers = new Dictionary<Type, ILogger>();
+    private volatile Dictionary<Type, ILogger> loggers = new();
 
     public bool IsTraceEnabled { get; private set; }
     public bool IsDebugEnabled { get; private set; }
@@ -52,7 +50,10 @@ public class LogFactory : ILogFactory
 
         protected override void Log(string message, Exception exception, LogLevel level)
         {
-            if (logFactory.ShouldLog(level)) logFactory.thread.AddItem(new LogEventArgs(message, exception, level, type));
+            if (logFactory.ShouldLog(level))
+            {
+                logFactory.thread.AddItem(new LogEventArgs(message, exception, level, type));
+            }
         }
     }
 
@@ -70,18 +71,30 @@ public class LogFactory : ILogFactory
         }
     }
 
-    protected virtual ILogger CreateLogger(Type type) => new Logger(this, type);
+    protected virtual ILogger CreateLogger(Type type)
+    {
+        return new Logger(this, type);
+    }
 
-    public ILogger GetLogger<T>() => GetLogger(typeof(T));
+    public ILogger GetLogger<T>()
+    {
+        return GetLogger(typeof(T));
+    }
 
     public ILogger GetLogger(Type type)
     {
         type.CheckNotNull(nameof(type));
-        if (loggers.TryGetValue(type, out var logger)) return logger;
+        if (loggers.TryGetValue(type, out var logger))
+        {
+            return logger;
+        }
 
         lock (locker)
         {
-            if (loggers.TryGetValue(type, out logger)) return logger;
+            if (loggers.TryGetValue(type, out logger))
+            {
+                return logger;
+            }
 
             logger = CreateLogger(type);
             var d = new Dictionary<Type, ILogger>(loggers) { { type, logger } };
@@ -92,21 +105,42 @@ public class LogFactory : ILogFactory
 
     public void OnLogging(LogEventArgs args)
     {
-
-        foreach (ILogAppender appender in appenders)
+        foreach (var appender in appenders)
         {
-            if (appender == null) continue;
-            bool shouldLog = false;
+            if (appender == null)
+            {
+                continue;
+            }
+
+            var shouldLog = false;
             try
             {
                 var level = args.Level;
                 var levelAppender = appender.Level;
-                if (level == LogLevel.Trace && levelAppender.In(LogLevel.Trace)) shouldLog = true;
-                else if (level == LogLevel.Debug && levelAppender.In(LogLevel.Debug, LogLevel.Trace)) shouldLog = true;
-                else if (level == LogLevel.Info && levelAppender.In(LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) shouldLog = true;
-                else if (level == LogLevel.Warn && levelAppender.In(LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) shouldLog = true;
-                else if (level == LogLevel.Error && levelAppender.In(LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) shouldLog = true;
-                else if (level == LogLevel.Critical) shouldLog = true;
+                if (level == LogLevel.Trace && levelAppender.In(LogLevel.Trace))
+                {
+                    shouldLog = true;
+                }
+                else if (level == LogLevel.Debug && levelAppender.In(LogLevel.Debug, LogLevel.Trace))
+                {
+                    shouldLog = true;
+                }
+                else if (level == LogLevel.Info && levelAppender.In(LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
+                {
+                    shouldLog = true;
+                }
+                else if (level == LogLevel.Warn && levelAppender.In(LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
+                {
+                    shouldLog = true;
+                }
+                else if (level == LogLevel.Error && levelAppender.In(LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
+                {
+                    shouldLog = true;
+                }
+                else if (level == LogLevel.Critical)
+                {
+                    shouldLog = true;
+                }
 
                 if (shouldLog)
                 {
@@ -133,10 +167,10 @@ public class LogFactory : ILogFactory
         }
     }
 
-    private readonly List<ILogAppender> appenders = new List<ILogAppender>();
+    private readonly List<ILogAppender> appenders = new();
+
     public void AddAppender(ILogAppender appender)
     {
-
         appenders.Add(appender);
 
         IsTraceEnabled = false;
@@ -189,9 +223,5 @@ public class LogFactory : ILogFactory
                 IsCriticalEnabled = true;
             }
         }
-
-
     }
-
-
 }

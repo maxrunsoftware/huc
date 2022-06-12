@@ -164,10 +164,25 @@ public static class Constant
     {
         try
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return OSPlatform.Windows;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return OSPlatform.OSX;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return OSPlatform.Linux;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) return OSPlatform.FreeBSD;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return OSPlatform.Windows;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return OSPlatform.OSX;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return OSPlatform.Linux;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
+            {
+                return OSPlatform.FreeBSD;
+            }
         }
         catch (Exception e)
         {
@@ -450,11 +465,23 @@ public static class Constant
             foreach (var propInfo in propInfos)
             {
                 var colorGetMethod = propInfo.GetGetMethod();
-                if (colorGetMethod == null) continue;
+                if (colorGetMethod == null)
+                {
+                    continue;
+                }
+
                 var colorObject = colorGetMethod.Invoke(null, null);
-                if (colorObject == null) continue;
+                if (colorObject == null)
+                {
+                    continue;
+                }
+
                 var colorObjectType = colorObject.GetType();
-                if (!colorObjectType.Equals(typeof(Color))) continue;
+                if (!colorObjectType.Equals(typeof(Color)))
+                {
+                    continue;
+                }
+
                 var color = (Color)colorObject;
                 var colorName = propInfo.Name;
                 d[colorName] = color;
@@ -506,8 +533,16 @@ public static class Constant
     private static IReadOnlyDictionary<string, bool> String_Bool_get()
     {
         var d = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-        foreach (var item in BOOL_TRUE.Split(' ')) d.Add(item, true);
-        foreach (var item in BOOL_FALSE.Split(' ')) d.Add(item, false);
+        foreach (var item in BOOL_TRUE.Split(' '))
+        {
+            d.Add(item, true);
+        }
+
+        foreach (var item in BOOL_FALSE.Split(' '))
+        {
+            d.Add(item, false);
+        }
+
         return new Dictionary<string, bool>(d, StringComparer.OrdinalIgnoreCase);
     }
 
@@ -532,13 +567,20 @@ public static class Constant
         var list = new List<string>();
         foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
         {
-            if (!item.Any(o => PATH_DELIMITERS.Contains(o))) continue;
+            if (!item.Any(o => PATH_DELIMITERS.Contains(o)))
+            {
+                continue;
+            }
 
             // contains directory delimiters
             try
             {
                 var dn = Path.GetDirectoryName(item);
-                if (dn == null) continue;
+                if (dn == null)
+                {
+                    continue;
+                }
+
                 var a = Path.GetFullPath(dn);
                 list.Add(a);
             }
@@ -639,9 +681,21 @@ public static class Constant
         {
             // http://stackoverflow.com/questions/3453220/how-to-detect-if-console-in-stdin-has-been-redirected?lq=1
             //return (0 == (System.Console.WindowHeight + System.Console.WindowWidth)) && System.Console.KeyAvailable;
-            if (Console.WindowHeight != 0) return false;
-            if (Console.WindowWidth != 0) return false;
-            if (!Console.KeyAvailable) return false;
+            if (Console.WindowHeight != 0)
+            {
+                return false;
+            }
+
+            if (Console.WindowWidth != 0)
+            {
+                return false;
+            }
+
+            if (!Console.KeyAvailable)
+            {
+                return false;
+            }
+
             return true;
         }
         catch (Exception e)
@@ -708,7 +762,11 @@ public static class Constant
 
     private static string TrimOrNull(string str)
     {
-        if (str == null) return null;
+        if (str == null)
+        {
+            return null;
+        }
+
         str = str.Trim();
         return str.Length == 0 ? null : str;
     }

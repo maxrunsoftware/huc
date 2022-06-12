@@ -1,18 +1,18 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+using System.Threading;
 
 namespace MaxRunSoftware.Utilities;
 
@@ -21,18 +21,18 @@ namespace MaxRunSoftware.Utilities;
 /// </summary>
 public sealed class MutexLock : IDisposable
 {
-    private readonly System.Threading.Mutex mutex;
-    private readonly SingleUse su = new SingleUse();
-    private bool hasHandle;
+    private readonly Mutex mutex;
+    private readonly SingleUse su = new();
+    private readonly bool hasHandle;
     public string MutexName { get; }
 
-    private static readonly char[] illegalMutexChars = new char[] { ':', '/', '\\' }
-                                                    .Concat(Path.GetInvalidFileNameChars())
-                                                    .Concat(Path.GetInvalidPathChars())
-                                                    .Concat(Path.DirectorySeparatorChar)
-                                                    .Concat(Path.AltDirectorySeparatorChar)
-                                                    .Distinct()
-                                                    .ToArray();
+    private static readonly char[] illegalMutexChars = new[] { ':', '/', '\\' }
+        .Concat(Path.GetInvalidFileNameChars())
+        .Concat(Path.GetInvalidPathChars())
+        .Concat(Path.DirectorySeparatorChar)
+        .Concat(Path.AltDirectorySeparatorChar)
+        .Distinct()
+        .ToArray();
 
     private static string MutexNameFormat(string mutexName)
     {
@@ -41,17 +41,38 @@ public sealed class MutexLock : IDisposable
         {
             mutexName = mutexName.Replace(illegalMutexChars[i], '_');
         }
-        while (mutexName.Contains("__")) mutexName = mutexName.Replace("__", "_");
-        while (mutexName.StartsWith("_")) mutexName = mutexName.RemoveLeft();
-        while (mutexName.EndsWith("_")) mutexName = mutexName.RemoveRight();
+
+        while (mutexName.Contains("__"))
+        {
+            mutexName = mutexName.Replace("__", "_");
+        }
+
+        while (mutexName.StartsWith("_"))
+        {
+            mutexName = mutexName.RemoveLeft();
+        }
+
+        while (mutexName.EndsWith("_"))
+        {
+            mutexName = mutexName.RemoveRight();
+        }
+
         mutexName = mutexName.TrimOrNullUpper();
-        if (mutexName == null) return "MUTEX";
-        if (mutexName.StartsWith("MUTEX")) return mutexName;
+        if (mutexName == null)
+        {
+            return "MUTEX";
+        }
+
+        if (mutexName.StartsWith("MUTEX"))
+        {
+            return mutexName;
+        }
+
         return "MUTEX_" + mutexName;
     }
 
-    private static readonly object locker = new object();
-    private static readonly Dictionary<string, string> mutexNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    private static readonly object locker = new();
+    private static readonly Dictionary<string, string> mutexNames = new(StringComparer.OrdinalIgnoreCase);
 
     private MutexLock(string mutexName, TimeSpan timeout)
     {
@@ -63,18 +84,23 @@ public sealed class MutexLock : IDisposable
                 actualMutexName = MutexNameFormat(mutexName);
                 mutexNames.Add(mutexName, actualMutexName);
             }
+
             mutexName = actualMutexName;
         }
+
         MutexName = mutexName;
 
         // https://stackoverflow.com/a/229567
-        mutex = new System.Threading.Mutex(false, mutexName);
+        mutex = new Mutex(false, mutexName);
         try
         {
             hasHandle = mutex.WaitOne(timeout, false);
-            if (hasHandle == false) throw new MutexLockTimeoutException(mutexName, timeout);
+            if (hasHandle == false)
+            {
+                throw new MutexLockTimeoutException(mutexName, timeout);
+            }
         }
-        catch (System.Threading.AbandonedMutexException)
+        catch (AbandonedMutexException)
         {
             hasHandle = true;
         }
@@ -82,18 +108,51 @@ public sealed class MutexLock : IDisposable
 
     public void Dispose()
     {
-        if (!su.TryUse()) return;
-        if (hasHandle) mutex.ReleaseMutex();
+        if (!su.TryUse())
+        {
+            return;
+        }
+
+        if (hasHandle)
+        {
+            mutex.ReleaseMutex();
+        }
     }
 
-    public static MutexLock Create(TimeSpan timeout, string mutexName) => new MutexLock(mutexName, timeout);
-    public static MutexLock Create(TimeSpan timeout, Guid mutexId) => Create(timeout, ParseGuid(mutexId));
-    public static MutexLock Create(TimeSpan timeout, FileInfo file) => Create(timeout, ParseFile(file));
-    public static MutexLock CreateGlobal(TimeSpan timeout, string mutexName) => new MutexLock(string.Format("Global\\{{{0}}}", mutexName), timeout);
-    public static MutexLock CreateGlobal(TimeSpan timeout, Guid mutexId) => CreateGlobal(timeout, ParseGuid(mutexId));
-    public static MutexLock CreateGlobal(TimeSpan timeout, FileInfo file) => CreateGlobal(timeout, ParseFile(file));
+    public static MutexLock Create(TimeSpan timeout, string mutexName)
+    {
+        return new MutexLock(mutexName, timeout);
+    }
 
-    private static string ParseGuid(Guid guid) => guid.ToString().Replace("-", "");
+    public static MutexLock Create(TimeSpan timeout, Guid mutexId)
+    {
+        return Create(timeout, ParseGuid(mutexId));
+    }
+
+    public static MutexLock Create(TimeSpan timeout, FileInfo file)
+    {
+        return Create(timeout, ParseFile(file));
+    }
+
+    public static MutexLock CreateGlobal(TimeSpan timeout, string mutexName)
+    {
+        return new MutexLock(string.Format("Global\\{{{0}}}", mutexName), timeout);
+    }
+
+    public static MutexLock CreateGlobal(TimeSpan timeout, Guid mutexId)
+    {
+        return CreateGlobal(timeout, ParseGuid(mutexId));
+    }
+
+    public static MutexLock CreateGlobal(TimeSpan timeout, FileInfo file)
+    {
+        return CreateGlobal(timeout, ParseFile(file));
+    }
+
+    private static string ParseGuid(Guid guid)
+    {
+        return guid.ToString().Replace("-", "");
+    }
 
     private static string ParseFile(FileInfo file)
     {
@@ -102,6 +161,7 @@ public sealed class MutexLock : IDisposable
         {
             fn = fn.Left(20) + fn.Right(160); // TODO: Maybe a better way to do this?
         }
+
         return fn;
     }
 }

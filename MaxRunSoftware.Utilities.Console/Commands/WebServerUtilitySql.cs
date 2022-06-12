@@ -125,13 +125,13 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                     html.Form();
                     html.P();
                     html.InputText("connectionString", label: "Connection String ", size: 80, value: "Server=192.168.42.2;Database=NorthWind;User Id=testuser;Password=testpass;");
-                    html.BR(2);
+                    html.Br(2);
                     html.InputText("commandTimeout", label: "Command Timeout ", value: "60");
-                    html.BR(2);
+                    html.Br(2);
                     html.Select<SqlServerType>("serverType");
-                    html.BR(2);
+                    html.Br(2);
                     html.InputSubmit("Execute");
-                    html.BR(2);
+                    html.Br(2);
                     html.TextArea("sqlStatement", rows: 24, cols: 80, text: "SELECT * FROM Orders");
                     html.PEnd();
                     html.FormEnd();
@@ -141,7 +141,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                     foreach (var table in result.tables)
                     {
                         html.Table(table);
-                        html.BR(2);
+                        html.Br(2);
                     }
                 }
 

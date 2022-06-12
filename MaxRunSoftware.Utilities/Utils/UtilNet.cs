@@ -1,20 +1,19 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Net;
+using System.Net.Cache;
 using System.Net.NetworkInformation;
 using System.Text.RegularExpressions;
 
@@ -40,9 +39,13 @@ public static partial class Util
         request.Accept = "text/html, application/xhtml+xml, */*";
         request.UserAgent = "p2pcopy";
         request.ContentType = "application/x-www-form-urlencoded";
-        request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore); //No caching
+        request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore); //No caching
         var response = (HttpWebResponse)request.GetResponse();
-        if (response.StatusCode != HttpStatusCode.OK) throw new WebException(response.StatusCode + ":" + response.StatusDescription);
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            throw new WebException(response.StatusCode + ":" + response.StatusDescription);
+        }
+
         var stream = new StreamReader(response.GetResponseStream());
         var html = stream.ReadToEnd(); //<timestamp time=\"1395772696469995\" delay=\"1395772696469995\"/>
         var time = Regex.Match(html, @"(?<=unixtime: )[^u]*").Value;
@@ -56,13 +59,16 @@ public static partial class Util
     /// Get all of the IP addresses on the current machine
     /// </summary>
     /// <returns>The IP addresses</returns>
-    public static IEnumerable<IPAddress> NetGetIPAddresses() => NetworkInterface.GetAllNetworkInterfaces()
+    public static IEnumerable<IPAddress> NetGetIPAddresses()
+    {
+        return NetworkInterface.GetAllNetworkInterfaces()
             .Where(o => o.OperationalStatus == OperationalStatus.Up)
             .Select(o => o.GetIPProperties())
             .WhereNotNull()
             .SelectMany(o => o.UnicastAddresses)
             .Select(o => o.Address)
             .WhereNotNull();
+    }
 
     private static bool[] NetGetPortStatusInternal()
     {
@@ -87,17 +93,26 @@ public static partial class Util
     public static IEnumerable<(int port, bool isOpen)> NetGetPortStatus()
     {
         var portStatus = NetGetPortStatusInternal();
-        for (int i = 1; i < portStatus.Length; i++)
+        for (var i = 1; i < portStatus.Length; i++)
         {
             yield return (i, portStatus[i]);
         }
     }
 
-    public static IEnumerable<int> NetGetOpenPorts() => NetGetPortStatus().Where(o => o.isOpen).Select(o => o.port);
+    public static IEnumerable<int> NetGetOpenPorts()
+    {
+        return NetGetPortStatus().Where(o => o.isOpen).Select(o => o.port);
+    }
 
-    public static IEnumerable<int> NetGetClosedPorts() => NetGetPortStatus().Where(o => !o.isOpen).Select(o => o.port);
+    public static IEnumerable<int> NetGetClosedPorts()
+    {
+        return NetGetPortStatus().Where(o => !o.isOpen).Select(o => o.port);
+    }
 
-    public static bool NetIsPortAvailable(int port) => NetGetPortStatus().Where(o => o.port == port).Select(o => o.isOpen).FirstOrDefault();
+    public static bool NetIsPortAvailable(int port)
+    {
+        return NetGetPortStatus().Where(o => o.port == port).Select(o => o.isOpen).FirstOrDefault();
+    }
 
     /// <summary>
     /// Tries to find an open port in a range or if none is found a -1 is returned
@@ -107,15 +122,36 @@ public static partial class Util
     /// <returns>An open port or -1 if none were found</returns>
     public static int NetFindOpenPort(int startInclusive, int endInclusive = 65535)
     {
-        if (startInclusive < 1) startInclusive = 1;
-        if (endInclusive > 65535) endInclusive = 65535;
+        if (startInclusive < 1)
+        {
+            startInclusive = 1;
+        }
+
+        if (endInclusive > 65535)
+        {
+            endInclusive = 65535;
+        }
+
         foreach (var portStatus in NetGetPortStatus())
         {
-            if (portStatus.port < startInclusive) continue;
-            if (portStatus.port > endInclusive) continue;
-            if (!portStatus.isOpen) continue;
+            if (portStatus.port < startInclusive)
+            {
+                continue;
+            }
+
+            if (portStatus.port > endInclusive)
+            {
+                continue;
+            }
+
+            if (!portStatus.isOpen)
+            {
+                continue;
+            }
+
             return portStatus.port;
         }
+
         return -1;
     }
 
@@ -133,6 +169,7 @@ public static partial class Util
         public string Url { get; }
         public byte[] Data { get; }
         public IDictionary<string, List<string>> Headers { get; }
+
         public string ContentType
         {
             get
@@ -154,7 +191,7 @@ public static partial class Util
             Url = url;
             Data = data;
             var d = new SortedDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
-            for (int i = 0; i < headers.Count; i++)
+            for (var i = 0; i < headers.Count; i++)
             {
                 var key = headers.GetKey(i).TrimOrNull();
                 var val = headers.Get(i);
@@ -171,6 +208,7 @@ public static partial class Util
         {
             return GetType().Name + $"[{Url}] Headers:{Headers.Count} Data:" + (Data == null ? "null" : Data.Length);
         }
+
         public string ToStringDetail()
         {
             var sb = new StringBuilder();
@@ -181,16 +219,28 @@ public static partial class Util
             {
                 var key = kvp.Key;
                 var valList = kvp.Value;
-                if (key == null) continue;
-                if (valList == null) continue;
-                if (valList.IsEmpty()) continue;
+                if (key == null)
+                {
+                    continue;
+                }
+
+                if (valList == null)
+                {
+                    continue;
+                }
+
+                if (valList.IsEmpty())
+                {
+                    continue;
+                }
+
                 if (valList.Count == 1)
                 {
                     sb.AppendLine("\t" + key + ": " + valList[0]);
                 }
                 else
                 {
-                    for (int i = 0; i < valList.Count; i++)
+                    for (var i = 0; i < valList.Count; i++)
                     {
                         sb.AppendLine("\t" + key + "[" + i + "]: " + valList[i]);
                     }
@@ -215,10 +265,19 @@ public static partial class Util
             {
                 var name = kvp.Key.TrimOrNull();
                 var val = kvp.Value.TrimOrNull();
-                if (name == null || val == null) continue;
-                if (sb.Length > 0) sb.Append(";");
+                if (name == null || val == null)
+                {
+                    continue;
+                }
+
+                if (sb.Length > 0)
+                {
+                    sb.Append(";");
+                }
+
                 sb.Append(kvp.Key + "=" + kvp.Value);
             }
+
             cli.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
 
             if (outFilename != null)
@@ -229,7 +288,7 @@ public static partial class Util
                 }
             }
 
-            bool unauthorized = false;
+            var unauthorized = false;
             try
             {
                 byte[] data = null;
@@ -254,12 +313,12 @@ public static partial class Util
                 {
                     throw;
                 }
-
             }
+
             if (unauthorized)
             {
                 // https://stackoverflow.com/a/26016919
-                string credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
+                var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
                 cli.Headers[HttpRequestHeader.Authorization] = string.Format("Basic {0}", credentials);
                 byte[] data = null;
                 if (outFilename == null)
@@ -328,6 +387,7 @@ public static partial class Util
                             {
                                 yield return component;
                             }
+
                             break;
 
                         case '\\':
@@ -343,6 +403,7 @@ public static partial class Util
                                 // Double quotes inside quoted string produce single quote
                                 currentComponent.Append(currentChar);
                             }
+
                             currentState = QUOTED_STRING;
                             break;
 
@@ -350,6 +411,7 @@ public static partial class Util
                             currentComponent.Append(currentChar);
                             break;
                     }
+
                     break;
 
                 case QUOTED_STRING:
@@ -370,6 +432,7 @@ public static partial class Util
                             currentComponent.Append(currentChar);
                             break;
                     }
+
                     break;
 
                 case ESCAPED_CHARACTER:
@@ -393,5 +456,4 @@ public static partial class Util
             }
         }
     }
-
 }

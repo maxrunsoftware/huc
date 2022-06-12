@@ -15,7 +15,7 @@
 namespace MaxRunSoftware.Utilities;
 
 /// <summary>
-///     Threadsafe cache implementation using backing dictionary and value generation function.
+/// Thread safe cache implementation using backing dictionary and value generation function.
 /// </summary>
 /// <typeparam name="TKey">Key</typeparam>
 /// <typeparam name="TValue">Generated Value</typeparam>
@@ -33,7 +33,16 @@ public class BucketCacheThreadSafe<TKey, TValue> : IBucketReadOnly<TKey, TValue>
 
     public BucketCacheThreadSafe(Func<TKey, TValue> factory) : this(factory, new Dictionary<TKey, TValue>()) { }
 
-    public IEnumerable<TKey> Keys => dictionary.Keys;
+    public IEnumerable<TKey> Keys
+    {
+        get
+        {
+            lock (locker)
+            {
+                return dictionary.Keys;
+            }
+        }
+    }
 
     public TValue this[TKey key]
     {

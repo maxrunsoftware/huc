@@ -1,18 +1,16 @@
-﻿// /*
-// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// */
 
 using System.Collections.Specialized;
 
@@ -20,10 +18,8 @@ namespace MaxRunSoftware.Utilities;
 
 /// <summary>
 /// A dictionary that maintains insertion ordering of keys.
-/// 
 /// This is useful for emitting JSON where it is preferable to keep the key ordering
 /// for various human-friendlier reasons.
-/// 
 /// There is no support to manually re-order keys or to access keys
 /// by index without using Keys/Values or the Enumerator (eg).
 /// </summary>
@@ -36,33 +32,56 @@ public sealed class DictionaryIndexed<TKey, TValue> : IDictionary<TKey, TValue>,
 
     private IEnumerable<KeyValuePair<TKey, TValue>> KeyValuePairs => d.OfType<DictionaryEntry>().Select(e => new KeyValuePair<TKey, TValue>((TKey)e.Key, (TValue)e.Value));
 
-    public DictionaryIndexed() => d = new OrderedDictionary();
+    public DictionaryIndexed()
+    {
+        d = new OrderedDictionary();
+    }
 
-    public DictionaryIndexed(IEqualityComparer comparer) => d = new OrderedDictionary(comparer);
+    public DictionaryIndexed(IEqualityComparer comparer)
+    {
+        d = new OrderedDictionary(comparer);
+    }
 
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => KeyValuePairs.GetEnumerator();
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+    {
+        return KeyValuePairs.GetEnumerator();
+    }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 
-    public void Add(KeyValuePair<TKey, TValue> item) => d[item.Key] = item.Value;
+    public void Add(KeyValuePair<TKey, TValue> item)
+    {
+        d[item.Key] = item.Value;
+    }
 
-    public void Clear() => d.Clear();
+    public void Clear()
+    {
+        d.Clear();
+    }
 
-    public bool Contains(KeyValuePair<TKey, TValue> item) => d.Contains(item.Key);
+    public bool Contains(KeyValuePair<TKey, TValue> item)
+    {
+        return d.Contains(item.Key);
+    }
 
-    public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) => KeyValuePairs.ToList().CopyTo(array, arrayIndex);
+    public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+    {
+        KeyValuePairs.ToList().CopyTo(array, arrayIndex);
+    }
 
     public bool Remove(KeyValuePair<TKey, TValue> item)
     {
-        if (TryGetValue(item.Key, out var value))
+        if (!TryGetValue(item.Key, out var value) || !Equals(value, item.Value))
         {
-            if (Equals(value, item.Value))
-            {
-                Remove(item.Key);
-                return true;
-            }
+            return false;
         }
-        return false;
+
+        Remove(item.Key);
+        return true;
+
     }
 
     public int Count => d.Count;
@@ -80,19 +99,21 @@ public sealed class DictionaryIndexed<TKey, TValue> : IDictionary<TKey, TValue>,
         {
             d.Remove(key);
         }
+
         return result;
     }
 
     public bool TryGetValue(TKey key, out TValue value)
     {
-        object foundValue = d[key];
+        var foundValue = d[key];
         if (foundValue != null || d.Contains(key))
         {
             // Either found with a non-null value, or contained value is null.
             value = (TValue)foundValue;
             return true;
         }
-        value = default(TValue);
+
+        value = default;
         return false;
     }
 

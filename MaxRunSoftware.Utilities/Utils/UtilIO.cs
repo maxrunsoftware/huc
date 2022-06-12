@@ -1,18 +1,16 @@
-﻿// /*
-// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// */
 
 namespace MaxRunSoftware.Utilities;
 
@@ -35,16 +33,31 @@ public static partial class Util
             Exception = exception;
         }
 
-        public override string ToString() => Path;
+        public override string ToString()
+        {
+            return Path;
+        }
 
-        public FileSystemInfo GetFileSystemInfo() => IsDirectory ? new DirectoryInfo(Path) : (FileSystemInfo)new FileInfo(Path);
+        public FileSystemInfo GetFileSystemInfo()
+        {
+            return IsDirectory ? new DirectoryInfo(Path) : new FileInfo(Path);
+        }
     }
 
-    internal static DirectoryNotFoundException CreateExceptionDirectoryNotFound(string directoryPath) => new DirectoryNotFoundException("Directory does not exist " + directoryPath);
+    internal static DirectoryNotFoundException CreateExceptionDirectoryNotFound(string directoryPath)
+    {
+        return new DirectoryNotFoundException("Directory does not exist " + directoryPath);
+    }
 
-    internal static FileNotFoundException CreateExceptionFileNotFound(string filePath) => new FileNotFoundException("File does not exist " + filePath, filePath);
+    internal static FileNotFoundException CreateExceptionFileNotFound(string filePath)
+    {
+        return new FileNotFoundException("File does not exist " + filePath, filePath);
+    }
 
-    internal static DirectoryNotFoundException CreateExceptionIsNotDirectory(string directoryPath) => new DirectoryNotFoundException("Path is a file not a directory " + directoryPath);
+    internal static DirectoryNotFoundException CreateExceptionIsNotDirectory(string directoryPath)
+    {
+        return new DirectoryNotFoundException("Path is a file not a directory " + directoryPath);
+    }
 
     public static (string directoryName, string fileName, string extension) SplitFileName(string file)
     {
@@ -52,36 +65,58 @@ public static partial class Util
         var d = Path.GetFullPath(Path.GetDirectoryName(file));
         var f = Path.GetFileNameWithoutExtension(file);
         var e = Path.GetExtension(file).TrimOrNull();
-        if (e != null && e.Length > 0 && e[0] == '.') e = e.Remove(0, 1).TrimOrNull();
+        if (e != null && e.Length > 0 && e[0] == '.')
+        {
+            e = e.Remove(0, 1).TrimOrNull();
+        }
+
         return (d.TrimOrNull() ?? string.Empty, f ?? string.Empty, e.TrimOrNull() ?? string.Empty);
     }
 
     public static string FileGetMD5(string file)
     {
-        using (var stream = FileOpenRead(file)) return GenerateHashMD5(stream);
+        using (var stream = FileOpenRead(file))
+        {
+            return GenerateHashMD5(stream);
+        }
     }
 
     public static string FileGetSHA1(string file)
     {
-        using (var stream = FileOpenRead(file)) return GenerateHashSHA1(stream);
+        using (var stream = FileOpenRead(file))
+        {
+            return GenerateHashSHA1(stream);
+        }
     }
 
     public static string FileGetSHA256(string file)
     {
-        using (var stream = FileOpenRead(file)) return GenerateHashSHA256(stream);
+        using (var stream = FileOpenRead(file))
+        {
+            return GenerateHashSHA256(stream);
+        }
     }
 
     public static string FileGetSHA384(string file)
     {
-        using (var stream = FileOpenRead(file)) return GenerateHashSHA384(stream);
+        using (var stream = FileOpenRead(file))
+        {
+            return GenerateHashSHA384(stream);
+        }
     }
 
     public static string FileGetSHA512(string file)
     {
-        using (var stream = FileOpenRead(file)) return GenerateHashSHA512(stream);
+        using (var stream = FileOpenRead(file))
+        {
+            return GenerateHashSHA512(stream);
+        }
     }
 
-    public static long FileGetSize(string file) => (new FileInfo(file)).Length;
+    public static long FileGetSize(string file)
+    {
+        return new FileInfo(file).Length;
+    }
 
     public static string FileChangeName(string file, string newFileName)
     {
@@ -89,18 +124,35 @@ public static partial class Util
         var dir = Path.GetDirectoryName(file);
         var name = newFileName;
         var ext = string.Empty;
-        if (Path.HasExtension(file)) ext = Path.GetExtension(file);
-        if (!ext.StartsWith(".")) ext = "." + ext;
+        if (Path.HasExtension(file))
+        {
+            ext = Path.GetExtension(file);
+        }
+
+        if (!ext.StartsWith("."))
+        {
+            ext = "." + ext;
+        }
+
         var f = Path.Combine(dir, name + ext);
         f = Path.GetFullPath(f);
         return f;
     }
 
-    public static string FileChangeNameRandomized(string file) => FileChangeNameAppendRight(file, "_" + Guid.NewGuid().ToString().Replace("-", ""));
+    public static string FileChangeNameRandomized(string file)
+    {
+        return FileChangeNameAppendRight(file, "_" + Guid.NewGuid().ToString().Replace("-", ""));
+    }
 
-    public static string FileChangeNameAppendRight(string file, string stringToAppend) => FileChangeName(file, Path.GetFileNameWithoutExtension(Path.GetFullPath(file)) + stringToAppend);
+    public static string FileChangeNameAppendRight(string file, string stringToAppend)
+    {
+        return FileChangeName(file, Path.GetFileNameWithoutExtension(Path.GetFullPath(file)) + stringToAppend);
+    }
 
-    public static string FileChangeNameAppendLeft(string file, string stringToAppend) => FileChangeName(file, stringToAppend + Path.GetFileNameWithoutExtension(Path.GetFullPath(file)));
+    public static string FileChangeNameAppendLeft(string file, string stringToAppend)
+    {
+        return FileChangeName(file, stringToAppend + Path.GetFileNameWithoutExtension(Path.GetFullPath(file)));
+    }
 
     public static string FileChangeExtension(string file, string newExtension)
     {
@@ -108,7 +160,11 @@ public static partial class Util
         var dir = Path.GetDirectoryName(file);
         var name = Path.GetFileNameWithoutExtension(file);
         var ext = newExtension ?? string.Empty;
-        if (!ext.StartsWith(".")) ext = "." + ext;
+        if (!ext.StartsWith("."))
+        {
+            ext = "." + ext;
+        }
+
         var f = Path.Combine(dir, name + ext);
         f = Path.GetFullPath(f);
         return f;
@@ -117,8 +173,16 @@ public static partial class Util
     public static bool IsDirectory(string path)
     {
         path = path.CheckNotNullTrimmed(path);
-        if (File.Exists(path)) return false;
-        if (Directory.Exists(path)) return true;
+        if (File.Exists(path))
+        {
+            return false;
+        }
+
+        if (Directory.Exists(path))
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -128,12 +192,18 @@ public static partial class Util
         file2.CheckFileExists("file2");
 
         // TODO: Check if file system is case sensitive or not then do a case-insensitive comparison since Windows uses case-insensitive filesystem.
-        if (string.Equals(file1, file2)) return true;
+        if (string.Equals(file1, file2))
+        {
+            return true;
+        }
 
         var file1Size = FileGetSize(file1);
         var file2Size = FileGetSize(file2);
 
-        if (file1Size != file2Size) return false;
+        if (file1Size != file2Size)
+        {
+            return false;
+        }
 
         if (buffered)
         {
@@ -142,42 +212,47 @@ public static partial class Util
 
             return file1Bytes.EqualsBytes(file2Bytes);
         }
-        else
+        // No buffer needed http://stackoverflow.com/a/2069317 http://blogs.msdn.com/b/brada/archive/2004/04/15/114329.aspx
+
+        // Compare method from http://stackoverflow.com/a/1359947
+        const int BYTES_TO_READ = sizeof(long);
+
+        var iterations = (int)Math.Ceiling((double)file1Size / BYTES_TO_READ);
+
+        using (var fs1 = FileOpenRead(file1))
+        using (var fs2 = FileOpenRead(file2))
         {
-            // No buffer needed http://stackoverflow.com/a/2069317 http://blogs.msdn.com/b/brada/archive/2004/04/15/114329.aspx
+            var one = new byte[BYTES_TO_READ];
+            var two = new byte[BYTES_TO_READ];
 
-            // Compare method from http://stackoverflow.com/a/1359947
-            const int BYTES_TO_READ = sizeof(long);
-
-            var iterations = (int)Math.Ceiling((double)file1Size / BYTES_TO_READ);
-
-            using (var fs1 = FileOpenRead(file1))
-            using (var fs2 = FileOpenRead(file2))
+            for (var i = 0; i < iterations; i++)
             {
-                var one = new byte[BYTES_TO_READ];
-                var two = new byte[BYTES_TO_READ];
+                fs1.Read(one, 0, BYTES_TO_READ);
+                fs2.Read(two, 0, BYTES_TO_READ);
 
-                for (var i = 0; i < iterations; i++)
+                if (BitConverter.ToInt64(one, 0) != BitConverter.ToInt64(two, 0))
                 {
-                    fs1.Read(one, 0, BYTES_TO_READ);
-                    fs2.Read(two, 0, BYTES_TO_READ);
-
-                    if (BitConverter.ToInt64(one, 0) != BitConverter.ToInt64(two, 0))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
-
-            return true;
         }
+
+        return true;
     }
 
     public static bool IsFile(string path)
     {
         path = path.CheckNotNullTrimmed(path);
-        if (Directory.Exists(path)) return false;
-        if (File.Exists(path)) return true;
+        if (Directory.Exists(path))
+        {
+            return false;
+        }
+
+        if (File.Exists(path))
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -191,8 +266,15 @@ public static partial class Util
     {
         directoryPath = directoryPath.CheckNotNullTrimmed(nameof(directoryPath));
         directoryPath = Path.GetFullPath(directoryPath);
-        if (IsFile(directoryPath)) throw CreateExceptionIsNotDirectory(directoryPath);
-        if (!IsDirectory(directoryPath)) throw CreateExceptionDirectoryNotFound(directoryPath);
+        if (IsFile(directoryPath))
+        {
+            throw CreateExceptionIsNotDirectory(directoryPath);
+        }
+
+        if (!IsDirectory(directoryPath))
+        {
+            throw CreateExceptionDirectoryNotFound(directoryPath);
+        }
 
         var alreadyScannedDirectories = new HashSet<string>(Constant.OS_WINDOWS ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
         var queue = new Queue<string>();
@@ -202,17 +284,27 @@ public static partial class Util
             var currentDirectory = Path.GetFullPath(queue.Dequeue());
 
             // prevent loops
-            if (!alreadyScannedDirectories.Add(currentDirectory)) continue;
+            if (!alreadyScannedDirectories.Add(currentDirectory))
+            {
+                continue;
+            }
 
             // ignore links to other paths
-            if (!currentDirectory.StartsWith(directoryPath, Constant.OS_WINDOWS ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)) continue;
+            if (!currentDirectory.StartsWith(directoryPath, Constant.OS_WINDOWS ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+            {
+                continue;
+            }
 
             Exception exception = null;
             string[] files = null;
             try
             {
                 var subdirs = Directory.GetDirectories(currentDirectory).OrEmpty();
-                for (var i = 0; i < subdirs.Length; i++) queue.Enqueue(subdirs[i]);
+                for (var i = 0; i < subdirs.Length; i++)
+                {
+                    queue.Enqueue(subdirs[i]);
+                }
+
                 files = Directory.GetFiles(currentDirectory).OrEmpty();
             }
             catch (Exception ex)
@@ -230,7 +322,10 @@ public static partial class Util
                 }
             }
 
-            if (!recursive) queue.Clear();
+            if (!recursive)
+            {
+                queue.Clear();
+            }
         }
     }
 
@@ -258,10 +353,26 @@ public static partial class Util
 
     public static bool FileIsAbsolutePath(string path)
     {
-        if (path.TrimOrNull() == null) return false;
-        if (path.IndexOfAny(Path.GetInvalidPathChars()) != -1) return false;
-        if (!Path.IsPathRooted(path)) return false;
-        if (Path.GetPathRoot(path).Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)) return false;
+        if (path.TrimOrNull() == null)
+        {
+            return false;
+        }
+
+        if (path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+        {
+            return false;
+        }
+
+        if (!Path.IsPathRooted(path))
+        {
+            return false;
+        }
+
+        if (Path.GetPathRoot(path).Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -281,21 +392,41 @@ public static partial class Util
         }
         else
         {
-            if (Constant.OS_WINDOWS) reassemblychar = "\\";
-            else reassemblychar = "/";
+            if (Constant.OS_WINDOWS)
+            {
+                reassemblychar = "\\";
+            }
+            else
+            {
+                reassemblychar = "/";
+            }
         }
 
         var pathparts = path.Split(reassemblychar).TrimOrNull().WhereNotNull().ToList();
-        if (pathparts.Count == 1) return null;
+        if (pathparts.Count == 1)
+        {
+            return null;
+        }
+
         pathparts.PopTail();
         path = pathparts.ToStringDelimited(reassemblychar);
-        if (reassemblychar.Equals("/")) path = "/" + path;
+        if (reassemblychar.Equals("/"))
+        {
+            path = "/" + path;
+        }
+
         return Path.GetFullPath(path);
     }
 
-    public static FileStream FileOpenRead(string filename) => File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+    public static FileStream FileOpenRead(string filename)
+    {
+        return File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+    }
 
-    public static FileStream FileOpenWrite(string filename) => File.Open(filename, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+    public static FileStream FileOpenWrite(string filename)
+    {
+        return File.Open(filename, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+    }
 
     public static byte[] FileRead(string path)
     {
@@ -305,26 +436,42 @@ public static partial class Util
         {
             var size = stream.Length;
             // limited to 2GB according to http://msdn.microsoft.com/en-us/library/system.io.file.readallbytes.aspx
-            if (size > int.MaxValue) throw new IOException("Reading more than 2GB with this call is not supported");
+            if (size > int.MaxValue)
+            {
+                throw new IOException("Reading more than 2GB with this call is not supported");
+            }
+
             var pos = 0;
             var count = (int)size;
             var result = new byte[size];
             while (count > 0)
             {
                 var n = stream.Read(result, pos, count);
-                if (n == 0) throw new IOException("Unexpected end of stream");
+                if (n == 0)
+                {
+                    throw new IOException("Unexpected end of stream");
+                }
+
                 pos += n;
                 count -= n;
             }
+
             return result;
         }
     }
 
-    public static string FileRead(string path, Encoding encoding) => encoding.GetString(FileRead(path));
+    public static string FileRead(string path, Encoding encoding)
+    {
+        return encoding.GetString(FileRead(path));
+    }
 
     public static void FileWrite(string path, byte[] data, bool append = false)
     {
-        if (File.Exists(path) && !append) File.Delete(path);
+        if (File.Exists(path) && !append)
+        {
+            File.Delete(path);
+        }
+
         using (var stream = File.OpenWrite(path))
         {
             stream.Position = stream.Length;
@@ -333,11 +480,17 @@ public static partial class Util
         }
     }
 
-    public static void FileWrite(string path, string data, Encoding encoding, bool append = false) => FileWrite(path, encoding.GetBytes(data), append);
+    public static void FileWrite(string path, string data, Encoding encoding, bool append = false)
+    {
+        FileWrite(path, encoding.GetBytes(data), append);
+    }
 
     public static string FilenameSanitize(string path, string replacement)
     {
-        if (path == null) return null;
+        if (path == null)
+        {
+            return null;
+        }
         //if (replacement == null) throw new ArgumentNullException("replacement");
 
         var illegalChars = new HashSet<char>(Path.GetInvalidFileNameChars());
@@ -350,7 +503,10 @@ public static partial class Util
             var c = pathChars[i];
             if (illegalChars.Contains(c))
             {
-                if (replacement != null) sb.Append(replacement);
+                if (replacement != null)
+                {
+                    sb.Append(replacement);
+                }
             }
             else
             {
@@ -365,7 +521,7 @@ public static partial class Util
 
     #region Temp
 
-    private static readonly object LOCK_TEMP = new object();
+    private static readonly object LOCK_TEMP = new();
 
     private sealed class TempDirectory : IDisposable
     {
@@ -437,6 +593,7 @@ public static partial class Util
             {
                 p = Path.GetFullPath(Path.Combine(parentDir, Path.GetRandomFileName()));
             } while (Directory.Exists(p));
+
             var t = new TempDirectory(p);
             path = p;
             return t;
@@ -464,16 +621,25 @@ public static partial class Util
 
     #region Path
 
-    public static string[] PathParse(string path) => PathParse(path, Constant.PATH_DELIMITERS_STRINGS);
+    public static string[] PathParse(string path)
+    {
+        return PathParse(path, Constant.PATH_DELIMITERS_STRINGS);
+    }
 
     public static string[] PathParse(string path, params string[] pathDelimiters)
     {
         return PathParse(path.Yield(), pathDelimiters);
     }
 
-    public static string[] PathParse(IEnumerable<string> pathParts) => PathParse(pathParts, Constant.PATH_DELIMITERS_STRINGS);
+    public static string[] PathParse(IEnumerable<string> pathParts)
+    {
+        return PathParse(pathParts, Constant.PATH_DELIMITERS_STRINGS);
+    }
 
-    public static string[] PathParse(string path, IEnumerable<string> pathDelimiters) => PathParse(path.Yield(), pathDelimiters);
+    public static string[] PathParse(string path, IEnumerable<string> pathDelimiters)
+    {
+        return PathParse(path.Yield(), pathDelimiters);
+    }
 
     public static string[] PathParse(IEnumerable<string> pathParts, IEnumerable<string> pathDelimiters)
     {
@@ -484,8 +650,12 @@ public static partial class Util
         foreach (var item in list)
         {
             var itemparts = item.Split(pathDelimitersArray, StringSplitOptions.RemoveEmptyEntries).TrimOrNull().WhereNotNull().ToArray();
-            foreach (var itempart in itemparts) list2.Add(itempart);
+            foreach (var itempart in itemparts)
+            {
+                list2.Add(itempart);
+            }
         }
+
         return list2.ToArray();
     }
 
@@ -493,10 +663,13 @@ public static partial class Util
     {
         var s = string.Join(pathDelimiter, pathParts).TrimOrNull() ?? string.Empty;
         s = pathDelimiter + s;
-        if (s.Length > 1 && trailingDelimiter) s = s + pathDelimiter;
+        if (s.Length > 1 && trailingDelimiter)
+        {
+            s = s + pathDelimiter;
+        }
+
         return s;
     }
 
     #endregion Path
-
 }

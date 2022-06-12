@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
@@ -57,6 +55,7 @@ public abstract class Sql
     public abstract bool DropTable(string database, string schema, string table);
 
     public abstract string TextCreateTableColumn(TableColumn column);
+
     public virtual string TextCreateTableColumnText(string columnName, bool isNullable)
     {
         var sql = new StringBuilder();
@@ -65,7 +64,11 @@ public abstract class Sql
         sql.Append(' ');
         sql.Append(DefaultDataTypeString);
 
-        if (!isNullable) sql.Append(" NOT");
+        if (!isNullable)
+        {
+            sql.Append(" NOT");
+        }
+
         sql.Append(" NULL");
 
         return sql.ToString();
@@ -76,11 +79,18 @@ public abstract class Sql
     public virtual void Insert(IDbConnection connection, string database, string schema, string table, IDictionary<string, string> columnsAndValues)
     {
         var list = new List<(string columnName, string columnValue)>();
-        foreach (var kvp in columnsAndValues) list.Add((Escape(kvp.Key), kvp.Value));
+        foreach (var kvp in columnsAndValues)
+        {
+            list.Add((Escape(kvp.Key), kvp.Value));
+        }
+
         var columnNames = list.Select(o => o.columnName).ToArray();
         var columnValues = list.Select(o => o.columnValue).ToArray();
         var columnParameterNames = new string[columnNames.Length];
-        for (int i = 0; i < columnParameterNames.Length; i++) columnParameterNames[i] = "@p" + i;
+        for (var i = 0; i < columnParameterNames.Length; i++)
+        {
+            columnParameterNames[i] = "@p" + i;
+        }
 
         var sb = new StringBuilder();
         sb.Append($"INSERT INTO {Escape(database, schema, table)} (");
@@ -91,17 +101,21 @@ public abstract class Sql
         sb.Append(");");
         using (var cmd = CreateCommand(connection, sb.ToString()))
         {
-            for (int i = 0; i < columnValues.Length; i++)
+            for (var i = 0; i < columnValues.Length; i++)
             {
                 cmd.AddParameter(parameterName: columnParameterNames[i], value: columnValues[i]);
             }
+
             cmd.ExecuteNonQuery();
         }
     }
 
     public virtual void Insert(string database, string schema, string table, Table tableData, ushort? batchSize = null)
     {
-        if (table.IsEmpty()) return;
+        if (table.IsEmpty())
+        {
+            return;
+        }
 
         var sqlObjectTableColumns = InsertGetTableColumns(database, schema, table);
 
@@ -127,10 +141,15 @@ public abstract class Sql
             sbInsert.Append(") VALUES (");
             for (var j = 0; j < countColumns; j++)
             {
-                if (j > 0) sbInsert.Append(", ");
+                if (j > 0)
+                {
+                    sbInsert.Append(", ");
+                }
+
                 sbInsert.Append("@v" + commandVariableName);
                 commandVariableName++;
             }
+
             sbInsert.Append("); ");
             commandsByRow[i] = sbInsert.ToString();
         }
@@ -146,14 +165,17 @@ public abstract class Sql
             IDbCommand command = null;
             foreach (var row in tableData)
             {
-                if (command == null) command = CreateCommand(connection, null);
+                if (command == null)
+                {
+                    command = CreateCommand(connection, null);
+                }
+
                 currentRow++;
                 currentRowInBatch++;
                 var cmd = commandsByRow[currentRowInBatch - 1];
                 sb.Append(cmd);
                 for (var i = 0; i < countColumns; i++)
                 {
-
                     var val = row[i];
                     if (InsertCoerceValues)
                     {
@@ -163,12 +185,12 @@ public abstract class Sql
                         }
                     }
 
-                    command.AddParameter(dbType: DbType.String, parameterName: "@v" + currentParameterCount, size: -1, value: val);
+                    command.AddParameter(DbType.String, parameterName: "@v" + currentParameterCount, size: -1, value: val);
 
                     currentParameterCount++;
                 }
 
-                if ((currentParameterCount + countColumns) > bs || currentRow == countRows)
+                if (currentParameterCount + countColumns > bs || currentRow == countRows)
                 {
                     // Commit tran
                     command.CommandText = sb.ToString().TrimOrNull();
@@ -201,7 +223,10 @@ public abstract class Sql
     {
         if (column.ColumnDbType == DbType.Boolean)
         {
-            if (value == null) return column.IsNullable ? null : "0";
+            if (value == null)
+            {
+                return column.IsNullable ? null : "0";
+            }
 
             if (value.ToBoolTry(out var b))
             {
@@ -214,14 +239,16 @@ public abstract class Sql
 
     private Dictionary<string, SqlObjectTableColumn> InsertGetTableColumns(string database, string schema, string table)
     {
-        if (!InsertCoerceValues) return null;
+        if (!InsertCoerceValues)
+        {
+            return null;
+        }
 
         var d = new Dictionary<string, SqlObjectTableColumn>(StringComparer.OrdinalIgnoreCase);
         try
         {
             foreach (var c in GetTableColumns(database, schema, table))
             {
-
                 d[c.ColumnName] = c;
             }
         }
@@ -229,6 +256,7 @@ public abstract class Sql
         {
             log.Debug($"Unable to obtain column list for database:{database}  schema:{schema}  table:{table}", e);
         }
+
         return d;
     }
 
@@ -246,16 +274,34 @@ public abstract class Sql
     protected virtual IDbConnection OpenConnection()
     {
         var cf = ConnectionFactory;
-        if (cf == null) throw new NullReferenceException($"{GetType().FullNameFormatted()}.{nameof(ConnectionFactory)} is null");
+        if (cf == null)
+        {
+            throw new NullReferenceException($"{GetType().FullNameFormatted()}.{nameof(ConnectionFactory)} is null");
+        }
+
         var connection = cf();
-        if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken) connection.Open();
+        if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken)
+        {
+            connection.Open();
+        }
+
         return connection;
     }
-    protected IDataParameter[] AddParameters(IDbCommand command, SqlParameter[] parameters) => parameters.OrEmpty().Select(o => AddParameter(command, o)).ToArray();
 
-    protected virtual IDataParameter AddParameter(IDbCommand command, SqlParameter parameter) => parameter == null ? null : command.AddParameter(dbType: parameter.Type, parameterName: CleanParameterName(parameter.Name), value: parameter.Value);
+    protected IDataParameter[] AddParameters(IDbCommand command, SqlParameter[] parameters)
+    {
+        return parameters.OrEmpty().Select(o => AddParameter(command, o)).ToArray();
+    }
 
-    protected virtual string CleanParameterName(string parameterName) => parameterName.CheckNotNullTrimmed(nameof(parameterName)).Replace(' ', '_');
+    protected virtual IDataParameter AddParameter(IDbCommand command, SqlParameter parameter)
+    {
+        return parameter == null ? null : command.AddParameter(parameter.Type, parameterName: CleanParameterName(parameter.Name), value: parameter.Value);
+    }
+
+    protected virtual string CleanParameterName(string parameterName)
+    {
+        return parameterName.CheckNotNullTrimmed(nameof(parameterName)).Replace(' ', '_');
+    }
 
     #region Execute
 
@@ -291,13 +337,22 @@ public abstract class Sql
     {
         var tables = ExecuteQuery(sql, parameters);
         var list = new List<string>();
-        if (tables.Length < 1) return list;
+        if (tables.Length < 1)
+        {
+            return list;
+        }
+
         var table = tables[0];
-        if (table.Columns.Count < 1) return list;
+        if (table.Columns.Count < 1)
+        {
+            return list;
+        }
+
         foreach (var row in table)
         {
             list.Add(row[0]);
         }
+
         return list;
     }
 
@@ -326,14 +381,18 @@ public abstract class Sql
     public string ExecuteScalarString(string sql, params SqlParameter[] parameters)
     {
         var o = ExecuteScalar(sql, parameters);
-        if (o == null || o == DBNull.Value) return null;
+        if (o == null || o == DBNull.Value)
+        {
+            return null;
+        }
+
         return o.ToStringGuessFormat();
     }
 
     public Table[] ExecuteStoredProcedure(string schemaAndStoredProcedureEscaped, params SqlParameter[] parameters)
     {
         using (var connection = OpenConnection())
-        using (var command = CreateCommand(connection, schemaAndStoredProcedureEscaped, commandType: CommandType.StoredProcedure))
+        using (var command = CreateCommand(connection, schemaAndStoredProcedureEscaped, CommandType.StoredProcedure))
         {
             AddParameters(command, parameters);
             log.Trace($"ExecuteStoredProcedure: {schemaAndStoredProcedureEscaped}");
@@ -347,16 +406,25 @@ public abstract class Sql
     #endregion Execute
 
 
-
     #region Escape / Format
 
     public virtual bool NeedsEscaping(string objectThatMightNeedEscaping)
     {
         objectThatMightNeedEscaping = objectThatMightNeedEscaping.TrimOrNull();
-        if (objectThatMightNeedEscaping == null) return false;
+        if (objectThatMightNeedEscaping == null)
+        {
+            return false;
+        }
 
-        if (ReservedWords.Contains(objectThatMightNeedEscaping)) return true;
-        if (!objectThatMightNeedEscaping.ContainsOnly(ValidIdentifierChars)) return true;
+        if (ReservedWords.Contains(objectThatMightNeedEscaping))
+        {
+            return true;
+        }
+
+        if (!objectThatMightNeedEscaping.ContainsOnly(ValidIdentifierChars))
+        {
+            return true;
+        }
 
         return false;
     }
@@ -364,9 +432,15 @@ public abstract class Sql
     public virtual string Escape(string objectToEscape)
     {
         objectToEscape = objectToEscape.TrimOrNull();
-        if (objectToEscape == null) return objectToEscape;
+        if (objectToEscape == null)
+        {
+            return objectToEscape;
+        }
 
-        if (!NeedsEscaping(objectToEscape)) return objectToEscape;
+        if (!NeedsEscaping(objectToEscape))
+        {
+            return objectToEscape;
+        }
 
         var el = EscapeLeft;
         if (el != null && !objectToEscape.StartsWith(el.Value))
@@ -386,7 +460,10 @@ public abstract class Sql
     public virtual string Unescape(string objectToUnescape)
     {
         objectToUnescape = objectToUnescape.TrimOrNull();
-        if (objectToUnescape == null) return objectToUnescape;
+        if (objectToUnescape == null)
+        {
+            return objectToUnescape;
+        }
 
         var el = EscapeLeft;
         if (el != null)
@@ -424,6 +501,7 @@ public abstract class Sql
             log.Debug("Error Executing SQL: " + sql, e);
             exceptions.Add(e);
         }
+
         return null;
     }
 
@@ -435,34 +513,54 @@ public abstract class Sql
 
     public SqlType GetSqlDbType(object sqlDbTypeEnum)
     {
-        if (sqlDbTypeEnum == null) return null;
+        if (sqlDbTypeEnum == null)
+        {
+            return null;
+        }
+
         return GetSqlDbType(sqlDbTypeEnum.ToString());
     }
 
     public SqlType GetSqlDbType(string rawSqlDbType)
     {
         rawSqlDbType = rawSqlDbType.TrimOrNull();
-        if (rawSqlDbType == null) return null;
+        if (rawSqlDbType == null)
+        {
+            return null;
+        }
 
         var dbTypesEnumType = DbTypesEnum;
-        if (dbTypesEnumType == null) throw new NullReferenceException(GetType().FullNameFormatted() + "." + nameof(DbTypesEnum) + " is null");
+        if (dbTypesEnumType == null)
+        {
+            throw new NullReferenceException(GetType().FullNameFormatted() + "." + nameof(DbTypesEnum) + " is null");
+        }
+
         dbTypesEnumType.CheckIsEnum(nameof(DbTypesEnum));
 
         var item = SqlType.GetEnumItemBySqlName(dbTypesEnumType, rawSqlDbType);
-        if (item == null) return null;
+        if (item == null)
+        {
+            return null;
+        }
 
-        if (!item.HasAttribute) throw MissingAttributeException.FieldMissingAttribute<SqlTypeAttribute>(dbTypesEnumType, rawSqlDbType);
+        if (!item.HasAttribute)
+        {
+            throw MissingAttributeException.FieldMissingAttribute<SqlTypeAttribute>(dbTypesEnumType, rawSqlDbType);
+        }
+
         return item;
     }
 
     public IReadOnlyList<SqlType> GetSqlDbTypes()
     {
         var dbTypesEnumType = DbTypesEnum;
-        if (dbTypesEnumType == null) throw new NullReferenceException(GetType().FullNameFormatted() + "." + nameof(DbTypesEnum) + " is null");
+        if (dbTypesEnumType == null)
+        {
+            throw new NullReferenceException(GetType().FullNameFormatted() + "." + nameof(DbTypesEnum) + " is null");
+        }
+
         dbTypesEnumType.CheckIsEnum(nameof(DbTypesEnum));
 
         return SqlType.GetEnumItems(dbTypesEnumType);
     }
-
 }
-

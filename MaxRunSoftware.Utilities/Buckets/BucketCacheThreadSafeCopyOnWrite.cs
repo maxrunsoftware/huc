@@ -15,9 +15,9 @@
 namespace MaxRunSoftware.Utilities;
 
 /// <summary>
-///     Threadsafe cache implementation implementing copy on write using backing dictionary factory and value generation
-///     function.
-///     Precache elements using the Cache function
+/// Thread safe cache implementation implementing copy on write using backing dictionary factory and value generation
+/// function.
+/// Precache elements using the Cache function
 /// </summary>
 /// <typeparam name="TKey">Key</typeparam>
 /// <typeparam name="TValue">Generated Value</typeparam>
@@ -27,19 +27,16 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
     private readonly Func<TKey, TValue> factory;
     private readonly object locker = new();
 
-    private IReadOnlyDictionary<TKey, TValue>
-        dictionary; // shouldn't need volatile because of memory barrier of lock(locker)
+    private IReadOnlyDictionary<TKey, TValue> dictionary; // shouldn't need volatile because of memory barrier of lock(locker)
 
-    public BucketCacheThreadSafeCopyOnWrite(Func<TKey, TValue> factory,
-        Func<IDictionary<TKey, TValue>> dictionaryFactory)
+    public BucketCacheThreadSafeCopyOnWrite(Func<TKey, TValue> factory, Func<IDictionary<TKey, TValue>> dictionaryFactory)
     {
         this.factory = factory.CheckNotNull(nameof(factory));
         this.dictionaryFactory = dictionaryFactory.CheckNotNull(nameof(dictionaryFactory));
         dictionary = dictionaryFactory().AsReadOnly();
     }
 
-    public BucketCacheThreadSafeCopyOnWrite(Func<TKey, TValue> factory) : this(factory,
-        () => new Dictionary<TKey, TValue>()) { }
+    public BucketCacheThreadSafeCopyOnWrite(Func<TKey, TValue> factory) : this(factory, () => new Dictionary<TKey, TValue>()) { }
 
     public IEnumerable<TKey> Keys => dictionary.Keys;
 
@@ -47,12 +44,24 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
     {
         get
         {
-            if (dictionary.TryGetValue(key, out var val)) return val;
+            if (dictionary.TryGetValue(key, out var val))
+            {
+                return val;
+            }
+
             lock (locker)
             {
-                if (dictionary.TryGetValue(key, out val)) return val;
+                if (dictionary.TryGetValue(key, out val))
+                {
+                    return val;
+                }
+
                 var d = dictionaryFactory();
-                foreach (var kvp in dictionary) d.Add(kvp.Key, kvp.Value);
+                foreach (var kvp in dictionary)
+                {
+                    d.Add(kvp.Key, kvp.Value);
+                }
+
                 val = factory(key);
                 d.Add(key, val);
                 dictionary = d.AsReadOnly();
@@ -66,7 +75,11 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
         lock (locker)
         {
             var d = dictionaryFactory();
-            foreach (var kvp in dictionary) d.Add(kvp.Key, kvp.Value);
+            foreach (var kvp in dictionary)
+            {
+                d.Add(kvp.Key, kvp.Value);
+            }
+
             foreach (var key in keys)
             {
                 var val = factory(key);

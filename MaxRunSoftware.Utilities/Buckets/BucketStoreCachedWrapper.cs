@@ -15,7 +15,7 @@
 namespace MaxRunSoftware.Utilities;
 
 /// <summary>
-///     Wraps an existing IBucketStore with time delayed caching.
+/// Wraps an existing IBucketStore with time delayed caching.
 /// </summary>
 /// <typeparam name="TKey">Key type</typeparam>
 /// <typeparam name="TValue">Value type</typeparam>
@@ -34,7 +34,11 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
 
     private CacheEntry GetCacheEntry(string bucketName)
     {
-        if (!cache.TryGetValue(bucketName, out var ce)) cache.Add(bucketName, ce = new CacheEntry());
+        if (!cache.TryGetValue(bucketName, out var ce))
+        {
+            cache.Add(bucketName, ce = new CacheEntry());
+        }
+
         return ce;
     }
 
@@ -43,11 +47,13 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
         lock (locker)
         {
             var ce = GetCacheEntry(bucketName);
-            if (DateTime.Now - ce.LastRefresh > CacheTime)
+            if (DateTime.Now - ce.LastRefresh <= CacheTime)
             {
-                ce.Keys = bucketStore[bucketName].Keys.ToList();
-                ce.LastRefresh = DateTime.Now;
+                return ce.Keys;
             }
+
+            ce.Keys = bucketStore[bucketName].Keys.ToList();
+            ce.LastRefresh = DateTime.Now;
 
             return ce.Keys;
         }
@@ -57,14 +63,16 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
     {
         lock (locker)
         {
-            var cebv = GetCacheEntry(bucketName).GetBucketValue(bucketKey);
-            if (DateTime.Now - cebv.LastRefresh > CacheTime)
+            var bucketValue = GetCacheEntry(bucketName).GetBucketValue(bucketKey);
+            if (DateTime.Now - bucketValue.LastRefresh <= CacheTime)
             {
-                cebv.Value = bucketStore[bucketName][bucketKey];
-                cebv.LastRefresh = DateTime.Now;
+                return bucketValue.Value;
             }
 
-            return cebv.Value;
+            bucketValue.Value = bucketStore[bucketName][bucketKey];
+            bucketValue.LastRefresh = DateTime.Now;
+
+            return bucketValue.Value;
         }
     }
 
@@ -73,9 +81,9 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
         lock (locker)
         {
             bucketStore[bucketName][bucketKey] = bucketValue;
-            var cebv = GetCacheEntry(bucketName).GetBucketValue(bucketKey);
-            cebv.Value = bucketValue;
-            cebv.LastRefresh = DateTime.Now;
+            var bucketValueExisting = GetCacheEntry(bucketName).GetBucketValue(bucketKey);
+            bucketValueExisting.Value = bucketValue;
+            bucketValueExisting.LastRefresh = DateTime.Now;
         }
     }
 
@@ -89,17 +97,19 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
     {
         public DateTime LastRefresh { get; set; } = DateTime.MinValue;
         public List<TKey> Keys { get; set; } = new();
-        public Dictionary<TKey, CacheEntryBucketValue> Bucket { get; } = new();
+        private Dictionary<TKey, CacheEntryBucketValue> Bucket { get; } = new();
 
         public CacheEntryBucketValue GetBucketValue(TKey key)
         {
-            if (!Bucket.TryGetValue(key, out var cebv))
+            if (Bucket.TryGetValue(key, out var bucketValue))
             {
-                cebv = new CacheEntryBucketValue();
-                Bucket.Add(key, cebv);
+                return bucketValue;
             }
 
-            return cebv;
+            bucketValue = new CacheEntryBucketValue();
+            Bucket.Add(key, bucketValue);
+
+            return bucketValue;
         }
     }
 }

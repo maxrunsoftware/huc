@@ -1,26 +1,26 @@
-﻿// /*
-// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// */
 
 using System.Diagnostics.CodeAnalysis;
 
 namespace MaxRunSoftware.Utilities;
 
 /// <summary>
-/// Implments a IReadOnlyDictionary of string keys that are case insensitive. Each time a lookup is done first it is searched by
-/// case-insensitive, then if found, it adds that case-sensitive key to a cache so that future lookups will not incur the cost of
+/// Implements a IReadOnlyDictionary of string keys that are case insensitive. Each time a lookup is done first it is
+/// searched by
+/// case-insensitive, then if found, it adds that case-sensitive key to a cache so that future lookups will not incur the
+/// cost of
 /// doing a case-insensitive search.
 /// </summary>
 /// <typeparam name="TValue">Value Type</typeparam>
@@ -42,8 +42,8 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
     public DictionaryReadOnlyStringCaseInsensitive(IEnumerable<KeyValuePair<string, TValue>> items)
     {
         var keyValuePairs = items.ToList();
-        dictionaryOriginal = new(keyValuePairs, StringComparer.Ordinal);
-        dictionaryCache = new(keyValuePairs, StringComparer.Ordinal);
+        dictionaryOriginal = new Dictionary<string, TValue>(keyValuePairs, StringComparer.Ordinal);
+        dictionaryCache = new Dictionary<string, TValue>(keyValuePairs, StringComparer.Ordinal);
 
         this.items = dictionaryOriginal.ToList().AsReadOnly();
         keys = dictionaryOriginal.Keys.ToList();
@@ -59,9 +59,15 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
 
     public int Count => keys.Count;
 
-    public bool ContainsKey(string key) => TryGetValue(key, out var _);
+    public bool ContainsKey(string key)
+    {
+        return TryGetValue(key, out var _);
+    }
 
-    public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator() => items.GetEnumerator();
+    public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
+    {
+        return items.GetEnumerator();
+    }
 
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
     {
@@ -72,24 +78,38 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
                 return true;
             }
 
-            if (invalidKeys.Contains(key)) return false;
+            if (invalidKeys.Contains(key))
+            {
+                return false;
+            }
 
             // Do a hard search
             var itemsFound = new List<KeyValuePair<string, TValue>>();
             var itemsCurrentD = new Dictionary<int, KeyValuePair<string, TValue>>();
-            for (var i = 0; i < items.Count; i++) itemsCurrentD.Add(i, items[i]);
+            for (var i = 0; i < items.Count; i++)
+            {
+                itemsCurrentD.Add(i, items[i]);
+            }
 
             foreach (var sc in Constant.LIST_StringComparer)
             {
                 foreach (var item in itemsCurrentD.ToArray())
                 {
-                    if (!sc.Equals(key, item.Value.Key)) continue;
+                    if (!sc.Equals(key, item.Value.Key))
+                    {
+                        continue;
+                    }
+
                     itemsFound.Add(item.Value);
                     itemsCurrentD.Remove(item.Key);
                 }
             }
 
-            if (itemsFound.Count > 1) throw new ArgumentException($"For key '{key}' found multiple matching items: " + itemsFound.Select(o => o.Key).ToStringDelimited(", "), nameof(key));
+            if (itemsFound.Count > 1)
+            {
+                throw new ArgumentException($"For key '{key}' found multiple matching items: " + itemsFound.Select(o => o.Key).ToStringDelimited(", "), nameof(key));
+            }
+
             if (itemsFound.Count == 1)
             {
                 var v = itemsFound[0].Value;
@@ -100,15 +120,19 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
 
             invalidKeys.Add(key);
             return false;
-
-
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => items.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return items.GetEnumerator();
+    }
 }
 
 public static class DictionaryReadOnlyStringCaseInsensitiveExtensions
 {
-    public static DictionaryReadOnlyStringCaseInsensitive<TValue> ToDictionaryReadOnlyStringCaseInsensitive<TValue>(this IEnumerable<TValue> values, Func<TValue, string> keySelector) => new DictionaryReadOnlyStringCaseInsensitive<TValue>(values.ToDictionary(keySelector));
+    public static DictionaryReadOnlyStringCaseInsensitive<TValue> ToDictionaryReadOnlyStringCaseInsensitive<TValue>(this IEnumerable<TValue> values, Func<TValue, string> keySelector)
+    {
+        return new DictionaryReadOnlyStringCaseInsensitive<TValue>(values.ToDictionary(keySelector));
+    }
 }

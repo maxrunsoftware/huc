@@ -15,7 +15,7 @@
 namespace MaxRunSoftware.Utilities;
 
 /// <summary>
-///     Non-threadsafe cache implementation using backing dictionary and value generation function
+/// Non-thread safe cache implementation using backing dictionary and value generation function
 /// </summary>
 /// <typeparam name="TKey">Key</typeparam>
 /// <typeparam name="TValue">Generated Value</typeparam>
@@ -38,7 +38,11 @@ public class BucketCache<TKey, TValue> : IBucketReadOnly<TKey, TValue>
     {
         get
         {
-            if (!dictionary.TryGetValue(key, out var value)) dictionary[key] = value = factory(key);
+            if (!dictionary.TryGetValue(key, out var value))
+            {
+                dictionary[key] = value = factory(key);
+            }
+
             return value;
         }
     }

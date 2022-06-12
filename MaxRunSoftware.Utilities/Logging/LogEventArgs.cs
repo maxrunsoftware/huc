@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Diagnostics;
 using System.Threading;
@@ -39,7 +37,11 @@ public sealed class LogEventArgs : EventArgs
     {
         Message = message;
         Exception = exception;
-        if (message == null && exception != null) Message = exception.Message;
+        if (message == null && exception != null)
+        {
+            Message = exception.Message;
+        }
+
         Level = level;
         Type = type;
         UtcTimestamp = DateTime.UtcNow;
@@ -48,15 +50,47 @@ public sealed class LogEventArgs : EventArgs
 
         if (frame != null)
         {
-            try { CallingMethod = frame.GetMethod(); } catch (Exception) { }
-            if (CallingMethod != null) try { CallingType = CallingMethod.DeclaringType; } catch (Exception) { }
-            try { CallingFile = frame.GetFileName().TrimOrNull(); } catch (Exception) { }
-            if (CallingFile != null) try { CallingFileName = Path.GetFileName(CallingFile).TrimOrNull(); } catch (Exception) { }
+            try
+            {
+                CallingMethod = frame.GetMethod();
+            }
+            catch (Exception) { }
+
+            if (CallingMethod != null)
+            {
+                try
+                {
+                    CallingType = CallingMethod.DeclaringType;
+                }
+                catch (Exception) { }
+            }
+
+            try
+            {
+                CallingFile = frame.GetFileName().TrimOrNull();
+            }
+            catch (Exception) { }
+
+            if (CallingFile != null)
+            {
+                try
+                {
+                    CallingFileName = Path.GetFileName(CallingFile).TrimOrNull();
+                }
+                catch (Exception) { }
+            }
+
             try
             {
                 var cfln = frame.GetFileLineNumber();
-                if (cfln < 1) CallingFileLineNumber = null;
-                else CallingFileLineNumber = cfln;
+                if (cfln < 1)
+                {
+                    CallingFileLineNumber = null;
+                }
+                else
+                {
+                    CallingFileLineNumber = cfln;
+                }
             }
             catch (Exception) { }
         }
@@ -70,8 +104,10 @@ public sealed class LogEventArgs : EventArgs
             {
                 return Message + Environment.NewLine + Exception;
             }
+
             return Message;
         }
+
         return Exception?.ToString();
     }
 
@@ -83,38 +119,58 @@ public sealed class LogEventArgs : EventArgs
         bool includeCallingFile = true,
         bool includeCallingMethod = true,
         string id = null
-        )
+    )
     {
         var sb = new StringBuilder();
 
         if (id != null)
         {
-            if (sb.Length > 0) sb.Append(" ");
+            if (sb.Length > 0)
+            {
+                sb.Append(" ");
+            }
+
             sb.Append(id);
         }
 
         if (includeTimestamp)
         {
-            if (sb.Length > 0) sb.Append(" ");
+            if (sb.Length > 0)
+            {
+                sb.Append(" ");
+            }
+
             sb.Append(UtcTimestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"));
         }
 
         if (includeLevel)
         {
-            if (sb.Length > 0) sb.Append(" ");
+            if (sb.Length > 0)
+            {
+                sb.Append(" ");
+            }
+
             sb.Append($"[{Level}]".PadRight(7));
         }
 
         if (includeThread)
         {
-            if (sb.Length > 0) sb.Append(" ");
+            if (sb.Length > 0)
+            {
+                sb.Append(" ");
+            }
+
             var threadName = ThreadName ?? "";
             sb.Append($"{threadName}({ThreadId})");
         }
 
         if (includeType)
         {
-            if (sb.Length > 0) sb.Append(" ");
+            if (sb.Length > 0)
+            {
+                sb.Append(" ");
+            }
+
             var strType = Type?.NameFormatted() ?? "?";
             sb.Append($"[{strType}]");
         }
@@ -123,7 +179,11 @@ public sealed class LogEventArgs : EventArgs
         {
             if (CallingFileName != null)
             {
-                if (sb.Length > 0) sb.Append(" ");
+                if (sb.Length > 0)
+                {
+                    sb.Append(" ");
+                }
+
                 sb.Append(CallingFileName + "[" + CallingFileLineNumber + "]");
             }
         }
@@ -132,20 +192,29 @@ public sealed class LogEventArgs : EventArgs
         {
             if (CallingMethod != null)
             {
-                if (sb.Length > 0) sb.Append(" ");
+                if (sb.Length > 0)
+                {
+                    sb.Append(" ");
+                }
+
                 sb.Append(CallingMethod.GetSignature(false));
             }
         }
 
         if (Message != null)
         {
-            if (sb.Length > 0) sb.Append(" ");
+            if (sb.Length > 0)
+            {
+                sb.Append(" ");
+            }
+
             sb.Append(Message);
         }
+
         if (Exception != null)
         {
             sb.AppendLine("");
-            sb.Append(Exception.ToString());
+            sb.Append(Exception);
         }
 
         return sb.ToString();

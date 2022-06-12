@@ -1,18 +1,18 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+using System.Runtime.CompilerServices;
 
 namespace MaxRunSoftware.Utilities;
 
@@ -57,7 +57,9 @@ public static class ExtensionsMethod
             signature = "internal ";
 
             if (method.IsFamily)
+            {
                 signature += "protected ";
+            }
         }
         else if (method.IsPublic)
         {
@@ -73,7 +75,9 @@ public static class ExtensionsMethod
         }
 
         if (method.IsStatic)
+        {
             signature += "static ";
+        }
 
         if (method is MethodInfo methodInfo)
         {
@@ -85,15 +89,22 @@ public static class ExtensionsMethod
 
     public static string GetGenericSignature(this MethodBase method)
     {
-        if (method == null) throw new ArgumentNullException(nameof(method));
-        if (!method.IsGenericMethod) throw new ArgumentException($"{method.Name} is not generic.");
+        if (method == null)
+        {
+            throw new ArgumentNullException(nameof(method));
+        }
+
+        if (!method.IsGenericMethod)
+        {
+            throw new ArgumentException($"{method.Name} is not generic.");
+        }
 
         return BuildGenericSignature(method.GetGenericArguments());
     }
 
     public static string GetMethodArgumentsSignature(this MethodBase method, bool invokable)
     {
-        var isExtensionMethod = method.IsDefined(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false);
+        var isExtensionMethod = method.IsDefined(typeof(ExtensionAttribute), false);
         var methodParameters = method.GetParameters().AsEnumerable();
 
         // If this signature is designed to be invoked and it's an extension method
@@ -108,11 +119,17 @@ public static class ExtensionsMethod
             var signature = string.Empty;
 
             if (param.ParameterType.IsByRef)
+            {
                 signature = "ref ";
+            }
             else if (param.IsOut)
+            {
                 signature = "out ";
+            }
             else if (isExtensionMethod && param.Position == 0)
+            {
                 signature = "this ";
+            }
 
             if (!invokable)
             {
@@ -264,12 +281,19 @@ public static class ExtensionsMethod
 
         var signature = type.FullName.TrimOrNull() ?? type.Name;
 
-        if (type.IsGeneric()) signature = RemoveGenericTypeNameArgumentCount(signature);
+        if (type.IsGeneric())
+        {
+            signature = RemoveGenericTypeNameArgumentCount(signature);
+        }
+
         return signature;
     }
 
     /// <summary>This removes the `{argumentcount} from a the signature of a generic type</summary>
     /// <param name="genericTypeSignature">Signature of a generic type</param>
     /// <returns><paramref name="genericTypeSignature" /> without any argument count</returns>
-    public static string RemoveGenericTypeNameArgumentCount(string genericTypeSignature) => genericTypeSignature.Substring(0, genericTypeSignature.IndexOf('`'));
+    public static string RemoveGenericTypeNameArgumentCount(string genericTypeSignature)
+    {
+        return genericTypeSignature.Substring(0, genericTypeSignature.IndexOf('`'));
+    }
 }

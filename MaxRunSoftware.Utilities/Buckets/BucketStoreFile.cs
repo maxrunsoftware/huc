@@ -16,10 +16,9 @@ namespace MaxRunSoftware.Utilities;
 
 public class BucketStoreFile : BucketStoreBase<string, string>
 {
-    public StringComparer Comparer;
+    public StringComparer Comparer { get; }
 
-    public BucketStoreFile(string file, StringComparison comparison = StringComparison.OrdinalIgnoreCase,
-        string bucketNameDelimiter = ".")
+    public BucketStoreFile(string file, StringComparison comparison = StringComparison.OrdinalIgnoreCase, string bucketNameDelimiter = ".")
     {
         File = Path.GetFullPath(file);
         Comparison = comparison;
@@ -54,7 +53,10 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         }
 
         var jpd = jp.ToDictionary();
-        foreach (var kl in jpd) props[kl.Key.TrimOrNull()] = kl.Value.TrimOrNull().WhereNotNull().LastOrDefault();
+        foreach (var kl in jpd)
+        {
+            props[kl.Key.TrimOrNull()] = kl.Value.TrimOrNull().WhereNotNull().LastOrDefault();
+        }
 
         var d = new Dictionary<string, IDictionary<string, string>>(Comparer);
         var bucketKeySplit = new[] { BucketNameDelimiter };
@@ -62,12 +64,23 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         {
             var key = kvp.Key;
             var bucketValue = kvp.Value;
-            if (key == null || bucketValue == null) continue;
+            if (key == null || bucketValue == null)
+            {
+                continue;
+            }
+
             var keyParts = key.Split(bucketKeySplit, 2, StringSplitOptions.None).TrimOrNull().WhereNotNull().ToArray();
-            if (keyParts.Length != 2) continue;
+            if (keyParts.Length != 2)
+            {
+                continue;
+            }
+
             var bucketName = keyParts.GetAtIndexOrDefault(0).TrimOrNull();
             var bucketKey = keyParts.GetAtIndexOrDefault(1).TrimOrNull();
-            if (bucketName == null || bucketKey == null) continue;
+            if (bucketName == null || bucketKey == null)
+            {
+                continue;
+            }
 
             if (!d.TryGetValue(bucketName, out var dd))
             {
@@ -88,8 +101,12 @@ public class BucketStoreFile : BucketStoreBase<string, string>
 
         var d = ReadFile();
         if (d.TryGetValue(bucketName, out var dd))
+        {
             if (dd.TryGetValue(bucketKey, out var v))
+            {
                 return v;
+            }
+        }
 
         return null;
     }
@@ -98,7 +115,11 @@ public class BucketStoreFile : BucketStoreBase<string, string>
     {
         bucketName = bucketName.CheckNotNullTrimmed(nameof(bucketName));
         var d = ReadFile();
-        if (d.TryGetValue(bucketName, out var dd)) return dd.Keys;
+        if (d.TryGetValue(bucketName, out var dd))
+        {
+            return dd.Keys;
+        }
+
         return null;
     }
 
@@ -124,7 +145,6 @@ public class BucketStoreFile : BucketStoreBase<string, string>
 
         var bucketNameKey = bucketName + BucketNameDelimiter + bucketKey;
 
-        var props = new Dictionary<string, string>(Comparer);
         var jp = new JavaProperties();
         try
         {
@@ -146,34 +166,56 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         foreach (var jpPropertyName in jp.GetPropertyNames())
         {
             var pn = jpPropertyName.TrimOrNull();
-            if (pn == null) continue;
-            if (string.Equals(pn, bucketNameKey, Comparison))
+            if (pn == null)
             {
-                jpKey = jpPropertyName;
-                jpVal = jp.GetProperty(jpKey);
-                break;
+                continue;
             }
+
+            if (!string.Equals(pn, bucketNameKey, Comparison))
+            {
+                continue;
+            }
+
+            jpKey = jpPropertyName;
+            jpVal = jp.GetProperty(jpKey);
+            break;
         }
 
         if (jpKey == null) // new key
         {
-            if (bucketValue == null) return;
+            if (bucketValue == null)
+            {
+                return;
+            }
+
             jp.SetProperty(bucketNameKey, bucketValue);
         }
         else
         {
-            if (string.Equals(bucketValue, jpVal.TrimOrNull(), Comparison)) return;
+            if (string.Equals(bucketValue, jpVal.TrimOrNull(), Comparison))
+            {
+                return;
+            }
+
             if (bucketValue == null)
+            {
                 jp.Remove(jpKey);
+            }
             else
+            {
                 jp.SetProperty(bucketNameKey, bucketValue);
+            }
         }
 
         try
         {
             using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
             {
-                if (System.IO.File.Exists(File)) System.IO.File.Delete(File);
+                if (System.IO.File.Exists(File))
+                {
+                    System.IO.File.Delete(File);
+                }
+
                 using (var fs = Util.FileOpenWrite(File))
                 {
                     jp.Store(fs, null, Constant.ENCODING_UTF8);

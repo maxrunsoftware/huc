@@ -16,8 +16,7 @@ namespace MaxRunSoftware.Utilities;
 
 public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
 {
-    private static readonly Func<IDictionary<TKey, TValue>> dictionaryFactoryDefault =
-        () => new Dictionary<TKey, TValue>();
+    private static readonly Func<IDictionary<TKey, TValue>> dictionaryFactoryDefault = () => new Dictionary<TKey, TValue>();
 
     private readonly Dictionary<string, IDictionary<TKey, TValue>> buckets = new(StringComparer.OrdinalIgnoreCase);
     private readonly Func<IDictionary<TKey, TValue>> dictionaryFactory;
@@ -45,7 +44,10 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
         IDictionary<TKey, TValue> d;
         lock (buckets)
         {
-            if (!buckets.TryGetValue(bucketName, out d)) return new TKey[] { };
+            if (!buckets.TryGetValue(bucketName, out d))
+            {
+                return new TKey[] { };
+            }
         }
 
         lock (d)
@@ -59,7 +61,10 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
         IDictionary<TKey, TValue> d;
         lock (buckets)
         {
-            if (!buckets.TryGetValue(bucketName, out d)) return nullValue;
+            if (!buckets.TryGetValue(bucketName, out d))
+            {
+                return nullValue;
+            }
         }
 
         lock (d)
@@ -75,15 +80,26 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
         {
             if (!buckets.TryGetValue(bucketName, out d))
             {
-                if (bucketValue == null) return;
+                if (bucketValue == null)
+                {
+                    return;
+                }
+
                 buckets.Add(bucketName, d = dictionaryFactory());
             }
         }
 
         lock (d)
         {
-            if (bucketValue == null) d.Remove(bucketKey);
-            else d[bucketKey] = bucketValue;
+            if (bucketValue == null)
+            {
+                d.Remove(bucketKey);
+            }
+            else
+            {
+                d[bucketKey] = bucketValue;
+            }
         }
     }
+    
 }

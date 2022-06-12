@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
@@ -41,7 +39,7 @@ public class SqlType
         EnumObject = Util.GetEnumItem(enumType, enumName);
 
         var attribute = enumType.GetEnumItemAttribute<SqlTypeAttribute>(enumName);
-        HasAttribute = (attribute != null);
+        HasAttribute = attribute != null;
 
         var sqlTypeNames = new List<string>();
         if (attribute != null)
@@ -55,14 +53,23 @@ public class SqlType
                 sqlTypeNames.AddRange(names.Split(',', ';', '|').TrimOrNull().WhereNotNull());
             }
 
-            if (attribute.ActualSqlType != null) actualItemName = attribute.ActualSqlType.ToString();
+            if (attribute.ActualSqlType != null)
+            {
+                actualItemName = attribute.ActualSqlType.ToString();
+            }
         }
 
         sqlTypeNames.Add(enumName);
 
         var sqlTypeNames2 = new List<string>();
         var sqlTypeNames2Set = new HashSet<string>();
-        foreach (var n in sqlTypeNames) if (sqlTypeNames2Set.Add(n)) sqlTypeNames2.Add(n);
+        foreach (var n in sqlTypeNames)
+        {
+            if (sqlTypeNames2Set.Add(n))
+            {
+                sqlTypeNames2.Add(n);
+            }
+        }
 
         SqlTypeNames = sqlTypeNames2.AsReadOnly();
     }
@@ -76,7 +83,11 @@ public class SqlType
         enumType.CheckIsEnum(nameof(enumType));
         lock (locker)
         {
-            if (cacheL.TryGetValue(enumType, out var list)) return list;
+            if (cacheL.TryGetValue(enumType, out var list))
+            {
+                return list;
+            }
+
             var l = Scan(enumType).AsReadOnly();
             cacheL.Add(enumType, l);
             return l;
@@ -101,8 +112,10 @@ public class SqlType
                         dic.Add(sqlTypeName, enumItem);
                     }
                 }
+
                 cacheD.Add(enumType, dic);
             }
+
             return dic.GetValueOrDefault(sqlName);
         }
     }
@@ -132,10 +145,18 @@ public class SqlType
 
         // Update ActualItem references
         var d = new Dictionary<string, SqlType>();
-        foreach (var item in list) d[item.EnumName] = item;
         foreach (var item in list)
         {
-            if (item.actualItemName == null) continue;
+            d[item.EnumName] = item;
+        }
+
+        foreach (var item in list)
+        {
+            if (item.actualItemName == null)
+            {
+                continue;
+            }
+
             if (d.TryGetValue(item.actualItemName, out var actualItem))
             {
                 item.ActualItem = actualItem;
@@ -163,8 +184,10 @@ public class SqlType
                 {
                     throw new InvalidOperationException($"Circular [{nameof(SqlTypeAttribute.ActualSqlType)}] reference detected in {item.EnumType.FullNameFormatted()} with items " + areadyCheckedItemNames.OrderBy(o => o.ToUpper().ToStringDelimited(", ")));
                 }
+
                 current = current.ActualItem;
             }
+
             item.SqlTypeName = current.SqlTypeName;
         }
 
@@ -173,5 +196,3 @@ public class SqlType
         return list;
     }
 }
-
-

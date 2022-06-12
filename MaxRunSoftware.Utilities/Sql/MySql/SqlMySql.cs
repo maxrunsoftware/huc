@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
@@ -35,11 +33,17 @@ public class SqlMySql : Sql
         // https://dev.mysql.com/doc/refman/8.0/en/identifiers.html
         ValidIdentifierChars.AddRange(Constant.CHARS_ALPHANUMERIC + "$_");
         ReservedWords.AddRange(SqlMySqlReservedWords.WORDS.SplitOnWhiteSpace().TrimOrNull().WhereNotNull());
-
     }
 
-    public override string GetCurrentDatabaseName() => ExecuteScalarString("SELECT DATABASE();").TrimOrNull();
-    public override string GetCurrentSchemaName() => GetCurrentDatabaseName();
+    public override string GetCurrentDatabaseName()
+    {
+        return ExecuteScalarString("SELECT DATABASE();").TrimOrNull();
+    }
+
+    public override string GetCurrentSchemaName()
+    {
+        return GetCurrentDatabaseName();
+    }
 
     public override IEnumerable<SqlObjectDatabase> GetDatabases()
     {
@@ -47,27 +51,45 @@ public class SqlMySql : Sql
         foreach (var r in t)
         {
             var so = new SqlObjectDatabase(r[0]);
-            if (ExcludedDatabases.Contains(so.DatabaseName)) continue;
-            if (ExcludedSchemas.Contains(so.DatabaseName)) continue;
+            if (ExcludedDatabases.Contains(so.DatabaseName))
+            {
+                continue;
+            }
+
+            if (ExcludedSchemas.Contains(so.DatabaseName))
+            {
+                continue;
+            }
+
             yield return so;
         }
     }
 
-    public override IEnumerable<SqlObjectSchema> GetSchemas(string database = null) => GetDatabases().Select(o => new SqlObjectSchema(o.DatabaseName, o.DatabaseName));
+    public override IEnumerable<SqlObjectSchema> GetSchemas(string database = null)
+    {
+        return GetDatabases().Select(o => new SqlObjectSchema(o.DatabaseName, o.DatabaseName));
+    }
 
     public override IEnumerable<SqlObjectTable> GetTables(string database = null, string schema = null)
     {
         database = database.TrimOrNull();
         schema = schema.TrimOrNull();
-        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema))
+        {
+            throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        }
 
         var dbName = database ?? schema;
 
         var sql = new StringBuilder();
         sql.Append("SELECT DISTINCT TABLE_SCHEMA,TABLE_NAME");
-        sql.Append($" FROM information_schema.tables");
-        sql.Append($" WHERE TABLE_TYPE='BASE TABLE'");
-        if (dbName != null) sql.Append($" AND TABLE_SCHEMA='{Unescape(dbName)}'");
+        sql.Append(" FROM information_schema.tables");
+        sql.Append(" WHERE TABLE_TYPE='BASE TABLE'");
+        if (dbName != null)
+        {
+            sql.Append($" AND TABLE_SCHEMA='{Unescape(dbName)}'");
+        }
+
         sql.Append(';');
 
         var t = ExecuteQuery(sql.ToString())[0];
@@ -75,9 +97,21 @@ public class SqlMySql : Sql
         foreach (var r in t)
         {
             var so = new SqlObjectTable(r[0], r[0], r[1]);
-            if (dbName == null && ExcludedDatabases.Contains(so.DatabaseName)) continue;
-            if (dbName == null && ExcludedSchemas.Contains(so.SchemaName)) continue;
-            if (dbName != null && !dbName.EqualsCaseInsensitive(so.DatabaseName)) continue;
+            if (dbName == null && ExcludedDatabases.Contains(so.DatabaseName))
+            {
+                continue;
+            }
+
+            if (dbName == null && ExcludedSchemas.Contains(so.SchemaName))
+            {
+                continue;
+            }
+
+            if (dbName != null && !dbName.EqualsCaseInsensitive(so.DatabaseName))
+            {
+                continue;
+            }
+
             yield return so;
         }
     }
@@ -87,11 +121,14 @@ public class SqlMySql : Sql
         database = database.TrimOrNull();
         schema = schema.TrimOrNull();
         table = table.TrimOrNull();
-        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema))
+        {
+            throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        }
 
         var dbName = database ?? schema;
 
-        var cols = new string[]
+        var cols = new[]
         {
             "TABLE_SCHEMA", // 0
             "TABLE_NAME", // 1
@@ -102,16 +139,24 @@ public class SqlMySql : Sql
             "CHARACTER_MAXIMUM_LENGTH", // 6
             "NUMERIC_PRECISION", // 7
             "NUMERIC_SCALE", // 8
-            "COLUMN_DEFAULT", // 9
+            "COLUMN_DEFAULT" // 9
         };
 
         var sb = new StringBuilder();
         sb.Append("SELECT DISTINCT " + cols.Select(o => $"c.{o}").ToStringDelimited(","));
-        sb.Append($" FROM information_schema.columns c");
-        sb.Append($" INNER JOIN information_schema.tables t ON t.TABLE_CATALOG=c.TABLE_CATALOG AND t.TABLE_SCHEMA=c.TABLE_SCHEMA AND t.TABLE_NAME=c.TABLE_NAME");
-        sb.Append($" WHERE t.TABLE_TYPE='BASE TABLE'");
-        if (dbName != null) sb.Append($" AND c.TABLE_SCHEMA='{Unescape(dbName)}'");
-        if (table != null) sb.Append($" AND c.TABLE_NAME='{Unescape(table)}'");
+        sb.Append(" FROM information_schema.columns c");
+        sb.Append(" INNER JOIN information_schema.tables t ON t.TABLE_CATALOG=c.TABLE_CATALOG AND t.TABLE_SCHEMA=c.TABLE_SCHEMA AND t.TABLE_NAME=c.TABLE_NAME");
+        sb.Append(" WHERE t.TABLE_TYPE='BASE TABLE'");
+        if (dbName != null)
+        {
+            sb.Append($" AND c.TABLE_SCHEMA='{Unescape(dbName)}'");
+        }
+
+        if (table != null)
+        {
+            sb.Append($" AND c.TABLE_NAME='{Unescape(table)}'");
+        }
+
         sb.Append(';');
 
         var t = ExecuteQuery(sb.ToString())[0];
@@ -133,12 +178,28 @@ public class SqlMySql : Sql
                 r[7].ToIntNullable(),
                 r[8].ToIntNullable(),
                 r[9]
-                );
+            );
 
-            if (dbName == null && ExcludedDatabases.Contains(so.DatabaseName)) continue;
-            if (dbName == null && ExcludedSchemas.Contains(so.SchemaName)) continue;
-            if (dbName != null && !dbName.EqualsCaseInsensitive(so.DatabaseName)) continue;
-            if (table != null && !table.EqualsCaseInsensitive(so.TableName)) continue;
+            if (dbName == null && ExcludedDatabases.Contains(so.DatabaseName))
+            {
+                continue;
+            }
+
+            if (dbName == null && ExcludedSchemas.Contains(so.SchemaName))
+            {
+                continue;
+            }
+
+            if (dbName != null && !dbName.EqualsCaseInsensitive(so.DatabaseName))
+            {
+                continue;
+            }
+
+            if (table != null && !table.EqualsCaseInsensitive(so.TableName))
+            {
+                continue;
+            }
+
             yield return so;
         }
     }
@@ -146,7 +207,10 @@ public class SqlMySql : Sql
     public override bool GetTableExists(string database, string schema, string table)
     {
         var dbName = database.TrimOrNull() ?? schema.TrimOrNull() ?? GetCurrentDatabaseName();
-        if (dbName == null) throw new Exception("Could not determine current SQL database/schema name");
+        if (dbName == null)
+        {
+            throw new Exception("Could not determine current SQL database/schema name");
+        }
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
@@ -156,11 +220,17 @@ public class SqlMySql : Sql
     public override bool DropTable(string database, string schema, string table)
     {
         var dbName = database.TrimOrNull() ?? schema.TrimOrNull() ?? GetCurrentDatabaseName();
-        if (dbName == null) throw new Exception("Could not determine current SQL database/schema name");
+        if (dbName == null)
+        {
+            throw new Exception("Could not determine current SQL database/schema name");
+        }
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
-        if (!GetTableExists(dbName, dbName, table)) return false;
+        if (!GetTableExists(dbName, dbName, table))
+        {
+            return false;
+        }
 
         var dst = Escape(dbName) + "." + Escape(table);
         ExecuteNonQuery($"DROP TABLE {dst};");
@@ -177,15 +247,26 @@ public class SqlMySql : Sql
         database = database.TrimOrNull();
         schema = schema.TrimOrNull();
         table = table.TrimOrNull();
-        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema))
+        {
+            throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        }
 
         var db = database ?? schema;
 
         var sb = new StringBuilder();
-        if (db != null) sb.Append(Escape(db));
+        if (db != null)
+        {
+            sb.Append(Escape(db));
+        }
+
         if (table != null)
         {
-            if (sb.Length > 0) sb.Append('.');
+            if (sb.Length > 0)
+            {
+                sb.Append('.');
+            }
+
             sb.Append(Escape(table));
         }
 

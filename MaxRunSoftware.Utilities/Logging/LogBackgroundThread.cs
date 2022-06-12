@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Collections.Concurrent;
 using System.Threading;
@@ -21,18 +19,18 @@ namespace MaxRunSoftware.Utilities;
 
 internal class LogBackgroundThread : IDisposable
 {
-    private static int threadCount = 0;
+    private static int threadCount;
 
     private readonly Action<LogEventArgs> onLogging;
-    private readonly BlockingCollection<LogEventArgs> queue = new BlockingCollection<LogEventArgs>();
+    private readonly BlockingCollection<LogEventArgs> queue = new();
     private readonly Thread thread;
-    private readonly CancellationTokenSource cancellation = new CancellationTokenSource();
+    private readonly CancellationTokenSource cancellation = new();
 
     public LogBackgroundThread(Action<LogEventArgs> onLogging)
     {
         this.onLogging = onLogging;
         var threadNameId = Interlocked.Increment(ref threadCount);
-        thread = new Thread(new ThreadStart(Work))
+        thread = new Thread(Work)
         {
             Name = "LogBackgroundThread[" + threadNameId + "]",
             IsBackground = true
@@ -40,13 +38,20 @@ internal class LogBackgroundThread : IDisposable
         thread.Start();
     }
 
-    private static void LogError(object o) => Console.Error.WriteLine(o);
+    private static void LogError(object o)
+    {
+        Console.Error.WriteLine(o);
+    }
 
     private void Work()
     {
         while (true)
         {
-            if (queue.IsAddingCompleted && queue.IsCompleted) return;
+            if (queue.IsAddingCompleted && queue.IsCompleted)
+            {
+                return;
+            }
+
             LogEventArgs t = null;
             try
             {
@@ -68,6 +73,7 @@ internal class LogBackgroundThread : IDisposable
                 LogError(e);
                 return;
             }
+
             if (t != null)
             {
                 onLogging(t);
@@ -83,7 +89,7 @@ internal class LogBackgroundThread : IDisposable
         }
         catch (Exception e)
         {
-            LogError($"Received unexpected exception adding item --> " + logEventArgs.ToStringDetailed());
+            LogError("Received unexpected exception adding item --> " + logEventArgs.ToStringDetailed());
             LogError(e);
         }
     }
@@ -107,7 +113,7 @@ internal class LogBackgroundThread : IDisposable
             while (!queue.IsCompleted)
             {
                 Thread.Sleep(50);
-                if ((DateTime.UtcNow - timeStart) > duration)
+                if (DateTime.UtcNow - timeStart > duration)
                 {
                     LogError("Waiting for queue.IsCompleted == true (queue: " + queue.Count + ")");
                     timeStart = DateTime.UtcNow;
@@ -139,7 +145,7 @@ internal class LogBackgroundThread : IDisposable
                 while (thread.IsAlive)
                 {
                     Thread.Sleep(50);
-                    if ((DateTime.UtcNow - timeStart) > duration)
+                    if (DateTime.UtcNow - timeStart > duration)
                     {
                         //LogError("Waiting for thread.IsAlive == true");
                         //timeStart = DateTime.UtcNow;

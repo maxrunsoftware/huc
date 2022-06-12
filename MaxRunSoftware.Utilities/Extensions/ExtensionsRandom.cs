@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Security.Cryptography;
 
@@ -22,9 +20,15 @@ public static class ExtensionsRandom
 {
     #region System.Random
 
-    public static T Pick<T>(this Random random, IList<T> items) => items[random.Next(items.Count)];
+    public static T Pick<T>(this Random random, IList<T> items)
+    {
+        return items[random.Next(items.Count)];
+    }
 
-    public static T Pick<T>(this Random random, params T[] items) => items[random.Next(items.Length)];
+    public static T Pick<T>(this Random random, params T[] items)
+    {
+        return items[random.Next(items.Length)];
+    }
 
     public static void Shuffle<T>(this Random random, T[] items)
     {
@@ -54,14 +58,19 @@ public static class ExtensionsRandom
 
     public static T[] Shuffle<T>(this Random random, T item1, T item2, params T[] items)
     {
-        if (items == null) items = Array.Empty<T>();
-        var array = new T[1 + 1 + (items.Length)];
+        if (items == null)
+        {
+            items = Array.Empty<T>();
+        }
+
+        var array = new T[1 + 1 + items.Length];
         array[0] = item1;
         array[1] = item2;
         for (var i = 0; i < items.Length; i++)
         {
             array[i + 2] = items[i];
         }
+
         Shuffle(random, array);
         return array;
     }
@@ -79,7 +88,10 @@ public static class ExtensionsRandom
 
     public static int Next(this RandomNumberGenerator random, int fromInclusive, int toExclusive)
     {
-        if (fromInclusive >= toExclusive) throw new ArgumentException($"Invalid range {nameof(fromInclusive)}:{fromInclusive} {nameof(toExclusive)}:{toExclusive}", nameof(fromInclusive));
+        if (fromInclusive >= toExclusive)
+        {
+            throw new ArgumentException($"Invalid range {nameof(fromInclusive)}:{fromInclusive} {nameof(toExclusive)}:{toExclusive}", nameof(fromInclusive));
+        }
 
         // The total possible range is [0, 4,294,967,295). Subtract one to account for zero
         // being an actual possibility.
@@ -87,7 +99,10 @@ public static class ExtensionsRandom
 
         // If there is only one possible choice, nothing random will actually happen, so return
         // the only possibility.
-        if (range == 0) return fromInclusive;
+        if (range == 0)
+        {
+            return fromInclusive;
+        }
 
         // Create a mask for the bits that we care about for the range. The other bits will be
         // masked away.
@@ -105,21 +120,35 @@ public static class ExtensionsRandom
         {
             random.GetBytes(resultSpan);
             result = mask & BitConverter.ToUInt32(resultSpan, 0);
-        }
-        while (result > range);
+        } while (result > range);
 
         return (int)result + fromInclusive;
     }
 
-    public static int Next(this RandomNumberGenerator random) => Next(random, 0, int.MaxValue);
+    public static int Next(this RandomNumberGenerator random)
+    {
+        return Next(random, 0, int.MaxValue);
+    }
 
-    public static int Next(this RandomNumberGenerator random, int maxValueExclusive) => Next(random, 0, maxValueExclusive);
+    public static int Next(this RandomNumberGenerator random, int maxValueExclusive)
+    {
+        return Next(random, 0, maxValueExclusive);
+    }
 
-    public static Guid NextGuid(this RandomNumberGenerator random) => new Guid(random.GetBytes(16));
+    public static Guid NextGuid(this RandomNumberGenerator random)
+    {
+        return new Guid(random.GetBytes(16));
+    }
 
-    public static T Pick<T>(this RandomNumberGenerator random, IList<T> items) => items[random.Next(items.Count)];
+    public static T Pick<T>(this RandomNumberGenerator random, IList<T> items)
+    {
+        return items[random.Next(items.Count)];
+    }
 
-    public static T Pick<T>(this RandomNumberGenerator random, params T[] items) => items[random.Next(items.Length)];
+    public static T Pick<T>(this RandomNumberGenerator random, params T[] items)
+    {
+        return items[random.Next(items.Length)];
+    }
 
     public static void Shuffle<T>(this RandomNumberGenerator random, T[] items)
     {
@@ -148,6 +177,4 @@ public static class ExtensionsRandom
     }
 
     #endregion System.Security.Cryptography.RandomNumberGenerator
-
 }
-

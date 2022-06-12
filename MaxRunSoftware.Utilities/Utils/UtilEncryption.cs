@@ -1,18 +1,16 @@
-﻿// /*
-// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// */
 
 using System.Security.Cryptography;
 
@@ -43,8 +41,8 @@ public static partial class Util
         using (var rsa = RSA.Create(length))
         {
             //rsa.ExportParameters(true);
-            string publicKey = EncryptionGeneratePublicPrivateKeysHelper.ExportPublicKey(rsa);
-            string privateKey = EncryptionGeneratePublicPrivateKeysHelper.ExportPrivateKey(rsa);
+            var publicKey = EncryptionGeneratePublicPrivateKeysHelper.ExportPublicKey(rsa);
+            var privateKey = EncryptionGeneratePublicPrivateKeysHelper.ExportPrivateKey(rsa);
             return (publicKey, privateKey);
         }
     }
@@ -97,6 +95,7 @@ public static partial class Util
                 {
                     outputStream.WriteLine(base64, i, Math.Min(64, base64.Length - i));
                 }
+
                 outputStream.WriteLine("-----END RSA PRIVATE KEY-----");
             }
         }
@@ -135,10 +134,12 @@ public static partial class Util
                             EncodeLength(bitStringWriter, paramsLength);
                             bitStringWriter.Write(paramsStream.GetBuffer(), 0, paramsLength);
                         }
+
                         var bitStringLength = (int)bitStringStream.Length;
                         EncodeLength(innerWriter, bitStringLength);
                         innerWriter.Write(bitStringStream.GetBuffer(), 0, bitStringLength);
                     }
+
                     var length = (int)innerStream.Length;
                     EncodeLength(writer, length);
                     writer.Write(innerStream.GetBuffer(), 0, length);
@@ -150,13 +151,18 @@ public static partial class Util
                 {
                     outputStream.WriteLine(base64, i, Math.Min(64, base64.Length - i));
                 }
+
                 outputStream.WriteLine("-----END PUBLIC KEY-----");
             }
         }
 
         private static void EncodeLength(BinaryWriter stream, int length)
         {
-            if (length < 0) throw new ArgumentOutOfRangeException("length", "Length must be non-negative");
+            if (length < 0)
+            {
+                throw new ArgumentOutOfRangeException("length", "Length must be non-negative");
+            }
+
             if (length < 0x80)
             {
                 // Short form
@@ -172,10 +178,11 @@ public static partial class Util
                     temp >>= 8;
                     bytesRequired++;
                 }
+
                 stream.Write((byte)(bytesRequired | 0x80));
                 for (var i = bytesRequired - 1; i >= 0; i--)
                 {
-                    stream.Write((byte)(length >> (8 * i) & 0xff));
+                    stream.Write((byte)((length >> (8 * i)) & 0xff));
                 }
             }
         }
@@ -186,9 +193,14 @@ public static partial class Util
             var prefixZeros = 0;
             for (var i = 0; i < value.Length; i++)
             {
-                if (value[i] != 0) break;
+                if (value[i] != 0)
+                {
+                    break;
+                }
+
                 prefixZeros++;
             }
+
             if (value.Length - prefixZeros == 0)
             {
                 EncodeLength(stream, 1);
@@ -206,13 +218,12 @@ public static partial class Util
                 {
                     EncodeLength(stream, value.Length - prefixZeros);
                 }
+
                 for (var i = prefixZeros; i < value.Length; i++)
                 {
                     stream.Write(value[i]);
                 }
             }
         }
-
     }
-
 }

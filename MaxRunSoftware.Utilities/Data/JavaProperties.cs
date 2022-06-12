@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
@@ -49,7 +47,11 @@ public static class JavaPropertiesExtensions
 
     public static void LoadFile(this JavaProperties properties, string filename, Encoding encoding = null)
     {
-        if (encoding == null) encoding = Constant.ENCODING_UTF8;
+        if (encoding == null)
+        {
+            encoding = Constant.ENCODING_UTF8;
+        }
+
         using (var fs = Util.FileOpenRead(filename))
         {
             properties.Load(fs, encoding);
@@ -58,7 +60,7 @@ public static class JavaPropertiesExtensions
 
     public static void LoadFromString(this JavaProperties properties, string data)
     {
-        byte[] byteArray = Constant.ENCODING_UTF8.GetBytes(data);
+        var byteArray = Constant.ENCODING_UTF8.GetBytes(data);
         using (var stream = new MemoryStream(byteArray))
         {
             properties.Load(stream, Constant.ENCODING_UTF8);
@@ -70,7 +72,7 @@ public static class JavaPropertiesExtensions
 /// Hold Java style properties as key-value pairs and allow them to be loaded from or
 /// saved to a ".properties" file. The file is stored with character set ISO-8859-1 which extends US-ASCII
 /// (the characters 0-127 are the same) and forms the first part of the Unicode character set.  Within the
-/// application <see cref="string"/> are Unicode - but all values outside the basic US-ASCII set are escaped.
+/// application <see cref="string" /> are Unicode - but all values outside the basic US-ASCII set are escaped.
 /// https://github.com/Kajabity/Kajabity-Tools/
 /// </summary>
 public class JavaProperties : Hashtable
@@ -79,7 +81,7 @@ public class JavaProperties : Hashtable
     /// A reference to an optional set of default properties - these values are returned
     /// if the value has not been loaded from a ".properties" file or set programatically.
     /// </summary>
-    protected Hashtable defaults;
+    protected readonly Hashtable defaults;
 
     /// <summary>
     /// Gets a reference to the ISO-8859-1 encoding (code page 28592). This is the Java standard for .properties files.
@@ -89,20 +91,23 @@ public class JavaProperties : Hashtable
     /// <summary>
     /// An empty constructor that doesn't set the defaults.
     /// </summary>
-    public JavaProperties()
-    {
-    }
+    public JavaProperties() { }
 
     /// <summary>
     /// Use this constructor to provide a set of default values.  The default values are kept separate
     /// to the ones in this instant.
     /// </summary>
-    /// <param name="defaults">A Hashtable that holds a set of defafult key value pairs to
-    /// return when the requested key has not been set.</param>
-    public JavaProperties(Hashtable defaults) => this.defaults = defaults;
+    /// <param name="defaults">
+    /// A Hashtable that holds a set of defafult key value pairs to
+    /// return when the requested key has not been set.
+    /// </param>
+    public JavaProperties(Hashtable defaults)
+    {
+        this.defaults = defaults;
+    }
 
     /// <summary>
-    /// Load Java Properties from a stream expecting the format as described in <see cref="JavaPropertyReader"/>.
+    /// Load Java Properties from a stream expecting the format as described in <see cref="JavaPropertyReader" />.
     /// </summary>
     /// <param name="streamIn">An input stream to read properties from.</param>
     /// <exception cref="ParseException">If the stream source is invalid.</exception>
@@ -114,7 +119,7 @@ public class JavaProperties : Hashtable
 
     /// <summary>
     /// Load Java Properties from a stream with the specified encoding and
-    /// expecting the format as described in <see cref="JavaPropertyReader"/>.
+    /// expecting the format as described in <see cref="JavaPropertyReader" />.
     /// </summary>
     /// <param name="streamIn">An input stream to read properties from.</param>
     /// <param name="encoding">The stream's encoding.</param>
@@ -126,7 +131,7 @@ public class JavaProperties : Hashtable
 
     /// <summary>
     /// Store the contents of this collection of properties to the stream in the format
-    /// used for Java ".properties" files using an instance of <see cref="JavaPropertyWriter"/>.
+    /// used for Java ".properties" files using an instance of <see cref="JavaPropertyWriter" />.
     /// The keys and values will be minimally escaped to ensure special characters are read back
     /// in properly.  Keys are not sorted.  The file will begin with a comment identifying the
     /// date - and an additional comment may be included.
@@ -149,8 +154,16 @@ public class JavaProperties : Hashtable
     public string GetProperty(string key)
     {
         var objectValue = this[key];
-        if (objectValue != null) return objectValue.ToString();
-        if (defaults != null) return defaults[key]?.ToString();
+        if (objectValue != null)
+        {
+            return objectValue.ToString();
+        }
+
+        if (defaults != null)
+        {
+            return defaults[key]?.ToString();
+        }
+
         return null;
     }
 
@@ -161,7 +174,10 @@ public class JavaProperties : Hashtable
     /// <param name="key">The key whose value should be returned.</param>
     /// <param name="defaultValue">The default value if the key is not found.</param>
     /// <returns>The value corresponding to the key - or null if not found.</returns>
-    public string GetProperty(string key, string defaultValue) => GetProperty(key) ?? defaultValue;
+    public string GetProperty(string key, string defaultValue)
+    {
+        return GetProperty(key) ?? defaultValue;
+    }
 
     /// <summary>
     /// Set the value for a property key.  The old value is returned - if any.
@@ -190,7 +206,10 @@ public class JavaProperties : Hashtable
             for (var e = Keys.GetEnumerator(); e.MoveNext();)
             {
                 var key = e.Current?.ToString();
-                combined.Add(key, this[key]);
+                if (key != null)
+                {
+                    combined.Add(key, this[key]);
+                }
             }
         }
         else
@@ -233,81 +252,104 @@ public class JavaPropertyReader
 
     private const int bufferSize = 1000;
 
-    private static readonly int[][] states = new int[][] {
-        new int[]{//STATE_start
-            MATCH_end_of_input, STATE_finish,           ACTION_ignore,
-            MATCH_terminator,   STATE_start,            ACTION_ignore,
-            '#',                STATE_comment,          ACTION_ignore,
-            '!',                STATE_comment,          ACTION_ignore,
-            MATCH_whitespace,   STATE_start,            ACTION_ignore,
-            '\\',               STATE_key_escape,       ACTION_escape,
-            ':',                STATE_after_separator,  ACTION_ignore,
-            '=',                STATE_after_separator,  ACTION_ignore,
-            MATCH_any,          STATE_key,              ACTION_add_to_key,
+    private static readonly int[][] states =
+    {
+        new[]
+        {
+            //STATE_start
+            MATCH_end_of_input, STATE_finish, ACTION_ignore,
+            MATCH_terminator, STATE_start, ACTION_ignore,
+            '#', STATE_comment, ACTION_ignore,
+            '!', STATE_comment, ACTION_ignore,
+            MATCH_whitespace, STATE_start, ACTION_ignore,
+            '\\', STATE_key_escape, ACTION_escape,
+            ':', STATE_after_separator, ACTION_ignore,
+            '=', STATE_after_separator, ACTION_ignore,
+            MATCH_any, STATE_key, ACTION_add_to_key
         },
-        new int[]{//STATE_comment
-            MATCH_end_of_input, STATE_finish,           ACTION_ignore,
-            MATCH_terminator,   STATE_start,            ACTION_ignore,
-            MATCH_any,          STATE_comment,          ACTION_ignore,
+        new[]
+        {
+            //STATE_comment
+            MATCH_end_of_input, STATE_finish, ACTION_ignore,
+            MATCH_terminator, STATE_start, ACTION_ignore,
+            MATCH_any, STATE_comment, ACTION_ignore
         },
-        new int[]{//STATE_key
-            MATCH_end_of_input, STATE_finish,           ACTION_store_property,
-            MATCH_terminator,   STATE_start,            ACTION_store_property,
-            MATCH_whitespace,   STATE_before_separator, ACTION_ignore,
-            '\\',               STATE_key_escape,       ACTION_escape,
-            ':',                STATE_after_separator,  ACTION_ignore,
-            '=',                STATE_after_separator,  ACTION_ignore,
-            MATCH_any,          STATE_key,              ACTION_add_to_key,
+        new[]
+        {
+            //STATE_key
+            MATCH_end_of_input, STATE_finish, ACTION_store_property,
+            MATCH_terminator, STATE_start, ACTION_store_property,
+            MATCH_whitespace, STATE_before_separator, ACTION_ignore,
+            '\\', STATE_key_escape, ACTION_escape,
+            ':', STATE_after_separator, ACTION_ignore,
+            '=', STATE_after_separator, ACTION_ignore,
+            MATCH_any, STATE_key, ACTION_add_to_key
         },
-        new int[]{//STATE_key_escape
-            MATCH_terminator,   STATE_key_ws,           ACTION_ignore,
-            MATCH_any,          STATE_key,              ACTION_add_to_key,
+        new[]
+        {
+            //STATE_key_escape
+            MATCH_terminator, STATE_key_ws, ACTION_ignore,
+            MATCH_any, STATE_key, ACTION_add_to_key
         },
-        new int[]{//STATE_key_ws
-            MATCH_end_of_input, STATE_finish,           ACTION_store_property,
-            MATCH_terminator,   STATE_start,            ACTION_store_property,
-            MATCH_whitespace,   STATE_key_ws,           ACTION_ignore,
-            '\\',               STATE_key_escape,       ACTION_escape,
-            ':',                STATE_after_separator,  ACTION_ignore,
-            '=',                STATE_after_separator,  ACTION_ignore,
-            MATCH_any,          STATE_key,              ACTION_add_to_key,
+        new[]
+        {
+            //STATE_key_ws
+            MATCH_end_of_input, STATE_finish, ACTION_store_property,
+            MATCH_terminator, STATE_start, ACTION_store_property,
+            MATCH_whitespace, STATE_key_ws, ACTION_ignore,
+            '\\', STATE_key_escape, ACTION_escape,
+            ':', STATE_after_separator, ACTION_ignore,
+            '=', STATE_after_separator, ACTION_ignore,
+            MATCH_any, STATE_key, ACTION_add_to_key
         },
-        new int[]{//STATE_before_separator
-            MATCH_end_of_input, STATE_finish,           ACTION_store_property,
-            MATCH_terminator,   STATE_start,            ACTION_store_property,
-            MATCH_whitespace,   STATE_before_separator, ACTION_ignore,
-            '\\',               STATE_value_escape,     ACTION_escape,
-            ':',                STATE_after_separator,  ACTION_ignore,
-            '=',                STATE_after_separator,  ACTION_ignore,
-            MATCH_any,          STATE_value,            ACTION_add_to_value,
+        new[]
+        {
+            //STATE_before_separator
+            MATCH_end_of_input, STATE_finish, ACTION_store_property,
+            MATCH_terminator, STATE_start, ACTION_store_property,
+            MATCH_whitespace, STATE_before_separator, ACTION_ignore,
+            '\\', STATE_value_escape, ACTION_escape,
+            ':', STATE_after_separator, ACTION_ignore,
+            '=', STATE_after_separator, ACTION_ignore,
+            MATCH_any, STATE_value, ACTION_add_to_value
         },
-        new int[]{//STATE_after_separator
-            MATCH_end_of_input, STATE_finish,           ACTION_store_property,
-            MATCH_terminator,   STATE_start,            ACTION_store_property,
-            MATCH_whitespace,   STATE_after_separator,  ACTION_ignore,
-            '\\',               STATE_value_escape,     ACTION_escape,
-            MATCH_any,          STATE_value,            ACTION_add_to_value,
+        new[]
+        {
+            //STATE_after_separator
+            MATCH_end_of_input, STATE_finish, ACTION_store_property,
+            MATCH_terminator, STATE_start, ACTION_store_property,
+            MATCH_whitespace, STATE_after_separator, ACTION_ignore,
+            '\\', STATE_value_escape, ACTION_escape,
+            MATCH_any, STATE_value, ACTION_add_to_value
         },
-        new int[]{//STATE_value
-            MATCH_end_of_input, STATE_finish,           ACTION_store_property,
-            MATCH_terminator,   STATE_start,            ACTION_store_property,
-            '\\',               STATE_value_escape,     ACTION_escape,
-            MATCH_any,          STATE_value,            ACTION_add_to_value,
+        new[]
+        {
+            //STATE_value
+            MATCH_end_of_input, STATE_finish, ACTION_store_property,
+            MATCH_terminator, STATE_start, ACTION_store_property,
+            '\\', STATE_value_escape, ACTION_escape,
+            MATCH_any, STATE_value, ACTION_add_to_value
         },
-        new int[]{//STATE_value_escape
-            MATCH_terminator,   STATE_value_ws,         ACTION_ignore,
-            MATCH_any,          STATE_value,            ACTION_add_to_value
+        new[]
+        {
+            //STATE_value_escape
+            MATCH_terminator, STATE_value_ws, ACTION_ignore,
+            MATCH_any, STATE_value, ACTION_add_to_value
         },
-        new int[]{//STATE_value_ws
-            MATCH_end_of_input, STATE_finish,           ACTION_store_property,
-            MATCH_terminator,   STATE_start,            ACTION_store_property,
-            MATCH_whitespace,   STATE_value_ws,         ACTION_ignore,
-            '\\',               STATE_value_escape,     ACTION_escape,
-            MATCH_any,          STATE_value,            ACTION_add_to_value,
+        new[]
+        {
+            //STATE_value_ws
+            MATCH_end_of_input, STATE_finish, ACTION_store_property,
+            MATCH_terminator, STATE_start, ACTION_store_property,
+            MATCH_whitespace, STATE_value_ws, ACTION_ignore,
+            '\\', STATE_value_escape, ACTION_escape,
+            MATCH_any, STATE_value, ACTION_add_to_value
         }
     };
 
-    private static readonly string[] stateNames = new string[] {
+    /*
+    private static readonly string[] stateNames =
+    {
         "STATE_start",
         "STATE_comment",
         "STATE_key",
@@ -320,25 +362,29 @@ public class JavaPropertyReader
         "STATE_value_ws",
         "STATE_finish"
     };
+    */
 
     private readonly Hashtable hashtable;
-    private bool escaped = false;
-    private StringBuilder keyBuilder = new StringBuilder();
-    private StringBuilder valueBuilder = new StringBuilder();
+    private bool escaped;
+    private readonly StringBuilder keyBuilder = new();
+    private readonly StringBuilder valueBuilder = new();
 
     // we now use a BinaryReader, which supports encodings
-    private BinaryReader reader = null;
+    private BinaryReader reader;
 
     private int savedChar;
 
-    private bool saved = false;
+    private bool saved;
 
     /// <summary>
     /// Construct a reader passing a reference to a Hashtable (or JavaProperties) instance
     /// where the keys are to be stored.
     /// </summary>
     /// <param name="hashtable">A reference to a hashtable where the key-value pairs can be stored.</param>
-    public JavaPropertyReader(Hashtable hashtable) => this.hashtable = hashtable;
+    public JavaPropertyReader(Hashtable hashtable)
+    {
+        this.hashtable = hashtable;
+    }
 
     private bool Matches(int match, int ch)
     {
@@ -354,12 +400,15 @@ public class JavaPropertyReader
                     {
                         saved = false;
                     }
+
                     return true;
                 }
-                else if (ch == '\n')
+
+                if (ch == '\n')
                 {
                     return true;
                 }
+
                 return false;
 
             case MATCH_whitespace:
@@ -447,6 +496,7 @@ public class JavaPropertyReader
                             throw new ParseException("Invalid Unicode character.");
                         }
                     }
+
                     return (char)uch;
             }
         }
@@ -478,8 +528,8 @@ public class JavaPropertyReader
 
     /// <summary>
     /// A method to substitute calls to <c>stream.ReadByte()</c>.
-    /// The <see cref="JavaPropertyReader" /> now uses a <see cref="BinaryReader"/> to read properties.
-    /// Unlike a plain stream, the <see cref="BinaryReader"/> will not return -1 when the stream end is reached,
+    /// The <see cref="JavaPropertyReader" /> now uses a <see cref="BinaryReader" /> to read properties.
+    /// Unlike a plain stream, the <see cref="BinaryReader" /> will not return -1 when the stream end is reached,
     /// instead an <see cref="IOException" /> is to be thrown.
     /// <para>
     /// In this method we perform a check if the stream is already processed to the end, and return <c>-1</c>.
@@ -494,32 +544,38 @@ public class JavaPropertyReader
             // We just return -1 now;
             return -1;
         }
+
         // reader.ReadChar() will take into account the encoding.
         return reader.ReadChar();
     }
 
     /// <summary>
-    /// <para>Load key value pairs (properties) from an input Stream expected to have ISO-8859-1 encoding (code page 28592).
+    /// <para>
+    /// Load key value pairs (properties) from an input Stream expected to have ISO-8859-1 encoding (code page 28592).
     /// The input stream (usually reading from a ".properties" file) consists of a series of lines (terminated
-    /// by \r, \n or \r\n) each a key value pair, a comment or a blank line.</para>
-    ///
-    /// <para>Leading whitespace (spaces, tabs, formfeeds) are ignored at the start of any line - and a line that is empty or
-    /// contains only whitespace is blank and ignored.</para>
-    ///
-    /// <para>A line with the first non-whitespace character is a '#' or '!' is a comment line and the rest of the line is
-    /// ignored.</para>
-    ///
-    /// <para>If the first non-whitespace character is not '#' or '!' then it is the start of a key.  A key is all the
-    /// characters up to the first whitespace or a key/value separator - '=' or ':'.</para>
-    ///
+    /// by \r, \n or \r\n) each a key value pair, a comment or a blank line.
+    /// </para>
+    /// <para>
+    /// Leading whitespace (spaces, tabs, formfeeds) are ignored at the start of any line - and a line that is empty or
+    /// contains only whitespace is blank and ignored.
+    /// </para>
+    /// <para>
+    /// A line with the first non-whitespace character is a '#' or '!' is a comment line and the rest of the line is
+    /// ignored.
+    /// </para>
+    /// <para>
+    /// If the first non-whitespace character is not '#' or '!' then it is the start of a key.  A key is all the
+    /// characters up to the first whitespace or a key/value separator - '=' or ':'.
+    /// </para>
     /// <para>The separator is optional.  Any whitespace after the key or after the separator (if present) is ignored.</para>
-    ///
-    /// <para>The first non-whitespace character after the separator (or after the key if no separator) begins the value.
-    /// The value may include whitespace, separators, or comment characters.</para>
-    ///
-    /// <para>Any unicode character may be included in either key or value by using escapes preceded by the escape
-    /// character '\'.</para>
-    ///
+    /// <para>
+    /// The first non-whitespace character after the separator (or after the key if no separator) begins the value.
+    /// The value may include whitespace, separators, or comment characters.
+    /// </para>
+    /// <para>
+    /// Any unicode character may be included in either key or value by using escapes preceded by the escape
+    /// character '\'.
+    /// </para>
     /// <para>The following special cases are defined:</para>
     /// <code>
     /// 	'\t' - horizontal tab.
@@ -527,20 +583,19 @@ public class JavaPropertyReader
     /// 	'\r' - return
     /// 	'\n' - new line
     /// 	'\\' - add escape character.
-    ///
+    /// 
     /// 	'\ ' - add space in a key or at the start of a value.
     /// 	'\!', '\#' - add comment markers at the start of a key.
     /// 	'\=', '\:' - add a separator in a key.
     /// </code>
-    ///
     /// <para>Any unicode character using the following escape:</para>
     /// <code>
     /// 	'\uXXXX' - where XXXX represents the unicode character code as 4 hexadecimal digits.
     /// </code>
-    ///
-    /// <para>Finally, longer lines can be broken by putting an escape at the very end of the line.  Any leading space
-    /// (unless escaped) is skipped at the beginning of the following line.</para>
-    ///
+    /// <para>
+    /// Finally, longer lines can be broken by putting an escape at the very end of the line.  Any leading space
+    /// (unless escaped) is skipped at the beginning of the following line.
+    /// </para>
     /// Examples
     /// <code>
     /// 	a-key = a-value
@@ -548,51 +603,55 @@ public class JavaPropertyReader
     /// 	a-key=a-value
     /// 	a-key a-value
     /// </code>
-    ///
     /// <para>All the above will result in the same key/value pair - key "a-key" and value "a-value".</para>
     /// <code>
     /// 	! comment...
     /// 	# another comment...
     /// </code>
-    ///
     /// <para>The above are two examples of comments.</para>
     /// <code>
     /// 	Honk\ Kong = Near China
     /// </code>
-    ///
     /// <para>The above shows how to embed a space in a key - key is "Hong Kong", value is "Near China".</para>
     /// <code>
     /// 	a-longer-key-example = a really long value that is \
     /// 			split over two lines.
     /// </code>
-    ///
     /// <para>An example of a long line split into two.</para>
     /// </summary>
     /// <param name="stream">The input stream that the properties are read from.</param>
-    public void Parse(Stream stream) => Parse(stream, null);
+    public void Parse(Stream stream)
+    {
+        Parse(stream, null);
+    }
 
     /// <summary>
-    /// <para>Load key value pairs (properties) from an input Stream expected to have ISO-8859-1 encoding (code page 28592).
+    /// <para>
+    /// Load key value pairs (properties) from an input Stream expected to have ISO-8859-1 encoding (code page 28592).
     /// The input stream (usually reading from a ".properties" file) consists of a series of lines (terminated
-    /// by \r, \n or \r\n) each a key value pair, a comment or a blank line.</para>
-    ///
-    /// <para>Leading whitespace (spaces, tabs, formfeeds) are ignored at the start of any line - and a line that is empty or
-    /// contains only whitespace is blank and ignored.</para>
-    ///
-    /// <para>A line with the first non-whitespace character is a '#' or '!' is a comment line and the rest of the line is
-    /// ignored.</para>
-    ///
-    /// <para>If the first non-whitespace character is not '#' or '!' then it is the start of a key.  A key is all the
-    /// characters up to the first whitespace or a key/value separator - '=' or ':'.</para>
-    ///
+    /// by \r, \n or \r\n) each a key value pair, a comment or a blank line.
+    /// </para>
+    /// <para>
+    /// Leading whitespace (spaces, tabs, formfeeds) are ignored at the start of any line - and a line that is empty or
+    /// contains only whitespace is blank and ignored.
+    /// </para>
+    /// <para>
+    /// A line with the first non-whitespace character is a '#' or '!' is a comment line and the rest of the line is
+    /// ignored.
+    /// </para>
+    /// <para>
+    /// If the first non-whitespace character is not '#' or '!' then it is the start of a key.  A key is all the
+    /// characters up to the first whitespace or a key/value separator - '=' or ':'.
+    /// </para>
     /// <para>The separator is optional.  Any whitespace after the key or after the separator (if present) is ignored.</para>
-    ///
-    /// <para>The first non-whitespace character after the separator (or after the key if no separator) begins the value.
-    /// The value may include whitespace, separators, or comment characters.</para>
-    ///
-    /// <para>Any unicode character may be included in either key or value by using escapes preceded by the escape
-    /// character '\'.</para>
-    ///
+    /// <para>
+    /// The first non-whitespace character after the separator (or after the key if no separator) begins the value.
+    /// The value may include whitespace, separators, or comment characters.
+    /// </para>
+    /// <para>
+    /// Any unicode character may be included in either key or value by using escapes preceded by the escape
+    /// character '\'.
+    /// </para>
     /// <para>The following special cases are defined:</para>
     /// <code>
     /// 	'\t' - horizontal tab.
@@ -600,20 +659,19 @@ public class JavaPropertyReader
     /// 	'\r' - return
     /// 	'\n' - new line
     /// 	'\\' - add escape character.
-    ///
+    /// 
     /// 	'\ ' - add space in a key or at the start of a value.
     /// 	'\!', '\#' - add comment markers at the start of a key.
     /// 	'\=', '\:' - add a separator in a key.
     /// </code>
-    ///
     /// <para>Any unicode character using the following escape:</para>
     /// <code>
     /// 	'\uXXXX' - where XXXX represents the unicode character code as 4 hexadecimal digits.
     /// </code>
-    ///
-    /// <para>Finally, longer lines can be broken by putting an escape at the very end of the line.  Any leading space
-    /// (unless escaped) is skipped at the beginning of the following line.</para>
-    ///
+    /// <para>
+    /// Finally, longer lines can be broken by putting an escape at the very end of the line.  Any leading space
+    /// (unless escaped) is skipped at the beginning of the following line.
+    /// </para>
     /// Examples
     /// <code>
     /// 	a-key = a-value
@@ -621,28 +679,27 @@ public class JavaPropertyReader
     /// 	a-key=a-value
     /// 	a-key a-value
     /// </code>
-    ///
     /// <para>All the above will result in the same key/value pair - key "a-key" and value "a-value".</para>
     /// <code>
     /// 	! comment...
     /// 	# another comment...
     /// </code>
-    ///
     /// <para>The above are two examples of comments.</para>
     /// <code>
     /// 	Honk\ Kong = Near China
     /// </code>
-    ///
     /// <para>The above shows how to embed a space in a key - key is "Hong Kong", value is "Near China".</para>
     /// <code>
     /// 	a-longer-key-example = a really long value that is \
     /// 			split over two lines.
     /// </code>
-    ///
     /// <para>An example of a long line split into two.</para>
     /// </summary>
     /// <param name="stream">The input stream that the properties are read from.</param>
-    /// <param name="encoding">The <see cref="System.Text.Encoding">encoding</see> that is used to read the properies file stream.</param>
+    /// <param name="encoding">
+    /// The <see cref="System.Text.Encoding">encoding</see> that is used to read the properies file
+    /// stream.
+    /// </param>
     public void Parse(Stream stream, Encoding encoding)
     {
         var bufferedStream = new BufferedStream(stream, bufferSize);
@@ -686,14 +743,19 @@ public class JavaPropertyWriter
 {
     private static readonly char[] HEX = "0123456789ABCDEF".ToCharArray();
 
-    private Hashtable hashtable;
+    private readonly Hashtable hashtable;
 
     /// <summary>
     /// Construct an instance of this class.
     /// </summary>
-    /// <param name="hashtable">The Hashtable (or JavaProperties) instance
-    /// whose values are to be written.</param>
-    public JavaPropertyWriter(Hashtable hashtable) => this.hashtable = hashtable;
+    /// <param name="hashtable">
+    /// The Hashtable (or JavaProperties) instance
+    /// whose values are to be written.
+    /// </param>
+    public JavaPropertyWriter(Hashtable hashtable)
+    {
+        this.hashtable = hashtable;
+    }
 
     /// <summary>
     /// Escape the string as a Key with character set ISO-8859-1 -
@@ -721,26 +783,26 @@ public class JavaPropertyWriter
 
             switch (c)
             {
-                case '\t':  //  =09 U+0009  HORIZONTAL TABULATION   \t
+                case '\t': //  =09 U+0009  HORIZONTAL TABULATION   \t
                     buf.Append('\\').Append('t');
                     break;
 
-                case '\n':  //  =0A U+000A  LINE FEED               \n
+                case '\n': //  =0A U+000A  LINE FEED               \n
                     buf.Append('\\').Append('n');
                     break;
 
-                case '\f':  //  =0C U+000C  FORM FEED               \f
+                case '\f': //  =0C U+000C  FORM FEED               \f
                     buf.Append('\\').Append('f');
                     break;
 
-                case '\r':  //  =0D U+000D  CARRIAGE RETURN         \r
+                case '\r': //  =0D U+000D  CARRIAGE RETURN         \r
                     buf.Append('\\').Append('r');
                     break;
 
-                case ' ':   //  32: ' '
-                case ':':   //  58: ':'
-                case '=':   //  61: '='
-                case '\\':  //  92: '\'
+                case ' ': //  32: ' '
+                case ':': //  58: ':'
+                case '=': //  61: '='
+                case '\\': //  92: '\'
                     buf.Append('\\').Append(c);
                     break;
 
@@ -757,6 +819,7 @@ public class JavaPropertyWriter
                         buf.Append(HEX[(c >> 4) & 0xF]);
                         buf.Append(HEX[c & 0xF]);
                     }
+
                     break;
             }
         }
@@ -780,7 +843,8 @@ public class JavaPropertyWriter
                     buf.Append('\\').Append(' ');
                     continue;
                 }
-                else if (c == '\t')    //  =09 U+0009  HORIZONTAL TABULATION   \t
+
+                if (c == '\t') //  =09 U+0009  HORIZONTAL TABULATION   \t
                 {
                     buf.Append('\\').Append('t');
                     continue;
@@ -789,23 +853,23 @@ public class JavaPropertyWriter
 
             switch (c)
             {
-                case '\t':  //  =09 U+0009  HORIZONTAL TABULATION   \t
-                    buf.Append('\t');  //OK after first position.
+                case '\t': //  =09 U+0009  HORIZONTAL TABULATION   \t
+                    buf.Append('\t'); //OK after first position.
                     break;
 
-                case '\n':  //  =0A U+000A  LINE FEED               \n
+                case '\n': //  =0A U+000A  LINE FEED               \n
                     buf.Append('\\').Append('n');
                     break;
 
-                case '\f':  //  =0C U+000C  FORM FEED               \f
+                case '\f': //  =0C U+000C  FORM FEED               \f
                     buf.Append('\\').Append('f');
                     break;
 
-                case '\r':  //  =0D U+000D  CARRIAGE RETURN         \r
+                case '\r': //  =0D U+000D  CARRIAGE RETURN         \r
                     buf.Append('\\').Append('r');
                     break;
 
-                case '\\':  //  92: '\'
+                case '\\': //  92: '\'
                     buf.Append('\\').Append(c);
                     break;
 
@@ -822,6 +886,7 @@ public class JavaPropertyWriter
                         buf.Append(HEX[(c >> 4) & 0xF]);
                         buf.Append(HEX[c & 0xF]);
                     }
+
                     break;
             }
         }
@@ -850,13 +915,17 @@ public class JavaPropertyWriter
             writer.WriteLine("# " + comments);
         }
 
-        writer.WriteLine("# " + DateTime.Now.ToString());
+        writer.WriteLine("# " + DateTime.Now);
 
         for (var e = hashtable.Keys.GetEnumerator(); e.MoveNext();)
         {
-            var key = e.Current.ToString();
-            var val = hashtable[key].ToString();
+            var key = e.Current?.ToString();
+            if (key == null)
+            {
+                continue;
+            }
 
+            var val = hashtable[key]?.ToString();
             writer.WriteLine(EscapeKey(key) + "=" + EscapeValue(val));
         }
 
@@ -865,7 +934,7 @@ public class JavaPropertyWriter
 }
 
 /// <summary>
-/// An exception thrown by <see cref="JavaPropertyReader"/> when parsing a properties stream.
+/// An exception thrown by <see cref="JavaPropertyReader" /> when parsing a properties stream.
 /// https://github.com/Kajabity/Kajabity-Tools/
 /// </summary>
 public class ParseException : Exception
@@ -874,7 +943,5 @@ public class ParseException : Exception
     /// Construct an exception with an error message.
     /// </summary>
     /// <param name="message">A descriptive message for the exception</param>
-    public ParseException(string message) : base(message)
-    {
-    }
+    public ParseException(string message) : base(message) { }
 }

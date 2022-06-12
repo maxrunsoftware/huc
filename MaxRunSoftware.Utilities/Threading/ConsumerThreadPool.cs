@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Collections.Concurrent;
 
@@ -26,10 +24,10 @@ public class ConsumerThreadPool<T> : IDisposable
 {
     private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-    private readonly List<ConsumerThread<T>> threads = new List<ConsumerThread<T>>();
-    private readonly BlockingCollection<T> queue = new BlockingCollection<T>();
+    private readonly List<ConsumerThread<T>> threads = new();
+    private readonly BlockingCollection<T> queue = new();
     private readonly Action<T> action;
-    private readonly object locker = new object();
+    private readonly object locker = new();
     private readonly bool isBackgroundThread;
     private volatile int threadCounter = 1;
     public bool IsDisposed { get; private set; }
@@ -43,8 +41,11 @@ public class ConsumerThreadPool<T> : IDisposable
                 if (queue.IsCompleted)
                 {
                     if (threads.TrueForAll(o => o.ConsumerThreadState == ConsumerThreadState.Stopped))
+                    {
                         return true;
+                    }
                 }
+
                 return false;
             }
         }
@@ -66,13 +67,20 @@ public class ConsumerThreadPool<T> : IDisposable
             lock (locker)
             {
                 CleanThreads();
-                if (IsDisposed) newCount = 0;
+                if (IsDisposed)
+                {
+                    newCount = 0;
+                }
 
                 var count = threads.Count;
-                if (count == newCount) return;
+                if (count == newCount)
+                {
+                    return;
+                }
+
                 if (newCount > count)
                 {
-                    for (var i = 0; i < (value - count); i++)
+                    for (var i = 0; i < value - count; i++)
                     {
                         var threadName = ThreadPoolName + "(" + threadCounter + ")";
                         log.Debug(threadName + ": Creating thread...");
@@ -81,16 +89,18 @@ public class ConsumerThreadPool<T> : IDisposable
                         if (!thread.IsStarted)
                         {
                             log.Debug(threadName + ": Starting thread...");
-                            thread.Start(isBackgroundThread: isBackgroundThread, name: threadName);
+                            thread.Start(isBackgroundThread, threadName);
                         }
+
                         threads.Add(thread);
                         threadCounter++;
                         log.Debug(threadName + ": Created and Started thread");
                     }
                 }
+
                 if (newCount < count)
                 {
-                    for (var i = 0; i < (count - newCount); i++)
+                    for (var i = 0; i < count - newCount; i++)
                     {
                         var thread = threads.PopAt(0);
                         try
@@ -126,13 +136,25 @@ public class ConsumerThreadPool<T> : IDisposable
         }
     }
 
-    protected virtual ConsumerThread<T> CreateThread(Action<T> action) => new ConsumerThread<T>(queue, action);
+    protected virtual ConsumerThread<T> CreateThread(Action<T> action)
+    {
+        return new ConsumerThread<T>(queue, action);
+    }
 
-    protected virtual void DestroyThread(ConsumerThread<T> consumerThread) => consumerThread.Cancel();
+    protected virtual void DestroyThread(ConsumerThread<T> consumerThread)
+    {
+        consumerThread.Cancel();
+    }
 
-    public void AddWorkItem(T item) => queue.Add(item);
+    public void AddWorkItem(T item)
+    {
+        queue.Add(item);
+    }
 
-    public void FinishedAddingWorkItems() => queue.CompleteAdding();
+    public void FinishedAddingWorkItems()
+    {
+        queue.CompleteAdding();
+    }
 
     public void Dispose()
     {

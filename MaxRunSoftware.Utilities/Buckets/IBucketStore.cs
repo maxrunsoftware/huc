@@ -15,7 +15,7 @@
 namespace MaxRunSoftware.Utilities;
 
 /// <summary>
-///     Storage for multiple buckets based on a name
+/// Storage for multiple buckets based on a name
 /// </summary>
 /// <typeparam name="TKey">Key type</typeparam>
 /// <typeparam name="TValue">Value type</typeparam>

@@ -21,8 +21,7 @@ public static class BucketExtensions
         return new BucketDictionaryWrapper<TKey, TValue>(dictionary);
     }
 
-    public static IEnumerable<(TKey key, TValue value)> GetItems<TKey, TValue>(
-        this IBucketReadOnly<TKey, TValue> bucket)
+    public static IEnumerable<(TKey key, TValue value)> GetItems<TKey, TValue>(this IBucketReadOnly<TKey, TValue> bucket)
     {
         return bucket.Keys.Select(key => (key, bucket[key]));
     }

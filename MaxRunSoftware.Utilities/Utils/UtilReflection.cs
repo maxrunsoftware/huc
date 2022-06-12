@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -35,11 +33,22 @@ public static partial class Util
                 try
                 {
                     var n = asm.FullName;
-                    if (n == null) continue;
-                    if (!d.TryGetValue(n, out var set)) d.Add(n, set = new HashSet<Type>());
+                    if (n == null)
+                    {
+                        continue;
+                    }
+
+                    if (!d.TryGetValue(n, out var set))
+                    {
+                        d.Add(n, set = new HashSet<Type>());
+                    }
+
                     foreach (var t in asm.GetTypes())
                     {
-                        if (t != null) set.Add(t);
+                        if (t != null)
+                        {
+                            set.Add(t);
+                        }
                     }
                 }
                 catch (Exception) { }
@@ -81,7 +90,7 @@ public static partial class Util
 
         try
         {
-            var stackTrace = new StackTrace();        // get call stack
+            var stackTrace = new StackTrace(); // get call stack
             var stackFrames = stackTrace.GetFrames(); // get method calls (frames)
             foreach (var stackFrame in stackFrames)
             {
@@ -98,15 +107,39 @@ public static partial class Util
         while (items.Count > 0)
         {
             var a = items.Pop();
-            if (a == null) continue;
+            if (a == null)
+            {
+                continue;
+            }
+
             try
             {
                 var name = a.FullName;
-                if (name == null) continue;
-                if (name.StartsWith("System.", StringComparison.OrdinalIgnoreCase)) continue;
-                if (name.StartsWith("System,", StringComparison.OrdinalIgnoreCase)) continue;
-                if (name.StartsWith("mscorlib,", StringComparison.OrdinalIgnoreCase)) continue;
-                if (asms.ContainsKey(name)) continue;
+                if (name == null)
+                {
+                    continue;
+                }
+
+                if (name.StartsWith("System.", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (name.StartsWith("System,", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (name.StartsWith("mscorlib,", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                if (asms.ContainsKey(name))
+                {
+                    continue;
+                }
+
                 asms.Add(name, a);
                 var asmsNames = a.GetReferencedAssemblies();
                 if (asmsNames != null)
@@ -121,7 +154,10 @@ public static partial class Util
                                 var aaName = aa.FullName;
                                 if (aaName != null)
                                 {
-                                    if (!asms.ContainsKey(aaName)) items.Push(aa);
+                                    if (!asms.ContainsKey(aaName))
+                                    {
+                                        items.Push(aa);
+                                    }
                                 }
                             }
                         }
@@ -139,7 +175,10 @@ public static partial class Util
 
     #region Attributes
 
-    public static TAttribute GetAssemblyAttribute<TClassInAssembly, TAttribute>() where TClassInAssembly : class where TAttribute : class => typeof(TClassInAssembly).GetTypeInfo().Assembly.GetCustomAttributes(typeof(TAttribute)).SingleOrDefault() as TAttribute;
+    public static TAttribute GetAssemblyAttribute<TClassInAssembly, TAttribute>() where TClassInAssembly : class where TAttribute : class
+    {
+        return typeof(TClassInAssembly).GetTypeInfo().Assembly.GetCustomAttributes(typeof(TAttribute)).SingleOrDefault() as TAttribute;
+    }
 
     #endregion Attributes
 
@@ -183,6 +222,7 @@ public static partial class Util
                 list.Add(item);
             }
         }
+
         return list;
     }
 
@@ -196,10 +236,13 @@ public static partial class Util
         method.CheckNotNull(nameof(method));
 
         // https://stackoverflow.com/a/2933227
-        if (method.GetParameters().Length > 0) throw new Exception("Expecting method " + (method.DeclaringType.FullNameFormatted() + "." + method.Name) + " containing 0 parameters");
+        if (method.GetParameters().Length > 0)
+        {
+            throw new Exception("Expecting method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " containing 0 parameters");
+        }
 
         var input = Expression.Parameter(typeof(object), "input");
-        Action<object> compiledExp = Expression.Lambda<Action<object>>(
+        var compiledExp = Expression.Lambda<Action<object>>(
             Expression.Call(Expression.Convert(input, method.DeclaringType), method), input
         ).Compile();
 
@@ -217,11 +260,18 @@ public static partial class Util
         method.CheckNotNull(nameof(method));
 
         // https://stackoverflow.com/a/2933227
-        if (!method.ReturnType.Equals(typeof(T))) throw new Exception("Wrong return type specified for method " + (method.DeclaringType.FullNameFormatted() + "." + method.Name) + " expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
-        if (method.GetParameters().Length > 0) throw new Exception("Expecting method " + (method.DeclaringType.FullNameFormatted() + "." + method.Name) + " containing 0 parameters");
+        if (!method.ReturnType.Equals(typeof(T)))
+        {
+            throw new Exception("Wrong return type specified for method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
+        }
+
+        if (method.GetParameters().Length > 0)
+        {
+            throw new Exception("Expecting method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " containing 0 parameters");
+        }
 
         var input = Expression.Parameter(typeof(object), "input");
-        Func<object, T> compiledExp = Expression.Lambda<Func<object, T>>(
+        var compiledExp = Expression.Lambda<Func<object, T>>(
             Expression.Call(Expression.Convert(input, method.DeclaringType), method), input
         ).Compile();
 

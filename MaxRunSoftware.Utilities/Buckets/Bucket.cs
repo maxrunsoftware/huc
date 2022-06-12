@@ -17,21 +17,20 @@ namespace MaxRunSoftware.Utilities;
 public static class Bucket
 {
     /// <summary>
-    ///     Creates a bucket from a getValue and getKeys function.
+    /// Creates a bucket from a getValue and getKeys function.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
     /// <param name="getValue"></param>
     /// <param name="getKeys"></param>
     /// <returns>A simple bucket wrapper around 2 functions</returns>
-    public static IBucketReadOnly<TKey, TValue> CreateBucket<TKey, TValue>(Func<TKey, TValue> getValue,
-        Func<IEnumerable<TKey>> getKeys)
+    public static IBucketReadOnly<TKey, TValue> CreateBucket<TKey, TValue>(Func<TKey, TValue> getValue, Func<IEnumerable<TKey>> getKeys)
     {
         return new BucketReadOnlyFunc<TKey, TValue>(getValue, getKeys);
     }
 
     /// <summary>
-    ///     Creates a bucket from a getValue and getKeys and setValue function.
+    /// Creates a bucket from a getValue and getKeys and setValue function.
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
@@ -39,8 +38,7 @@ public static class Bucket
     /// <param name="getKeys"></param>
     /// <param name="setValue"></param>
     /// <returns>A simple bucket wrapper around 3 functions</returns>
-    public static IBucket<TKey, TValue> CreateBucket<TKey, TValue>(Func<TKey, TValue> getValue,
-        Func<IEnumerable<TKey>> getKeys, Action<TKey, TValue> setValue)
+    public static IBucket<TKey, TValue> CreateBucket<TKey, TValue>(Func<TKey, TValue> getValue, Func<IEnumerable<TKey>> getKeys, Action<TKey, TValue> setValue)
     {
         return new BucketFunc<TKey, TValue>(getValue, getKeys, setValue);
     }

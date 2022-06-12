@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System.Xml;
 using System.Xml.Xsl;
@@ -24,20 +22,23 @@ public class XmlWriter : IDisposable
     private class ElementToken : IDisposable
     {
         private readonly XmlWriter writer;
+
         public ElementToken(XmlWriter writer)
         {
             this.writer = writer;
         }
+
         public void Dispose()
         {
             writer.EndElement();
         }
     }
 
-    private StringBuilder stream;
-    private System.Xml.XmlWriter writer;
+    private readonly StringBuilder stream;
+    private readonly System.Xml.XmlWriter writer;
     private string toString;
-    private SingleUse isDisposed = new SingleUse();
+    private readonly SingleUse isDisposed = new();
+
     public XmlWriter(bool formatted = false)
     {
         stream = new StringBuilder();
@@ -51,8 +52,12 @@ public class XmlWriter : IDisposable
 
     public void Dispose()
     {
-        if (!isDisposed.TryUse()) return;
-        ToString();
+        if (!isDisposed.TryUse())
+        {
+            return;
+        }
+
+        var _ = ToString();
         writer.Dispose();
     }
 
@@ -63,10 +68,14 @@ public class XmlWriter : IDisposable
             writer.Flush();
             toString = stream.ToString();
         }
+
         return toString;
     }
 
-    public IDisposable Element(string elementName, params (string attributeName, object attributeValue)[] attributes) => Element(elementName, null, attributes: attributes);
+    public IDisposable Element(string elementName, params (string attributeName, object attributeValue)[] attributes)
+    {
+        return Element(elementName, null, attributes);
+    }
 
     public IDisposable Element(string elementName, string elementValue, params (string attributeName, object attributeValue)[] attributes)
     {
@@ -75,14 +84,29 @@ public class XmlWriter : IDisposable
         {
             Attribute(attr.attributeName, attr.attributeValue);
         }
-        if (elementValue != null) writer.WriteValue(elementValue);
+
+        if (elementValue != null)
+        {
+            writer.WriteValue(elementValue);
+        }
+
         return new ElementToken(this);
     }
 
-    public void EndElement() => writer.WriteEndElement();
+    public void EndElement()
+    {
+        writer.WriteEndElement();
+    }
 
-    public void Attribute(string attributeName, object attributeValue) => writer.WriteAttributeString(attributeName, attributeValue.ToStringGuessFormat());
-    public void Value(string value) => writer.WriteString(value);
+    public void Attribute(string attributeName, object attributeValue)
+    {
+        writer.WriteAttributeString(attributeName, attributeValue.ToStringGuessFormat());
+    }
+
+    public void Value(string value)
+    {
+        writer.WriteString(value);
+    }
 
     public static string ApplyXslt(string xslt, string xml)
     {

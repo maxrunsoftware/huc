@@ -16,8 +16,7 @@ namespace MaxRunSoftware.Utilities;
 
 public abstract class BucketStoreBase<TKey, TValue> : IBucketStore<TKey, TValue>
 {
-    public IBucket<TKey, TValue> this[string name] =>
-        new Bucket<TKey, TValue>(this, name.CheckNotNullTrimmed(nameof(name)));
+    public IBucket<TKey, TValue> this[string name] => new Bucket<TKey, TValue>(this, name.CheckNotNullTrimmed(nameof(name)));
 
     protected virtual string CleanName(string name)
     {

@@ -1,18 +1,16 @@
-﻿// /*
-// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// */
 
 namespace MaxRunSoftware.Utilities;
 
@@ -25,7 +23,7 @@ public static partial class Util
         private static readonly IBucketReadOnly<Type, IReadOnlyDictionary<string, object>> enums = new BucketCacheThreadSafeCopyOnWrite<Type, IReadOnlyDictionary<string, object>>(type => Enum.GetNames(type).ToDictionary(o => o, o => Enum.Parse(type, o)).AsReadOnly());
 
         private readonly object locker = new();
-        private volatile IReadOnlyDictionary<DicKey, object> cache = (new Dictionary<DicKey, object>()).AsReadOnly();
+        private volatile IReadOnlyDictionary<DicKey, object> cache = new Dictionary<DicKey, object>().AsReadOnly();
 
         private readonly struct DicKey : IEquatable<DicKey>
         {
@@ -40,11 +38,20 @@ public static partial class Util
                 hashCode = GenerateHashCode(enumType, enumItemName);
             }
 
-            public override int GetHashCode() => hashCode;
+            public override int GetHashCode()
+            {
+                return hashCode;
+            }
 
-            public override bool Equals(object obj) => obj is DicKey ? Equals((DicKey)obj) : false;
+            public override bool Equals(object obj)
+            {
+                return obj is DicKey ? Equals((DicKey)obj) : false;
+            }
 
-            public bool Equals(DicKey other) => hashCode == other.hashCode && enumType.Equals(other.enumType) && enumItemName.Equals(other.enumItemName);
+            public bool Equals(DicKey other)
+            {
+                return hashCode == other.hashCode && enumType.Equals(other.enumType) && enumItemName.Equals(other.enumItemName);
+            }
         }
 
         public bool TryGetEnumObject(Type enumType, string enumItemName, out object enumObject, bool throwExceptions)
@@ -73,12 +80,11 @@ public static partial class Util
                     {
                         throw new ArgumentException("Type [" + enumType.FullNameFormatted() + "] is not an enum", nameof(enumType));
                     }
-                    else
-                    {
-                        enumObject = null;
-                        return false;
-                    }
+
+                    enumObject = null;
+                    return false;
                 }
+
                 enumType = ut;
             }
 
@@ -107,7 +113,11 @@ public static partial class Util
                         {
                             eo = kvp.Value;
                             var c = new Dictionary<DicKey, object>();
-                            foreach (var kvp2 in cache) c.Add(kvp2.Key, kvp2.Value);
+                            foreach (var kvp2 in cache)
+                            {
+                                c.Add(kvp2.Key, kvp2.Value);
+                            }
+
                             c.Add(key, eo);
                             cache = c.AsReadOnly();
 
@@ -122,18 +132,22 @@ public static partial class Util
                     var itemNames = string.Join(", ", d.Keys.ToArray());
                     throw new ArgumentException("Type Enum [" + enumType.FullNameFormatted() + "] does not contain a member named '" + enumItemName + "', valid values are... " + itemNames, nameof(enumItemName));
                 }
-                else
-                {
-                    enumObject = null;
-                    return false;
-                }
+
+                enumObject = null;
+                return false;
             }
         }
     }
 
-    public static TEnum GetEnumItem<TEnum>(string name) where TEnum : struct, IConvertible, IComparable, IFormattable => (TEnum)GetEnumItem(typeof(TEnum), name);
+    public static TEnum GetEnumItem<TEnum>(string name) where TEnum : struct, IConvertible, IComparable, IFormattable
+    {
+        return (TEnum)GetEnumItem(typeof(TEnum), name);
+    }
 
-    public static object GetEnumItem(Type enumType, string name) => enumCache.TryGetEnumObject(enumType.CheckIsEnum(nameof(enumType)), name, out var o, true) ? o : null;
+    public static object GetEnumItem(Type enumType, string name)
+    {
+        return enumCache.TryGetEnumObject(enumType.CheckIsEnum(nameof(enumType)), name, out var o, true) ? o : null;
+    }
 
     /// <summary>
     /// Tries to parse a string to an Enum value, if not found return null
@@ -143,23 +157,39 @@ public static partial class Util
     /// <returns>The enum item or null if not found</returns>
     public static TEnum? GetEnumItemNullable<TEnum>(string name) where TEnum : struct, IConvertible, IComparable, IFormattable
     {
-        if (name == null) return null;
+        if (name == null)
+        {
+            return null;
+        }
+
         var o = GetEnumItemNullable(typeof(TEnum), name);
-        if (o == null) return null;
+        if (o == null)
+        {
+            return null;
+        }
+
         return (TEnum)o;
     }
 
     public static object GetEnumItemNullable(Type enumType, string name)
     {
-        if (name == null) return null;
+        if (name == null)
+        {
+            return null;
+        }
+
         if (enumCache.TryGetEnumObject(enumType.CheckIsEnum(nameof(enumType)), name, out var o, false))
         {
             return o;
         }
+
         return null;
     }
 
-    public static IReadOnlyList<TEnum> GetEnumItems<TEnum>() where TEnum : struct, IConvertible, IComparable, IFormattable => (TEnum[])Enum.GetValues(typeof(TEnum));
+    public static IReadOnlyList<TEnum> GetEnumItems<TEnum>() where TEnum : struct, IConvertible, IComparable, IFormattable
+    {
+        return (TEnum[])Enum.GetValues(typeof(TEnum));
+    }
 
     public static IReadOnlyList<object> GetEnumItems(Type enumType)
     {
@@ -169,9 +199,12 @@ public static partial class Util
         {
             list.Add(item);
         }
+
         return list;
     }
 
-    public static TEnum CombineEnumFlags<TEnum>(IEnumerable<TEnum> enums) where TEnum : struct, IConvertible, IComparable, IFormattable => (TEnum)Enum.Parse(typeof(TEnum), string.Join(", ", enums.Select(o => o.ToString())));
-
+    public static TEnum CombineEnumFlags<TEnum>(IEnumerable<TEnum> enums) where TEnum : struct, IConvertible, IComparable, IFormattable
+    {
+        return (TEnum)Enum.Parse(typeof(TEnum), string.Join(", ", enums.Select(o => o.ToString())));
+    }
 }

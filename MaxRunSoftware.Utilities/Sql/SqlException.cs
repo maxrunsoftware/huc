@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 namespace MaxRunSoftware.Utilities;
 
@@ -33,10 +31,21 @@ public class SqlException : Exception
     private static string ParseMessage(IDbCommand command, bool showFullSql)
     {
         var defaultMsg = "Error Executing SQL";
-        if (!showFullSql) return defaultMsg;
-        if (command == null) return defaultMsg;
+        if (!showFullSql)
+        {
+            return defaultMsg;
+        }
+
+        if (command == null)
+        {
+            return defaultMsg;
+        }
+
         var commandText = command.CommandText.TrimOrNull();
-        if (commandText == null) return defaultMsg;
+        if (commandText == null)
+        {
+            return defaultMsg;
+        }
 
         try
         {
@@ -45,7 +54,10 @@ public class SqlException : Exception
             sql = sql.Replace(";", ";" + Environment.NewLine);
 
             var parameters = new List<IDbDataParameter>();
-            foreach (IDbDataParameter p in command.Parameters) parameters.Add(p);
+            foreach (IDbDataParameter p in command.Parameters)
+            {
+                parameters.Add(p);
+            }
 
             foreach (var p in parameters.OrderByDescending(p => p.ParameterName.Length).ThenByDescending(p => p.ParameterName))
             {
@@ -57,7 +69,6 @@ public class SqlException : Exception
                 else if (p.DbType == DbType.Binary && p.Value is byte[] bytes)
                 {
                     val = "byte[" + bytes.Length + "]";
-
                 }
                 else if (Constant.DBTYPES_NUMERIC.Contains(p.DbType))
                 {
@@ -65,13 +76,13 @@ public class SqlException : Exception
                 }
                 else
                 {
-                    val = "'" + p.Value.ToString() + "'";
+                    val = "'" + p.Value + "'";
                 }
 
                 sql = sql.Replace(p.ParameterName, val);
             }
 
-            return defaultMsg + ":" + Environment.NewLine + sql.ToString();
+            return defaultMsg + ":" + Environment.NewLine + sql;
         }
         catch (Exception e)
         {
@@ -86,9 +97,9 @@ public class SqlException : Exception
                     msgPart.Append(parseParametersMsg);
                 }
             }
+
             msgPart.Append(']');
-            return defaultMsg + parseParametersMsg.ToString() + Environment.NewLine + commandText;
+            return defaultMsg + parseParametersMsg + Environment.NewLine + commandText;
         }
     }
-
 }
