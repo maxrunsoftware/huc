@@ -71,7 +71,7 @@ public static class WebServerExtensions
     }
     public static void SendFile(this IHttpContext context, string data, string fileName, System.Text.Encoding encoding = null)
     {
-        if (encoding == null) encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
+        if (encoding == null) encoding = Constant.ENCODING_UTF8;
         var bytes = encoding.GetBytes(data);
         SendFile(context, bytes, fileName);
     }

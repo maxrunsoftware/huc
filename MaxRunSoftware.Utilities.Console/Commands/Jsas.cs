@@ -85,7 +85,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
                     if (isText)
                     {
-                        log.Info(Constant.ENCODING_UTF8_WITHOUT_BOM.GetString(response.Data));
+                        log.Info(Constant.ENCODING_UTF8.GetString(response.Data));
                     }
                     else
                     {

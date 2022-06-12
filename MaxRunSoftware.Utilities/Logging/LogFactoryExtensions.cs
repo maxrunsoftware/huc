@@ -40,7 +40,7 @@ public static class LogFactoryExtensions
             if (e == null) return;
             using (MutexLock.CreateGlobal(TimeSpan.FromSeconds(10), file))
             {
-                Util.FileWrite(filename, e.ToStringDetailed(id: id) + Environment.NewLine, Constant.ENCODING_UTF8_WITHOUT_BOM, append: true);
+                Util.FileWrite(filename, e.ToStringDetailed(id: id) + Environment.NewLine, Constant.ENCODING_UTF8, append: true);
             }
 
         }

@@ -91,8 +91,8 @@ public static partial class Util
             case "DEFAULT": return Encoding.Default;
             case "UNICODE": return Encoding.Unicode;
             case "UTF32": return Encoding.UTF32;
-            case "UTF8": return Constant.ENCODING_UTF8_WITHOUT_BOM;
-            case "UTF8BOM": return Constant.ENCODING_UTF8_WITH_BOM;
+            case "UTF8": return Constant.ENCODING_UTF8;
+            case "UTF8BOM": return Constant.ENCODING_UTF8_BOM;
         }
 
         throw new Exception("Unknown encoding type specified: " + encoding);

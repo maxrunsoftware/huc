@@ -46,8 +46,8 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             var keyPair = Encryption.GenerateKeyPair(length: length);
 
-            WriteFile(publicKeyFile, keyPair.publicKey, Constant.ENCODING_UTF8_WITHOUT_BOM);
-            WriteFile(privateKeyFile, keyPair.privateKey, Constant.ENCODING_UTF8_WITHOUT_BOM);
+            WriteFile(publicKeyFile, keyPair.publicKey, Constant.ENCODING_UTF8);
+            WriteFile(privateKeyFile, keyPair.privateKey, Constant.ENCODING_UTF8);
         }
     }
 }

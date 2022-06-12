@@ -69,7 +69,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 FileName = Path.GetFileName(FilePath);
                 TaskName = Path.GetFileNameWithoutExtension(FilePath);
 
-                var fileText = Util.FileRead(FilePath, Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM).TrimOrNull() ?? string.Empty;
+                var fileText = Util.FileRead(FilePath, Utilities.Constant.ENCODING_UTF8).TrimOrNull() ?? string.Empty;
                 var fileLines = fileText.SplitOnNewline().TrimOrNull().ToList();
 
                 var triggers = new List<Trigger>();
@@ -106,7 +106,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 Triggers = triggers.AsReadOnly();
 
                 var hashValue = hashList.ToStringDelimited(Constant.NEWLINE_WINDOWS);
-                Hash = HASHING_ALGORITHM(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(hashValue));
+                Hash = HASHING_ALGORITHM(Constant.ENCODING_UTF8.GetBytes(hashValue));
             }
 
             public static bool IsBatchFile(string filename)

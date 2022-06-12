@@ -44,7 +44,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
             {
                 using (var fs = Util.FileOpenRead(File))
                 {
-                    jp.Load(fs, Constant.ENCODING_UTF8_WITHOUT_BOM);
+                    jp.Load(fs, Constant.ENCODING_UTF8);
                 }
             }
         }
@@ -132,7 +132,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
             {
                 using (var fs = Util.FileOpenRead(File))
                 {
-                    jp.Load(fs, Constant.ENCODING_UTF8_WITHOUT_BOM);
+                    jp.Load(fs, Constant.ENCODING_UTF8);
                 }
             }
         }
@@ -176,7 +176,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
                 if (System.IO.File.Exists(File)) System.IO.File.Delete(File);
                 using (var fs = Util.FileOpenWrite(File))
                 {
-                    jp.Store(fs, null, Constant.ENCODING_UTF8_WITHOUT_BOM);
+                    jp.Store(fs, null, Constant.ENCODING_UTF8);
                     fs.FlushSafe();
                     fs.CloseSafe();
                 }

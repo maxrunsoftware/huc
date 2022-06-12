@@ -49,7 +49,7 @@ public static class JavaPropertiesExtensions
 
     public static void LoadFile(this JavaProperties properties, string filename, Encoding encoding = null)
     {
-        if (encoding == null) encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
+        if (encoding == null) encoding = Constant.ENCODING_UTF8;
         using (var fs = Util.FileOpenRead(filename))
         {
             properties.Load(fs, encoding);
@@ -58,10 +58,10 @@ public static class JavaPropertiesExtensions
 
     public static void LoadFromString(this JavaProperties properties, string data)
     {
-        byte[] byteArray = Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(data);
+        byte[] byteArray = Constant.ENCODING_UTF8.GetBytes(data);
         using (var stream = new MemoryStream(byteArray))
         {
-            properties.Load(stream, Constant.ENCODING_UTF8_WITHOUT_BOM);
+            properties.Load(stream, Constant.ENCODING_UTF8);
         }
     }
 }
@@ -84,7 +84,7 @@ public class JavaProperties : Hashtable
     /// <summary>
     /// Gets a reference to the ISO-8859-1 encoding (code page 28592). This is the Java standard for .properties files.
     /// </summary>
-    internal static Encoding DefaultEncoding => Constant.ENCODING_UTF8_WITHOUT_BOM; //Encoding.GetEncoding(28592);
+    internal static Encoding DefaultEncoding => Constant.ENCODING_UTF8; //Encoding.GetEncoding(28592);
 
     /// <summary>
     /// An empty constructor that doesn't set the defaults.

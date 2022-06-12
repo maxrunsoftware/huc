@@ -67,7 +67,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 DeleteExistingFile(outputFile);
                 using (var fs = Util.FileOpenWrite(outputFile))
                 {
-                    using (var sw = new StreamWriter(fs, Constant.ENCODING_UTF8_WITHOUT_BOM, bufferSizeMegabytes))
+                    using (var sw = new StreamWriter(fs, Constant.ENCODING_UTF8, bufferSizeMegabytes))
                     {
                         while (ll < length)
                         {

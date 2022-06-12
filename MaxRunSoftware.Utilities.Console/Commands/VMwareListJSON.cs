@@ -38,7 +38,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             var data = JsonConvert.SerializeObject(vmware, Formatting.Indented);
 
-            Util.FileWrite(outputFile, data, Constant.ENCODING_UTF8_WITHOUT_BOM);
+            Util.FileWrite(outputFile, data, Constant.ENCODING_UTF8);
         }
     }
 

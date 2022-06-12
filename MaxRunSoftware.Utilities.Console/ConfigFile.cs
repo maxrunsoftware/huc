@@ -70,7 +70,7 @@ namespace MaxRunSoftware.Utilities.Console
 
         public string Encrypt(string unencryptedData)
         {
-            var encryptedData = Encryption.EncryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(KEY), Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(unencryptedData));
+            var encryptedData = Encryption.EncryptSymetric(Constant.ENCODING_UTF8.GetBytes(KEY), Constant.ENCODING_UTF8.GetBytes(unencryptedData));
             var encryptedDataBase64 = Util.Base64(encryptedData);
             var encryptedDataBase64Padded = ProgramPasswordEscape + encryptedDataBase64;
             return encryptedDataBase64Padded;
@@ -81,8 +81,8 @@ namespace MaxRunSoftware.Utilities.Console
             if (!encryptedData.StartsWith(ProgramPasswordEscape)) return null;
             var encryptedDataBase64 = encryptedData.Substring(ProgramPasswordEscape.Length);
             var encryptedDataBytes = Util.Base64(encryptedDataBase64);
-            var unencryptedData = Encryption.DecryptSymetric(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(KEY), encryptedDataBytes);
-            return Constant.ENCODING_UTF8_WITHOUT_BOM.GetString(unencryptedData);
+            var unencryptedData = Encryption.DecryptSymetric(Constant.ENCODING_UTF8.GetBytes(KEY), encryptedDataBytes);
+            return Constant.ENCODING_UTF8.GetString(unencryptedData);
         }
 
 
@@ -91,7 +91,7 @@ namespace MaxRunSoftware.Utilities.Console
             try
             {
                 var props = new JavaProperties();
-                var data = Util.FileRead(fileName, Constant.ENCODING_UTF8_WITHOUT_BOM);
+                var data = Util.FileRead(fileName, Constant.ENCODING_UTF8);
                 props.LoadFromString(data);
                 foreach (var kvp in props.ToDictionary())
                 {
@@ -146,7 +146,7 @@ namespace MaxRunSoftware.Utilities.Console
             var cmdobjsParams = GetAllKeys();
             var sb = new StringBuilder();
             foreach (var cmdobjsParam in cmdobjsParams) sb.AppendLine(cmdobjsParam + "=");
-            Util.FileWrite(propFile, sb.ToString(), Constant.ENCODING_UTF8_WITHOUT_BOM);
+            Util.FileWrite(propFile, sb.ToString(), Constant.ENCODING_UTF8);
         }
 
     }

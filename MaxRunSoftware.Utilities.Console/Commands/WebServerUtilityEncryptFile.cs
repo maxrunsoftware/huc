@@ -46,7 +46,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 var file = files.First();
                 var fileName = file.Key;
                 var fileData = file.Value;
-                var encryptedBytes = Encryption.Encrypt(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password), fileData);
+                var encryptedBytes = Encryption.Encrypt(Constant.ENCODING_UTF8.GetBytes(password), fileData);
                 Context.SendFile(encryptedBytes, fileName);
                 html.P("File encrypted");
             }

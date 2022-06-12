@@ -30,29 +30,35 @@ public static class Constant
 {
     public const string ID = "461985d6-d681-4a0f-b110-547f3beaf967";
 
-    private const string BOOL_TRUE = "1 T TRUE Y YES";
-    private const string BOOL_FALSE = "0 F FALSE N NO";
-
+    #region Chars
 
     /// <summary>
     /// Characters A-Z
     /// </summary>
     public const string CHARS_A_Z_UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+    public static readonly ImmutableArray<char> CHARS_A_Z_UPPER_ARRAY = ImmutableArray.Create(CHARS_A_Z_UPPER.ToCharArray());
+
     /// <summary>
     /// Characters a-z
     /// </summary>
     public const string CHARS_A_Z_LOWER = "abcdefghijklmnopqrstuvwxyz";
+
+    public static readonly ImmutableArray<char> CHARS_A_Z_LOWER_ARRAY = ImmutableArray.Create(CHARS_A_Z_LOWER.ToCharArray());
 
     /// <summary>
     /// Numbers 0-9
     /// </summary>
     public const string CHARS_0_9 = "0123456789";
 
+    public static readonly ImmutableArray<char> CHARS_0_9_ARRAY = ImmutableArray.Create(CHARS_0_9.ToCharArray());
+
     /// <summary>
     /// A-Z a-z 0-9
     /// </summary>
     public const string CHARS_ALPHANUMERIC = CHARS_A_Z_UPPER + CHARS_A_Z_LOWER + CHARS_0_9;
+
+    public static readonly ImmutableArray<char> CHARS_ALPHANUMERIC_ARRAY = ImmutableArray.Create(CHARS_ALPHANUMERIC.ToCharArray());
 
     /// <summary>
     /// First 128 characters
@@ -67,10 +73,20 @@ public static class Constant
         "\u0060" + "\u0061" + "\u0062" + "\u0063" + "\u0064" + "\u0065" + "\u0066" + "\u0067" + "\u0068" + "\u0069" + "\u006A" + "\u006B" + "\u006C" + "\u006D" + "\u006E" + "\u006F" +
         "\u0070" + "\u0071" + "\u0072" + "\u0073" + "\u0074" + "\u0075" + "\u0076" + "\u0077" + "\u0078" + "\u0079" + "\u007A" + "\u007B" + "\u007C" + "\u007D" + "\u007E" + "\u007F";
 
+    public static readonly ImmutableArray<char> CHARS_00000_00128_ARRAY = ImmutableArray.Create(CHARS_00000_00128.ToCharArray());
+
+    #endregion Chars
+
+    #region NewLine
+
     public static readonly string NEWLINE = Environment.NewLine;
     public const string NEWLINE_WINDOWS = "\r\n";
     public const string NEWLINE_UNIX = "\n";
     public const string NEWLINE_MAC = "\r";
+
+    #endregion NewLine
+
+    #region Bytes
 
     public const long BYTES_BYTE = 1L;
     public const long BYTES_KILO = 1000L;
@@ -86,6 +102,10 @@ public static class Constant
     public const long BYTES_EXA = 1000000000000000000L;
     public const long BYTES_EXBI = 1152921504606846976L;
 
+    #endregion Bytes
+
+    #region Zero
+
     public const bool ZERO_BOOL = false;
     public const byte ZERO_BYTE = byte.MinValue;
     public const sbyte ZERO_SBYTE = 0;
@@ -98,62 +118,65 @@ public static class Constant
     public const ulong ZERO_ULONG = ulong.MinValue;
     public const short ZERO_SHORT = 0;
     public const ushort ZERO_USHORT = ushort.MinValue;
-    public static readonly ImmutableArray<char> CHARS_A_Z_UPPER_ARRAY = ImmutableArray.Create(CHARS_A_Z_UPPER.ToCharArray());
-    public static readonly ImmutableArray<char> CHARS_A_Z_LOWER_ARRAY = ImmutableArray.Create(CHARS_A_Z_LOWER.ToCharArray());
-    public static readonly ImmutableArray<char> CHARS_0_9_ARRAY = ImmutableArray.Create(CHARS_0_9.ToCharArray());
-    public static readonly ImmutableArray<char> CHARS_ALPHANUMERIC_ARRAY = ImmutableArray.Create(CHARS_ALPHANUMERIC.ToCharArray());
-    public static readonly ImmutableArray<char> CHARS_00000_00128_ARRAY = ImmutableArray.Create(CHARS_00000_00128.ToCharArray());
 
-    /// <summary>
-    /// List of String Comparisons from most restrictive to least
-    /// </summary>
-    public static readonly IReadOnlyList<StringComparison> LIST_StringComparison = new List<StringComparison>
-    {
-        StringComparison.Ordinal,
-        StringComparison.CurrentCulture,
-        StringComparison.InvariantCulture,
-        StringComparison.OrdinalIgnoreCase,
-        StringComparison.CurrentCultureIgnoreCase,
-        StringComparison.InvariantCultureIgnoreCase
-    }.AsReadOnly();
+    #endregion Zero
 
-    /// <summary>
-    /// List of String Comparisons from most restrictive to least
-    /// </summary>
-    public static readonly IReadOnlyList<StringComparer> LIST_StringComparer = new List<StringComparer>
-    {
-        StringComparer.Ordinal,
-        StringComparer.CurrentCulture,
-        StringComparer.InvariantCulture,
-        StringComparer.OrdinalIgnoreCase,
-        StringComparer.CurrentCultureIgnoreCase,
-        StringComparer.InvariantCultureIgnoreCase
-    }.AsReadOnly();
+    #region Regex
+
+    public static readonly string REGEX_IPV4_STRING = @"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
 
     /// <summary>
     /// Regex for validating an IPv4 address
     /// </summary>
-    public static readonly Regex REGEX_IPV4 = new(@"((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)", RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+    public static readonly Regex REGEX_IPV4 = new(REGEX_IPV4_STRING, RegexOptions.Compiled | RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+
+    public static readonly string REGEX_EMAIL_STRING = @"^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$";
 
     /// <summary>
     /// Regex for validating an email address
     /// </summary>
-    public static readonly Regex REGEX_EMAIL = new(@"^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(2));
+    public static readonly Regex REGEX_EMAIL = new(REGEX_EMAIL_STRING, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, TimeSpan.FromSeconds(2));
+
+    #endregion Regex
+
+    #region Encoding
 
     /// <summary>
     /// UTF8 encoding WITHOUT the Byte Order Marker
     /// </summary>
-    public static readonly Encoding ENCODING_UTF8_WITHOUT_BOM = new UTF8Encoding(false); // Threadsafe according to https://stackoverflow.com/a/3024405
+    public static readonly Encoding ENCODING_UTF8 = new UTF8Encoding(false); // Thread safe according to https://stackoverflow.com/a/3024405
 
     /// <summary>
     /// UTF8 encoding WITH the Byte Order Marker
     /// </summary>
-    public static readonly Encoding ENCODING_UTF8_WITH_BOM = new UTF8Encoding(true); // Threadsafe according to https://stackoverflow.com/a/3024405
+    public static readonly Encoding ENCODING_UTF8_BOM = new UTF8Encoding(true); // Thread safe according to https://stackoverflow.com/a/3024405
+
+    #endregion Encoding
+
+    #region OS
 
     /// <summary>
     /// Operating System are we currently running
     /// </summary>
     public static readonly OSPlatform OS = OS_get();
+
+    private static OSPlatform OS_get()
+    {
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return OSPlatform.Windows;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return OSPlatform.OSX;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return OSPlatform.Linux;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) return OSPlatform.FreeBSD;
+        }
+        catch (Exception e)
+        {
+            LogError(e);
+        }
+
+        // Unknown OS
+        return OSPlatform.Windows;
+    }
 
     /// <summary>
     /// Are we running on a Windows platform?
@@ -180,15 +203,77 @@ public static class Constant
     /// </summary>
     public static readonly bool OS_X64 = Environment.Is64BitOperatingSystem;
 
+    #endregion OS
+
+    #region StringComparer
+
+    /// <summary>
+    /// List of String Comparisons from most restrictive to least
+    /// </summary>
+    public static readonly IReadOnlyList<StringComparer> LIST_StringComparer = new List<StringComparer>
+    {
+        StringComparer.Ordinal,
+        StringComparer.CurrentCulture,
+        StringComparer.InvariantCulture,
+        StringComparer.OrdinalIgnoreCase,
+        StringComparer.CurrentCultureIgnoreCase,
+        StringComparer.InvariantCultureIgnoreCase
+    }.AsReadOnly();
+
     /// <summary>
     /// Map of StringComparer to StringComparison
     /// </summary>
     public static readonly IReadOnlyDictionary<StringComparer, StringComparison> StringComparer_StringComparison = MAP_StringComparer_StringComparison_Create();
 
+    private static IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison_Create()
+    {
+        var d = new Dictionary<StringComparer, StringComparison>();
+        d.TryAdd(StringComparer.CurrentCulture, StringComparison.CurrentCulture);
+        d.TryAdd(StringComparer.CurrentCultureIgnoreCase, StringComparison.CurrentCultureIgnoreCase);
+        d.TryAdd(StringComparer.InvariantCulture, StringComparison.InvariantCulture);
+        d.TryAdd(StringComparer.InvariantCultureIgnoreCase, StringComparison.InvariantCultureIgnoreCase);
+        d.TryAdd(StringComparer.Ordinal, StringComparison.Ordinal);
+        d.TryAdd(StringComparer.OrdinalIgnoreCase, StringComparison.OrdinalIgnoreCase);
+        return d;
+    }
+
+    #endregion StringComparer
+
+    #region StringComparison
+
+    /// <summary>
+    /// List of String Comparisons from most restrictive to least
+    /// </summary>
+    public static readonly IReadOnlyList<StringComparison> LIST_StringComparison = new List<StringComparison>
+    {
+        StringComparison.Ordinal,
+        StringComparison.CurrentCulture,
+        StringComparison.InvariantCulture,
+        StringComparison.OrdinalIgnoreCase,
+        StringComparison.CurrentCultureIgnoreCase,
+        StringComparison.InvariantCultureIgnoreCase
+    }.AsReadOnly();
+
     /// <summary>
     /// Map of StringComparison to StringComparer
     /// </summary>
     public static readonly IReadOnlyDictionary<StringComparison, StringComparer> StringComparison_StringComparer = MAP_StringComparison_StringComparer_Create();
+
+    private static IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer_Create()
+    {
+        var d = new Dictionary<StringComparison, StringComparer>();
+        d.TryAdd(StringComparison.CurrentCulture, StringComparer.CurrentCulture);
+        d.TryAdd(StringComparison.CurrentCultureIgnoreCase, StringComparer.CurrentCultureIgnoreCase);
+        d.TryAdd(StringComparison.InvariantCulture, StringComparer.InvariantCulture);
+        d.TryAdd(StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase);
+        d.TryAdd(StringComparison.Ordinal, StringComparer.Ordinal);
+        d.TryAdd(StringComparison.OrdinalIgnoreCase, StringComparer.OrdinalIgnoreCase);
+        return d;
+    }
+
+    #endregion StringComparison
+
+    #region Type
 
     public static readonly IReadOnlySet<Type> TYPES_BASE_NUMERIC = new HashSet<Type>
     {
@@ -207,7 +292,6 @@ public static class Constant
         typeof(double),
         typeof(decimal)
     };
-
 
     /// <summary>
     /// Map of DotNet types to DbType
@@ -269,6 +353,10 @@ public static class Constant
         { typeof(object), DbType.Object }
     };
 
+    #endregion Type
+
+    #region DbType
+
     /// <summary>
     /// Map of DbType to DotNet types
     /// </summary>
@@ -320,6 +408,7 @@ public static class Constant
         DbType.VarNumeric
     };
 
+
     public static readonly IReadOnlySet<DbType> DBTYPES_CHARACTERS = new HashSet<DbType>
     {
         DbType.AnsiString,
@@ -338,87 +427,14 @@ public static class Constant
         DbType.Time
     };
 
+    #endregion DbType
+
+    #region Colors
+
     /// <summary>
     /// Case-Sensitive map of Color names to Colors
     /// </summary>
     public static IReadOnlyDictionary<string, Color> COLORS = COLORS_get();
-
-    /// <summary>
-    /// Case-Insensitive hashset of boolean true values
-    /// </summary>
-    public static readonly IReadOnlySet<string> BOOLS_TRUE = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// Case-Insensitive hashset of boolean false values
-    /// </summary>
-    public static readonly IReadOnlySet<string> BOOLS_FALSE = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// Case-Insensitive map of boolean string values to boolean values
-    /// </summary>
-    public static readonly IReadOnlyDictionary<string, bool> String_Bool = String_Bool_get();
-
-    public static readonly IReadOnlySet<char> PATH_DELIMITERS = new HashSet<char>(new[] { '/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
-    public static readonly ImmutableArray<char> PATH_DELIMITERS_ARRAY = PATH_DELIMITERS.OrderBy(o => o).ToImmutableArray();
-    public static readonly IReadOnlySet<string> PATH_DELIMITERS_STRINGS = new HashSet<string>(PATH_DELIMITERS.Select(o => o.ToString()));
-    public static readonly ImmutableArray<string> PATH_DELIMITERS_STRINGS_ARRAY = PATH_DELIMITERS_ARRAY.Select(o => o.ToString()).ToArray().ToImmutableArray();
-    public static readonly bool PATH_CASE_SENSITIVE = !OS_WINDOWS;
-    private static readonly IReadOnlyList<string> CURRENT_POTENTIAL_LOCATIONS = CURRENT_POTENTIAL_LOCATIONS_get().AsReadOnly();
-    public static readonly ImmutableArray<string> CURRENT_EXE_DIRECTORIES = CURRENT_EXE_DIRECTORIES_get().ToImmutableArray();
-    public static readonly string CURRENT_EXE_DIRECTORY = CURRENT_EXE_DIRECTORIES.FirstOrDefault();
-    public static readonly ImmutableArray<string> CURRENT_EXES = CURRENT_EXES_get().ToImmutableArray();
-
-    /// <summary>
-    /// The current EXE file name. Could be a full file path, or a partial file path, or null
-    /// </summary>
-    public static readonly string CURRENT_EXE = CURRENT_POTENTIAL_LOCATIONS.FirstOrDefault();
-
-    /// <summary>
-    /// Are we executing via a batchfile or script or running the command directly from the console window?
-    /// </summary>
-    public static readonly bool IS_BATCHFILE_EXECUTED = IS_BATCHFILE_EXECUTED_get();
-
-    private static OSPlatform OS_get()
-    {
-        try
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return OSPlatform.Windows;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return OSPlatform.OSX;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return OSPlatform.Linux;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) return OSPlatform.FreeBSD;
-        }
-        catch (Exception e)
-        {
-            LogError(e);
-        }
-
-        // Unknown OS
-        return OSPlatform.Windows;
-    }
-
-    private static IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison_Create()
-    {
-        var d = new Dictionary<StringComparer, StringComparison>();
-        d.TryAdd(StringComparer.CurrentCulture, StringComparison.CurrentCulture);
-        d.TryAdd(StringComparer.CurrentCultureIgnoreCase, StringComparison.CurrentCultureIgnoreCase);
-        d.TryAdd(StringComparer.InvariantCulture, StringComparison.InvariantCulture);
-        d.TryAdd(StringComparer.InvariantCultureIgnoreCase, StringComparison.InvariantCultureIgnoreCase);
-        d.TryAdd(StringComparer.Ordinal, StringComparison.Ordinal);
-        d.TryAdd(StringComparer.OrdinalIgnoreCase, StringComparison.OrdinalIgnoreCase);
-        return d;
-    }
-
-    private static IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer_Create()
-    {
-        var d = new Dictionary<StringComparison, StringComparer>();
-        d.TryAdd(StringComparison.CurrentCulture, StringComparer.CurrentCulture);
-        d.TryAdd(StringComparison.CurrentCultureIgnoreCase, StringComparer.CurrentCultureIgnoreCase);
-        d.TryAdd(StringComparison.InvariantCulture, StringComparer.InvariantCulture);
-        d.TryAdd(StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase);
-        d.TryAdd(StringComparison.Ordinal, StringComparer.Ordinal);
-        d.TryAdd(StringComparison.OrdinalIgnoreCase, StringComparer.OrdinalIgnoreCase);
-        return d;
-    }
 
     private static IReadOnlyDictionary<string, Color> COLORS_get()
     {
@@ -452,6 +468,41 @@ public static class Constant
         return d;
     }
 
+    #endregion Colors
+
+    #region IO
+
+    public const int BUFFER_SIZE_MINIMUM = 1024 * 4;
+
+    /// <summary>
+    /// We pick a value that is the largest multiple of 4096 that is still smaller than the
+    /// large object heap threshold (85K). The CopyTo/CopyToAsync buffer is short-lived and is
+    /// likely to be collected at Gen0, and it offers a significant improvement in Copy performance.
+    /// </summary>
+    public const int BUFFER_SIZE_OPTIMAL = 81920;
+
+    #endregion
+
+    #region Bool
+
+    private const string BOOL_TRUE = "1 T TRUE Y YES";
+    private const string BOOL_FALSE = "0 F FALSE N NO";
+
+    /// <summary>
+    /// Case-Insensitive hashset of boolean true values
+    /// </summary>
+    public static readonly IReadOnlySet<string> BOOLS_TRUE = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Case-Insensitive hashset of boolean false values
+    /// </summary>
+    public static readonly IReadOnlySet<string> BOOLS_FALSE = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Case-Insensitive map of boolean string values to boolean values
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, bool> String_Bool = String_Bool_get();
+
     private static IReadOnlyDictionary<string, bool> String_Bool_get()
     {
         var d = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
@@ -459,6 +510,128 @@ public static class Constant
         foreach (var item in BOOL_FALSE.Split(' ')) d.Add(item, false);
         return new Dictionary<string, bool>(d, StringComparer.OrdinalIgnoreCase);
     }
+
+    #endregion Bool
+
+    #region Path
+
+    public static readonly IReadOnlySet<char> PATH_DELIMITERS = new HashSet<char>(new[] { '/', '\\', Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar });
+    public static readonly ImmutableArray<char> PATH_DELIMITERS_ARRAY = PATH_DELIMITERS.OrderBy(o => o).ToImmutableArray();
+    public static readonly IReadOnlySet<string> PATH_DELIMITERS_STRINGS = new HashSet<string>(PATH_DELIMITERS.Select(o => o.ToString()));
+    public static readonly ImmutableArray<string> PATH_DELIMITERS_STRINGS_ARRAY = PATH_DELIMITERS_ARRAY.Select(o => o.ToString()).ToArray().ToImmutableArray();
+    public static readonly bool PATH_CASE_SENSITIVE = !OS_WINDOWS;
+
+    #endregion Path
+
+    #region CurrentLocation
+
+    public static readonly ImmutableArray<string> CURRENT_EXE_DIRECTORIES = CURRENT_EXE_DIRECTORIES_get().ToImmutableArray();
+
+    private static List<string> CURRENT_EXE_DIRECTORIES_get()
+    {
+        var list = new List<string>();
+        foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
+        {
+            if (!item.Any(o => PATH_DELIMITERS.Contains(o))) continue;
+
+            // contains directory delimiters
+            try
+            {
+                var dn = Path.GetDirectoryName(item);
+                if (dn == null) continue;
+                var a = Path.GetFullPath(dn);
+                list.Add(a);
+            }
+            catch (Exception) { }
+        }
+
+        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+        return list.Select(TrimOrNull).Where(v => v != null).Where(v => set.Add(v)).ToList();
+    }
+
+    public static readonly string CURRENT_EXE_DIRECTORY = CURRENT_EXE_DIRECTORIES.FirstOrDefault();
+
+    public static readonly ImmutableArray<string> CURRENT_EXES = CURRENT_EXES_get().ToImmutableArray();
+
+    private static List<string> CURRENT_EXES_get()
+    {
+        var list = new List<string>();
+        foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
+        {
+            try
+            {
+                var a = Path.GetFullPath(item);
+                list.Add(a);
+            }
+            catch (Exception) { }
+        }
+
+        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+        return list.Select(TrimOrNull).Where(v => v != null).Where(v => set.Add(v)).ToList();
+    }
+
+    private static readonly IReadOnlyList<string> CURRENT_POTENTIAL_LOCATIONS = CURRENT_POTENTIAL_LOCATIONS_get().AsReadOnly();
+
+    private static List<string> CURRENT_POTENTIAL_LOCATIONS_get()
+    {
+        // https://stackoverflow.com/questions/616584/how-do-i-get-the-name-of-the-current-executable-in-c
+
+        var list = new List<string>();
+        try
+        {
+            list.Add(Process.GetCurrentProcess().MainModule?.FileName);
+        }
+        catch { }
+
+        try
+        {
+            list.Add(AppDomain.CurrentDomain.FriendlyName);
+        }
+        catch { }
+
+        try
+        {
+            list.Add(Process.GetCurrentProcess().ProcessName);
+        }
+        catch { }
+
+        try
+        {
+            list.Add(Process.GetCurrentProcess().ProcessName);
+        }
+        catch { }
+
+        try
+        {
+            list.Add(typeof(Constant).Assembly.Location);
+        }
+        catch { }
+
+        try
+        {
+            list.Add(Path.GetFullPath("."));
+        }
+        catch { }
+
+        try
+        {
+            list.Add(Environment.CurrentDirectory);
+        }
+        catch { }
+
+        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+        return list.Select(TrimOrNull).Where(v => v != null).Where(v => set.Add(v)).ToList();
+    }
+
+    /// <summary>
+    /// The current EXE file name. Could be a full file path, or a partial file path, or null
+    /// </summary>
+    public static readonly string CURRENT_EXE = CURRENT_POTENTIAL_LOCATIONS.FirstOrDefault();
+
+    /// <summary>
+    /// Are we executing via a batchfile or script or running the command directly from the console window?
+    /// </summary>
+    public static readonly bool IS_BATCHFILE_EXECUTED = IS_BATCHFILE_EXECUTED_get();
 
     private static bool IS_BATCHFILE_EXECUTED_get()
     {
@@ -478,6 +651,10 @@ public static class Constant
 
         return false;
     }
+
+    #endregion CurrentLocation
+
+    #region Helpers
 
     private static void LogError(Exception exception, [CallerMemberName] string memberName = "")
     {
@@ -524,144 +701,17 @@ public static class Constant
                 {
                     Console.WriteLine(msg);
                 }
-                catch (Exception)
-                {
-                    ; // Just swallow it I guess
-                }
+                catch { }
             }
         }
     }
 
     private static string TrimOrNull(string str)
     {
-        if (str == null) return str;
+        if (str == null) return null;
         str = str.Trim();
-        if (str.Length == 0) return null;
-        return str;
+        return str.Length == 0 ? null : str;
     }
 
-    public const int BUFFER_SIZE_MINIMUM = 1024 * 4;
-
-    /// <summary>
-    /// We pick a value that is the largest multiple of 4096 that is still smaller than the
-    /// large object heap threshold (85K). The CopyTo/CopyToAsync buffer is short-lived and is
-    /// likely to be collected at Gen0, and it offers a significant improvement in Copy performance.
-    /// </summary>
-    public const int BUFFER_SIZE_OPTIMAL = 81920;
-
-    private static List<string> CURRENT_POTENTIAL_LOCATIONS_get()
-    {
-        // https://stackoverflow.com/questions/616584/how-do-i-get-the-name-of-the-current-executable-in-c
-
-        var list = new List<string>();
-        try
-        {
-            list.Add(Process.GetCurrentProcess()?.MainModule?.FileName);
-        }
-        catch (Exception) { }
-
-        try
-        {
-            list.Add(AppDomain.CurrentDomain?.FriendlyName);
-        }
-        catch (Exception) { }
-
-        try
-        {
-            list.Add(Process.GetCurrentProcess()?.ProcessName);
-        }
-        catch (Exception) { }
-
-        try
-        {
-            list.Add(Process.GetCurrentProcess()?.ProcessName);
-        }
-        catch (Exception) { }
-
-        try
-        {
-            list.Add(typeof(Constant).Assembly.Location);
-        }
-        catch (Exception) { }
-
-        try
-        {
-            list.Add(Path.GetFullPath("."));
-        }
-        catch (Exception) { }
-
-        try
-        {
-            list.Add(Environment.CurrentDirectory);
-        }
-        catch (Exception) { }
-
-        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
-        var list2 = new List<string>();
-        foreach (var item in list)
-        {
-            var v = TrimOrNull(item);
-            if (v == null) continue;
-            if (set.Add(v)) list2.Add(v);
-        }
-
-        return list2;
-    }
-
-
-    private static List<string> CURRENT_EXE_DIRECTORIES_get()
-    {
-        var list = new List<string>();
-        foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
-        {
-            if (item.Any(o => PATH_DELIMITERS.Contains(o)))
-            {
-                // contains directory delimiters
-                try
-                {
-                    var a = Path.GetFullPath(Path.GetDirectoryName(item));
-                    list.Add(a);
-                }
-                catch (Exception) { }
-            }
-        }
-
-        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
-        var list2 = new List<string>();
-        foreach (var item in list)
-        {
-            var v = TrimOrNull(item);
-            if (v == null) continue;
-            if (set.Add(v)) list2.Add(v);
-        }
-
-        return list2;
-    }
-
-
-    private static List<string> CURRENT_EXES_get()
-    {
-        var list = new List<string>();
-        foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
-        {
-            try
-            {
-                var a = Path.GetFullPath(item);
-                list.Add(a);
-            }
-            catch (Exception) { }
-        }
-
-        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
-        var list2 = new List<string>();
-        foreach (var item in list)
-        {
-            var v = TrimOrNull(item);
-            if (v == null) continue;
-            if (set.Add(v)) list2.Add(v);
-        }
-
-        return list2;
-    }
-
+    #endregion Helpers
 }

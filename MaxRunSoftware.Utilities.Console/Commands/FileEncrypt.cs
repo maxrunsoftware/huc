@@ -54,7 +54,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             var fileToEncryptData = ReadFileBinary(fileToEncrypt);
             byte[] encryptedData = password != null
-                ? Encryption.Encrypt(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password), fileToEncryptData)
+                ? Encryption.Encrypt(Constant.ENCODING_UTF8.GetBytes(password), fileToEncryptData)
                 : Encryption.Encrypt(ReadFile(publicKey), fileToEncryptData);
 
             WriteFileBinary(encryptedFile, encryptedData);

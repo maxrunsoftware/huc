@@ -156,7 +156,7 @@ namespace MaxRunSoftware.Utilities.Console
             using (Util.Diagnostic(log.Trace))
             {
                 CheckFileExists(path);
-                data = Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8_WITHOUT_BOM);
+                data = Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8);
             }
             log.Debug($"Read text file {path}   {data.Length} characters");
             return data;
@@ -183,7 +183,7 @@ namespace MaxRunSoftware.Utilities.Console
             using (Util.Diagnostic(log.Trace))
             {
                 DeleteExistingFile(path);
-                Util.FileWrite(path, data, encoding ?? Constant.ENCODING_UTF8_WITHOUT_BOM);
+                Util.FileWrite(path, data, encoding ?? Constant.ENCODING_UTF8);
             }
             log.Debug($"Wrote text file {path}   {data.Length} characters");
         }
@@ -241,7 +241,7 @@ namespace MaxRunSoftware.Utilities.Console
 
             log.Debug("Writing TAB delimited Table to file " + fileName);
             using (var stream = Util.FileOpenWrite(fileName))
-            using (var writer = new StreamWriter(stream, Utilities.Constant.ENCODING_UTF8_WITHOUT_BOM))
+            using (var writer = new StreamWriter(stream, Utilities.Constant.ENCODING_UTF8))
             {
                 WriteTableTab(table, writer);
                 stream.Flush(true);
@@ -310,7 +310,7 @@ namespace MaxRunSoftware.Utilities.Console
             var v = GetArgParameter(key1, key2);
             if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
             log.Debug($"{key1}String: {v}");
-            var encoding = Constant.ENCODING_UTF8_WITHOUT_BOM;
+            var encoding = Constant.ENCODING_UTF8;
             if (v.TrimOrNull() != null) encoding = Util.ParseEncoding(v);
             log.Debug($"{key1}: {encoding}");
             return encoding;

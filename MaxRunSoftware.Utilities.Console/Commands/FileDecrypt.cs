@@ -54,7 +54,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             var fileToDecryptData = ReadFileBinary(fileToDecrypt);
             byte[] decryptedData = password != null
-                ? Encryption.Decrypt(Constant.ENCODING_UTF8_WITHOUT_BOM.GetBytes(password), fileToDecryptData)
+                ? Encryption.Decrypt(Constant.ENCODING_UTF8.GetBytes(password), fileToDecryptData)
                 : Encryption.Decrypt(ReadFile(privateKey), fileToDecryptData);
 
             WriteFileBinary(decryptedFile, decryptedData);

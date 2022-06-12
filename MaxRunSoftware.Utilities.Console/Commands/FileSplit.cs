@@ -44,7 +44,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             if (targetFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(targetFiles));
             log.Debug(targetFiles, nameof(targetFiles));
 
-            var sourceFileData = Util.FileRead(sourceFile, Constant.ENCODING_UTF8_WITHOUT_BOM);
+            var sourceFileData = Util.FileRead(sourceFile, Constant.ENCODING_UTF8);
             var sourceFileDataLines = sourceFileData.SplitOnNewline();
             sourceFileData = null;
             GC.Collect();
@@ -57,7 +57,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             {
                 var part = parts[i];
                 var partData = part.ToStringDelimited(Environment.NewLine);
-                Util.FileWrite(targetFiles[i], partData, Constant.ENCODING_UTF8_WITHOUT_BOM);
+                Util.FileWrite(targetFiles[i], partData, Constant.ENCODING_UTF8);
             }
         }
     }

@@ -139,7 +139,7 @@ namespace MaxRunSoftware.Utilities.Console
                     if (filename != null)
                     {
                         if (!File.Exists(filename)) throw new FileNotFoundException("File not found " + filename, filename);
-                        var filedata = Util.FileRead(filename, Constant.ENCODING_UTF8_WITHOUT_BOM);
+                        var filedata = Util.FileRead(filename, Constant.ENCODING_UTF8);
                         if (!IsExpandFileArgsNoTrim) filedata = filedata.TrimOrNull();
                         filedata = filedata ?? "";
                         stack.Peek().Append(filedata);
