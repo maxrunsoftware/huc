@@ -27,9 +27,9 @@ public class LdapEntryAttributeValue
 {
     public byte[] Bytes { get; }
     public string String { get; }
-    public uint? UInt => String != null && uint.TryParse(String, out var o) ? o : (uint?)null;
-    public int? Int => String != null && int.TryParse(String, out var o) ? o : (int?)null;
-    public long? Long => String != null && long.TryParse(String, out var o) ? o : (long?)null;
+    public uint? UInt => String != null && uint.TryParse(String, out var o) ? o : null;
+    public int? Int => String != null && int.TryParse(String, out var o) ? o : null;
+    public long? Long => String != null && long.TryParse(String, out var o) ? o : null;
     public bool? Bool => String != null && String.ToBoolNullableTry(out var o) ? o : null;
 
     public DateTime? DateTimeUtc
@@ -40,6 +40,7 @@ public class LdapEntryAttributeValue
             if (s == null) return null;
             if (s.EndsWith("Z") || s.EndsWith("z"))
             {
+                // ReSharper disable once StringLiteralTypo
                 if (DateTime.TryParseExact(s, "yyyyMMddHHmmss.0Z", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var dt))
                 {
                     return dt.ToUniversalTime();
@@ -79,8 +80,8 @@ public class LdapEntryAttributeValue
     {
         foreach (var obj in attribute)
         {
-            var leav = Parse(obj);
-            if (leav != null) yield return leav;
+            var ldapEntryAttributeValue = Parse(obj);
+            if (ldapEntryAttributeValue != null) yield return ldapEntryAttributeValue;
         }
     }
 
@@ -104,7 +105,7 @@ public class LdapEntryAttributeValue
         else if (obj is byte[] b)
         {
             string s = null;
-            if (b == null) return null; // null byte[], don't return anything
+            //if (b == null) return null; // null byte[], don't return anything
             if (b.IsValidUTF8()) s = Encoding.UTF8.GetString(b); // If it is a valid string convert it to a string
             return new LdapEntryAttributeValue(b, s);
         }

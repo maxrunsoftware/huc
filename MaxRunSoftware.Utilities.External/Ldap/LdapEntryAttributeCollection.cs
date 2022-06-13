@@ -25,17 +25,13 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<LdapEntryAttributeValue>>
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    private static readonly IReadOnlyList<LdapEntryAttributeValue> EMPTY = new List<LdapEntryAttributeValue>();
-    private readonly Dictionary<string, List<LdapEntryAttributeValue>> dictionary = new Dictionary<string, List<LdapEntryAttributeValue>>(StringComparer.OrdinalIgnoreCase);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly IReadOnlyList<LdapEntryAttributeValue> empty = new List<LdapEntryAttributeValue>();
+    private readonly Dictionary<string, List<LdapEntryAttributeValue>> dictionary = new(StringComparer.OrdinalIgnoreCase);
     public Guid ObjectGUID { get; }
     public string DistinguishedName { get; }
 
-    public LdapEntryAttributeCollection(SearchResultEntry entry) : this(entry, null)
-    {
-    }
-
-    public LdapEntryAttributeCollection(SearchResultEntry entry, Ldap ldap)
+    public LdapEntryAttributeCollection(SearchResultEntry entry, Ldap ldap = null)
     {
         entry.CheckNotNull(nameof(entry));
 
@@ -128,6 +124,7 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
             dictionary[range.name] = values;
         }
         CleanLists();
+        // ReSharper disable once VirtualMemberCallInConstructor
         log.Debug(ToString());
     }
 
@@ -147,7 +144,7 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         if (!rangeParts[0].ToIntTry(out var rangeStart)) return def;
 
         int? rangeEnd = null;
-        if (rangeParts[1].ToIntTry(out var rangeEndd)) rangeEnd = rangeEndd;
+        if (rangeParts[1].ToIntTry(out var rangeEnd2)) rangeEnd = rangeEnd2;
 
         return (n, rangeStart, rangeEnd);
     }
@@ -167,7 +164,7 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
     }
 
     /// <summary>
-    /// Removes any kvp's that have all nulls or empty lists from the dictionary
+    /// Removes any KeyValuePairs that have all nulls or empty lists from the dictionary
     /// </summary>
     private void CleanLists()
     {
@@ -185,12 +182,12 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
     private IReadOnlyList<LdapEntryAttributeValue> GetList(string name)
     {
         name = name.TrimOrNull();
-        if (name == null) return EMPTY;
+        if (name == null) return empty;
         if (dictionary.TryGetValue(name, out var list))
         {
             return list;
         }
-        return EMPTY;
+        return empty;
     }
 
     public IEnumerable<string> GetStrings(string name) => GetList(name).Select(o => o.String).WhereNotNull();
@@ -232,10 +229,11 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         foreach (var kvp in dictionary.OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase))
         {
             if (kvp.Value.Count == 0) continue;
-            else if (kvp.Value.Count == 1) sb.AppendLine("  " + kvp.Key + ": " + kvp.Value.First());
+            
+            if (kvp.Value.Count == 1) sb.AppendLine("  " + kvp.Key + ": " + kvp.Value.First());
             else
             {
-                for (int i = 0; i < kvp.Value.Count; i++)
+                for (var i = 0; i < kvp.Value.Count; i++)
                 {
                     sb.AppendLine("  " + kvp.Key + "[" + i + "]: " + kvp.Value[i]);
                 }

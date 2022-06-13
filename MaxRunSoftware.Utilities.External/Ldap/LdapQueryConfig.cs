@@ -84,7 +84,7 @@ public class LdapQueryConfig : IEquatable<LdapQueryConfig>
     public bool Equals(LdapQueryConfig other)
     {
         if (other == null) return false;
-        if (this == other) return true;
+        if (ReferenceEquals(this, other)) return true;
         if (GetHashCode() != other.GetHashCode()) return false;
 
         if (!string.Equals(BaseDn, other.BaseDn, StringComparison.OrdinalIgnoreCase)) return false;

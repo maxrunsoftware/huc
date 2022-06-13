@@ -20,13 +20,16 @@ using System.DirectoryServices.Protocols;
 using System.Linq;
 using System.Net;
 using System.Text;
+// ReSharper disable InconsistentNaming
+// ReSharper disable IdentifierTypo
+// ReSharper disable StringLiteralTypo
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class Ldap : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    private readonly object locker = new object();
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
+    private readonly object locker = new();
 
     /// <summary>
     /// The object that manages the connection with the LDAP server.
@@ -36,13 +39,16 @@ public class Ldap : IDisposable
     /// <summary>
     /// The distinguished name of the directory object where all searches will have as their base. Defaults to the first naming context found in the RootDSE.
     /// </summary>
+    // ReSharper disable once IdentifierTypo
     private readonly string searchBaseDNdefault;
 
+    // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
     private readonly string server;
     private readonly ushort port;
     private readonly string userName;
     private readonly string password;
     //private readonly string domainName;
+    // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
 
     private readonly System.DirectoryServices.DirectoryEntry searchRoot;
     private readonly System.DirectoryServices.DirectorySearcher searcher;
@@ -93,8 +99,7 @@ public class Ldap : IDisposable
         {
             lock (locker)
             {
-                var o = queryConfig;
-                if (o == null) o = queryConfig = new LdapQueryConfig();
+                var o = queryConfig ??= new LdapQueryConfig();
                 return o;
             }
         }
@@ -125,14 +130,14 @@ public class Ldap : IDisposable
 
         userName = userName.TrimOrNull();
         domainName = domainName.TrimOrNull();
-        if (domainName == null && userName != null && userName.IndexOf("\\") >= 0)
+        if (domainName == null && userName != null && userName.IndexOf("\\", StringComparison.Ordinal) >= 0)
         {
-            var uparts = userName.Split('\\').TrimOrNull().WhereNotNull().ToArray();
-            if (uparts.Length == 1) userName = uparts[0];
-            if (uparts.Length > 1)
+            var userNameParts = userName.Split('\\').TrimOrNull().WhereNotNull().ToArray();
+            if (userNameParts.Length == 1) userName = userNameParts[0];
+            if (userNameParts.Length > 1)
             {
-                domainName = uparts[0];
-                userName = uparts[1];
+                domainName = userNameParts[0];
+                userName = userNameParts[1];
             }
         }
         this.userName = userName = userName.TrimOrNull();
@@ -172,6 +177,7 @@ public class Ldap : IDisposable
 
         // Gather information about the LDAP server(s) from the RootDSE entry.
         var rootDSESearchResponse = (SearchResponse)connection.SendRequest(new SearchRequest(null, "(objectClass=*)", SearchScope.Base));
+        // ReSharper disable once MergeIntoPattern
         if (rootDSESearchResponse != null && rootDSESearchResponse.ResultCode == ResultCode.Success && rootDSESearchResponse.Entries.Count > 0)
         {
             // Save the rootDSE for access by API clients.
@@ -184,7 +190,7 @@ public class Ldap : IDisposable
                 NamingContexts = RootDSEAttributes.GetStrings("namingContexts").ToList().AsReadOnly();
                 DefaultNamingContext = RootDSEAttributes.GetString("defaultNamingContext");
 
-                if (this.searchBaseDNdefault == null) this.searchBaseDNdefault = NamingContexts.FirstOrDefault();
+                this.searchBaseDNdefault ??= NamingContexts.FirstOrDefault();
                 AlternateServers = RootDSEAttributes.GetStrings("altServer").ToList().AsReadOnly();
                 SupportedControls = RootDSEAttributes.GetStrings("supportedControl").ToList().AsReadOnly();
             }
@@ -237,15 +243,7 @@ public class Ldap : IDisposable
         var baseDn = config.BaseDn ?? searchBaseDNdefault;
 
         // Set the search base and scope for the search if provided.
-        SearchRequest request;
-        if (config.Attributes.Count == 0)
-        {
-            request = new SearchRequest(baseDn, filter, config.Scope);
-        }
-        else
-        {
-            request = new SearchRequest(baseDn, filter, config.Scope, config.Attributes.ToArray());
-        }
+        var request = config.Attributes.Count == 0 ? new SearchRequest(baseDn, filter, config.Scope) : new SearchRequest(baseDn, filter, config.Scope, config.Attributes.ToArray());
 
 
 
@@ -305,7 +303,7 @@ public class Ldap : IDisposable
             }
 
             // Check whether the cookies is empty and all the results have been gathered.
-            if (pageResultRequestControl.Cookie.Length == 0) break; // The cookie is empty. We're done gathing results.
+            if (pageResultRequestControl.Cookie.Length == 0) break; // The cookie is empty. We're done gathering results.
         }
 
         return results;
@@ -325,7 +323,7 @@ public class Ldap : IDisposable
         {
             guidBuilder.Append('\\' + guidByte.ToString("x2"));
         }
-        return SearchResultEntryGet($"(objectGUID={guidBuilder.ToString()})", config).FirstOrDefault();
+        return SearchResultEntryGet($"(objectGUID={guidBuilder})", config).FirstOrDefault();
     }
 
     public SearchResultEntry SearchResultEntryGetByDistinguishedName(string distinguishedName, LdapQueryConfig config) => SearchResultEntryGet("(&(distinguishedName=" + distinguishedName.CheckNotNullTrimmed(nameof(distinguishedName)) + "))", config).FirstOrDefault();
@@ -503,35 +501,4 @@ public class Ldap : IDisposable
     }
 
     #endregion Guid Conversion
-}
-
-public static class LdapExtensions
-{
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-    private static string ToStringDebugOutput(object o)
-    {
-        var sb = new StringBuilder();
-        foreach (var prop in ClassReaderWriter.GetProperties(o.GetType(), canGet: true, isInstance: true))
-        {
-            object val = null;
-            try
-            {
-                val = prop.GetValue(o);
-            }
-            catch (Exception e)
-            {
-                log.Debug("Error retrieving property " + o.GetType().FullNameFormatted() + "." + prop.Name, e);
-            }
-
-            sb.AppendLine("    " + prop.Name + ": " + val.ToStringGuessFormat());
-        }
-        return sb.ToString();
-    }
-
-    public static string ToStringDebug(this System.DirectoryServices.DirectoryEntry entry) => ToStringDebugOutput(entry);
-
-    public static string ToStringDebug(this System.DirectoryServices.DirectorySearcher searcher) => ToStringDebugOutput(searcher);
-
-    public static string ToStringDebug(this System.DirectoryServices.AccountManagement.PrincipalContext context) => ToStringDebugOutput(context);
 }
