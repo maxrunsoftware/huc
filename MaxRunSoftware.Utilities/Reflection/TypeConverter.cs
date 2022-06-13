@@ -20,7 +20,7 @@ public static class TypeConverterExtensions
 {
     public static TypeConverter AsTypeConverter<TInput, TOutput>(this Converter<TInput, TOutput> converter)
     {
-        return (inputObject, outputType) => converter((TInput)inputObject);
+        return (inputObject, _) => converter((TInput)inputObject);
     }
 
     public static Converter<TInput, TOutput> AsConverter<TInput, TOutput>(this TypeConverter typeConverter)

@@ -68,7 +68,7 @@ public sealed class PropertyReaderWriter
         var instance = Expression.Parameter(typeof(object), "instance");
         var callExpr = mi.IsStatic // Is this a static property
             ? Expression.Call(null, mi)
-            : Expression.Call(Expression.Convert(instance, propertyInfo.DeclaringType), mi);
+            : Expression.Call(Expression.Convert(instance, propertyInfo.DeclaringType ?? throw new NullReferenceException()), mi);
 
         var unaryExpression = Expression.TypeAs(callExpr, typeof(object));
         var action = Expression.Lambda<Func<object, object>>(unaryExpression, instance).Compile();
@@ -95,7 +95,7 @@ public sealed class PropertyReaderWriter
         var value2 = Expression.Convert(value, propertyInfo.PropertyType);
         var callExpr = mi.IsStatic // Is this a static property
             ? Expression.Call(null, mi, value2)
-            : Expression.Call(Expression.Convert(instance, propertyInfo.DeclaringType), mi, value2);
+            : Expression.Call(Expression.Convert(instance, propertyInfo.DeclaringType ?? throw new NullReferenceException()), mi, value2);
         var action = Expression.Lambda<Action<object, object>>(callExpr, instance, value).Compile();
 
         return action;
@@ -118,14 +118,7 @@ public sealed class PropertyReaderWriter
             }
         }
 
-        if (propertyValue == null)
-        {
-            propertySetter(instance, DefaultNullValue);
-        }
-        else
-        {
-            propertySetter(instance, propertyValue);
-        }
+        propertySetter(instance, propertyValue ?? DefaultNullValue);
     }
 
     public object GetValue(object instance)

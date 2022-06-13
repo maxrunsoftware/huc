@@ -87,7 +87,7 @@ public sealed class ClassReaderWriter
                 continue; // don't include anything? maybe throw exception because you probably forgot something
             }
 
-            if (!isStatic && isInstance && prop.IsStatic)
+            if (!isStatic && prop.IsStatic)
             {
                 continue; // don't include static
             }
