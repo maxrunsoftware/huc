@@ -30,9 +30,9 @@ public class Encryption
         return array;
     }
 
-    public static byte[] EncryptAsymetric(string pemPublicKey, byte[] data) => Util.EncryptionEncryptAsymetric(pemPublicKey, data, RSAEncryptionPadding.OaepSHA512);
+    public static byte[] EncryptAsymetric(string pemPublicKey, byte[] data) => Util.EncryptionEncryptAsymmetric(pemPublicKey, data, RSAEncryptionPadding.OaepSHA512);
 
-    public static byte[] DecryptAsymetric(string pemPrivateKey, byte[] data) => Util.EncryptionDecryptAsymetric(pemPrivateKey, data, RSAEncryptionPadding.OaepSHA512);
+    public static byte[] DecryptAsymetric(string pemPrivateKey, byte[] data) => Util.EncryptionDecryptAsymmetric(pemPrivateKey, data, RSAEncryptionPadding.OaepSHA512);
 
     public static byte[] EncryptSymetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Encrypt(password, data, salt);
 

@@ -28,29 +28,29 @@ public static partial class Util
             this.foreground = Console.ForegroundColor;
             this.background = Console.BackgroundColor;
 
-            var fswitch = false;
+            var foregroundSwitch = false;
             if (foreground != null)
             {
                 if (this.foreground != foreground.Value)
                 {
-                    fswitch = true;
+                    foregroundSwitch = true;
                     Console.ForegroundColor = foreground.Value;
                 }
             }
 
-            foregroundSwitched = fswitch;
+            foregroundSwitched = foregroundSwitch;
 
-            var bswitch = false;
+            var backgroundSwitch = false;
             if (background != null)
             {
                 if (this.background != background.Value)
                 {
-                    bswitch = true;
+                    backgroundSwitch = true;
                     Console.BackgroundColor = background.Value;
                 }
             }
 
-            backgroundSwitched = bswitch;
+            backgroundSwitched = backgroundSwitch;
         }
 
         public void Dispose()

@@ -615,6 +615,7 @@ public static class ExtensionsCheck
     /// <param name="argument">The argument to check</param>
     /// <param name="argumentName">The nameof argument</param>
     /// <returns>The argument</returns>
+    [ContractAnnotation("argument: null => halt")]
     public static T CheckNotNull<T>([NoEnumeration] this T argument, string argumentName) where T : class
     {
         if (argument == null)

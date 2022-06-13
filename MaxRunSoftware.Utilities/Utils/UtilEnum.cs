@@ -28,8 +28,8 @@ public static partial class Util
         private readonly struct DicKey : IEquatable<DicKey>
         {
             private readonly int hashCode;
-            public readonly Type enumType;
-            public readonly string enumItemName;
+            private readonly Type enumType;
+            private readonly string enumItemName;
 
             public DicKey(Type enumType, string enumItemName)
             {
@@ -45,12 +45,12 @@ public static partial class Util
 
             public override bool Equals(object obj)
             {
-                return obj is DicKey ? Equals((DicKey)obj) : false;
+                return obj is DicKey key && Equals(key);
             }
 
             public bool Equals(DicKey other)
             {
-                return hashCode == other.hashCode && enumType.Equals(other.enumType) && enumItemName.Equals(other.enumItemName);
+                return hashCode == other.hashCode && enumType == other.enumType && enumItemName.Equals(other.enumItemName);
             }
         }
 

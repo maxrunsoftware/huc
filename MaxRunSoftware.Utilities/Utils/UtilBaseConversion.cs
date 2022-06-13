@@ -48,13 +48,13 @@ public static partial class Util
         return new string(result);
     }
 
-    public static byte[] Base16(string base16string)
+    public static byte[] Base16(string base16String)
     {
-        var numberChars = base16string.Length;
+        var numberChars = base16String.Length;
         var bytes = new byte[numberChars / 2];
         for (var i = 0; i < numberChars; i += 2)
         {
-            bytes[i / 2] = Convert.ToByte(base16string.Substring(i, 2), 16);
+            bytes[i / 2] = Convert.ToByte(base16String.Substring(i, 2), 16);
         }
 
         return bytes;
@@ -69,9 +69,9 @@ public static partial class Util
         return Convert.ToBase64String(bytes);
     }
 
-    public static byte[] Base64(string base64string)
+    public static byte[] Base64(string base64String)
     {
-        return Convert.FromBase64String(base64string);
+        return Convert.FromBase64String(base64String);
     }
 
     #endregion Base64

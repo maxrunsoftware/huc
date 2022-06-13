@@ -18,7 +18,7 @@ namespace MaxRunSoftware.Utilities;
 
 public static partial class Util
 {
-    public static byte[] EncryptionEncryptAsymetric(string pemPublicKey, byte[] data, RSAEncryptionPadding encryptionPadding)
+    public static byte[] EncryptionEncryptAsymmetric(string pemPublicKey, byte[] data, RSAEncryptionPadding encryptionPadding)
     {
         using (var rsa = RSA.Create())
         {
@@ -27,7 +27,7 @@ public static partial class Util
         }
     }
 
-    public static byte[] EncryptionDecryptAsymetric(string pemPrivateKey, byte[] data, RSAEncryptionPadding encryptionPadding)
+    public static byte[] EncryptionDecryptAsymmetric(string pemPrivateKey, byte[] data, RSAEncryptionPadding encryptionPadding)
     {
         using (var rsa = RSA.Create())
         {
@@ -160,7 +160,7 @@ public static partial class Util
         {
             if (length < 0)
             {
-                throw new ArgumentOutOfRangeException("length", "Length must be non-negative");
+                throw new ArgumentOutOfRangeException(nameof(length), "Length must be non-negative");
             }
 
             if (length < 0x80)

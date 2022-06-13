@@ -46,7 +46,9 @@ public static partial class Util
             throw new WebException(response.StatusCode + ":" + response.StatusDescription);
         }
 
-        var stream = new StreamReader(response.GetResponseStream());
+        var responseStream = response.GetResponseStream();
+        responseStream.CheckNotNull(nameof(responseStream));
+        var stream = new StreamReader(responseStream);
         var html = stream.ReadToEnd(); //<timestamp time=\"1395772696469995\" delay=\"1395772696469995\"/>
         var time = Regex.Match(html, @"(?<=unixtime: )[^u]*").Value;
         var milliseconds = Convert.ToInt64(time) * 1000.0;
@@ -261,7 +263,7 @@ public static partial class Util
         {
             // https://stackoverflow.com/a/7861726
             var sb = new StringBuilder();
-            foreach (var kvp in cookies)
+            foreach (var kvp in cookies.OrEmpty())
             {
                 var name = kvp.Key.TrimOrNull();
                 var val = kvp.Value.TrimOrNull();
@@ -284,11 +286,11 @@ public static partial class Util
             {
                 if (outFilename.ContainsAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString()))
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(outFilename));
+                    var directoryName = Path.GetDirectoryName(outFilename);
+                    if (directoryName != null) Directory.CreateDirectory(directoryName);
                 }
             }
 
-            var unauthorized = false;
             try
             {
                 byte[] data = null;
@@ -305,21 +307,14 @@ public static partial class Util
             }
             catch (WebException we)
             {
-                if (username != null && password != null && we.Message != null && we.Message.Contains("(401)"))
-                {
-                    unauthorized = true;
-                }
-                else
+                if (username == null || password == null || !we.Message.Contains("(401)"))
                 {
                     throw;
                 }
-            }
 
-            if (unauthorized)
-            {
                 // https://stackoverflow.com/a/26016919
                 var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
-                cli.Headers[HttpRequestHeader.Authorization] = string.Format("Basic {0}", credentials);
+                cli.Headers[HttpRequestHeader.Authorization] = $"Basic {credentials}";
                 byte[] data = null;
                 if (outFilename == null)
                 {
@@ -331,9 +326,10 @@ public static partial class Util
                 }
 
                 return new WebResponse(url, data, cli.ResponseHeaders);
+
             }
 
-            throw new NotImplementedException("Should not happen");
+            
         }
     }
 
@@ -343,17 +339,17 @@ public static partial class Util
     {
         // https://stackoverflow.com/a/53337546
 
-        const int COMPONENT = 1;
-        const int QUOTED_STRING = 2;
-        const int ESCAPED_CHARACTER = 3;
+        const int componentString = 1;
+        const int quotedString = 2;
+        const int escapedCharacter = 3;
 
-        var previousState = COMPONENT;
-        var currentState = COMPONENT;
+        var previousState = componentString;
+        var currentState = componentString;
         var currentComponent = new StringBuilder();
         var previousChar = char.MinValue;
         var position = 0;
 
-        Tuple<string, string> parseComponent(StringBuilder sb)
+        Tuple<string, string> ParseComponent(StringBuilder sb)
         {
             var s = sb.ToString();
             sb.Clear();
@@ -376,13 +372,13 @@ public static partial class Util
 
             switch (currentState)
             {
-                case COMPONENT:
+                case componentString:
                     switch (currentChar)
                     {
                         case ',':
                         case ';':
                             // Separator found, yield parsed component
-                            var component = parseComponent(currentComponent);
+                            var component = ParseComponent(currentComponent);
                             if (component != null)
                             {
                                 yield return component;
@@ -393,7 +389,7 @@ public static partial class Util
                         case '\\':
                             // Escape character found
                             previousState = currentState;
-                            currentState = ESCAPED_CHARACTER;
+                            currentState = escapedCharacter;
                             break;
 
                         case '"':
@@ -404,7 +400,7 @@ public static partial class Util
                                 currentComponent.Append(currentChar);
                             }
 
-                            currentState = QUOTED_STRING;
+                            currentState = quotedString;
                             break;
 
                         default:
@@ -414,18 +410,18 @@ public static partial class Util
 
                     break;
 
-                case QUOTED_STRING:
+                case quotedString:
                     switch (currentChar)
                     {
                         case '\\':
                             // Escape character found
                             previousState = currentState;
-                            currentState = ESCAPED_CHARACTER;
+                            currentState = escapedCharacter;
                             break;
 
                         case '"':
                             // Quotation mark found
-                            currentState = COMPONENT;
+                            currentState = componentString;
                             break;
 
                         default:
@@ -435,7 +431,7 @@ public static partial class Util
 
                     break;
 
-                case ESCAPED_CHARACTER:
+                case escapedCharacter:
                     currentComponent.Append(currentChar);
                     currentState = previousState;
                     currentChar = char.MinValue;
@@ -449,7 +445,7 @@ public static partial class Util
         // Yield last parsed component, if any
         if (currentComponent.Length > 0)
         {
-            var component = parseComponent(currentComponent);
+            var component = ParseComponent(currentComponent);
             if (component != null)
             {
                 yield return component;

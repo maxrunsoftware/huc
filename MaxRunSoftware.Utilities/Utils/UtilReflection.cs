@@ -45,10 +45,7 @@ public static partial class Util
 
                     foreach (var t in asm.GetTypes())
                     {
-                        if (t != null)
-                        {
-                            set.Add(t);
-                        }
+                        set.Add(t);
                     }
                 }
                 catch (Exception) { }
@@ -84,7 +81,7 @@ public static partial class Util
 
         try
         {
-            items.Push(MethodBase.GetCurrentMethod().DeclaringType?.Assembly);
+            items.Push(MethodBase.GetCurrentMethod()!.DeclaringType?.Assembly);
         }
         catch (Exception) { }
 
@@ -96,14 +93,14 @@ public static partial class Util
             {
                 try
                 {
-                    items.Push(stackFrame?.GetMethod()?.GetType()?.Assembly);
+                    items.Push(stackFrame.GetMethod()?.GetType().Assembly);
                 }
                 catch (Exception) { }
             }
         }
         catch (Exception) { }
 
-        var asms = new Dictionary<string, Assembly>(StringComparer.OrdinalIgnoreCase);
+        var assemblyDictionary = new Dictionary<string, Assembly>(StringComparer.OrdinalIgnoreCase);
         while (items.Count > 0)
         {
             var a = items.Pop();
@@ -135,40 +132,33 @@ public static partial class Util
                     continue;
                 }
 
-                if (asms.ContainsKey(name))
+                if (assemblyDictionary.ContainsKey(name))
                 {
                     continue;
                 }
 
-                asms.Add(name, a);
-                var asmsNames = a.GetReferencedAssemblies();
-                if (asmsNames != null)
+                assemblyDictionary.Add(name, a);
+                var assemblyNames = a.GetReferencedAssemblies();
+                foreach (var assemblyName in assemblyNames)
                 {
-                    foreach (var asmsName in asmsNames)
+                    try
                     {
-                        try
-                        {
-                            var aa = Assembly.Load(asmsName);
-                            if (aa != null)
+                        var aa = Assembly.Load(assemblyName);
+                        
+                            var aaName = aa.FullName;
+                            if (aaName != null && !assemblyDictionary.ContainsKey(aaName))
                             {
-                                var aaName = aa.FullName;
-                                if (aaName != null)
-                                {
-                                    if (!asms.ContainsKey(aaName))
-                                    {
-                                        items.Push(aa);
-                                    }
-                                }
+                                items.Push(aa);
                             }
-                        }
-                        catch (Exception) { }
+                        
                     }
+                    catch (Exception) { }
                 }
             }
             catch (Exception) { }
         }
 
-        return asms.Values.WhereNotNull().ToArray();
+        return assemblyDictionary.Values.WhereNotNull().ToArray();
     }
 
     #endregion Type and Assembly Scanning
@@ -200,7 +190,7 @@ public static partial class Util
         return c;
     }
 
-    private static readonly IBucketReadOnly<Type, Func<object>> CreateInstanceCache = new BucketCacheThreadSafeCopyOnWrite<Type, Func<object>>(o => CreateInstanceFactory(o));
+    private static readonly IBucketReadOnly<Type, Func<object>> createInstanceCache = new BucketCacheThreadSafeCopyOnWrite<Type, Func<object>>(CreateInstanceFactory);
 
     /// <summary>
     /// High performance new object creation. Type must have a default constructor.
@@ -209,7 +199,7 @@ public static partial class Util
     /// <returns>A new object</returns>
     public static object CreateInstance(Type type)
     {
-        return CreateInstanceCache[type]();
+        return createInstanceCache[type]();
     }
 
     public static List<T> CreateList<T, TEnumerable>(params TEnumerable[] enumerables) where TEnumerable : IEnumerable<T>
@@ -243,7 +233,7 @@ public static partial class Util
 
         var input = Expression.Parameter(typeof(object), "input");
         var compiledExp = Expression.Lambda<Action<object>>(
-            Expression.Call(Expression.Convert(input, method.DeclaringType), method), input
+            Expression.Call(Expression.Convert(input, method.DeclaringType ?? throw new NullReferenceException()), method), input
         ).Compile();
 
         Action<object> func = o => compiledExp(o);
@@ -260,7 +250,7 @@ public static partial class Util
         method.CheckNotNull(nameof(method));
 
         // https://stackoverflow.com/a/2933227
-        if (!method.ReturnType.Equals(typeof(T)))
+        if (method.ReturnType != typeof(T))
         {
             throw new Exception("Wrong return type specified for method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
         }
@@ -272,7 +262,7 @@ public static partial class Util
 
         var input = Expression.Parameter(typeof(object), "input");
         var compiledExp = Expression.Lambda<Func<object, T>>(
-            Expression.Call(Expression.Convert(input, method.DeclaringType), method), input
+            Expression.Call(Expression.Convert(input, method.DeclaringType ?? throw new NullReferenceException()), method), input
         ).Compile();
 
         return compiledExp;

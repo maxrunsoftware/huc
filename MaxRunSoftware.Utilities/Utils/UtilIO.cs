@@ -22,6 +22,7 @@ public static partial class Util
     {
         public string Path { get; }
 
+        // ReSharper disable once MemberHidesStaticFromOuterClass
         public bool IsDirectory { get; }
 
         public Exception Exception { get; }
@@ -62,15 +63,16 @@ public static partial class Util
     public static (string directoryName, string fileName, string extension) SplitFileName(string file)
     {
         file = Path.GetFullPath(file);
-        var d = Path.GetFullPath(Path.GetDirectoryName(file));
+        var dn = Path.GetDirectoryName(file); 
+        var d = dn == null ? null : Path.GetFullPath(dn);
         var f = Path.GetFileNameWithoutExtension(file);
         var e = Path.GetExtension(file).TrimOrNull();
-        if (e != null && e.Length > 0 && e[0] == '.')
+        if (!string.IsNullOrEmpty(e) && e[0] == '.')
         {
             e = e.Remove(0, 1).TrimOrNull();
         }
 
-        return (d.TrimOrNull() ?? string.Empty, f ?? string.Empty, e.TrimOrNull() ?? string.Empty);
+        return (d.TrimOrNull() ?? string.Empty, f, e.TrimOrNull() ?? string.Empty);
     }
 
     public static string FileGetMD5(string file)
@@ -134,7 +136,7 @@ public static partial class Util
             ext = "." + ext;
         }
 
-        var f = Path.Combine(dir, name + ext);
+        var f = dir == null ? Path.Combine(name + ext) : Path.Combine(dir, name + ext);
         f = Path.GetFullPath(f);
         return f;
     }
@@ -165,7 +167,7 @@ public static partial class Util
             ext = "." + ext;
         }
 
-        var f = Path.Combine(dir, name + ext);
+        var f = dir == null ? Path.Combine(name + ext) : Path.Combine(dir, name + ext);
         f = Path.GetFullPath(f);
         return f;
     }
@@ -215,20 +217,23 @@ public static partial class Util
         // No buffer needed http://stackoverflow.com/a/2069317 http://blogs.msdn.com/b/brada/archive/2004/04/15/114329.aspx
 
         // Compare method from http://stackoverflow.com/a/1359947
-        const int BYTES_TO_READ = sizeof(long);
+        const int bytesToRead = sizeof(long);
 
-        var iterations = (int)Math.Ceiling((double)file1Size / BYTES_TO_READ);
+        var iterations = (int)Math.Ceiling((double)file1Size / bytesToRead);
 
         using (var fs1 = FileOpenRead(file1))
         using (var fs2 = FileOpenRead(file2))
         {
-            var one = new byte[BYTES_TO_READ];
-            var two = new byte[BYTES_TO_READ];
+            var one = new byte[bytesToRead];
+            var two = new byte[bytesToRead];
 
             for (var i = 0; i < iterations; i++)
             {
-                fs1.Read(one, 0, BYTES_TO_READ);
-                fs2.Read(two, 0, BYTES_TO_READ);
+                // ReSharper disable once MustUseReturnValue
+                fs1.Read(one, 0, bytesToRead);
+                
+                // ReSharper disable once MustUseReturnValue
+                fs2.Read(two, 0, bytesToRead);
 
                 if (BitConverter.ToInt64(one, 0) != BitConverter.ToInt64(two, 0))
                 {
@@ -299,10 +304,10 @@ public static partial class Util
             string[] files = null;
             try
             {
-                var subdirs = Directory.GetDirectories(currentDirectory).OrEmpty();
-                for (var i = 0; i < subdirs.Length; i++)
+                var subDirectories = Directory.GetDirectories(currentDirectory).OrEmpty();
+                for (var i = 0; i < subDirectories.Length; i++)
                 {
-                    queue.Enqueue(subdirs[i]);
+                    queue.Enqueue(subDirectories[i]);
                 }
 
                 files = Directory.GetFiles(currentDirectory).OrEmpty();
@@ -318,7 +323,7 @@ public static partial class Util
             {
                 for (var i = 0; i < files.Length; i++)
                 {
-                    yield return new FileListResult(Path.GetFullPath(files[i]), false, exception);
+                    yield return new FileListResult(Path.GetFullPath(files[i]), false, null);
                 }
             }
 
@@ -368,7 +373,8 @@ public static partial class Util
             return false;
         }
 
-        if (Path.GetPathRoot(path).Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
+        var pathRoot = Path.GetPathRoot(path);
+        if (pathRoot != null && pathRoot.Equals(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal))
         {
             return false;
         }
@@ -379,38 +385,31 @@ public static partial class Util
     public static string FileGetParent(string path)
     {
         path = Path.GetFullPath(path);
-        string reassemblychar;
+        string reassemblyChar;
         if (path.Contains("\\"))
         {
             // windows path
-            reassemblychar = "\\";
+            reassemblyChar = "\\";
         }
         else if (path.Contains("/"))
         {
             // linux / mac path
-            reassemblychar = "/";
+            reassemblyChar = "/";
         }
         else
         {
-            if (Constant.OS_WINDOWS)
-            {
-                reassemblychar = "\\";
-            }
-            else
-            {
-                reassemblychar = "/";
-            }
+            reassemblyChar = Constant.OS_WINDOWS ? "\\" : "/";
         }
 
-        var pathparts = path.Split(reassemblychar).TrimOrNull().WhereNotNull().ToList();
-        if (pathparts.Count == 1)
+        var pathParts = path.Split(reassemblyChar).TrimOrNull().WhereNotNull().ToList();
+        if (pathParts.Count == 1)
         {
             return null;
         }
 
-        pathparts.PopTail();
-        path = pathparts.ToStringDelimited(reassemblychar);
-        if (reassemblychar.Equals("/"))
+        pathParts.PopTail();
+        path = pathParts.ToStringDelimited(reassemblyChar);
+        if (reassemblyChar.Equals("/"))
         {
             path = "/" + path;
         }
@@ -467,11 +466,12 @@ public static partial class Util
 
     public static void FileWrite(string path, byte[] data, bool append = false)
     {
+        path.CheckNotNull(nameof(path));
         if (File.Exists(path) && !append)
         {
             File.Delete(path);
         }
-
+        
         using (var stream = File.OpenWrite(path))
         {
             stream.Position = stream.Length;
@@ -521,7 +521,7 @@ public static partial class Util
 
     #region Temp
 
-    private static readonly object LOCK_TEMP = new();
+    private static readonly object lockTemp = new();
 
     private sealed class TempDirectory : IDisposable
     {
@@ -585,7 +585,7 @@ public static partial class Util
 
     public static IDisposable CreateTempDirectory(out string path)
     {
-        lock (LOCK_TEMP)
+        lock (lockTemp)
         {
             var parentDir = Path.GetTempPath();
             string p;
@@ -602,7 +602,7 @@ public static partial class Util
 
     public static IDisposable CreateTempFile(out string path)
     {
-        lock (LOCK_TEMP)
+        lock (lockTemp)
         {
             var parentDir = Path.GetTempPath();
             string p;
@@ -649,10 +649,10 @@ public static partial class Util
         var list2 = new List<string>();
         foreach (var item in list)
         {
-            var itemparts = item.Split(pathDelimitersArray, StringSplitOptions.RemoveEmptyEntries).TrimOrNull().WhereNotNull().ToArray();
-            foreach (var itempart in itemparts)
+            var itemParts = item.Split(pathDelimitersArray, StringSplitOptions.RemoveEmptyEntries).TrimOrNull().WhereNotNull().ToArray();
+            foreach (var itemPart in itemParts)
             {
-                list2.Add(itempart);
+                list2.Add(itemPart);
             }
         }
 

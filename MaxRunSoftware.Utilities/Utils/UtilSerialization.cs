@@ -60,14 +60,14 @@ public static partial class Util
     /// Deep clones a serializable object
     /// </summary>
     /// <typeparam name="T">The type</typeparam>
-    /// <param name="obj">The object to clonse</param>
+    /// <param name="obj">The object to clone</param>
     /// <returns>The clone</returns>
     public static T Clone<T>(T obj)
     {
         // http://stackoverflow.com/a/78612
         if (!typeof(T).IsSerializable)
         {
-            throw new ArgumentException("The type must be serializable.", "obj");
+            throw new ArgumentException("The type must be serializable.", nameof(obj));
         }
 
         // Don't serialize a null object, simply return the default for that object

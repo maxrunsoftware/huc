@@ -60,7 +60,7 @@ public static partial class Util
 
     #endregion IsEqual
 
-    public static int Compare<TEnumerble1, TEnumerable2, TItem>(TEnumerble1 enumerable1, TEnumerable2 enumerable2, IComparer<TItem> comparer) where TEnumerble1 : IEnumerable<TItem> where TEnumerable2 : IEnumerable<TItem>
+    public static int Compare<TEnumerable1, TEnumerable2, TItem>(TEnumerable1 enumerable1, TEnumerable2 enumerable2, IComparer<TItem> comparer) where TEnumerable1 : IEnumerable<TItem> where TEnumerable2 : IEnumerable<TItem>
     {
         if (enumerable1 == null)
         {

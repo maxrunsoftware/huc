@@ -32,96 +32,96 @@ public static partial class Util
     /// <summary>
     /// Tries to guess the best type for a group of strings. All strings provided must be convertable for the match to be made
     /// </summary>
-    /// <param name="strs">The strings to guess on</param>
+    /// <param name="strings">The strings to guess on</param>
     /// <returns>The best found Type or string type if a best guess couldn't be found</returns>
-    public static Type GuessType(IEnumerable<string> strs)
+    public static Type GuessType(IEnumerable<string> strings)
     {
-        strs.CheckNotNull(nameof(strs));
+        strings.CheckNotNull(nameof(strings));
 
-        var list = strs.TrimOrNull().ToList();
-        var listcount = list.Count;
+        var list = strings.TrimOrNull().ToList();
+        var listCount = list.Count;
 
         list = list.WhereNotNull().ToList();
-        var nullable = listcount != list.Count;
+        var nullable = listCount != list.Count;
         if (list.Count == 0)
         {
             return typeof(string);
         }
 
-        if (list.All(o => Guid.TryParse(o, out var v)))
+        if (list.All(o => Guid.TryParse(o, out _)))
         {
             return nullable ? typeof(Guid?) : typeof(Guid);
         }
 
         if (list.All(o => o.CountOccurrences(".") == 3))
         {
-            if (list.All(o => IPAddress.TryParse(o, out var v)))
+            if (list.All(o => IPAddress.TryParse(o, out _)))
             {
                 return typeof(IPAddress);
             }
         }
 
-        if (list.All(o => o.ToBoolTry(out var v)))
+        if (list.All(o => o.ToBoolTry(out _)))
         {
             return nullable ? typeof(bool?) : typeof(bool);
         }
 
-        if (list.All(o => o.ToByteTry(out var v)))
+        if (list.All(o => o.ToByteTry(out _)))
         {
             return nullable ? typeof(byte?) : typeof(byte);
         }
 
-        if (list.All(o => o.ToSByteTry(out var v)))
+        if (list.All(o => o.ToSByteTry(out _)))
         {
             return nullable ? typeof(sbyte?) : typeof(sbyte);
         }
 
-        if (list.All(o => o.ToShortTry(out var v)))
+        if (list.All(o => o.ToShortTry(out _)))
         {
             return nullable ? typeof(short?) : typeof(short);
         }
 
-        if (list.All(o => o.ToUShortTry(out var v)))
+        if (list.All(o => o.ToUShortTry(out _)))
         {
             return nullable ? typeof(ushort?) : typeof(ushort);
         }
 
-        if (list.All(o => o.ToIntTry(out var v)))
+        if (list.All(o => o.ToIntTry(out _)))
         {
             return nullable ? typeof(int?) : typeof(int);
         }
 
-        if (list.All(o => o.ToUIntTry(out var v)))
+        if (list.All(o => o.ToUIntTry(out _)))
         {
             return nullable ? typeof(uint?) : typeof(uint);
         }
 
-        if (list.All(o => o.ToLongTry(out var v)))
+        if (list.All(o => o.ToLongTry(out _)))
         {
             return nullable ? typeof(long?) : typeof(long);
         }
 
-        if (list.All(o => o.ToULongTry(out var v)))
+        if (list.All(o => o.ToULongTry(out _)))
         {
             return nullable ? typeof(ulong?) : typeof(ulong);
         }
 
-        if (list.All(o => o.ToDecimalTry(out var v)))
+        if (list.All(o => o.ToDecimalTry(out _)))
         {
             return nullable ? typeof(decimal?) : typeof(decimal);
         }
 
-        if (list.All(o => o.ToFloatTry(out var v)))
+        if (list.All(o => o.ToFloatTry(out _)))
         {
             return nullable ? typeof(float?) : typeof(float);
         }
 
-        if (list.All(o => o.ToDoubleTry(out var v)))
+        if (list.All(o => o.ToDoubleTry(out _)))
         {
             return nullable ? typeof(double?) : typeof(double);
         }
 
-        if (list.All(o => BigInteger.TryParse(o, out var v)))
+        if (list.All(o => BigInteger.TryParse(o, out _)))
         {
             return nullable ? typeof(BigInteger?) : typeof(BigInteger);
         }
@@ -131,12 +131,12 @@ public static partial class Util
             return nullable ? typeof(char?) : typeof(char);
         }
 
-        if (list.All(o => DateTime.TryParse(o, out var v)))
+        if (list.All(o => DateTime.TryParse(o, out _)))
         {
             return nullable ? typeof(DateTime?) : typeof(DateTime);
         }
 
-        if (list.All(o => Uri.TryCreate(o, UriKind.Absolute, out var vUri)))
+        if (list.All(o => Uri.TryCreate(o, UriKind.Absolute, out _)))
         {
             return typeof(Uri);
         }
@@ -149,9 +149,9 @@ public static partial class Util
         return GuessDbType(s.CheckNotNull(nameof(s)).Yield());
     }
 
-    public static DbType GuessDbType(IEnumerable<string> strs)
+    public static DbType GuessDbType(IEnumerable<string> strings)
     {
-        var type = GuessType(strs);
+        var type = GuessType(strings);
 
         if (Constant.Type_DbType.TryGetValue(type, out var dbType))
         {

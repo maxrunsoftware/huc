@@ -88,7 +88,7 @@ public static partial class Util
     }
 
     /// <summary>
-    /// With a using statement, logs start and stop time, memory difference, and souce line number. Only the log argument
+    /// With a using statement, logs start and stop time, memory difference, and source line number. Only the log argument
     /// should be supplied
     /// </summary>
     /// <param name="log">Only provide this argument</param>

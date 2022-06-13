@@ -56,18 +56,18 @@ public static partial class Util
         // http://stackoverflow.com/a/263416
         unchecked
         {
-            const int START = 17;
-            const int PRIME = 16777619;
+            const int start = 17;
+            const int prime = 16777619;
 
-            var hash = START;
-            hash = hash * PRIME + (EqualityComparer<T1>.Default.Equals(item1, default) ? 0 : item1.GetHashCode());
-            hash = hash * PRIME + (EqualityComparer<T2>.Default.Equals(item2, default) ? 0 : item2.GetHashCode());
-            hash = hash * PRIME + (EqualityComparer<T3>.Default.Equals(item3, default) ? 0 : item3.GetHashCode());
-            hash = hash * PRIME + (EqualityComparer<T4>.Default.Equals(item4, default) ? 0 : item4.GetHashCode());
-            hash = hash * PRIME + (EqualityComparer<T5>.Default.Equals(item5, default) ? 0 : item5.GetHashCode());
-            hash = hash * PRIME + (EqualityComparer<T6>.Default.Equals(item6, default) ? 0 : item6.GetHashCode());
-            hash = hash * PRIME + (EqualityComparer<T7>.Default.Equals(item7, default) ? 0 : item7.GetHashCode());
-            hash = hash * PRIME + (EqualityComparer<T8>.Default.Equals(item8, default) ? 0 : item8.GetHashCode());
+            var hash = start;
+            hash = hash * prime + (EqualityComparer<T1>.Default.Equals(item1, default) ? 0 : item1.GetHashCode());
+            hash = hash * prime + (EqualityComparer<T2>.Default.Equals(item2, default) ? 0 : item2.GetHashCode());
+            hash = hash * prime + (EqualityComparer<T3>.Default.Equals(item3, default) ? 0 : item3.GetHashCode());
+            hash = hash * prime + (EqualityComparer<T4>.Default.Equals(item4, default) ? 0 : item4.GetHashCode());
+            hash = hash * prime + (EqualityComparer<T5>.Default.Equals(item5, default) ? 0 : item5.GetHashCode());
+            hash = hash * prime + (EqualityComparer<T6>.Default.Equals(item6, default) ? 0 : item6.GetHashCode());
+            hash = hash * prime + (EqualityComparer<T7>.Default.Equals(item7, default) ? 0 : item7.GetHashCode());
+            hash = hash * prime + (EqualityComparer<T8>.Default.Equals(item8, default) ? 0 : item8.GetHashCode());
             return hash;
         }
     }
@@ -77,14 +77,14 @@ public static partial class Util
         // http://stackoverflow.com/a/263416
         unchecked
         {
-            const int START = 17;
-            const int PRIME = 16777619;
+            const int start = 17;
+            const int prime = 16777619;
 
-            var hash = START;
+            var hash = start;
 
             foreach (var item in items)
             {
-                hash = hash * PRIME + (EqualityComparer<T>.Default.Equals(item, default) ? 0 : item.GetHashCode());
+                hash = hash * prime + (EqualityComparer<T>.Default.Equals(item, default) ? 0 : item.GetHashCode());
             }
 
             return hash;

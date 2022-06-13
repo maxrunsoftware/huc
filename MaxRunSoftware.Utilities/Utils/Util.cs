@@ -47,11 +47,11 @@ public static partial class Util
 
         len += decimalPlaces;
 
-        decimal dindex = index + 1;
-        var dtotal = total;
-        var dmultipler = 100;
+        decimal indexDecimal = index + 1;
+        var totalDecimal = total;
+        var multiplierDecimal = 100;
 
-        return (dindex / dtotal * dmultipler).ToString(MidpointRounding.AwayFromZero, decimalPlaces).PadLeft(len) + " %";
+        return (indexDecimal / totalDecimal * multiplierDecimal).ToString(MidpointRounding.AwayFromZero, decimalPlaces).PadLeft(len) + " %";
     }
 
     public static string RandomString(int size, char[] characterPool)
