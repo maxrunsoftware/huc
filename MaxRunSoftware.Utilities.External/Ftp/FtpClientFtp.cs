@@ -25,13 +25,13 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class FtpClientFtp : FtpClientBase
 {
-    private FtpClient _client;
+    private FtpClient client;
 
     private FtpClient Client
     {
         get
         {
-            var c = _client;
+            var c = client;
             if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
             return c;
         }
@@ -45,13 +45,13 @@ public class FtpClientFtp : FtpClientBase
         port = port.CheckNotZero(nameof(port));
         username = username.TrimOrNull();
         password = password.TrimOrNull();
-        if (username == null) username = password = "anonymous";
-        _client = new FtpClient(host, port, new System.Net.NetworkCredential(username, password));
+        username ??= password = "anonymous";
+        client = new FtpClient(host, port, new NetworkCredential(username, password));
         log.Debug("Connecting to FTP server " + host + ":" + port + " with username " + username);
         //FtpTrace.LogPassword = true;
         //FtpTrace.LogPrefix = true;
-        _client.OnLogEvent = LogMessage;
-        _client.Connect();
+        client.OnLogEvent = LogMessage;
+        client.Connect();
         log.Debug("Connection successful");
     }
 
@@ -61,19 +61,19 @@ public class FtpClientFtp : FtpClientBase
         port = port.CheckNotZero(nameof(port));
         username = username.TrimOrNull();
         password = password.TrimOrNull();
-        if (username == null) username = password = "anonymous";
+        username ??= password = "anonymous";
 
-        _client = new FtpClient(host, port, new System.Net.NetworkCredential(username, password));
-        _client.ValidateCertificate += new FtpSslValidation((control, e) => { log.Debug("Cert: " + e.Certificate.GetRawCertDataString()); e.Accept = true; });
-        _client.EncryptionMode = Util.GetEnumItem<FtpEncryptionMode>(encryptionMode.ToString());
+        client = new FtpClient(host, port, new NetworkCredential(username, password));
+        client.ValidateCertificate += (_, e) => { log.Debug("Cert: " + e.Certificate.GetRawCertDataString()); e.Accept = true; };
+        client.EncryptionMode = Util.GetEnumItem<FtpEncryptionMode>(encryptionMode.ToString());
 
-        _client.SslProtocols = sslProtocols;
+        client.SslProtocols = sslProtocols;
 
         log.Debug("Connecting to FTPS server " + host + ":" + port + " with username " + username);
         //FtpTrace.LogPassword = true;
         //FtpTrace.LogPrefix = true;
-        _client.OnLogEvent = LogMessage;
-        _client.Connect();
+        client.OnLogEvent = LogMessage;
+        client.Connect();
         log.Debug("Connection successful");
     }
 
@@ -105,7 +105,7 @@ public class FtpClientFtp : FtpClientBase
         {
             try
             {
-                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
                 Client.Upload(localStream, remoteFile);
             }
             catch (Exception ee)
@@ -144,8 +144,8 @@ public class FtpClientFtp : FtpClientBase
 
     public override void Dispose()
     {
-        var c = _client;
-        _client = null;
+        var c = client;
+        client = null;
 
         if (c == null) return;
         try

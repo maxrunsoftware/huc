@@ -92,9 +92,7 @@ public abstract class FtpClientBase : IFtpClient
         foreach (var pathPart in pathParts)
         {
             if (pathPart.TrimOrNull() == ".")
-            {
-                ; // noop
-            }
+            { }
             else if (pathPart.TrimOrNull() == "..")
             {
                 if (stack.Count > 0) stack.Pop();
@@ -168,13 +166,12 @@ public abstract class FtpClientBase : IFtpClient
 
     public IEnumerable<FtpClientFile> ListFilesRecursive(string remotePath)
     {
-        remotePath = remotePath.TrimOrNull();
-        if (remotePath == null) remotePath = ".";
+        remotePath = remotePath.TrimOrNull() ?? ".";
         remotePath = ToAbsolutePath(remotePath);
 
         var list = new List<FtpClientFile>
         {
-            new FtpClientFile(remotePath.Split('/').Where(o => o.TrimOrNull() != null).LastOrDefault(), remotePath, FtpClientFileType.Directory)
+            new FtpClientFile(remotePath.Split('/').LastOrDefault(o => o.TrimOrNull() != null), remotePath, FtpClientFileType.Directory)
         };
         var checkedDirectories = new HashSet<string>();
         foreach (var dir in list.Where(o => o.Type == FtpClientFileType.Directory).ToList())
@@ -195,10 +192,10 @@ public abstract class FtpClientBase : IFtpClient
         remoteFile = ToAbsolutePath(remoteFile);
         if (remoteFile.ContainsAny("*", "?")) // wildcard
         {
-            var pathparts = remoteFile.Split("/").TrimOrNull().WhereNotNull().ToList();
-            var remoteFileName = pathparts.PopTail();
+            var pathParts = remoteFile.Split("/").TrimOrNull().WhereNotNull().ToList();
+            var remoteFileName = pathParts.PopTail();
             string path = string.Empty;
-            if (pathparts.Count > 0) path = "/" + string.Join("/", pathparts);
+            if (pathParts.Count > 0) path = "/" + string.Join("/", pathParts);
             foreach (var file in ListFiles(path))
             {
                 if (file.Name.EqualsWildcard(remoteFileName))

@@ -23,13 +23,13 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class FtpClientSFtp : FtpClientBase
 {
-    private SftpClient _client;
+    private SftpClient client;
 
     private SftpClient Client
     {
         get
         {
-            var c = _client;
+            var c = client;
             if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
             return c;
         }
@@ -37,9 +37,9 @@ public class FtpClientSFtp : FtpClientBase
 
     public override string WorkingDirectory => Client.WorkingDirectory;
 
-    public FtpClientSFtp(string host, ushort port, string username, string password) => _client = Ssh.CreateSFtpClient(host, port, username, password, null);
+    public FtpClientSFtp(string host, ushort port, string username, string password) => client = Ssh.CreateSFtpClient(host, port, username, password, null);
 
-    public FtpClientSFtp(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys) => _client = Ssh.CreateSFtpClient(host, port, username, null, privateKeys);
+    public FtpClientSFtp(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys) => client = Ssh.CreateSFtpClient(host, port, username, null, privateKeys);
 
     protected override void GetFile(string remoteFile, Stream localStream) => Client.DownloadFile(remoteFile, localStream);
 
@@ -81,8 +81,8 @@ public class FtpClientSFtp : FtpClientBase
 
     public override void Dispose()
     {
-        var c = _client;
-        _client = null;
+        var c = client;
+        client = null;
 
         if (c == null) return;
         try
