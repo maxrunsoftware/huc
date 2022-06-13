@@ -25,6 +25,7 @@ public class VMwareFolder : VMwareObject
     public string Folder { get; }
     public string Type { get; }
 
+    // ReSharper disable once UnusedParameter.Local
     public VMwareFolder(VMwareClient vmware, JToken obj)
     {
         Name = obj.ToString("name");

@@ -29,7 +29,7 @@ public class VMwareClient : IDisposable
 {
     // https://developer.vmware.com/docs/vsphere-automation/v7.0U1/
 
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private readonly string hostname;
     private readonly string username;
@@ -55,7 +55,7 @@ public class VMwareClient : IDisposable
 
         var clientHandler = new HttpClientHandler();
         clientHandler.ClientCertificateOptions = ClientCertificateOption.Manual;
-        clientHandler.ServerCertificateCustomValidationCallback = (httpRequestMessage, cert, certChain, policyErrors) => { return true; };
+        clientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
         client = new HttpClient(clientHandler);
         Login();
     }
@@ -71,8 +71,8 @@ public class VMwareClient : IDisposable
         {
             query[kvp.Key] = kvp.Value;
         }
-        builder.Query = query.ToString();
-        string url = builder.ToString();
+        builder.Query = query.ToString() ?? string.Empty;
+        var url = builder.ToString();
 
         var message = new HttpRequestMessage(method, url);
         message.Headers.Add(HttpRequestHeader.Authorization.ToString(), "Bearer " + authToken);
@@ -101,13 +101,18 @@ public class VMwareClient : IDisposable
 
                 try
                 {
-                    foreach (var message in obj["value"]?["messages"].OrEmpty())
+                    var tokenValue = obj["value"];
+                    if (tokenValue != null)
                     {
-                        var defaultMessage = message["default_message"]?.ToString().TrimOrNull();
-                        var id = message["id"]?.ToString().TrimOrNull();
-                        if (id != null && message != null) log.Debug(id + "  -->  " + defaultMessage);
-                        else if (id != null) log.Debug(id);
-                        else if (defaultMessage != null) log.Debug(defaultMessage);
+                        foreach (var message in tokenValue["messages"].OrEmpty())
+                        {
+                            if (message == null) continue;
+                            var defaultMessage = message["default_message"]?.ToString().TrimOrNull();
+                            var id = message["id"]?.ToString().TrimOrNull();
+                            if (id != null && defaultMessage != null) log.Debug(id + "  -->  " + defaultMessage);
+                            else if (id != null) log.Debug(id);
+                            else if (defaultMessage != null) log.Debug(defaultMessage);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -141,13 +146,13 @@ public class VMwareClient : IDisposable
         var obj = JObject.Parse(result);
         if (obj.ContainsKey("type"))
         {
-            string type = obj["type"].ToString();
-            if (type.EndsWith("unauthenticated", StringComparison.OrdinalIgnoreCase))
+            var type = obj["type"]?.ToString();
+            if (type != null && type.EndsWith("unauthenticated", StringComparison.OrdinalIgnoreCase))
             {
                 throw new Exception("Invalid host, username, or password");
             }
         }
-        authToken = obj["value"].ToString();
+        authToken = obj["value"]?.ToString();
         log.Debug("Login: " + authToken);
     }
 
@@ -167,10 +172,12 @@ public class VMwareClient : IDisposable
 
     private string Send(HttpRequestMessage message)
     {
-        var response = client.SendAsync(message)?.Result?.Content?.ReadAsStringAsync()?.Result;
+        // ReSharper disable ConstantConditionalAccessQualifier
+        var response = client.SendAsync(message)?.Result?.Content?.ReadAsStringAsync()?.Result.TrimOrNull();
+        // ReSharper restore ConstantConditionalAccessQualifier
         if (response == null) return null;
 
-        log.Debug(message.RequestUri.ToString());
+        log.Debug(message.RequestUri?.ToString());
         log.Debug(FormatJson(response));
         return response;
     }

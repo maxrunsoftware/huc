@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+// ReSharper disable RedundantCast
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -53,7 +54,7 @@ public class VMwareVM : VMwareObject
         public string BackingDeviceAccessType { get; }
         public string BackingType { get; }
         public string BackingIsoFile { get; }
-        public string BackingIsoFileName => BackingIsoFile == null ? null : BackingIsoFile.Split("/").TrimOrNull().WhereNotNull().LastOrDefault();
+        public string BackingIsoFileName => BackingIsoFile?.Split("/").TrimOrNull().WhereNotNull().LastOrDefault();
         public string IdePrimary { get; }
         public string IdeMaster { get; }
         public string SataBus { get; }
@@ -325,10 +326,10 @@ public class VMwareVM : VMwareObject
 
     private static VMwareVM QueryBy(VMwareClient vmware, string fieldName, string fieldValue)
     {
-        var obj = vmware.GetValueArray("/rest/vcenter/vm")
+        var obj = vmware
+            .GetValueArray("/rest/vcenter/vm")
             .OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase)
-            .Where(o => o[fieldName]?.ToString() != null && string.Equals(o[fieldName]?.ToString(), fieldValue, StringComparison.OrdinalIgnoreCase))
-            .FirstOrDefault();
+            .FirstOrDefault(o => o[fieldName]?.ToString() != null && string.Equals(o[fieldName]?.ToString(), fieldValue, StringComparison.OrdinalIgnoreCase));
 
         if (obj == null) return null;
         return new VMwareVM(vmware, obj);

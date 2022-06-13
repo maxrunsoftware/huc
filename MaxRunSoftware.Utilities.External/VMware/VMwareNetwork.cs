@@ -25,6 +25,7 @@ public class VMwareNetwork : VMwareObject
     public string Network { get; }
     public string Type { get; }
 
+    // ReSharper disable once UnusedParameter.Local
     public VMwareNetwork(VMwareClient vmware, JToken obj)
     {
         Name = obj.ToString("name");

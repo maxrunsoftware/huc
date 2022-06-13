@@ -15,6 +15,7 @@
 using System.Net;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace MaxRunSoftware.Utilities;
 
@@ -708,6 +709,7 @@ public static class ExtensionsString
 
     #region TrimOrNull
 
+    [CanBeNull]
     public static string TrimOrNull(this string str)
     {
         if (str == null)

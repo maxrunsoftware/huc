@@ -17,18 +17,16 @@ limitations under the License.
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Text.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public abstract class VMwareObject
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     public JToken QueryValueObjectSafe(VMwareClient vmware, string path)
     {
@@ -59,7 +57,7 @@ public abstract class VMwareObject
     protected PropertyInfo[] GetProperties()
     {
         var list = new List<PropertyInfo>();
-        foreach (var prop in GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+        foreach (var prop in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             if (!prop.CanRead) continue;
             list.Add(prop);
@@ -83,17 +81,17 @@ public abstract class VMwareObject
             {
                 sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
             }
-            else if (val is IEnumerable)
+            else if (val is IEnumerable enumerable)
             {
-                int count = 0;
-                foreach (var item in (IEnumerable)val)
+                var count = 0;
+                foreach (var item in enumerable)
                 {
-                    var vitem = (VMwareObject)item;
-                    var vItemType = vitem.GetType();
+                    var itemVmware = (VMwareObject)item;
+                    var vItemType = itemVmware.GetType();
                     sb.AppendLine("  " + vItemType.NameFormatted() + "[" + count + "]");
                     foreach (var prop in ClassReaderWriter.GetProperties(vItemType, canGet: true, isInstance: true))
                     {
-                        sb.AppendLine("    " + prop.Name + ": " + prop.GetValue(vitem).ToStringGuessFormat());
+                        sb.AppendLine("    " + prop.Name + ": " + prop.GetValue(itemVmware).ToStringGuessFormat());
                     }
                     count++;
                 }

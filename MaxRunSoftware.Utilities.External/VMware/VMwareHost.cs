@@ -28,6 +28,7 @@ public class VMwareHost : VMwareObject
     public HostConnectionState ConnectionState { get; }
     public HostPowerState PowerState { get; }
 
+    // ReSharper disable once UnusedParameter.Local
     public VMwareHost(VMwareClient vmware, JToken obj)
     {
         Name = obj.ToString("name");

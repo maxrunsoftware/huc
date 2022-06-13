@@ -24,6 +24,7 @@ public class VMwareResourcePool : VMwareObject
     public string Name { get; }
     public string ResourcePool { get; }
 
+    // ReSharper disable once UnusedParameter.Local
     public VMwareResourcePool(VMwareClient vmware, JToken obj)
     {
         Name = obj.ToString("name");

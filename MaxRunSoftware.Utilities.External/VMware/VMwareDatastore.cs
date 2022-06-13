@@ -16,6 +16,7 @@ limitations under the License.
 
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+// ReSharper disable RedundantCast
 
 namespace MaxRunSoftware.Utilities.External;
 

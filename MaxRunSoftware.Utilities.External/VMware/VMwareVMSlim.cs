@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
+// ReSharper disable IdentifierTypo
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -92,6 +93,7 @@ public class VMwareVMSlim : VMwareObject
 
     public void DetachISOs(VMwareClient vmware)
     {
+        // ReSharper disable once IdentifierTypo
         var vmfull = VMwareVM.QueryByVM(vmware, VM);
         if (vmfull == null) throw new Exception("Could not find VM: " + VM + "  " + Name); // should not happen
         foreach (var cdrom in vmfull.CDRoms)
@@ -111,6 +113,7 @@ public class VMwareVMSlim : VMwareObject
     public int? CpuCount { get; }
     public VMwareVM.VMPowerState PowerState { get; }
 
+    // ReSharper disable once UnusedParameter.Local
     public VMwareVMSlim(VMwareClient vmware, JToken obj)
     {
         VM = obj["vm"]?.ToString();
@@ -145,11 +148,11 @@ public class VMwareVMSlim : VMwareObject
         public int PercentFreeThreshhold { get; set; }
         public SlimDiskSpace(VMwareClient vmware, JToken obj) : base(vmware, obj) { }
         public IEnumerable<VMwareVM.GuestLocalFilesystem> FileSystemsCrossingThreshold => Filesystems.Where(o => o.PercentFree != null && o.PercentFree.Value <= PercentFreeThreshhold).OrderBy(o => o.Key);
-        public override string ToString() => base.ToString() + "  " + FileSystemsCrossingThreshold.Select(o => "(" + o.PercentFree.Value + "% free) " + o.Key).ToStringDelimited("    ");
+        public override string ToString() => base.ToString() + "  " + FileSystemsCrossingThreshold.Select(o => "(" + (o.PercentFree ?? 0) + "% free) " + o.Key).ToStringDelimited("    ");
     }
     public static IEnumerable<VMwareVMSlim> QueryDiskspace10(VMwareClient vmware) => QueryDiskspace(vmware, 10);
     public static IEnumerable<VMwareVMSlim> QueryDiskspace25(VMwareClient vmware) => QueryDiskspace(vmware, 25);
-    public static IEnumerable<VMwareVMSlim> QueryDiskspace(VMwareClient vmware, int percentFreeThreshhold)
+    public static IEnumerable<VMwareVMSlim> QueryDiskspace(VMwareClient vmware, int percentFreeThreshold)
     {
         var dsobjs = vmware.GetValueArray("/rest/vcenter/vm")
             .Select(o => new SlimDiskSpace(vmware, o))
@@ -164,7 +167,7 @@ public class VMwareVMSlim : VMwareObject
         {
             var dsobj = d[fullvm.VM];
             dsobj.Filesystems = fullvm.GuestLocalFilesystems;
-            dsobj.PercentFreeThreshhold = percentFreeThreshhold;
+            dsobj.PercentFreeThreshhold = percentFreeThreshold;
             if (!dsobj.FileSystemsCrossingThreshold.IsEmpty()) yield return dsobj;
         }
     }
@@ -172,7 +175,7 @@ public class VMwareVMSlim : VMwareObject
     private class SlimIsoFile : VMwareVMSlim
     {
         public IReadOnlyList<VMwareVM.CDROM> CDRoms { get; set; }
-        public int PercentFreeThreshhold { get; set; }
+        //public int PercentFreeThreshold { get; set; }
         public SlimIsoFile(VMwareClient vmware, JToken obj) : base(vmware, obj) { }
         public IEnumerable<string> IsosAttached
         {
