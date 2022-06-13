@@ -25,30 +25,22 @@ public static class ExtensionsString
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The hashcode</returns>
-    public static int GetHashCodeCaseSensitive(this string str)
-    {
-        return str == null ? 0 : StringComparer.Ordinal.GetHashCode(str);
-    }
+    public static int GetHashCodeCaseSensitive(this string str) => str == null ? 0 : StringComparer.Ordinal.GetHashCode(str);
 
     /// <summary>
     /// Gets the OrdinalIgnoreCase hashcode
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The hashcode</returns>
-    public static int GetHashCodeCaseInsensitive(this string str)
-    {
-        return str == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(str);
-    }
+    public static int GetHashCodeCaseInsensitive(this string str) =>  str == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(str);
+    
 
     /// <summary>
     /// Removes the first character from a string if there is one
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The string without the first character</returns>
-    public static string RemoveLeft(this string str)
-    {
-        return RemoveLeft(str, out var c);
-    }
+    public static string RemoveLeft(this string str) => RemoveLeft(str, out _);
 
     /// <summary>
     /// Removes the leftmost character from a string
@@ -102,7 +94,7 @@ public static class ExtensionsString
     /// <returns></returns>
     public static string RemoveRight(this string str)
     {
-        return RemoveRight(str, out var c);
+        return RemoveRight(str, out _);
     }
 
     /// <summary>
@@ -119,23 +111,24 @@ public static class ExtensionsString
             return string.Empty;
         }
 
-        c = str[str.Length - 1];
+        c = str[^1];
         if (str.Length == 1)
         {
             return string.Empty;
         }
 
-        return str.Substring(0, str.Length - 1);
+        //return str.Substring(0, str.Length - 1);
+        return str[..^1];
     }
 
     /// <summary>
-    /// Counts the number of occurances of a specific string
+    /// Counts the number of occurrences of a specific string
     /// </summary>
     /// <param name="str"></param>
     /// <param name="stringToSearchFor"></param>
     /// <param name="comparison"></param>
     /// <returns></returns>
-    public static int CountOccurances(this string str, string stringToSearchFor, StringComparison? comparison = null)
+    public static int CountOccurrences(this string str, string stringToSearchFor, StringComparison? comparison = null)
     {
         str.Remove(stringToSearchFor, out var num, comparison);
         return num;
@@ -158,10 +151,7 @@ public static class ExtensionsString
         return strRemoved;
     }
 
-    public static string Remove(this string str, string toRemove)
-    {
-        return Remove(str, toRemove, out var trash);
-    }
+    public static string Remove(this string str, string toRemove) => Remove(str, toRemove, out _);
 
     public static string Right(this string str, int characterCount)
     {
@@ -282,7 +272,7 @@ public static class ExtensionsString
 
         // https://stackoverflow.com/a/37532157
         var words = Regex.Matches(str, "(^[a-z]+|[A-Z]+(?![a-z])|[A-Z][a-z]+|[0-9]+|[a-z]+)")
-            .OfType<Match>()
+            //.OfType<Match>()
             .Select(m => m.Value)
             .ToArray();
 
@@ -323,22 +313,14 @@ public static class ExtensionsString
 
     public static bool Equals(this string str, string other, StringComparer comparer)
     {
-        IEqualityComparer<string> ec = comparer;
-        if (ec == null)
-        {
-            ec = EqualityComparer<string>.Default;
-        }
+        var ec = comparer ?? (IEqualityComparer<string>)EqualityComparer<string>.Default;
 
         return ec.Equals(str, other);
     }
 
     public static bool Equals(this string str, string[] others, out string match, StringComparer comparer)
     {
-        IEqualityComparer<string> ec = comparer;
-        if (ec == null)
-        {
-            ec = EqualityComparer<string>.Default;
-        }
+        var ec = comparer ?? (IEqualityComparer<string>)EqualityComparer<string>.Default;
 
         foreach (var other in others.OrEmpty())
         {
@@ -389,10 +371,8 @@ public static class ExtensionsString
 
         var isLike = true;
         byte matchCase = 0;
-        char[] filter;
         char[] reversedFilter;
         char[] reversedWord;
-        char[] word;
         var currentPatternStartIndex = 0;
         var lastCheckedHeadIndex = 0;
         var lastCheckedTailIndex = 0;
@@ -404,8 +384,8 @@ public static class ExtensionsString
             return false;
         }
 
-        word = text.ToCharArray();
-        filter = wildcardString.ToCharArray();
+        var word = text.ToCharArray();
+        var filter = wildcardString.ToCharArray();
 
         //Set which case will be used (0 = no wildcards, 1 = only ?, 2 = only *, 3 = both ? and *
         for (var i = 0; i < filter.Length; i++)
@@ -497,7 +477,7 @@ public static class ExtensionsString
                     reversedFilter[i] = filter[filter.Length - (i + 1) - lastCheckedTailIndex];
                 }
 
-                //Cut up the filter into seperate patterns, exclude * as they are not longer needed
+                //Cut up the filter into separate patterns, exclude * as they are not longer needed
                 for (var i = 0; i < reversedFilter.Length; i++)
                 {
                     if (reversedFilter[i] == '*')
@@ -665,12 +645,7 @@ public static class ExtensionsString
 
     #region NewLine
 
-    public static string[] SplitOnNewline(this string str)
-    {
-        return SplitOnNewline(str, StringSplitOptions.None);
-    }
-
-    public static string[] SplitOnNewline(this string str, StringSplitOptions options)
+    public static string[] SplitOnNewline(this string str, StringSplitOptions options = StringSplitOptions.None)
     {
         return str.Split(new[] { Constant.NEWLINE_WINDOWS, Constant.NEWLINE_UNIX, Constant.NEWLINE_MAC }, options);
     }
@@ -679,12 +654,7 @@ public static class ExtensionsString
 
     #region WhiteSpace
 
-    public static string[] SplitOnWhiteSpace(this string str)
-    {
-        return SplitOnWhiteSpace(str, StringSplitOptions.None);
-    }
-
-    public static string[] SplitOnWhiteSpace(this string str, StringSplitOptions options)
+    public static string[] SplitOnWhiteSpace(this string str, StringSplitOptions options = StringSplitOptions.None)
     {
         var list = new List<string>();
 
@@ -701,9 +671,7 @@ public static class ExtensionsString
             if (char.IsWhiteSpace(c))
             {
                 if (sb.Length == 0 && options == StringSplitOptions.RemoveEmptyEntries)
-                {
-                    ;
-                }
+                { }
                 else
                 {
                     list.Add(sb.ToString());
@@ -733,7 +701,7 @@ public static class ExtensionsString
     {
         if (str == null)
         {
-            return str;
+            return null;
         }
 
         str = str.Trim();
@@ -745,29 +713,29 @@ public static class ExtensionsString
         return str;
     }
 
-    public static string[] TrimOrNull(this string[] strs)
+    public static string[] TrimOrNull(this string[] strings)
     {
-        if (strs == null)
+        if (strings == null)
         {
             return null;
         }
 
-        var width = strs.Length;
+        var width = strings.Length;
 
-        var strsNew = new string[width];
+        var stringsNew = new string[width];
 
         for (var i = 0; i < width; i++)
         {
-            strsNew[i] = strs[i].TrimOrNull();
+            stringsNew[i] = strings[i].TrimOrNull();
         }
 
-        return strsNew;
+        return stringsNew;
     }
 
-    public static List<string> TrimOrNull(this List<string> strs)
+    public static List<string> TrimOrNull(this List<string> strings)
     {
-        var l = new List<string>(strs.Count);
-        foreach (var str in strs)
+        var l = new List<string>(strings.Count);
+        foreach (var str in strings)
         {
             l.Add(str.TrimOrNull());
         }
@@ -775,11 +743,11 @@ public static class ExtensionsString
         return l;
     }
 
-    public static IEnumerable<string> TrimOrNull(this IEnumerable<string> strs)
+    public static IEnumerable<string> TrimOrNull(this IEnumerable<string> strings)
     {
-        if (strs != null)
+        if (strings != null)
         {
-            foreach (var str in strs)
+            foreach (var str in strings)
             {
                 yield return str.TrimOrNull();
             }
@@ -869,7 +837,7 @@ public static class ExtensionsString
 
         str = str.Remove(Constant.NEWLINE_WINDOWS, out var cWin);
         str = str.Remove(Constant.NEWLINE_UNIX, out var cUnix);
-        str = str.Remove(Constant.NEWLINE_MAC, out var cMac);
+        str.Remove(Constant.NEWLINE_MAC, out var cMac);
 
         var d = new SortedDictionary<int, List<string>>();
         d.AddToList(cWin, Constant.NEWLINE_WINDOWS);
@@ -930,96 +898,96 @@ public static class ExtensionsString
     /// <summary>
     /// Tries to guess the best type for a group of strings. All strings provided must be convertable for the match to be made
     /// </summary>
-    /// <param name="strs">The strings to guess on</param>
+    /// <param name="strings">The strings to guess on</param>
     /// <returns>The best found Type or string type if a best guess couldn't be found</returns>
-    public static Type GuessType(this IEnumerable<string> strs)
+    public static Type GuessType(this IEnumerable<string> strings)
     {
-        strs.CheckNotNull(nameof(strs));
+        strings.CheckNotNull(nameof(strings));
 
-        var list = strs.TrimOrNull().ToList();
-        var listcount = list.Count;
+        var list = strings.TrimOrNull().ToList();
+        var listCount = list.Count;
 
         list = list.WhereNotNull().ToList();
-        var nullable = listcount != list.Count;
+        var nullable = listCount != list.Count;
         if (list.Count == 0)
         {
             return typeof(string);
         }
 
-        if (list.All(o => Guid.TryParse(o, out var v)))
+        if (list.All(o => Guid.TryParse(o, out _)))
         {
             return nullable ? typeof(Guid?) : typeof(Guid);
         }
 
-        if (list.All(o => o.CountOccurances(".") == 3))
+        if (list.All(o => o.CountOccurrences(".") == 3))
         {
-            if (list.All(o => IPAddress.TryParse(o, out var v)))
+            if (list.All(o => IPAddress.TryParse(o, out _)))
             {
                 return typeof(IPAddress);
             }
         }
 
-        if (list.All(o => o.ToBoolTry(out var v)))
+        if (list.All(o => o.ToBoolTry(out _)))
         {
             return nullable ? typeof(bool?) : typeof(bool);
         }
 
-        if (list.All(o => o.ToByteTry(out var v)))
+        if (list.All(o => o.ToByteTry(out _)))
         {
             return nullable ? typeof(byte?) : typeof(byte);
         }
 
-        if (list.All(o => o.ToSByteTry(out var v)))
+        if (list.All(o => o.ToSByteTry(out _)))
         {
             return nullable ? typeof(sbyte?) : typeof(sbyte);
         }
 
-        if (list.All(o => o.ToShortTry(out var v)))
+        if (list.All(o => o.ToShortTry(out _)))
         {
             return nullable ? typeof(short?) : typeof(short);
         }
 
-        if (list.All(o => o.ToUShortTry(out var v)))
+        if (list.All(o => o.ToUShortTry(out _)))
         {
             return nullable ? typeof(ushort?) : typeof(ushort);
         }
 
-        if (list.All(o => o.ToIntTry(out var v)))
+        if (list.All(o => o.ToIntTry(out _)))
         {
             return nullable ? typeof(int?) : typeof(int);
         }
 
-        if (list.All(o => o.ToUIntTry(out var v)))
+        if (list.All(o => o.ToUIntTry(out _)))
         {
             return nullable ? typeof(uint?) : typeof(uint);
         }
 
-        if (list.All(o => o.ToLongTry(out var v)))
+        if (list.All(o => o.ToLongTry(out _)))
         {
             return nullable ? typeof(long?) : typeof(long);
         }
 
-        if (list.All(o => o.ToULongTry(out var v)))
+        if (list.All(o => o.ToULongTry(out _)))
         {
             return nullable ? typeof(ulong?) : typeof(ulong);
         }
 
-        if (list.All(o => o.ToDecimalTry(out var v)))
+        if (list.All(o => o.ToDecimalTry(out _)))
         {
             return nullable ? typeof(decimal?) : typeof(decimal);
         }
 
-        if (list.All(o => o.ToFloatTry(out var v)))
+        if (list.All(o => o.ToFloatTry(out _)))
         {
             return nullable ? typeof(float?) : typeof(float);
         }
 
-        if (list.All(o => o.ToDoubleTry(out var v)))
+        if (list.All(o => o.ToDoubleTry(out _)))
         {
             return nullable ? typeof(double?) : typeof(double);
         }
 
-        if (list.All(o => BigInteger.TryParse(o, out var v)))
+        if (list.All(o => BigInteger.TryParse(o, out _)))
         {
             return nullable ? typeof(BigInteger?) : typeof(BigInteger);
         }
@@ -1029,12 +997,12 @@ public static class ExtensionsString
             return nullable ? typeof(char?) : typeof(char);
         }
 
-        if (list.All(o => DateTime.TryParse(o, out var v)))
+        if (list.All(o => DateTime.TryParse(o, out _)))
         {
             return nullable ? typeof(DateTime?) : typeof(DateTime);
         }
 
-        if (list.All(o => Uri.TryCreate(o, UriKind.Absolute, out var vUri)))
+        if (list.All(o => Uri.TryCreate(o, UriKind.Absolute, out _)))
         {
             return typeof(Uri);
         }
@@ -1045,9 +1013,9 @@ public static class ExtensionsString
     #region SplitDelimited
 
     /// <summary>http://stackoverflow.com/a/3776617</summary>
-    private static readonly Regex SplitDelimitedCommaRegex = new("(?:^|,)(\"(?:[^\"]+|\"\")*\"|[^,]*)", RegexOptions.Compiled);
+    private static readonly Regex splitDelimitedCommaRegex = new("(?:^|,)(\"(?:[^\"]+|\"\")*\"|[^,]*)", RegexOptions.Compiled);
 
-    private static readonly string[] SplitDelimitedTabArray = { "\t" };
+    private static readonly string[] splitDelimitedTabArray = { "\t" };
 
     public static List<string[]> SplitDelimitedComma(this string text)
     {
@@ -1061,7 +1029,7 @@ public static class ExtensionsString
 
         foreach (var line in lines)
         {
-            var matches = SplitDelimitedCommaRegex.Matches(line);
+            var matches = splitDelimitedCommaRegex.Matches(line);
             var items = new List<string>(matches.Count);
             foreach (Match match in matches)
             {
@@ -1087,7 +1055,7 @@ public static class ExtensionsString
 
         foreach (var line in lines)
         {
-            var matches = line.Split(SplitDelimitedTabArray, StringSplitOptions.None);
+            var matches = line.Split(splitDelimitedTabArray, StringSplitOptions.None);
             var items = new List<string>(matches.Length);
             foreach (var match in matches)
             {

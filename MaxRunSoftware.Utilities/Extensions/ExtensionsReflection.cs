@@ -20,7 +20,7 @@ public static class ExtensionsReflection
 {
     public static string GetFileVersion(this Assembly assembly)
     {
-        return FileVersionInfo.GetVersionInfo(assembly.Location)?.FileVersion;
+        return FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
     }
 
     public static string GetVersion(this Assembly assembly)

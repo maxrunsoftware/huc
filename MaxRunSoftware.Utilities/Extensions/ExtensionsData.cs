@@ -78,16 +78,9 @@ public static class ExtensionsData
 
     public static IDataParameter SetParameterValue(this IDbCommand command, int parameterIndex, object value)
     {
-        var p = (IDbDataParameter)command.Parameters[parameterIndex];
-        if (value == null)
-        {
-            p.Value = DBNull.Value;
-        }
-        else
-        {
-            p.Value = value;
-        }
-
+        var o = command.Parameters[parameterIndex];
+        if (o is not IDbDataParameter p) return null;
+        p.Value = value ?? DBNull.Value;
         return p;
     }
 
@@ -192,7 +185,7 @@ public static class ExtensionsData
     public static object[] GetValues(this IDataReader dataReader, int fieldCount)
     {
         var objs = new object[fieldCount];
-        var instances = dataReader.GetValues(objs);
+        dataReader.GetValues(objs);
         return objs;
     }
 
@@ -298,7 +291,7 @@ public static class ExtensionsData
 
                 sb.Append(escape);
                 var cell = array[i];
-                if (cell != null && cell.IndexOf("\"") >= 0)
+                if (cell != null && cell.IndexOf("\"", StringComparison.Ordinal) >= 0)
                 {
                     cell = cell.Replace("\"", "\"\"");
                 }

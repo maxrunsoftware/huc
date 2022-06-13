@@ -303,15 +303,8 @@ public static class ExtensionsCheck
         return new ArgumentOutOfRangeException(argumentName, $"Argument {argumentName} with value {argument} cannot be negative.");
     }
 
-    public static byte CheckNotNegative(this byte argument, string argumentName)
-    {
-        if (argument < Constant.ZERO_BYTE)
-        {
-            throw CheckNotNegativeException(argument, argumentName);
-        }
-
-        return argument;
-    }
+    // ReSharper disable once UnusedParameter.Global
+    public static byte CheckNotNegative(this byte argument, string argumentName) => argument;
 
     public static decimal CheckNotNegative(this decimal argument, string argumentName)
     {
@@ -701,13 +694,10 @@ public static class ExtensionsCheck
     {
         if (argument == null)
         {
-            return argument;
+            return null;
         }
 
-        if (comparer == null)
-        {
-            comparer = EqualityComparer<T>.Default;
-        }
+        comparer ??= EqualityComparer<T>.Default;
 
         for (var i = 0; i < argument.Length; i++)
         {
@@ -724,7 +714,7 @@ public static class ExtensionsCheck
     {
         if (argument == null)
         {
-            return argument;
+            return null;
         }
 
         for (var i = 0; i < argument.Length; i++)
@@ -753,13 +743,10 @@ public static class ExtensionsCheck
     {
         if (argument == null)
         {
-            return argument;
+            return null;
         }
 
-        if (comparer == null)
-        {
-            comparer = EqualityComparer<T>.Default;
-        }
+        comparer ??= EqualityComparer<T>.Default;
 
         for (var i = 0; i < argument.Length; i++)
         {
@@ -778,16 +765,15 @@ public static class ExtensionsCheck
     {
         if (argument == null)
         {
-            return argument;
+            return null;
         }
 
         var hashSet = new HashSet<char>(validCharacters);
         for (var i = 0; i < argument.Length; i++)
         {
             var a = argument[i].ToCharArray();
-            for (var j = 0; j < a.Length; j++)
+            foreach (var c in a)
             {
-                var c = a[j];
                 if (!hashSet.Contains(c))
                 {
                     var invalidCharsStr = new string(validCharacters);

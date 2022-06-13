@@ -65,7 +65,7 @@ public static class ExtensionsStringConversion
 
     public static bool? ToBoolNullable(this string str)
     {
-        return str == null ? null : str.ToBool();
+        return str?.ToBool();
     }
 
     public static bool ToBoolNullableTry(this string str, out bool? output)
@@ -97,7 +97,7 @@ public static class ExtensionsStringConversion
 
     public static byte? ToByteNullable(this string str)
     {
-        return str == null ? null : str.ToByte();
+        return str?.ToByte();
     }
 
     public static bool ToByteNullableTry(this string str, out byte? output)
@@ -129,7 +129,7 @@ public static class ExtensionsStringConversion
 
     public static sbyte? ToSByteNullable(this string str)
     {
-        return str == null ? null : str.ToSByte();
+        return str?.ToSByte();
     }
 
     public static bool ToSByteNullableTry(this string str, out sbyte? output)
@@ -161,7 +161,7 @@ public static class ExtensionsStringConversion
 
     public static char? ToCharNullable(this string str)
     {
-        return str == null ? null : str.ToChar();
+        return str?.ToChar();
     }
 
     public static bool ToCharNullableTry(this string str, out char? output)
@@ -193,7 +193,7 @@ public static class ExtensionsStringConversion
 
     public static short? ToShortNullable(this string str)
     {
-        return str == null ? null : str.ToShort();
+        return str?.ToShort();
     }
 
     public static bool ToShortNullableTry(this string str, out short? output)
@@ -225,7 +225,7 @@ public static class ExtensionsStringConversion
 
     public static ushort? ToUShortNullable(this string str)
     {
-        return str == null ? null : str.ToUShort();
+        return str?.ToUShort();
     }
 
     public static bool ToUShortNullableTry(this string str, out ushort? output)
@@ -237,7 +237,7 @@ public static class ExtensionsStringConversion
         }
 
         var r = str.ToUShortTry(out var o);
-        output = r ? o : (ushort?)null;
+        output = r ? o : null;
         return r;
     }
 
@@ -257,7 +257,7 @@ public static class ExtensionsStringConversion
 
     public static int? ToIntNullable(this string str)
     {
-        return str == null ? null : (int?)str.ToInt();
+        return str?.ToInt();
     }
 
     public static bool ToIntNullableTry(this string str, out int? output)
@@ -269,7 +269,7 @@ public static class ExtensionsStringConversion
         }
 
         var r = str.ToIntTry(out var o);
-        output = r ? o : (int?)null;
+        output = r ? o : null;
         return r;
     }
 
@@ -289,7 +289,7 @@ public static class ExtensionsStringConversion
 
     public static uint? ToUIntNullable(this string str)
     {
-        return str == null ? null : (uint?)str.ToUInt();
+        return str?.ToUInt();
     }
 
     public static bool ToUIntNullableTry(this string str, out uint? output)
@@ -301,7 +301,7 @@ public static class ExtensionsStringConversion
         }
 
         var r = str.ToUIntTry(out var o);
-        output = r ? o : (uint?)null;
+        output = r ? o : null;
         return r;
     }
 
@@ -321,7 +321,7 @@ public static class ExtensionsStringConversion
 
     public static long? ToLongNullable(this string str)
     {
-        return str == null ? null : (long?)str.ToLong();
+        return str?.ToLong();
     }
 
     public static bool ToLongNullableTry(this string str, out long? output)
@@ -333,7 +333,7 @@ public static class ExtensionsStringConversion
         }
 
         var r = str.ToLongTry(out var o);
-        output = r ? o : (long?)null;
+        output = r ? o : null;
         return r;
     }
 
@@ -353,7 +353,7 @@ public static class ExtensionsStringConversion
 
     public static ulong? ToULongNullable(this string str)
     {
-        return str == null ? null : (ulong?)str.ToULong();
+        return str?.ToULong();
     }
 
     public static bool ToULongNullableTry(this string str, out ulong? output)
@@ -365,7 +365,7 @@ public static class ExtensionsStringConversion
         }
 
         var r = str.ToULongTry(out var o);
-        output = r ? o : (ulong?)null;
+        output = r ? o : null;
         return r;
     }
 
@@ -385,7 +385,7 @@ public static class ExtensionsStringConversion
 
     public static float? ToFloatNullable(this string str)
     {
-        return str == null ? null : (float?)str.ToFloat();
+        return str?.ToFloat();
     }
 
     public static bool ToFloatNullableTry(this string str, out float? output)
@@ -397,7 +397,7 @@ public static class ExtensionsStringConversion
         }
 
         var r = str.ToFloatTry(out var o);
-        output = r ? o : (float?)null;
+        output = r ? o : null;
         return r;
     }
 
@@ -417,7 +417,7 @@ public static class ExtensionsStringConversion
 
     public static double? ToDoubleNullable(this string str)
     {
-        return str == null ? null : str.ToDouble();
+        return str?.ToDouble();
     }
 
     public static bool ToDoubleNullableTry(this string str, out double? output)
@@ -449,7 +449,7 @@ public static class ExtensionsStringConversion
 
     public static decimal? ToDecimalNullable(this string str)
     {
-        return str == null ? null : str.ToDecimal();
+        return str?.ToDecimal();
     }
 
     public static bool ToDecimalNullableTry(this string str, out decimal? output)
@@ -481,7 +481,7 @@ public static class ExtensionsStringConversion
 
     public static DateTime? ToDateTimeNullable(this string str)
     {
-        return str == null ? null : str.ToDateTime();
+        return str?.ToDateTime();
     }
 
     public static bool ToDateTimeNullableTry(this string str, out DateTime? output)
@@ -493,7 +493,7 @@ public static class ExtensionsStringConversion
         }
 
         var r = str.ToDateTimeTry(out var o);
-        output = r ? o : (DateTime?)null;
+        output = r ? o : null;
         return r;
     }
 
@@ -513,7 +513,7 @@ public static class ExtensionsStringConversion
 
     public static Guid? ToGuidNullable(this string str)
     {
-        return str == null ? null : (Guid?)str.ToGuid();
+        return str?.ToGuid();
     }
 
     public static bool ToGuidNullableTry(this string str, out Guid? output)
@@ -525,7 +525,7 @@ public static class ExtensionsStringConversion
         }
 
         var r = str.ToGuidTry(out var o);
-        output = r ? o : (Guid?)null;
+        output = r ? o : null;
         return r;
     }
 

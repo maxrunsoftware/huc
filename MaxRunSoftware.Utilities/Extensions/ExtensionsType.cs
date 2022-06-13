@@ -65,9 +65,10 @@ public static class ExtensionsType
         // https://stackoverflow.com/a/25287378
         if (type.IsGenericType)
         {
+            var name = type.FullName ?? type.Name;
             return string.Format(
                 "{0}<{1}>",
-                type.FullName.Substring(0, type.FullName.LastIndexOf("`", StringComparison.InvariantCulture)),
+                name.Substring(0, name.LastIndexOf("`", StringComparison.InvariantCulture)),
                 string.Join(", ", type.GetGenericArguments().Select(FullNameFormatted)));
         }
 
@@ -128,102 +129,54 @@ public static class ExtensionsType
 
     #region EqualsAny
 
-    public static bool Equals<T1>(this Type type)
-    {
-        return typeof(T1).Equals(type);
-    }
+    public static bool Equals<T1>(this Type type) => typeof(T1) == type;
 
-    public static bool Equals<T1, T2>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type);
-    }
+    public static bool Equals<T1, T2>(this Type type) => typeof(T1) == type || typeof(T2) == type;
 
-    public static bool Equals<T1, T2, T3>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type;
 
-    public static bool Equals<T1, T2, T3, T4>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type) || typeof(T9).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type) || typeof(T9).Equals(type) || typeof(T10).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type) || typeof(T9).Equals(type) || typeof(T10).Equals(type) || typeof(T11).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type) || typeof(T9).Equals(type) || typeof(T10).Equals(type) || typeof(T11).Equals(type) || typeof(T12).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type) || typeof(T9).Equals(type) || typeof(T10).Equals(type) || typeof(T11).Equals(type) || typeof(T12).Equals(type) || typeof(T13).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type) || typeof(T9).Equals(type) || typeof(T10).Equals(type) || typeof(T11).Equals(type) || typeof(T12).Equals(type) || typeof(T13).Equals(type) || typeof(T14).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type) || typeof(T9).Equals(type) || typeof(T10).Equals(type) || typeof(T11).Equals(type) || typeof(T12).Equals(type) || typeof(T13).Equals(type) || typeof(T14).Equals(type) || typeof(T15).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Type type)
-    {
-        return typeof(T1).Equals(type) || typeof(T2).Equals(type) || typeof(T3).Equals(type) || typeof(T4).Equals(type) || typeof(T5).Equals(type) || typeof(T6).Equals(type) || typeof(T7).Equals(type) || typeof(T8).Equals(type) || typeof(T9).Equals(type) || typeof(T10).Equals(type) || typeof(T11).Equals(type) || typeof(T12).Equals(type) || typeof(T13).Equals(type) || typeof(T14).Equals(type) || typeof(T15).Equals(type) || typeof(T16).Equals(type);
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type || typeof(T16) == type;
 
     #endregion EqualsAny
 
     #region DefaultValue
 
-    private static readonly IBucketReadOnly<Type, object> GetDefaultValueCache = new DefaultValueCache();
+    private static readonly IBucketReadOnly<Type, object> getDefaultValueCache = new DefaultValueCache();
 
     private sealed class DefaultValueCache : IBucketReadOnly<Type, object>
     {
-        private readonly IBucketReadOnly<Type, object> bucket = new BucketCacheThreadSafeCopyOnWrite<Type, object>(type => Activator.CreateInstance(type));
+        private readonly IBucketReadOnly<Type, object> bucket = new BucketCacheThreadSafeCopyOnWrite<Type, object>(Activator.CreateInstance);
         public IEnumerable<Type> Keys => bucket.Keys;
         public object this[Type key] => key == null ? null : key.IsValueType ? bucket[key] : null;
     }
 
     public static object GetDefaultValue(this Type type)
     {
-        return GetDefaultValueCache[type];
+        return getDefaultValueCache[type];
     }
 
     public static object GetDefaultValue2(this Type type)

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Globalization;
 using System.Net;
 using System.Security;
 
@@ -33,17 +34,17 @@ public static class ExtensionsToString
 
     public static string ToStringPadded(this decimal value)
     {
-        return value.ToString().PadLeft(decimal.MaxValue.ToString().Length, '0');
+        return value.ToString(CultureInfo.InvariantCulture).PadLeft(decimal.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
     }
 
     public static string ToStringPadded(this double value)
     {
-        return value.ToString().PadLeft(double.MaxValue.ToString().Length, '0');
+        return value.ToString(CultureInfo.InvariantCulture).PadLeft(double.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
     }
 
     public static string ToStringPadded(this float value)
     {
-        return value.ToString().PadLeft(float.MaxValue.ToString().Length, '0');
+        return value.ToString(CultureInfo.InvariantCulture).PadLeft(float.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
     }
 
     public static string ToStringPadded(this int value)
@@ -82,32 +83,32 @@ public static class ExtensionsToString
 
     public static string ToStringCommas(this int value)
     {
-        return string.Format("{0:n0}", value);
+        return $"{value:n0}";
     }
 
     public static string ToStringCommas(this uint value)
     {
-        return string.Format("{0:n0}", value);
+        return $"{value:n0}";
     }
 
     public static string ToStringCommas(this long value)
     {
-        return string.Format("{0:n0}", value);
+        return $"{value:n0}";
     }
 
     public static string ToStringCommas(this ulong value)
     {
-        return string.Format("{0:n0}", value);
+        return $"{value:n0}";
     }
 
     public static string ToStringCommas(this short value)
     {
-        return string.Format("{0:n0}", value);
+        return $"{value:n0}";
     }
 
     public static string ToStringCommas(this ushort value)
     {
-        return string.Format("{0:n0}", value);
+        return $"{value:n0}";
     }
 
     #endregion ToStringCommas
@@ -198,29 +199,9 @@ public static class ExtensionsToString
             t = underlyingType;
         }
 
-        if (t == typeof(string))
-        {
-            return (string)obj;
-        }
-
-        if (t == typeof(DateTime))
-        {
-            return ((DateTime)obj).ToStringYYYYMMDDHHMMSS();
-        }
-
         if (t == typeof(DateTime?))
         {
             return ((DateTime?)obj).Value.ToStringYYYYMMDDHHMMSS();
-        }
-
-        if (t == typeof(byte[]))
-        {
-            return "0x" + Util.Base16((byte[])obj);
-        }
-
-        if (t == typeof(Type))
-        {
-            return ((Type)obj).FullNameFormatted();
         }
 
         if (obj is IEnumerable enumerable)
@@ -239,7 +220,7 @@ public static class ExtensionsToString
         }
     }
 
-    public static string ToStringGenerated(this object obj, BindingFlags flags)
+    public static string ToStringGenerated(this object obj, BindingFlags flags = BindingFlags.Instance | BindingFlags.Public)
     {
         // TODO: Can add performance improvements if needed
 
@@ -250,11 +231,6 @@ public static class ExtensionsToString
         var list = new List<string>();
         foreach (var prop in t.GetProperties(flags))
         {
-            if (prop == null)
-            {
-                continue;
-            }
-
             if (!prop.CanRead)
             {
                 continue;
@@ -275,42 +251,19 @@ public static class ExtensionsToString
         return sb.ToString();
     }
 
-    public static string ToStringGenerated(this object obj)
-    {
-        return ToStringGenerated(obj, BindingFlags.Instance | BindingFlags.Public);
-    }
+    public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter) => string.Join(delimiter, enumerable);
 
-    public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter)
-    {
-        return string.Join(delimiter, enumerable);
-    }
+    public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter) => enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);
 
-    public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter)
-    {
-        return enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);
-    }
+    public static string ToStringInsecure(this SecureString secureString) => new NetworkCredential("", secureString).Password;
 
-    public static string ToStringInsecure(this SecureString secureString)
-    {
-        return new NetworkCredential("", secureString).Password;
-    }
+    public static string ToStringTotalSeconds(this TimeSpan timeSpan, int numberOfDecimalDigits = 0) => timeSpan.TotalSeconds.ToString(MidpointRounding.AwayFromZero, Math.Max(0, numberOfDecimalDigits));
 
-    public static string ToStringTotalSeconds(this TimeSpan timeSpan, int numberOfDecimalDigits = 0)
-    {
-        return timeSpan.TotalSeconds.ToString(MidpointRounding.AwayFromZero, Math.Max(0, numberOfDecimalDigits));
-    }
+    private static readonly string[] toStringBase16Cache = Enumerable.Range(0, 256).Select(o => BitConverter.ToString(new[] { (byte)o })).ToArray();
 
-    private static readonly string[] ToStringBase16Cache = Enumerable.Range(0, 256).Select(o => BitConverter.ToString(new[] { (byte)o })).ToArray();
+    public static string ToStringBase16(this byte b) => toStringBase16Cache[b];
 
-    public static string ToStringBase16(this byte b)
-    {
-        return ToStringBase16Cache[b];
-    }
+    private static readonly string[] toStringBase64Cache = Enumerable.Range(0, 256).Select(o => Convert.ToBase64String(new[] { (byte)o }).Substring(0, 2)).ToArray();
 
-    private static readonly string[] ToStringBase64Cache = Enumerable.Range(0, 256).Select(o => Convert.ToBase64String(new[] { (byte)o }).Substring(0, 2)).ToArray();
-
-    public static string ToStringBase64(this byte b)
-    {
-        return ToStringBase64Cache[b];
-    }
+    public static string ToStringBase64(this byte b) => toStringBase64Cache[b];
 }

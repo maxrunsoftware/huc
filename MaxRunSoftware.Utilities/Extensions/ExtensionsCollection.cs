@@ -53,19 +53,20 @@ public static class ExtensionsCollection
 
     public static bool IsEmpty<T>(this IEnumerable<T> enumerable)
     {
-        if (enumerable is IReadOnlyCollection<T>)
+        if (enumerable is IReadOnlyCollection<T> readOnlyCollection)
         {
-            return ((IReadOnlyCollection<T>)enumerable).Count < 1;
+            return readOnlyCollection.Count < 1;
         }
 
-        if (enumerable is ICollection<T>)
+        if (enumerable is ICollection<T> collection)
         {
-            return ((ICollection<T>)enumerable).Count < 1;
+            return collection.Count < 1;
         }
 
-        if (enumerable is Array)
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (enumerable is Array array)
         {
-            return ((Array)enumerable).Length < 1;
+            return array.Length < 1;
         }
 
         return !enumerable.Any();
@@ -235,9 +236,8 @@ public static class ExtensionsCollection
         }
 
         var size = 0;
-        for (var i = 0; i < array.Length; i++)
+        foreach (var s in array)
         {
-            var s = array[i];
             if (s == null)
             {
                 size = size + lengthOfNull;
@@ -329,7 +329,6 @@ public static class ExtensionsCollection
 
     public static T[,] InsertRow<T>(this T[,] array, int index, T[] values)
     {
-        var lenRows = array.CheckNotNull(nameof(array)).GetLength(0);
         var lenColumns = array.GetLength(1);
 
         if (values.Length != lenColumns)
@@ -340,7 +339,7 @@ public static class ExtensionsCollection
         var list = array.ToList(1);
         list.Insert(index, values);
 
-        lenRows = list.Count;
+        var lenRows = list.Count;
         var newArray = new T[lenRows, lenColumns];
 
         for (var i = 0; i < lenRows; i++)
@@ -630,10 +629,7 @@ public static class ExtensionsCollection
             return false;
         }
 
-        if (comparer == null)
-        {
-            comparer = EqualityComparer<T>.Default;
-        }
+        comparer ??= EqualityComparer<T>.Default;
 
         return comparer.Equals(item1, item2);
     }
@@ -672,10 +668,7 @@ public static class ExtensionsCollection
             return false;
         }
 
-        if (comparer == null)
-        {
-            comparer = EqualityComparer<T>.Default;
-        }
+        comparer ??= EqualityComparer<T>.Default;
 
         return comparer.Equals(o, item);
     }
@@ -925,12 +918,12 @@ public static class ExtensionsCollection
 
     public static bool ContainsOnly<T>(this IEnumerable<T> enumerable, ICollection<T> availableItems)
     {
-        return enumerable.All(o => availableItems.Contains(o));
+        return enumerable.All(availableItems.Contains);
     }
 
     public static bool ContainsOnly<T>(this IEnumerable<T> enumerable, Func<T, bool> contains)
     {
-        return enumerable.All(o => contains(o));
+        return enumerable.All(contains);
     }
 
     #endregion Contains
@@ -1204,8 +1197,8 @@ public static class ExtensionsCollection
 
     public static T GetAtIndexOrDefault<T>(this IEnumerable<T> enumerable, int index, T defaultValue)
     {
-        enumerable.CheckNotNull(nameof(enumerable));
-
+        if (enumerable == null) return defaultValue;
+        
         if (index < 0)
         {
             return defaultValue;
@@ -1241,23 +1234,16 @@ public static class ExtensionsCollection
             return null;
         }
 
-        var newArraySize = 0;
-        for (var i = 0; i < array.Length; i++)
-        {
-            if (array[i] != null)
-            {
-                newArraySize++;
-            }
-        }
+        var newArraySize = array.Count(t => t != null);
 
         var newArray = new T[newArraySize];
 
         newArraySize = 0;
-        for (var i = 0; i < array.Length; i++)
+        foreach (var t in array)
         {
-            if (array[i] != null)
+            if (t != null)
             {
-                newArray[newArraySize++] = array[i];
+                newArray[newArraySize++] = t;
             }
         }
 
@@ -1282,23 +1268,16 @@ public static class ExtensionsCollection
             return null;
         }
 
-        var newArraySize = 0;
-        for (var i = 0; i < array.Length; i++)
-        {
-            if (array[i] != null)
-            {
-                newArraySize++;
-            }
-        }
+        var newArraySize = array.Count(t => t != null);
 
         var newArray = new T?[newArraySize];
 
         newArraySize = 0;
-        for (var i = 0; i < array.Length; i++)
+        foreach (var t in array)
         {
-            if (array[i] != null)
+            if (t != null)
             {
-                newArray[newArraySize++] = array[i];
+                newArray[newArraySize++] = t;
             }
         }
 
@@ -1353,121 +1332,38 @@ public static class ExtensionsCollection
 
     #region Dictionary
 
-    public static ReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
-    {
-        return new ReadOnlyDictionary<TKey, TValue>(dictionary);
-    }
+    public static ReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) => new ReadOnlyDictionary<TKey, TValue>(dictionary);
 
-    public static V GetValueNullable<K, V>(this IDictionary<K, V> dictionary, K key) where V : class
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : class => dictionary.TryGetValue(key, out var value) ? value : null;
 
-        return value;
-    }
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue?> dictionary, TKey key) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value : null;
 
-    public static V? GetValueNullable<K, V>(this IDictionary<K, V?> dictionary, K key) where V : struct
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue[]> dictionary, TKey key, int index) where TValue : class => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
 
-        return value;
-    }
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue?[]> dictionary, TKey key, int index) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
 
-    public static V GetValueNullable<K, V>(this IDictionary<K, V[]> dictionary, K key, int index) where V : class
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, IList<TValue>> dictionary, TKey key, int index) where TValue : class => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
 
-        return value?.GetAtIndexOrDefault(index);
-    }
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, IList<TValue?>> dictionary, TKey key, int index) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
 
-    public static V? GetValueNullable<K, V>(this IDictionary<K, V?[]> dictionary, K key, int index) where V : struct
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, int index) where TValue : class => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
 
-        return value?.GetAtIndexOrDefault(index);
-    }
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, List<TValue?>> dictionary, TKey key, int index) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
 
-    public static V GetValueNullable<K, V>(this IDictionary<K, IList<V>> dictionary, K key, int index) where V : class
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, IReadOnlyList<TValue>> dictionary, TKey key, int index) where TValue : class => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
 
-        return value?.GetAtIndexOrDefault(index);
-    }
-
-    public static V? GetValueNullable<K, V>(this IDictionary<K, IList<V?>> dictionary, K key, int index) where V : struct
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
-
-        return value?.GetAtIndexOrDefault(index);
-    }
-
-    public static V GetValueNullable<K, V>(this IDictionary<K, List<V>> dictionary, K key, int index) where V : class
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
-
-        return value?.GetAtIndexOrDefault(index);
-    }
-
-    public static V? GetValueNullable<K, V>(this IDictionary<K, List<V?>> dictionary, K key, int index) where V : struct
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
-
-        return value?.GetAtIndexOrDefault(index);
-    }
-
-    public static V GetValueNullable<K, V>(this IDictionary<K, IReadOnlyList<V>> dictionary, K key, int index) where V : class
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
-
-        return value?.GetAtIndexOrDefault(index);
-    }
-
-    public static V? GetValueNullable<K, V>(this IDictionary<K, IReadOnlyList<V?>> dictionary, K key, int index) where V : struct
-    {
-        if (!dictionary.TryGetValue(key, out var value))
-        {
-            value = null;
-        }
-
-        return value?.GetAtIndexOrDefault(index);
-    }
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, IReadOnlyList<TValue?>> dictionary, TKey key, int index) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
 
     /// <summary>
     /// Adds an item to a dictionary list, and creates that list if it doesn't already exist.
     /// </summary>
-    /// <typeparam name="K">K</typeparam>
-    /// <typeparam name="V">V</typeparam>
+    /// <typeparam name="TKey">K</typeparam>
+    /// <typeparam name="TValue">V</typeparam>
     /// <param name="dictionary">Dictionary</param>
     /// <param name="key">Key</param>
     /// <param name="values">Values</param>
     /// <returns>True if a new list was created, otherwise false</returns>
-    public static bool AddToList<K, V>(this IDictionary<K, List<V>> dictionary, K key, params V[] values)
+    public static bool AddToList<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, params TValue[] values)
     {
         if (values == null || values.Length < 1)
         {
@@ -1477,7 +1373,7 @@ public static class ExtensionsCollection
         var listCreated = false;
         if (!dictionary.TryGetValue(key, out var list))
         {
-            list = new List<V>();
+            list = new List<TValue>();
             dictionary.Add(key, list);
             listCreated = true;
         }
@@ -1490,17 +1386,17 @@ public static class ExtensionsCollection
         return listCreated;
     }
 
-    public static bool AddToList<K, V>(this IDictionary<K, List<V>> dictionary, K key, IEnumerable<V> values)
+    public static bool AddToList<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, IEnumerable<TValue> values)
     {
         return AddToList(dictionary, key, values.ToArray());
     }
 
-    public static void AddRange<K, V>(this IDictionary<K, V> dictionary, IEnumerable<K> keys, V value)
+    public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IEnumerable<TKey> keys, TValue value)
     {
         keys.ForEach(o => dictionary.Add(o, value));
     }
 
-    public static void AddRange<K, V>(this IDictionary<K, V> dictionary, V value, params K[] keys)
+    public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TValue value, params TKey[] keys)
     {
         keys.ForEach(o => dictionary.Add(o, value));
     }

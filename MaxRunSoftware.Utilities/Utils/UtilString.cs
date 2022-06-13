@@ -53,7 +53,7 @@ public static partial class Util
             return nullable ? typeof(Guid?) : typeof(Guid);
         }
 
-        if (list.All(o => o.CountOccurances(".") == 3))
+        if (list.All(o => o.CountOccurrences(".") == 3))
         {
             if (list.All(o => IPAddress.TryParse(o, out var v)))
             {

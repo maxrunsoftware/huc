@@ -206,14 +206,14 @@ public static class ExtensionsByte
     {
         using (var stream = new MemoryStream())
         {
-            using (var gstream = new GZipStream(stream, compressionLevel))
+            using (var gZipStream = new GZipStream(stream, compressionLevel))
             {
-                gstream.Write(data, 0, data.Length);
+                gZipStream.Write(data, 0, data.Length);
 
-                gstream.Flush();
+                gZipStream.Flush();
                 stream.Flush();
 
-                gstream.Close();
+                gZipStream.Close();
                 stream.Close();
 
                 return stream.ToArray();
@@ -230,11 +230,11 @@ public static class ExtensionsByte
     {
         using (var stream = new MemoryStream(data))
         {
-            using (var gstream = new GZipStream(stream, CompressionMode.Decompress))
+            using (var gZipStream = new GZipStream(stream, CompressionMode.Decompress))
             {
                 using (var stream2 = new MemoryStream())
                 {
-                    gstream.CopyTo(stream2);
+                    gZipStream.CopyTo(stream2);
                     stream2.Flush();
                     stream2.Close();
                     return stream2.ToArray();

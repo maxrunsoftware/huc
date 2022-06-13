@@ -22,16 +22,19 @@ public static class ExtensionsNet
 {
     public static Attachment AddAttachment(this MailMessage mailMessage, string fileName)
     {
-        var attachment = new Attachment(fileName, MediaTypeNames.Application.Octet);
-
-        var disposition = attachment.ContentDisposition;
         var fi = new FileInfo(fileName);
-        disposition.CreationDate = fi.CreationTime;
-        disposition.ModificationDate = fi.LastWriteTime;
-        disposition.ReadDate = fi.LastAccessTime;
-        disposition.FileName = fi.Name;
-        disposition.Size = fi.Length;
-        disposition.DispositionType = DispositionTypeNames.Attachment;
+        var attachment = new Attachment(fileName, MediaTypeNames.Application.Octet);
+        var disposition = attachment.ContentDisposition;
+        if (disposition != null)
+        {
+            disposition.CreationDate = fi.CreationTime;
+            disposition.ModificationDate = fi.LastWriteTime;
+            disposition.ReadDate = fi.LastAccessTime;
+            disposition.FileName = fi.Name;
+            disposition.Size = fi.Length;
+            disposition.DispositionType = DispositionTypeNames.Attachment;
+        }
+
         mailMessage.Attachments.Add(attachment);
 
         return attachment;
@@ -39,7 +42,7 @@ public static class ExtensionsNet
 
     public static uint ToUInt(this IPAddress ipAddress)
     {
-        var ip = ipAddress.ToString().Split('.').Select(s => byte.Parse(s)).ToArray();
+        var ip = ipAddress.ToString().Split('.').Select(byte.Parse).ToArray();
         if (BitConverter.IsLittleEndian)
         {
             Array.Reverse(ip);

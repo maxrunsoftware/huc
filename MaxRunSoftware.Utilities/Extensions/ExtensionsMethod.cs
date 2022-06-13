@@ -196,87 +196,83 @@ public static class ExtensionsMethod
     /// <returns>The fully qualified name for <paramref name="type" /></returns>
     public static string GetQualifiedTypeName(Type type)
     {
-        var n = type.Name;
-        if (n != null)
+        switch (type.Name.ToUpperInvariant())
         {
-            switch (n.ToUpperInvariant())
-            {
-                case "SYSTEM.BOOLEAN":
-                case "BOOLEAN":
-                case "BOOL":
-                    return "bool";
+            case "SYSTEM.BOOLEAN":
+            case "BOOLEAN":
+            case "BOOL":
+                return "bool";
 
-                case "SYSTEM.BYTE":
-                case "BYTE":
-                    return "byte";
+            case "SYSTEM.BYTE":
+            case "BYTE":
+                return "byte";
 
-                case "SYSTEM.SBYTE":
-                case "SBYTE":
-                    return "sbyte";
+            case "SYSTEM.SBYTE":
+            case "SBYTE":
+                return "sbyte";
 
-                case "SYSTEM.CHAR":
-                case "CHAR":
-                    return "char";
+            case "SYSTEM.CHAR":
+            case "CHAR":
+                return "char";
 
-                case "SYSTEM.DECIMAL":
-                case "DECIMAL":
-                    return "decimal";
+            case "SYSTEM.DECIMAL":
+            case "DECIMAL":
+                return "decimal";
 
-                case "SYSTEM.DOUBLE":
-                case "DOUBLE":
-                    return "double";
+            case "SYSTEM.DOUBLE":
+            case "DOUBLE":
+                return "double";
 
-                case "SYSTEM.SINGLE":
-                    return "float";
+            case "SYSTEM.SINGLE":
+                return "float";
 
-                case "SYSTEM.INT32":
-                case "INT32":
-                case "SYSTEN.INT":
-                case "INT":
-                    return "int";
+            case "SYSTEM.INT32":
+            case "INT32":
+            case "SYSTEM.INT":
+            case "INT":
+                return "int";
 
-                case "SYSTEM.UINT32":
-                case "UINT32":
-                case "SYSTEM.UINT":
-                case "UINT":
-                    return "uint";
+            case "SYSTEM.UINT32":
+            case "UINT32":
+            case "SYSTEM.UINT":
+            case "UINT":
+                return "uint";
 
-                case "SYSTEM.INT64":
-                case "INT64":
-                case "SYSTEM.LONG":
-                case "LONG":
-                    return "long";
+            case "SYSTEM.INT64":
+            case "INT64":
+            case "SYSTEM.LONG":
+            case "LONG":
+                return "long";
 
-                case "SYSTEM.UINT64":
-                case "UINT64":
-                case "SYSTEM.ULONG":
-                case "ULONG":
-                    return "ulong";
+            case "SYSTEM.UINT64":
+            case "UINT64":
+            case "SYSTEM.ULONG":
+            case "ULONG":
+                return "ulong";
 
-                case "SYSTEM.INT16":
-                case "INT16":
-                case "SYSTEM.SHORT":
-                case "SHORT":
-                    return "short";
+            case "SYSTEM.INT16":
+            case "INT16":
+            case "SYSTEM.SHORT":
+            case "SHORT":
+                return "short";
 
-                case "SYSTEM.UINT16":
-                case "UINT16":
-                case "SYSTEM.USHORT":
-                case "USHORT":
-                    return "ushort";
+            case "SYSTEM.UINT16":
+            case "UINT16":
+            case "SYSTEM.USHORT":
+            case "USHORT":
+                return "ushort";
 
-                case "SYSTEM.OBJECT":
-                case "OBJECT":
-                    return "object";
+            case "SYSTEM.OBJECT":
+            case "OBJECT":
+                return "object";
 
-                case "SYSTEM.STRING":
-                case "STRING":
-                    return "string";
+            case "SYSTEM.STRING":
+            case "STRING":
+                return "string";
 
-                case "SYSTEM.VOID":
-                case "VOID":
-                    return "void";
-            }
+            case "SYSTEM.VOID":
+            case "VOID":
+                return "void";
         }
 
         var signature = type.FullName.TrimOrNull() ?? type.Name;
@@ -289,7 +285,7 @@ public static class ExtensionsMethod
         return signature;
     }
 
-    /// <summary>This removes the `{argumentcount} from a the signature of a generic type</summary>
+    /// <summary>This removes the `{argumentCount} from a the signature of a generic type</summary>
     /// <param name="genericTypeSignature">Signature of a generic type</param>
     /// <returns><paramref name="genericTypeSignature" /> without any argument count</returns>
     public static string RemoveGenericTypeNameArgumentCount(string genericTypeSignature)

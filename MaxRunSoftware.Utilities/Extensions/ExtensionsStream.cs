@@ -64,11 +64,6 @@ public static class ExtensionsStream
         return totalRead;
     }
 
-    public static long CopyToWithCount(this Stream source, Stream target)
-    {
-        return CopyToWithCount(source, target, Constant.BUFFER_SIZE_OPTIMAL);
-    }
-
     /// <summary>
     /// Reads all the bytes from the current stream and writes them to the destination stream
     /// with the specified buffer size.
@@ -76,7 +71,7 @@ public static class ExtensionsStream
     /// <param name="source">The current stream.</param>
     /// <param name="target">The stream that will contain the contents of the current stream.</param>
     /// <param name="bufferSize">The size of the buffer to use.</param>
-    public static long CopyToWithCount(this Stream source, Stream target, int bufferSize)
+    public static long CopyToWithCount(this Stream source, Stream target, int bufferSize = Constant.BUFFER_SIZE_OPTIMAL)
     {
         source.CheckNotNull(nameof(source));
         target.CheckNotNull(nameof(target));
@@ -94,20 +89,16 @@ public static class ExtensionsStream
         return totalCount;
     }
 
-    public static void WriteToFile(this Stream stream, string path, int bufferSize)
+    public static void WriteToFile(this Stream stream, string path, int bufferSize = Constant.BUFFER_SIZE_OPTIMAL)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(path));
+        var directoryName = Path.GetDirectoryName(path);
+        if (directoryName != null) Directory.CreateDirectory(directoryName);
+        
         //if (File.Exists(path)) File.Delete(path);
-        using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, FileOptions.None))
-        {
-            CopyToWithCount(stream, fs, bufferSize);
-            fs.Flush();
-        }
-    }
-
-    public static void WriteToFile(this Stream stream, string path)
-    {
-        WriteToFile(stream, path, Constant.BUFFER_SIZE_OPTIMAL);
+        
+        using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, FileOptions.None);
+        CopyToWithCount(stream, fs, bufferSize);
+        fs.Flush();
     }
 
     public static bool FlushSafe(this Stream stream)

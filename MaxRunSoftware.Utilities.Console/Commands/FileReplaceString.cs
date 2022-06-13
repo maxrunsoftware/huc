@@ -111,7 +111,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             log.Debug($"Processing file: {file}");
             var fileText = ReadFile(file, encoding);
-            var occurances = caseInsensitive ? fileText.CountOccurances(oldStringParsed, StringComparison.OrdinalIgnoreCase) : fileText.CountOccurances(oldStringParsed);
+            var occurances = caseInsensitive ? fileText.CountOccurrences(oldStringParsed, StringComparison.OrdinalIgnoreCase) : fileText.CountOccurrences(oldStringParsed);
             log.Debug($"Found {occurances} occurances of {oldString} in file {file}");
             fileText = caseInsensitive ? fileText.Replace(oldStringParsed, newStringParsed, StringComparison.OrdinalIgnoreCase) : fileText.Replace(oldStringParsed, newStringParsed);
             WriteFile(file, fileText, encoding);

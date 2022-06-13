@@ -58,10 +58,7 @@ public static class ExtensionsRandom
 
     public static T[] Shuffle<T>(this Random random, T item1, T item2, params T[] items)
     {
-        if (items == null)
-        {
-            items = Array.Empty<T>();
-        }
+        items ??= Array.Empty<T>();
 
         var array = new T[1 + 1 + items.Length];
         array[0] = item1;
@@ -127,6 +124,7 @@ public static class ExtensionsRandom
 
     public static int Next(this RandomNumberGenerator random)
     {
+        // ReSharper disable once IntroduceOptionalParameters.Global
         return Next(random, 0, int.MaxValue);
     }
 
