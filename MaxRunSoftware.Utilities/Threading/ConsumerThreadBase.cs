@@ -20,7 +20,8 @@ namespace MaxRunSoftware.Utilities;
 
 public abstract class ConsumerThreadBase<T> : ThreadBase
 {
-    private static readonly ILogger log = LogFactory.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+    // ReSharper disable once StaticMemberInGenericType
+    private static readonly ILogger log = LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
     private readonly BlockingCollection<T> queue;
     private readonly object locker = new();
     private readonly CancellationTokenSource cancellation = new();
@@ -32,7 +33,7 @@ public abstract class ConsumerThreadBase<T> : ThreadBase
 
     public int ItemsCompleted => itemsCompleted;
 
-    public ConsumerThreadBase(BlockingCollection<T> queue)
+    protected ConsumerThreadBase(BlockingCollection<T> queue)
     {
         this.queue = queue.CheckNotNull(nameof(queue));
     }
@@ -113,7 +114,10 @@ public abstract class ConsumerThreadBase<T> : ThreadBase
                 stopwatch.Restart();
                 ConsumerThreadState = ConsumerThreadState.Working;
                 WorkConsume(t);
-                itemsCompleted++;
+                
+                //itemsCompleted++;
+                Interlocked.Increment(ref itemsCompleted);
+                
                 stopwatch.Stop();
                 var timeSpent = stopwatch.Elapsed;
                 log.Trace($"WorkConsume() time spent processing {timeSpent.ToStringTotalSeconds(3)}s");

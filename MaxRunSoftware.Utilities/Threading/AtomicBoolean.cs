@@ -22,14 +22,14 @@ namespace MaxRunSoftware.Utilities;
 /// </summary>
 [Serializable]
 [ComVisible(true)]
-public struct AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, IComparable<AtomicBoolean>, IEquatable<AtomicBoolean>
+public class AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, IComparable<AtomicBoolean>, IEquatable<AtomicBoolean>
 {
-    private int m_value;
-    public bool Value => m_value == 1;
+    private int mValue;
+    public bool Value => mValue == 1;
 
     public AtomicBoolean(bool startingValue)
     {
-        m_value = startingValue ? 1 : 0;
+        mValue = startingValue ? 1 : 0;
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public struct AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, 
     /// <returns>True if the current value was changed, else false</returns>
     public bool Set(bool value)
     {
-        return value ? 0 == Interlocked.Exchange(ref m_value, 1) : 1 == Interlocked.Exchange(ref m_value, 0);
+        return value ? 0 == Interlocked.Exchange(ref mValue, 1) : 1 == Interlocked.Exchange(ref mValue, 0);
     }
 
     public override int GetHashCode()
@@ -112,6 +112,8 @@ public struct AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, 
 
     public static bool operator ==(AtomicBoolean left, AtomicBoolean right)
     {
+        if (left == null && right == null) return true;
+        if (left == null || right == null) return false;
         return left.Equals(right);
     }
 

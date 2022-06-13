@@ -21,7 +21,7 @@ public sealed class MutexLockTimeoutException : WaitHandleCannotBeOpenedExceptio
     public string MutexName { get; }
     public TimeSpan Timeout { get; }
 
-    public MutexLockTimeoutException(string mutexName, TimeSpan timeout) : base("Failed to aquire mutex [" + mutexName + "] after waiting " + timeout.ToStringTotalSeconds(3) + "s")
+    public MutexLockTimeoutException(string mutexName, TimeSpan timeout) : base("Failed to acquire mutex [" + mutexName + "] after waiting " + timeout.ToStringTotalSeconds(3) + "s")
     {
         MutexName = mutexName;
         Timeout = timeout;

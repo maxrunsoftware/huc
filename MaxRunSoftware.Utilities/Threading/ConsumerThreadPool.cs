@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace MaxRunSoftware.Utilities;
 
@@ -20,9 +21,11 @@ namespace MaxRunSoftware.Utilities;
 /// Pool of consumer threads. Most useful for performing a bunch of actions on multiple threads.
 /// </summary>
 /// <typeparam name="T">Type of object to process</typeparam>
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 public class ConsumerThreadPool<T> : IDisposable
 {
-    private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+    // ReSharper disable once StaticMemberInGenericType
+    private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private readonly List<ConsumerThread<T>> threads = new();
     private readonly BlockingCollection<T> queue = new();
@@ -93,7 +96,10 @@ public class ConsumerThreadPool<T> : IDisposable
                         }
 
                         threads.Add(thread);
-                        threadCounter++;
+                        
+                        //threadCounter++;
+                        Interlocked.Increment(ref threadCounter);
+                        
                         log.Debug(threadName + ": Created and Started thread");
                     }
                 }
@@ -136,25 +142,15 @@ public class ConsumerThreadPool<T> : IDisposable
         }
     }
 
-    protected virtual ConsumerThread<T> CreateThread(Action<T> action)
-    {
-        return new ConsumerThread<T>(queue, action);
-    }
+    protected virtual ConsumerThread<T> CreateThread(Action<T> workToPerform) => new ConsumerThread<T>(queue, workToPerform);
 
-    protected virtual void DestroyThread(ConsumerThread<T> consumerThread)
-    {
-        consumerThread.Cancel();
-    }
+    protected virtual void DestroyThread(ConsumerThread<T> consumerThread) => consumerThread.Cancel();
 
-    public void AddWorkItem(T item)
-    {
-        queue.Add(item);
-    }
+    public void AddWorkItem(T item) => queue.Add(item);
+    
 
-    public void FinishedAddingWorkItems()
-    {
-        queue.CompleteAdding();
-    }
+    public void FinishedAddingWorkItems() => queue.CompleteAdding();
+    
 
     public void Dispose()
     {

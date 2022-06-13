@@ -136,6 +136,7 @@ public sealed class MutexLock : IDisposable
 
     public static MutexLock CreateGlobal(TimeSpan timeout, string mutexName)
     {
+        // ReSharper disable once UseStringInterpolation
         return new MutexLock(string.Format("Global\\{{{0}}}", mutexName), timeout);
     }
 
