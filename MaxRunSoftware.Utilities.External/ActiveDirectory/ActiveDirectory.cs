@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
 
@@ -27,7 +28,8 @@ namespace MaxRunSoftware.Utilities.External;
 /// </summary>
 public class ActiveDirectory : ActiveDirectoryCore
 {
-    private PrincipalContext context;
+    private readonly PrincipalContext context;
+    
     /// <summary>
     /// Constructs an Active Directory object with a base of the specified OU. Binds to Active Directory.
     /// </summary>
@@ -126,8 +128,8 @@ public class ActiveDirectory : ActiveDirectoryCore
             up.Save();
         }
 
-        var adobj = GetObjectBySAMAccountName(samAccountName);
-        MoveObject(adobj, DomainUsersDN);
+        var activeDirectoryObject = GetObjectBySAMAccountName(samAccountName);
+        MoveObject(activeDirectoryObject, DomainUsersDN);
     }
 
     private List<ActiveDirectoryObject> FindOU(string ouName)
@@ -158,7 +160,7 @@ public class ActiveDirectory : ActiveDirectoryCore
 
     public void AddOU(string samAccountName, string parentOUName = null, string description = null)
     {
-        if (parentOUName == null) parentOUName = DistinguishedName.TrimOrNull();
+        parentOUName ??= DistinguishedName.TrimOrNull();
         if (parentOUName == null) throw new Exception("Could not determine top level OU");
 
         var parentOUs = FindOU(parentOUName);
@@ -169,10 +171,10 @@ public class ActiveDirectory : ActiveDirectoryCore
         parentOU.AddChildOU(samAccountName, description);
     }
 
-    public void RemoveOU(string samAccountNameOrDN)
+    public void RemoveOU(string samAccountNameOrDn)
     {
-        var ous = FindOU(samAccountNameOrDN);
-        if (ous.IsEmpty()) throw new Exception("OU \"" + samAccountNameOrDN + "\" not found");
+        var ous = FindOU(samAccountNameOrDn);
+        if (ous.IsEmpty()) throw new Exception("OU \"" + samAccountNameOrDn + "\" not found");
         if (ous.Count > 1) throw new Exception("Multiple OUs found, use DistinguishedName...  " + ous.Select(o => o.DistinguishedName).ToStringDelimited("  "));
         var ou = ous.First();
         var ouChildren = ou.Children.ToList();
@@ -186,7 +188,7 @@ public class ActiveDirectory : ActiveDirectoryCore
 
     public void AddGroup(string samAccountName, ActiveDirectoryGroupType groupType = ActiveDirectoryGroupType.GlobalSecurityGroup)
     {
-        if (!IsGroupNameValid(samAccountName)) throw new Exception($"Groupname {samAccountName} is an invalid name");
+        if (!IsGroupNameValid(samAccountName)) throw new Exception($"Group name {samAccountName} is an invalid name");
 
         using (var up = new GroupPrincipal(context))
         {
@@ -278,68 +280,64 @@ public class ActiveDirectory : ActiveDirectoryCore
     public string GetUserOU(string samAccountName)
     {
         var user = context.FindUserBySamAccountNameRequired(samAccountName);
-        var de = user.GetUnderlyingObject() as System.DirectoryServices.DirectoryEntry;
-        if (de == null) return null;
-
-        var deParent = de.Parent;
-        if (deParent == null) return null;
-
-        return deParent?.Properties["distinguishedName"]?.Value?.ToString();
+        if (user.GetUnderlyingObject() is not DirectoryEntry de) return null;
+     
+        // ReSharper disable ConstantConditionalAccessQualifier
+        return de.Parent?.Properties["distinguishedName"]?.Value?.ToString();
+        // ReSharper restore ConstantConditionalAccessQualifier
     }
 
-    public void ChangePassword(string samAccountName, string password)
+    public void ChangePassword(string samAccountName, string newPassword)
     {
         var user = context.FindUserBySamAccountNameRequired(samAccountName);
 
-        user.SetPassword(password);
+        user.SetPassword(newPassword);
         user.Enabled = true;
         user.UnlockAccount();
         user.Save();
     }
 
-    public void MoveUser(string samAccountName, string newOUSAMAccountName)
+    public void MoveUser(string samAccountName, string newOuSamAccountName)
     {
-        string userDN;
         var user = context.FindUserBySamAccountNameRequired(samAccountName);
-        userDN = user.DistinguishedName;
+        var userDn = user.DistinguishedName;
 
-        var userobj = GetObjectBySAMAccountName(samAccountName);
-        if (userobj == null) throw new Exception($"Could not locate user object for {userDN}");
+        var userObject = GetObjectBySAMAccountName(samAccountName);
+        if (userObject == null) throw new Exception($"Could not locate user object for {userDn}");
 
-        if (newOUSAMAccountName.EqualsCaseInsensitive("Users"))
+        if (newOuSamAccountName.EqualsCaseInsensitive("Users"))
         {
-            MoveObject(userobj, DomainUsersDN);
+            MoveObject(userObject, DomainUsersDN);
         }
         else
         {
-            var ou = this.GetOUByName(newOUSAMAccountName);
-            if (ou == null) throw new Exception($"Could not find OU named {newOUSAMAccountName}");
+            var ou = this.GetOUByName(newOuSamAccountName);
+            if (ou == null) throw new Exception($"Could not find OU named {newOuSamAccountName}");
 
-            log.Debug($"Moving user {userobj.DistinguishedName} to {ou.DistinguishedName}");
-            MoveObject(userobj, ou.DistinguishedName);
+            log.Debug($"Moving user {userObject.DistinguishedName} to {ou.DistinguishedName}");
+            MoveObject(userObject, ou.DistinguishedName);
         }
     }
 
-    public void MoveGroup(string samAccountName, string newOUSAMAccountName)
+    public void MoveGroup(string samAccountName, string newOuSamAccountName)
     {
-        string groupDN;
         var group = context.FindGroupBySamAccountNameRequired(samAccountName);
-        groupDN = group.DistinguishedName;
+        var groupDn = group.DistinguishedName;
 
-        var groupobj = GetObjectBySAMAccountName(samAccountName);
-        if (groupobj == null) throw new Exception($"Could not locate group object for {groupDN}");
+        var groupObject = GetObjectBySAMAccountName(samAccountName);
+        if (groupObject == null) throw new Exception($"Could not locate group object for {groupDn}");
 
-        if (newOUSAMAccountName.EqualsCaseInsensitive("Users"))
+        if (newOuSamAccountName.EqualsCaseInsensitive("Users"))
         {
-            MoveObject(groupobj, DomainUsersDN);
+            MoveObject(groupObject, DomainUsersDN);
         }
         else
         {
-            var ou = this.GetOUByName(newOUSAMAccountName);
-            if (ou == null) throw new Exception($"Could not find OU named {newOUSAMAccountName}");
+            var ou = this.GetOUByName(newOuSamAccountName);
+            if (ou == null) throw new Exception($"Could not find OU named {newOuSamAccountName}");
 
-            log.Debug($"Moving group {groupobj.DistinguishedName} to {ou.DistinguishedName}");
-            MoveObject(groupobj, ou.DistinguishedName);
+            log.Debug($"Moving group {groupObject.DistinguishedName} to {ou.DistinguishedName}");
+            MoveObject(groupObject, ou.DistinguishedName);
         }
     }
 

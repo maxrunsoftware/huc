@@ -27,8 +27,8 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class GoogleSheets : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    private static readonly IReadOnlyList<string> GOOGLE_COLUMNS = CreateGoogleColumns();
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly IReadOnlyList<string> googleColumns = CreateGoogleColumns();
     private static IReadOnlyList<string> CreateGoogleColumns()
     {
         var list = new List<string>();
@@ -47,7 +47,7 @@ public class GoogleSheets : IDisposable
 
         return list.AsReadOnly();
     }
-    public static string GetGoogleColumnName(int index) => GOOGLE_COLUMNS.GetAtIndexOrDefault(index);
+    public static string GetGoogleColumnName(int index) => googleColumns.GetAtIndexOrDefault(index);
     public static int DefaultSheetWidth => 26;
     public static int DefaultSheetHeight => 100;
 
@@ -111,16 +111,16 @@ public class GoogleSheets : IDisposable
         sheetName = GetSheet(sheetName, false).sheetName;
 
         var updateSheetPropertiesRequest = new UpdateSheetPropertiesRequest();
-        if (updateSheetPropertiesRequest.Properties == null) updateSheetPropertiesRequest.Properties = new SheetProperties();
-        if (updateSheetPropertiesRequest.Properties.GridProperties == null) updateSheetPropertiesRequest.Properties.GridProperties = new GridProperties();
+        updateSheetPropertiesRequest.Properties ??= new SheetProperties();
+        updateSheetPropertiesRequest.Properties.GridProperties ??= new GridProperties();
         updateSheetPropertiesRequest.Properties.GridProperties.ColumnCount = columns;
         updateSheetPropertiesRequest.Properties.GridProperties.RowCount = rows;
         updateSheetPropertiesRequest.Fields = "gridProperties";
 
-        var bussr = new BatchUpdateSpreadsheetRequest();
-        bussr.Requests = new List<Request>();
-        bussr.Requests.Add(new Request() { UpdateSheetProperties = updateSheetPropertiesRequest });
-        var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
+        var batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
+        batchUpdateSpreadsheetRequest.Requests = new List<Request>();
+        batchUpdateSpreadsheetRequest.Requests.Add(new Request() { UpdateSheetProperties = updateSheetPropertiesRequest });
+        var request = service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, spreadsheetId);
         IssueRequest(request, sheetName, "Resizing sheet", "Resized sheet");
     }
 
@@ -134,10 +134,10 @@ public class GoogleSheets : IDisposable
         updateCellsRequest.RepeatCell.Cell = new CellData() { UserEnteredFormat = cellFormat };
         updateCellsRequest.RepeatCell.Fields = "UserEnteredFormat(BackgroundColor,TextFormat)";
 
-        var bussr = new BatchUpdateSpreadsheetRequest();
-        bussr.Requests = new List<Request> { updateCellsRequest };
+        var batchUpdateSpreadsheetRequest = new BatchUpdateSpreadsheetRequest();
+        batchUpdateSpreadsheetRequest.Requests = new List<Request> { updateCellsRequest };
 
-        var request = service.Spreadsheets.BatchUpdate(bussr, spreadsheetId);
+        var request = service.Spreadsheets.BatchUpdate(batchUpdateSpreadsheetRequest, spreadsheetId);
 
         IssueRequest(request, sheetName, "Updating cell format", "Updated cell format");
     }
@@ -163,7 +163,7 @@ public class GoogleSheets : IDisposable
 
         var cellFormat = new CellFormat();
         if (backgroundColor != null) cellFormat.BackgroundColor = backgroundColor.Value.ToGoogleColor();
-        if (cellFormat.TextFormat == null) cellFormat.TextFormat = new TextFormat();
+        cellFormat.TextFormat ??= new TextFormat();
         if (foregroundColor != null) cellFormat.TextFormat.ForegroundColor = foregroundColor.Value.ToGoogleColor();
         if (bold != null) cellFormat.TextFormat.Bold = bold.Value;
         if (italic != null) cellFormat.TextFormat.Italic = italic.Value;
@@ -337,19 +337,19 @@ public class GoogleSheets : IDisposable
 
 public static class GoogleSheetsExtensions
 {
-    public static Color ToGoogleColor(this System.Drawing.Color color) => new Color
+    public static Color ToGoogleColor(this System.Drawing.Color color) => new()
     {
-        Red = (float)color.R / 255.0F,
-        Green = (float)color.G / 255.0F,
-        Blue = (float)color.B / 255.0F,
-        Alpha = (float)color.A / 255.0F
+        Red = color.R / 255.0F,
+        Green = color.G / 255.0F,
+        Blue = color.B / 255.0F,
+        Alpha = color.A / 255.0F
     };
 
     public static Sheet GetSpreadsheetSheet(this SheetsService service, string spreadsheetId, int index)
     {
         var d = new SortedDictionary<int, Sheet>();
         var spreadsheet = service.GetSpreadsheet(spreadsheetId);
-        foreach (Sheet sheet in spreadsheet.Sheets)
+        foreach (var sheet in spreadsheet.Sheets)
         {
             var indexNullable = sheet.Properties.Index;
             if (indexNullable == null) continue;

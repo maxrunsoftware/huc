@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System;
-using System.IO;
 using System.Security.Cryptography;
 using SecurityDriven.Inferno;
 
@@ -30,13 +29,13 @@ public class Encryption
         return array;
     }
 
-    public static byte[] EncryptAsymetric(string pemPublicKey, byte[] data) => Util.EncryptionEncryptAsymmetric(pemPublicKey, data, RSAEncryptionPadding.OaepSHA512);
+    public static byte[] EncryptAsymmetric(string pemPublicKey, byte[] data) => Util.EncryptionEncryptAsymmetric(pemPublicKey, data, RSAEncryptionPadding.OaepSHA512);
 
-    public static byte[] DecryptAsymetric(string pemPrivateKey, byte[] data) => Util.EncryptionDecryptAsymmetric(pemPrivateKey, data, RSAEncryptionPadding.OaepSHA512);
+    public static byte[] DecryptAsymmetric(string pemPrivateKey, byte[] data) => Util.EncryptionDecryptAsymmetric(pemPrivateKey, data, RSAEncryptionPadding.OaepSHA512);
 
-    public static byte[] EncryptSymetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Encrypt(password, data, salt);
+    public static byte[] EncryptSymmetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Encrypt(password, data, salt);
 
-    public static byte[] DecryptSymetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Decrypt(password, data, salt);
+    public static byte[] DecryptSymmetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Decrypt(password, data, salt);
 
     public static (string publicKey, string privateKey) GenerateKeyPair(int length) => Util.EncryptionGeneratePublicPrivateKeys(length);
 
@@ -44,8 +43,8 @@ public class Encryption
     {
         byte[] password = RandomBytes(256);
 
-        var encryptedData = EncryptSymetric(password, data);
-        var encryptedPass = EncryptAsymetric(publicKey, password);
+        var encryptedData = EncryptSymmetric(password, data);
+        var encryptedPass = EncryptAsymmetric(publicKey, password);
         if (encryptedPass.Length != 512) throw new Exception("Expecting encrypted password length of 512 but was " + encryptedPass.Length);
         var result = encryptedPass.Append(encryptedData);
 
@@ -56,8 +55,8 @@ public class Encryption
     {
         var (encryptedPass, encryptedData) = data.Split(512);
 
-        var decryptedPass = DecryptAsymetric(privateKey, encryptedPass);
-        var decryptedData = DecryptSymetric(decryptedPass, encryptedData);
+        var decryptedPass = DecryptAsymmetric(privateKey, encryptedPass);
+        var decryptedData = DecryptSymmetric(decryptedPass, encryptedData);
 
         return decryptedData;
     }
@@ -66,7 +65,7 @@ public class Encryption
     {
         byte[] salt = new byte[256];
 
-        var encryptedData = EncryptSymetric(password, data, salt);
+        var encryptedData = EncryptSymmetric(password, data, salt);
 
         var result = salt.Append(encryptedData);
 
@@ -77,7 +76,7 @@ public class Encryption
     {
         var (salt, encryptedData) = data.Split(256);
 
-        var decryptedData = DecryptSymetric(password, encryptedData, salt);
+        var decryptedData = DecryptSymmetric(password, encryptedData, salt);
 
         return decryptedData;
     }

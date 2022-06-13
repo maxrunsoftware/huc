@@ -26,13 +26,9 @@ public static class ActiveDirectoryExtensions
 {
     public static void Add(this List<DirectoryAttribute> list, string name, params string[] values)
     {
-        var attrValues = new List<string>();
-        foreach (var value in values.OrEmpty()) attrValues.Add(value);
-        attrValues = attrValues.TrimOrNull().WhereNotNull().ToList();
-        DirectoryAttribute a;
-        if (attrValues.Count < 2) a = new DirectoryAttribute(name, attrValues.First());
-        else a = new DirectoryAttribute(name, attrValues.ToArray());
-        list.Add(a);
+        var attrValues = values.OrEmpty().TrimOrNull().WhereNotNull().ToArray();
+        if (attrValues.Length < 1) return;
+        list.Add(attrValues.Length == 1 ? new DirectoryAttribute(name, attrValues[0]) : new DirectoryAttribute(name, attrValues.Cast<object>().ToArray()));
     }
 
     public static List<DirectoryAttribute> ToDirectoryAttributes(this IDictionary<string, List<string>> directoryAttributes)
@@ -103,13 +99,13 @@ public static class ActiveDirectoryExtensions
     /// Gets a specific OU in the Active Directory.
     /// </summary>
     /// <returns>A list of all OUs in the Active Directory.</returns>
-    public static ActiveDirectoryObject GetOUByName(this ActiveDirectoryCore ad, string ouName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.Name.TrimOrNull() != null).Where(o => o.Name.TrimOrNull().EqualsCaseInsensitive(ouName)).FirstOrDefault();
+    public static ActiveDirectoryObject GetOUByName(this ActiveDirectoryCore ad, string ouName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.Name.TrimOrNull() != null).FirstOrDefault(o => o.Name.TrimOrNull().EqualsCaseInsensitive(ouName));
 
     /// <summary>
     /// Gets a specific OU in the Active Directory.
     /// </summary>
     /// <returns>A list of all OUs in the Active Directory.</returns>
-    public static ActiveDirectoryObject GetOUByDistinguishedName(this ActiveDirectoryCore ad, string ouDistinguishedName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.DistinguishedName.TrimOrNull() != null).Where(o => o.Name.TrimOrNull().EqualsCaseInsensitive(ouDistinguishedName)).FirstOrDefault();
+    public static ActiveDirectoryObject GetOUByDistinguishedName(this ActiveDirectoryCore ad, string ouDistinguishedName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.DistinguishedName.TrimOrNull() != null).FirstOrDefault(o => o.Name.TrimOrNull().EqualsCaseInsensitive(ouDistinguishedName));
 
     /// <summary>
     /// Gets of all user accounts that were modified within the specified time frame.
@@ -120,7 +116,10 @@ public static class ActiveDirectoryExtensions
     /// <param name="queryConfig">Configuration to use for the query</param>
     /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
     /// <returns>Returns a list of all users that were during the specified period of time.</returns>
+    // ReSharper disable once UseStringInterpolation
+    // ReSharper disable StringLiteralTypo
     public static List<ActiveDirectoryObject> GetUsersByModified(this ActiveDirectoryCore ad, DateTime startDate, DateTime endDate, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects(string.Format("(&(objectCategory=person)(objectClass=user)(whenChanged>={0})(whenChanged<={1}))", startDate.ToUniversalTime().ToString("yyyyMMddHHmmss.s") + "Z", endDate.ToUniversalTime().ToString("yyyyMMddHHmmss.s") + "Z"), queryConfig: queryConfig, useCache: useCache);
+    // ReSharper restore StringLiteralTypo
 
     /// <summary>
     /// Gets of all user accounts that lastLogonTimestamp is between a specific date
@@ -131,13 +130,16 @@ public static class ActiveDirectoryExtensions
     /// <param name="queryConfig">Configuration to use for the query</param>
     /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
     /// <returns>Returns a list of all users that were during the specified period of time.</returns>
+    // ReSharper disable once UseStringInterpolation
     public static List<ActiveDirectoryObject> GetUsersByLastLogonTimestamp(this ActiveDirectoryCore ad, DateTime startDate, DateTime endDate, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects(string.Format("(&(objectCategory=person)(objectClass=user)(lastLogonTimestamp>={0})(lastLogonTimestamp<={1}))", startDate.ToFileTimeUtc(), endDate.ToFileTimeUtc()), queryConfig: queryConfig, useCache: useCache);
 
     /// <summary>
     /// Gets of all user accounts that lastLogonTimestamp is between a specific date
     /// </summary>
     /// <returns>Returns a list of all users that were during the specified period of time.</returns>
+    // ReSharper disable StringLiteralTypo
     public static List<ActiveDirectoryObject> GetUsersByLastLogonTimestampNull(this ActiveDirectoryCore ad, LdapQueryConfig queryConfig = null, bool useCache = false) => ad.GetObjects("(&(objectCategory=person)(objectClass=user)(!lastlogontimestamp=*))", queryConfig: queryConfig, useCache: useCache);
+    // ReSharper restore StringLiteralTypo
 
     /// <summary>
     /// Gets all computers in the Active Directory.
@@ -166,9 +168,9 @@ public static class ActiveDirectoryExtensions
         if (entry.Properties.Contains(key))
         {
             var properties = entry.Properties[key];
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (properties != null)
             {
-
                 foreach (var property in properties)
                 {
                     if (property != null) yield return property;

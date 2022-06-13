@@ -31,7 +31,8 @@ namespace MaxRunSoftware.Utilities.External;
 public class ActiveDirectoryCore : IDisposable
 {
     private readonly ActiveDirectoryObjectCache cache = new();
-    protected static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    // ReSharper disable once InconsistentNaming
+    protected static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
 
     protected readonly string username;
     protected readonly string password;
@@ -121,7 +122,7 @@ public class ActiveDirectoryCore : IDisposable
     /// <summary>
     /// The SYSTEM sid.
     /// </summary>
-    public SecurityIdentifier WellKnownSid_System => new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null);
+    public SecurityIdentifier WellKnownSidSystem => new SecurityIdentifier(WellKnownSidType.LocalSystemSid, null);
 
     /// <summary>
     /// The distinguished name of the Administrators group for this domain.
@@ -188,8 +189,7 @@ public class ActiveDirectoryCore : IDisposable
 
         if (domainControllers.Count == 0) domainControllers.Add(server); // Create the connection to the domain controller serving the current computer.
 
-        var useLogonCredentials = false;
-        if (userName == null) useLogonCredentials = true;
+        var useLogonCredentials = userName == null;
 
         log.Debug($"Attempting LDAP connection to {domainControllers.FirstOrDefault()}:{ldapPort} with user {userName}");
         try
@@ -215,7 +215,7 @@ public class ActiveDirectoryCore : IDisposable
         log.Debug($"{nameof(DistinguishedName)}: {DistinguishedName}");
         log.Debug($"{nameof(Name)}: {Name}");
         log.Debug($"{nameof(NTName)}: {NTName}");
-        log.Debug($"{nameof(WellKnownSid_System)}: {WellKnownSid_System}");
+        log.Debug($"{nameof(WellKnownSidSystem)}: {WellKnownSidSystem}");
         log.Debug($"{nameof(AdministratorsGroupDN)}: {AdministratorsGroupDN}");
         log.Debug($"{nameof(DomainAdminsGroupDN)}: {DomainAdminsGroupDN}");
         log.Debug($"{nameof(DomainUsersGroupDN)}: {DomainUsersGroupDN}");
@@ -260,7 +260,7 @@ public class ActiveDirectoryCore : IDisposable
     /// <returns>The SearchResultEntry object found, or null if not found.</returns>
     public ActiveDirectoryObject GetObjectByDistinguishedName(string distinguishedName, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjectsByAttribute("distinguishedName", distinguishedName, queryConfig: queryConfig, useCache: useCache).FirstOrDefault();
 
-    public ActiveDirectoryObject GetObjectBySAMAccountName(string sAMAccountName, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjectsByAttribute("sAMAccountName", sAMAccountName, queryConfig: queryConfig, useCache: useCache).FirstOrDefault();
+    public ActiveDirectoryObject GetObjectBySAMAccountName(string samAccountName, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjectsByAttribute("sAMAccountName", samAccountName, queryConfig: queryConfig, useCache: useCache).FirstOrDefault();
 
     /// <summary>
     /// Gets an entry given its GUID.
@@ -280,7 +280,7 @@ public class ActiveDirectoryCore : IDisposable
     /// <returns>A list of SearchResultEntry objects, or null if not found.</returns>
     public List<ActiveDirectoryObject> GetObjects(string filter, LdapQueryConfig queryConfig = null, bool useCache = true)
     {
-        if (queryConfig == null) queryConfig = Ldap.DefaultQueryConfig;
+        queryConfig ??= Ldap.DefaultQueryConfig;
 
         if (useCache)
         {
@@ -302,7 +302,7 @@ public class ActiveDirectoryCore : IDisposable
     }
 
     /// <summary>
-    /// Gets entries that match a given wildcarded (*) attribute value in the supplied attribute.
+    /// Gets entries that match a given wild carded (*) attribute value in the supplied attribute.
     /// </summary>
     /// <param name="attributeName">The name of the attribute to search against.</param>
     /// <param name="attributeValue">The value to search for in the attribute.</param>
@@ -315,14 +315,14 @@ public class ActiveDirectoryCore : IDisposable
 
     #region Actions
 
-    private ActiveDirectoryObject AddObject(string sAMAccountName, string ouDistinguishedName, int? groupType)
+    private ActiveDirectoryObject AddObject(string samAccountName, string ouDistinguishedName, int? groupType)
     {
-        sAMAccountName = sAMAccountName.CheckNotNullTrimmed(nameof(sAMAccountName));
+        samAccountName = samAccountName.CheckNotNullTrimmed(nameof(samAccountName));
         ouDistinguishedName = ouDistinguishedName.CheckNotNullTrimmed(nameof(ouDistinguishedName));
 
         if (GetObjectByDistinguishedName(ouDistinguishedName) == null) throw new ArgumentException("The OU provided does not exist in Active Directory.");
 
-        var objectDistinguishedName = "CN=" + sAMAccountName + "," + ouDistinguishedName;
+        var objectDistinguishedName = "CN=" + samAccountName + "," + ouDistinguishedName;
 
         var attributes = new SortedDictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         //attributes.AddToList("sAMAccountName", sAMAccountName);
@@ -331,20 +331,20 @@ public class ActiveDirectoryCore : IDisposable
         {
             //attributes.Add("objectClass", "user");
             //attributes.Add("userPrincipalName", sAMAccountName + "@" + Name);
-            attributes.AddToList("cn", sAMAccountName);
+            attributes.AddToList("cn", samAccountName);
             //attributes.Add("userPrincipalName", sAMAccountName);
             //attributes.Add("GivenName", sAMAccountName);
             //attributes.AddToList("sn", sAMAccountName);
 
-            attributes.AddToList("uid", sAMAccountName);
+            attributes.AddToList("uid", samAccountName);
             attributes.AddToList("ou", "users");
 
             attributes.AddToList("objectClass", "top", "account", "simpleSecurityObject");
-            var userpassword = "badPassword1!";
+            var userPassword = "badPassword1!";
             string encodedPassword;
             using (var sha1 = SHA1.Create())
             {
-                var digest = Convert.ToBase64String(sha1.ComputeHash(System.Text.Encoding.UTF8.GetBytes(userpassword)));
+                var digest = Convert.ToBase64String(sha1.ComputeHash(Encoding.UTF8.GetBytes(userPassword)));
                 encodedPassword = "{SHA}" + digest;
             }
             attributes.AddToList("userPassword", encodedPassword);
@@ -352,7 +352,7 @@ public class ActiveDirectoryCore : IDisposable
         }
         else // group
         {
-            if (!IsGroupNameValid(sAMAccountName)) throw new ArgumentException("The SAM Account Name '" + sAMAccountName + "' is not a valid group name.");
+            if (!IsGroupNameValid(samAccountName)) throw new ArgumentException("The SAM Account Name '" + samAccountName + "' is not a valid group name.");
             attributes.AddToList("objectClass", "group");
             //attributes.Add(new DirectoryAttribute("groupType", BitConverter.GetBytes(groupType.Value)));
             attributes.AddToList("groupType", groupType.Value.ToString());
@@ -365,16 +365,16 @@ public class ActiveDirectoryCore : IDisposable
         return GetObjectByDistinguishedName(objectDistinguishedName);
     }
 
-    public bool DeleteObject(ActiveDirectoryObject activeDirectoryObject) => activeDirectoryObject == null ? false : Ldap.EntryDelete(activeDirectoryObject.DistinguishedName);
+    public bool DeleteObject(ActiveDirectoryObject activeDirectoryObject) => activeDirectoryObject != null && Ldap.EntryDelete(activeDirectoryObject.DistinguishedName);
 
     /// <summary>
     /// Creates a new group within Active Directory given it's proposed name, the distinguished name of the OU to place it in, and other optional attributes.
     /// </summary>
-    /// <param name="sAMAccountName">The proposed SAM Account name for the group.</param>
+    /// <param name="samAccountName">The proposed SAM Account name for the group.</param>
     /// <param name="ouDistinguishedName">The distinguished name for the OU to place the group within.</param>
     /// <param name="groupType">A uint from the ActiveDirectory.GroupType enum representing the type of group to create.</param>
     /// <returns>The newly created group object.</returns>
-    public ActiveDirectoryObject AddGroup(string sAMAccountName, string ouDistinguishedName, ActiveDirectoryGroupType groupType) => AddObject(sAMAccountName, ouDistinguishedName, (int)groupType);
+    public ActiveDirectoryObject AddGroup(string samAccountName, string ouDistinguishedName, ActiveDirectoryGroupType groupType) => AddObject(samAccountName, ouDistinguishedName, (int)groupType);
 
     /// <summary>
     /// Moves and / or renames an object in Active Directory.
@@ -444,6 +444,7 @@ public class ActiveDirectoryCore : IDisposable
         siteName = siteName.TrimOrNull();
         if (domainName == null || siteName == null) return new List<string>();
 
+        // ReSharper disable once CommentTypo
         /*
                 DnsQueryRequest request = new DnsQueryRequest();
                 DnsQueryResponse response = request.Resolve("_ldap._tcp." + siteName + "._sites.dc._msdcs." + domainName, NsType.SRV, NsClass.INET, System.Net.Sockets.ProtocolType.Tcp);
@@ -473,7 +474,7 @@ public class ActiveDirectoryCore : IDisposable
         if (name.Length > 63) return false;  // Check whether the length of the name is less than or equal to 63 characters.
         if (name.StartsWith(" ")) return false;
         if (name.StartsWith(".")) return false;
-        if (name.ToCharArray().All(c => !char.IsLetter(c))) return false; // must contain atleast 1 letter
+        if (name.ToCharArray().All(c => !char.IsLetter(c))) return false; // must contain at least 1 letter
         return true;
     }
 

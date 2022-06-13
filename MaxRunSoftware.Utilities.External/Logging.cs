@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System;
-
 namespace MaxRunSoftware.Utilities.External;
 
 internal class Logging
 {
-    public static ILogFactory LogFactory { get { return Utilities.LogFactory.LogFactoryImpl; } }
+    public static ILogFactory LogFactory => Utilities.LogFactory.LogFactoryImpl;
 }

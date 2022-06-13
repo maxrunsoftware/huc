@@ -21,8 +21,11 @@ namespace MaxRunSoftware.Utilities.External;
 /// <summary>
 /// Flags for use with the UserAccountControl and ms-DS-User-Account-Control-Computed properties of a user.
 /// </summary>
+// ReSharper disable IdentifierTypo
+// ReSharper disable InconsistentNaming
+// ReSharper disable CommentTypo
 [Flags()]
-public enum ActiveDirectoryUserAccountControl : int
+public enum ActiveDirectoryUserAccountControl
 {
     /// <summary>
     /// The logon script will be run.

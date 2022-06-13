@@ -81,7 +81,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                         if (Util.IsFile(inputFile))
                         {
                             var fi = new FileInfo(inputFile);
-                            External.Zip.AddFileToZip(fi, fi.Directory, zos, bufferSize, Path.GetFileName(outputFile));
+                            External.Zip.AddFileToZip(fi, fi.Directory, zos, Path.GetFileName(outputFile));
                         }
                         else
                         {

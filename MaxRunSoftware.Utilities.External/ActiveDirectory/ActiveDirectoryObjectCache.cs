@@ -22,10 +22,10 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class ActiveDirectoryObjectCache
 {
-    private static readonly IEnumerable<ActiveDirectoryObject> EMPTY = Enumerable.Empty<ActiveDirectoryObject>();
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    //private static readonly IEnumerable<ActiveDirectoryObject> empty = Enumerable.Empty<ActiveDirectoryObject>();
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
 
-    private readonly Dictionary<string, List<ActiveDirectoryObject>> cache = new Dictionary<string, List<ActiveDirectoryObject>>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<ActiveDirectoryObject>> cache = new(StringComparer.OrdinalIgnoreCase);
 
     public void Add(string filter, IEnumerable<ActiveDirectoryObject> activeDirectoryObjects, LdapQueryConfig queryConfig)
     {

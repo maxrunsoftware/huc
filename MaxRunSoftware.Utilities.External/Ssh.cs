@@ -36,15 +36,15 @@ public sealed class SshKeyFile
 
 public class Ssh : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
 
-    private SshClient _client;
+    private SshClient client;
 
     private SshClient Client
     {
         get
         {
-            var c = _client;
+            var c = client;
             if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
             return c;
         }
@@ -52,9 +52,9 @@ public class Ssh : IDisposable
 
     public string ClientVersion => Client.ConnectionInfo.ClientVersion;
 
-    public Ssh(string host, ushort port, string username, string password) => _client = (SshClient)CreateClient(host, port, username, password, null, typeof(SshClient));
+    public Ssh(string host, ushort port, string username, string password) => client = (SshClient)CreateClient(host, port, username, password, null, typeof(SshClient));
 
-    public Ssh(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys) => _client = (SshClient)CreateClient(host, port, username, null, privateKeys, typeof(SshClient));
+    public Ssh(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys) => client = (SshClient)CreateClient(host, port, username, null, privateKeys, typeof(SshClient));
 
     public string RunCommand(string command)
     {
@@ -77,7 +77,7 @@ public class Ssh : IDisposable
         if (password == null && pks.Count == 0) throw new ArgumentException($"No password provided and no keyFiles provided.", nameof(password));
         if (password != null && pks.Count > 0) throw new ArgumentException($"Keyfiles are not supported when a Password is supplied.", nameof(password));
 
-        var pkfs = new List<PrivateKeyFile>();
+        var privateKeyFiles = new List<PrivateKeyFile>();
         foreach (var pk in pks)
         {
             pk.FileName.CheckFileExists();
@@ -92,12 +92,12 @@ public class Ssh : IDisposable
                 pkf = new PrivateKeyFile(pk.FileName, pk.Password);
                 log.Debug("Using (password protected) private key file " + pk.FileName);
             }
-            pkfs.Add(pkf);
+            privateKeyFiles.Add(pkf);
         }
 
         BaseClient client = null;
-        if (clientType.Equals(typeof(SshClient))) client = password == null ? new SshClient(host, port, username, pkfs.ToArray()) : new SshClient(host, port, username, password);
-        if (clientType.Equals(typeof(SftpClient))) client = password == null ? new SftpClient(host, port, username, pkfs.ToArray()) : new SftpClient(host, port, username, password);
+        if (clientType == typeof(SshClient)) client = password == null ? new SshClient(host, port, username, privateKeyFiles.ToArray()) : new SshClient(host, port, username, password);
+        if (clientType == typeof(SftpClient)) client = password == null ? new SftpClient(host, port, username, privateKeyFiles.ToArray()) : new SftpClient(host, port, username, password);
         if (client == null) throw new NotImplementedException("Cannot create SSH Client for type " + clientType.FullNameFormatted());
         try
         {
@@ -136,8 +136,8 @@ public class Ssh : IDisposable
 
     public void Dispose()
     {
-        var c = _client;
-        _client = null;
+        var c = client;
+        client = null;
 
         if (c == null) return;
         try

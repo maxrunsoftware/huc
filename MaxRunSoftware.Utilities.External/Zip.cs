@@ -15,16 +15,15 @@ limitations under the License.
 */
 
 using System.IO;
-using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class Zip
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
 
-    public static void AddFileToZip(FileInfo file, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, int bufferSize, string zipFileName, bool encrypt = false)
+    public static void AddFileToZip(FileInfo file, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, string zipFileName, bool encrypt = false)
     {
         var entryPath = CleanName(file, baseDirectoryToRemove, false);
         log.Debug($"Adding: {file.FullName} --> {zipFileName}/{entryPath}");

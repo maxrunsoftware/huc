@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+// ReSharper disable InconsistentNaming
+// ReSharper disable StringLiteralTypo
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -28,12 +30,13 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class IgnoreInPropertiesListAttribute : Attribute { }
 
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    private static readonly DateTime JAN_01_1601 = new DateTime(1601, 1, 1);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    //private static readonly DateTime JAN_01_1601 = new DateTime(1601, 1, 1);
+    // ReSharper disable once InconsistentNaming
     private static readonly DateTime JAN_01_1800 = new DateTime(1800, 1, 1);
     private readonly ActiveDirectoryCore activeDirectory;
 
-    public static IReadOnlyCollection<string> ExpensiveProperties { get; } = new string[] {
+    public static IReadOnlyCollection<string> ExpensiveProperties { get; } = new[] {
         nameof(UserCannotChangePassword),
         nameof(PasswordExpirationDate),
         nameof(IsDisabled),
@@ -127,10 +130,10 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     public long? MaxPwdAge => Attributes.GetLong("maxPwdAge");
     public IEnumerable<string> Member => Attributes.GetStrings("member"); // member;range=0-1499
     public IEnumerable<ActiveDirectoryObject> MemberObjects => GetMembers(false);
-    public IEnumerable<ActiveDirectoryObject> MemberObjectsAll => GetMembers(true);
+    public IEnumerable<ActiveDirectoryObject> MemberObjectsAll => GetMembers();
     public IEnumerable<string> MemberOf => Attributes.GetStrings("memberOf");
     public IEnumerable<ActiveDirectoryObject> MemberOfObjects => GetMemberOf(false);
-    public IEnumerable<ActiveDirectoryObject> MemberOfObjectsAll => GetMemberOf(true);
+    public IEnumerable<ActiveDirectoryObject> MemberOfObjectsAll => GetMemberOf();
     public long? MinPwdAge => Attributes.GetLong("minPwdAge");
     public int? MinPwdLength => Attributes.GetInt("minPwdLength");
     public string Name { get => Attributes.GetString("name"); set => AttributeSave("name", value.TrimOrNull()); }
@@ -317,21 +320,21 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     {
         get
         {
-            var uaccb = UserAccountControlComputed;
-            if (uaccb != null)
+            var userAccountControlComputed = UserAccountControlComputed;
+            if (userAccountControlComputed != null)
             {
-                var uacc = uaccb.Value;
+                var userAccountControlComputedValue = userAccountControlComputed.Value;
                 var pe = (int)ActiveDirectoryUserAccountControl.PasswordExpired;
-                if ((uacc & pe) == pe)
+                if ((userAccountControlComputedValue & pe) == pe)
                 {
                     return true;
                 }
             }
 
-            var uacb = UserAccountControl;
-            if (uacb != null)
+            var userAccountControl = UserAccountControl;
+            if (userAccountControl != null)
             {
-                var uac = uacb.Value;
+                var uac = userAccountControl.Value;
                 var pe = (int)ActiveDirectoryUserAccountControl.DoNotExpirePassword;
                 if ((uac & pe) == pe)
                 {
@@ -339,11 +342,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                 }
             }
 
-            var pwlstn = PwdLastSet;
-            if (pwlstn != null)
+            var pwdLastSet = PwdLastSet;
+            if (pwdLastSet != null)
             {
-                var pwlst = pwlstn.Value;
-                if (pwlst < JAN_01_1800)
+                var pwdLastSetValue = pwdLastSet.Value;
+                if (pwdLastSetValue < JAN_01_1800)
                 {
                     return true;
                 }
@@ -463,10 +466,10 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         return null;
     }
 
-    public IEnumerable<string> MemberOfNames => MemberOf.Select(o => ParseFirstCN(o)).TrimOrNull().WhereNotNull().OrderBy(o => o, StringComparer.OrdinalIgnoreCase);
+    public IEnumerable<string> MemberOfNames => MemberOf.Select(ParseFirstCN).TrimOrNull().WhereNotNull().OrderBy(o => o, StringComparer.OrdinalIgnoreCase);
     public string MemberOfNamesString => "[" + MemberOfNames.ToStringDelimited(", ") + "]";
 
-    public IEnumerable<string> MemberNames => Member.Select(o => ParseFirstCN(o)).TrimOrNull().WhereNotNull().OrderBy(o => o, StringComparer.OrdinalIgnoreCase);
+    public IEnumerable<string> MemberNames => Member.Select(ParseFirstCN).TrimOrNull().WhereNotNull().OrderBy(o => o, StringComparer.OrdinalIgnoreCase);
     public string MemberNamesString => "[" + MemberNames.ToStringDelimited(", ") + "]";
 
     #endregion Properties Custom
@@ -541,7 +544,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     {
         if (UserAccountControl == null) return false;
         if (IsUserAccountControl(flag)) return false;
-
+        if (!UserAccountControl.HasValue) return false;
         var newUserAccountControl = UserAccountControl.Value | (int)flag;
         return AttributeSave("userAccountControl", newUserAccountControl.ToString());
     }
@@ -556,6 +559,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         if (UserAccountControl == null) return false;
         if (!IsUserAccountControl(flag)) return false;
 
+        if (!UserAccountControl.HasValue) return false;
         var newUserAccountControl = UserAccountControl.Value & ~(int)flag;
         return AttributeSave("userAccountControl", newUserAccountControl.ToString());
     }
@@ -568,7 +572,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     {
         object o = null;
         var de = DirectoryEntry;
-        if (de == null) return o;
+        if (de == null) return null;
         try
         {
             o = de.InvokeGet(propertyName);
@@ -737,7 +741,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
 
     public bool IsObjectClass(string objectClass) => ObjectClass.Any(o => string.Equals(o, objectClass, StringComparison.OrdinalIgnoreCase));
 
-    public bool IsObjectCategory(string objectCategory) => ObjectCategory == null ? false : Util.ParseDistinguishedName(ObjectCategory).Any(o => string.Equals(o.Item2, objectCategory, StringComparison.OrdinalIgnoreCase));
+    public bool IsObjectCategory(string objectCategory) => ObjectCategory != null && ObjectCategory.ParseDistinguishedName().Any(o => string.Equals(o.Item2, objectCategory, StringComparison.OrdinalIgnoreCase));
 
     public IDictionary<string, object> GetProperties(bool includeExpensiveObjects = false)
     {
@@ -782,6 +786,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
             string val = propValue.ToStringGuessFormat().TrimOrNull();
             if (val == null) continue;
             if (val == "[]") continue;
+            // ReSharper disable once SuspiciousTypeConversion.Global  // TODO: Review
             if (propValue.GetType() is IEnumerable<ActiveDirectoryObject> enumerableObjects)
             {
                 var list = enumerableObjects.ToList();
@@ -815,8 +820,8 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
 
     public static Table CreateTable(IEnumerable<ActiveDirectoryObject> objects, bool includeExpensiveObjects = false)
     {
-        objects = objects ?? Enumerable.Empty<ActiveDirectoryObject>();
-        var header = new string[] { "DistinguishedName", "ObjectGUID", "AttributeName", "AttributeValueIndex", "AttributeValue" };
+        objects ??= Enumerable.Empty<ActiveDirectoryObject>();
+        var header = new[] { "DistinguishedName", "ObjectGUID", "AttributeName", "AttributeValueIndex", "AttributeValue" };
         var data = new List<string[]>();
         foreach (var obj in objects)
         {
@@ -865,7 +870,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     private static PropertyInfo[] GetPropertyInfos(bool includeExpensiveObjects = false)
     {
         var list = new List<PropertyInfo>();
-        foreach (var prop in typeof(ActiveDirectoryObject).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+        foreach (var prop in typeof(ActiveDirectoryObject).GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             if (!prop.CanRead) continue;
             if (!includeExpensiveObjects && ExpensiveProperties.Contains(prop.Name)) continue;

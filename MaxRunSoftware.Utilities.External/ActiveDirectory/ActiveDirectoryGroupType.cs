@@ -19,7 +19,7 @@ namespace MaxRunSoftware.Utilities.External;
 /// <summary>
 /// GroupType enumerates the type of group objects in Active Directory.
 /// </summary>
-public enum ActiveDirectoryGroupType : int
+public enum ActiveDirectoryGroupType
 {
     /// <summary>
     /// Specifies a group that can contain accounts from the domain and other global
@@ -32,7 +32,7 @@ public enum ActiveDirectoryGroupType : int
     /// Specifies a group that can contain accounts from any domain, other domain
     /// local groups from the same domain, global groups from any domain, and
     /// universal groups. This type of group should not be included in access-control
-    /// lists of resouces in other domains. This type of group is intended for use
+    /// lists of resources in other domains. This type of group is intended for use
     /// with the LDAP provider.
     /// </summary>
     LocalDistributionGroup = 4,

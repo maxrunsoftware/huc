@@ -70,7 +70,7 @@ namespace MaxRunSoftware.Utilities.Console
 
         public string Encrypt(string unencryptedData)
         {
-            var encryptedData = Encryption.EncryptSymetric(Constant.ENCODING_UTF8.GetBytes(KEY), Constant.ENCODING_UTF8.GetBytes(unencryptedData));
+            var encryptedData = Encryption.EncryptSymmetric(Constant.ENCODING_UTF8.GetBytes(KEY), Constant.ENCODING_UTF8.GetBytes(unencryptedData));
             var encryptedDataBase64 = Util.Base64(encryptedData);
             var encryptedDataBase64Padded = ProgramPasswordEscape + encryptedDataBase64;
             return encryptedDataBase64Padded;
@@ -81,7 +81,7 @@ namespace MaxRunSoftware.Utilities.Console
             if (!encryptedData.StartsWith(ProgramPasswordEscape)) return null;
             var encryptedDataBase64 = encryptedData.Substring(ProgramPasswordEscape.Length);
             var encryptedDataBytes = Util.Base64(encryptedDataBase64);
-            var unencryptedData = Encryption.DecryptSymetric(Constant.ENCODING_UTF8.GetBytes(KEY), encryptedDataBytes);
+            var unencryptedData = Encryption.DecryptSymmetric(Constant.ENCODING_UTF8.GetBytes(KEY), encryptedDataBytes);
             return Constant.ENCODING_UTF8.GetString(unencryptedData);
         }
 

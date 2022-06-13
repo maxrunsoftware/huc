@@ -107,7 +107,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                         if (Util.IsFile(includedItem))
                         {
                             var fi = new FileInfo(includedItem);
-                            External.Zip.AddFileToZip(fi, fi.Directory, zos, bufferSize, Path.GetFileName(outputFile), encrypt: password != null);
+                            External.Zip.AddFileToZip(fi, fi.Directory, zos, Path.GetFileName(outputFile), encrypt: password != null);
                         }
                         else // Directory
                         {
@@ -132,7 +132,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                                     var fi = (FileInfo)item.GetFileSystemInfo();
                                     if (fi.Name.EqualsWildcard(mask))
                                     {
-                                        External.Zip.AddFileToZip(fi, basePath, zos, bufferSize, Path.GetFileName(outputFile), encrypt: password != null);
+                                        External.Zip.AddFileToZip(fi, basePath, zos, Path.GetFileName(outputFile), encrypt: password != null);
                                     }
                                 }
                             }
