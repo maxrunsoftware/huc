@@ -114,10 +114,10 @@ public abstract class ConsumerThreadBase<T> : ThreadBase
                 stopwatch.Restart();
                 ConsumerThreadState = ConsumerThreadState.Working;
                 WorkConsume(t);
-                
+
                 //itemsCompleted++;
                 Interlocked.Increment(ref itemsCompleted);
-                
+
                 stopwatch.Stop();
                 var timeSpent = stopwatch.Elapsed;
                 log.Trace($"WorkConsume() time spent processing {timeSpent.ToStringTotalSeconds(3)}s");

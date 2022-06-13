@@ -81,16 +81,21 @@ public sealed class DictionaryIndexed<TKey, TValue> : IDictionary<TKey, TValue>,
 
         Remove(item.Key);
         return true;
-
     }
 
     public int Count => d.Count;
 
     public bool IsReadOnly => d.IsReadOnly;
 
-    public bool ContainsKey(TKey key) => d.Contains(key);
+    public bool ContainsKey(TKey key)
+    {
+        return d.Contains(key);
+    }
 
-    public void Add(TKey key, TValue value) => d.Add(key, value);
+    public void Add(TKey key, TValue value)
+    {
+        d.Add(key, value);
+    }
 
     public bool Remove(TKey key)
     {

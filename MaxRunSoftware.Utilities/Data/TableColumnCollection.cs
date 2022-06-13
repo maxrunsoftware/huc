@@ -116,15 +116,33 @@ public sealed class TableColumnCollection : IReadOnlyList<TableColumn>, IBucketR
         return true;
     }
 
-    public bool ContainsColumn(string columnName) => TryGetColumn(columnName, out _);
+    public bool ContainsColumn(string columnName)
+    {
+        return TryGetColumn(columnName, out _);
+    }
 
-    public bool ContainsColumn(int columnIndex) => TryGetColumn(columnIndex, out _);
+    public bool ContainsColumn(int columnIndex)
+    {
+        return TryGetColumn(columnIndex, out _);
+    }
 
-    public bool ContainsColumn(TableColumn column) => columnsSet.Contains(column);
+    public bool ContainsColumn(TableColumn column)
+    {
+        return columnsSet.Contains(column);
+    }
 
-    public IEnumerator<TableColumn> GetEnumerator() => columns.GetEnumerator();
+    public IEnumerator<TableColumn> GetEnumerator()
+    {
+        return columns.GetEnumerator();
+    }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 
-    public override string ToString() => this.ToStringDelimited(", ");
+    public override string ToString()
+    {
+        return this.ToStringDelimited(", ");
+    }
 }

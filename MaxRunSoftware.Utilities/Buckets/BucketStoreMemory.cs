@@ -101,5 +101,4 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
             }
         }
     }
-    
 }

@@ -129,37 +129,85 @@ public static class ExtensionsType
 
     #region EqualsAny
 
-    public static bool Equals<T1>(this Type type) => typeof(T1) == type;
+    public static bool Equals<T1>(this Type type)
+    {
+        return typeof(T1) == type;
+    }
 
-    public static bool Equals<T1, T2>(this Type type) => typeof(T1) == type || typeof(T2) == type;
+    public static bool Equals<T1, T2>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type;
+    }
 
-    public static bool Equals<T1, T2, T3>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type;
+    public static bool Equals<T1, T2, T3>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type;
+    public static bool Equals<T1, T2, T3, T4>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type;
+    public static bool Equals<T1, T2, T3, T4, T5>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type;
+    }
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type || typeof(T16) == type;
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Type type)
+    {
+        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type || typeof(T16) == type;
+    }
 
     #endregion EqualsAny
 

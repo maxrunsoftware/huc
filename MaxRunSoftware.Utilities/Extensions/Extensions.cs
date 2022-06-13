@@ -106,7 +106,7 @@ public static class Extensions
             .Where(o => o.Name.Equals("Close"))
             .FirstOrDefault();
 
-        
+
         if (method == null)
         {
             throw new Exception("Close() method not found on object " + type.FullNameFormatted());
@@ -139,9 +139,15 @@ public static class Extensions
 
     #region Regex
 
-    public static string[] MatchAll(this Regex regex, string input) => regex.Matches(input).Select(o => o.Value).ToArray();
+    public static string[] MatchAll(this Regex regex, string input)
+    {
+        return regex.Matches(input).Select(o => o.Value).ToArray();
+    }
 
-    public static string MatchFirst(this Regex regex, string input) => regex.Matches(input).Select(o => o.Value).FirstOrDefault();
+    public static string MatchFirst(this Regex regex, string input)
+    {
+        return regex.Matches(input).Select(o => o.Value).FirstOrDefault();
+    }
 
     #endregion Regex
 

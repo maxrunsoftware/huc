@@ -25,22 +25,31 @@ public static class ExtensionsString
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The hashcode</returns>
-    public static int GetHashCodeCaseSensitive(this string str) => str == null ? 0 : StringComparer.Ordinal.GetHashCode(str);
+    public static int GetHashCodeCaseSensitive(this string str)
+    {
+        return str == null ? 0 : StringComparer.Ordinal.GetHashCode(str);
+    }
 
     /// <summary>
     /// Gets the OrdinalIgnoreCase hashcode
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The hashcode</returns>
-    public static int GetHashCodeCaseInsensitive(this string str) =>  str == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(str);
-    
+    public static int GetHashCodeCaseInsensitive(this string str)
+    {
+        return str == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(str);
+    }
+
 
     /// <summary>
     /// Removes the first character from a string if there is one
     /// </summary>
     /// <param name="str">The string</param>
     /// <returns>The string without the first character</returns>
-    public static string RemoveLeft(this string str) => RemoveLeft(str, out _);
+    public static string RemoveLeft(this string str)
+    {
+        return RemoveLeft(str, out _);
+    }
 
     /// <summary>
     /// Removes the leftmost character from a string
@@ -151,7 +160,10 @@ public static class ExtensionsString
         return strRemoved;
     }
 
-    public static string Remove(this string str, string toRemove) => Remove(str, toRemove, out _);
+    public static string Remove(this string str, string toRemove)
+    {
+        return Remove(str, toRemove, out _);
+    }
 
     public static string Right(this string str, int characterCount)
     {
@@ -670,8 +682,7 @@ public static class ExtensionsString
             var c = str[i];
             if (char.IsWhiteSpace(c))
             {
-                if (sb.Length == 0 && options == StringSplitOptions.RemoveEmptyEntries)
-                { }
+                if (sb.Length == 0 && options == StringSplitOptions.RemoveEmptyEntries) { }
                 else
                 {
                     list.Add(sb.ToString());

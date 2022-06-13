@@ -63,7 +63,7 @@ public static partial class Util
     public static (string directoryName, string fileName, string extension) SplitFileName(string file)
     {
         file = Path.GetFullPath(file);
-        var dn = Path.GetDirectoryName(file); 
+        var dn = Path.GetDirectoryName(file);
         var d = dn == null ? null : Path.GetFullPath(dn);
         var f = Path.GetFileNameWithoutExtension(file);
         var e = Path.GetExtension(file).TrimOrNull();
@@ -231,7 +231,7 @@ public static partial class Util
             {
                 // ReSharper disable once MustUseReturnValue
                 fs1.Read(one, 0, bytesToRead);
-                
+
                 // ReSharper disable once MustUseReturnValue
                 fs2.Read(two, 0, bytesToRead);
 
@@ -471,7 +471,7 @@ public static partial class Util
         {
             File.Delete(path);
         }
-        
+
         using (var stream = File.OpenWrite(path))
         {
             stream.Position = stream.Length;

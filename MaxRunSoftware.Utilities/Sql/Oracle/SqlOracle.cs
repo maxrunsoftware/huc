@@ -43,7 +43,7 @@ public class SqlOracle : Sql
         {
             return currentDatabaseName;
         }
-        
+
         var sqlStatements = new[]
         {
             "select SYS_CONTEXT('USERENV','DB_NAME') from dual;",
@@ -409,7 +409,10 @@ public class SqlOracle : Sql
         return true;
     }
 
-    public override string TextCreateTableColumn(TableColumn column) => throw new NotImplementedException();
+    public override string TextCreateTableColumn(TableColumn column)
+    {
+        throw new NotImplementedException();
+    }
 
     private bool ShouldStop(string database, out string dbName)
     {

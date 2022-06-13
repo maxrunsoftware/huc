@@ -112,8 +112,16 @@ public class AtomicBoolean : IComparable, IComparable<bool>, IEquatable<bool>, I
 
     public static bool operator ==(AtomicBoolean left, AtomicBoolean right)
     {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+        {
+            return true;
+        }
+
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
         return left.Equals(right);
     }
 

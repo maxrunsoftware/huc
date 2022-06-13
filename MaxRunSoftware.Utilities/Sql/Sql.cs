@@ -27,6 +27,7 @@ public abstract class Sql
     public ushort InsertBatchSize { get; set; } = 1000;
     public ushort InsertBatchSizeMax { get; set; } = 2000; // MSSQL Limit
     public ISet<string> ExcludedDatabases { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
     // ReSharper disable once CollectionNeverUpdated.Global
     public ISet<string> ExcludedSchemas { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public int CommandTimeout { get; set; } = 60 * 60 * 24; // 24 hours
@@ -99,9 +100,9 @@ public abstract class Sql
         sb.Append(") VALUES (");
         sb.Append(string.Join(",", columnParameterNames));
         sb.Append(");");
-        
+
         using var cmd = CreateCommand(connection, sb.ToString());
-        
+
         for (var i = 0; i < columnValues.Length; i++)
         {
             cmd.AddParameter(parameterName: columnParameterNames[i], value: columnValues[i]);
@@ -510,7 +511,10 @@ public abstract class Sql
         return new AggregateException("Error executing " + sqlStatementsArray.Length + " SQL queries", exceptions);
     }
 
-    public SqlType GetSqlDbType(object sqlDbTypeEnum) => sqlDbTypeEnum == null ? null : GetSqlDbType(sqlDbTypeEnum.ToString());
+    public SqlType GetSqlDbType(object sqlDbTypeEnum)
+    {
+        return sqlDbTypeEnum == null ? null : GetSqlDbType(sqlDbTypeEnum.ToString());
+    }
 
     public SqlType GetSqlDbType(string rawSqlDbType)
     {

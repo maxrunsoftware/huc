@@ -251,19 +251,37 @@ public static class ExtensionsToString
         return sb.ToString();
     }
 
-    public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter) => string.Join(delimiter, enumerable);
+    public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter)
+    {
+        return string.Join(delimiter, enumerable);
+    }
 
-    public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter) => enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);
+    public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter)
+    {
+        return enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);
+    }
 
-    public static string ToStringInsecure(this SecureString secureString) => new NetworkCredential("", secureString).Password;
+    public static string ToStringInsecure(this SecureString secureString)
+    {
+        return new NetworkCredential("", secureString).Password;
+    }
 
-    public static string ToStringTotalSeconds(this TimeSpan timeSpan, int numberOfDecimalDigits = 0) => timeSpan.TotalSeconds.ToString(MidpointRounding.AwayFromZero, Math.Max(0, numberOfDecimalDigits));
+    public static string ToStringTotalSeconds(this TimeSpan timeSpan, int numberOfDecimalDigits = 0)
+    {
+        return timeSpan.TotalSeconds.ToString(MidpointRounding.AwayFromZero, Math.Max(0, numberOfDecimalDigits));
+    }
 
     private static readonly string[] toStringBase16Cache = Enumerable.Range(0, 256).Select(o => BitConverter.ToString(new[] { (byte)o })).ToArray();
 
-    public static string ToStringBase16(this byte b) => toStringBase16Cache[b];
+    public static string ToStringBase16(this byte b)
+    {
+        return toStringBase16Cache[b];
+    }
 
     private static readonly string[] toStringBase64Cache = Enumerable.Range(0, 256).Select(o => Convert.ToBase64String(new[] { (byte)o }).Substring(0, 2)).ToArray();
 
-    public static string ToStringBase64(this byte b) => toStringBase64Cache[b];
+    public static string ToStringBase64(this byte b)
+    {
+        return toStringBase64Cache[b];
+    }
 }

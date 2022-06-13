@@ -1197,8 +1197,11 @@ public static class ExtensionsCollection
 
     public static T GetAtIndexOrDefault<T>(this IEnumerable<T> enumerable, int index, T defaultValue)
     {
-        if (enumerable == null) return defaultValue;
-        
+        if (enumerable == null)
+        {
+            return defaultValue;
+        }
+
         if (index < 0)
         {
             return defaultValue;
@@ -1332,27 +1335,60 @@ public static class ExtensionsCollection
 
     #region Dictionary
 
-    public static ReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) => new ReadOnlyDictionary<TKey, TValue>(dictionary);
+    public static ReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
+    {
+        return new(dictionary);
+    }
 
-    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : class => dictionary.TryGetValue(key, out var value) ? value : null;
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : class
+    {
+        return dictionary.TryGetValue(key, out var value) ? value : null;
+    }
 
-    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue?> dictionary, TKey key) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value : null;
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue?> dictionary, TKey key) where TValue : struct
+    {
+        return dictionary.TryGetValue(key, out var value) ? value : null;
+    }
 
-    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue[]> dictionary, TKey key, int index) where TValue : class => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue[]> dictionary, TKey key, int index) where TValue : class
+    {
+        return dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    }
 
-    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue?[]> dictionary, TKey key, int index) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue?[]> dictionary, TKey key, int index) where TValue : struct
+    {
+        return dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    }
 
-    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, IList<TValue>> dictionary, TKey key, int index) where TValue : class => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, IList<TValue>> dictionary, TKey key, int index) where TValue : class
+    {
+        return dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    }
 
-    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, IList<TValue?>> dictionary, TKey key, int index) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, IList<TValue?>> dictionary, TKey key, int index) where TValue : struct
+    {
+        return dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    }
 
-    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, int index) where TValue : class => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, int index) where TValue : class
+    {
+        return dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    }
 
-    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, List<TValue?>> dictionary, TKey key, int index) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, List<TValue?>> dictionary, TKey key, int index) where TValue : struct
+    {
+        return dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    }
 
-    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, IReadOnlyList<TValue>> dictionary, TKey key, int index) where TValue : class => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, IReadOnlyList<TValue>> dictionary, TKey key, int index) where TValue : class
+    {
+        return dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    }
 
-    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, IReadOnlyList<TValue?>> dictionary, TKey key, int index) where TValue : struct => dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    public static TValue? GetValueNullable<TKey, TValue>(this IDictionary<TKey, IReadOnlyList<TValue?>> dictionary, TKey key, int index) where TValue : struct
+    {
+        return dictionary.TryGetValue(key, out var value) ? value.GetAtIndexOrDefault(index) : null;
+    }
 
     /// <summary>
     /// Adds an item to a dictionary list, and creates that list if it doesn't already exist.

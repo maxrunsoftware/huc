@@ -144,13 +144,12 @@ public static partial class Util
                     try
                     {
                         var aa = Assembly.Load(assemblyName);
-                        
-                            var aaName = aa.FullName;
-                            if (aaName != null && !assemblyDictionary.ContainsKey(aaName))
-                            {
-                                items.Push(aa);
-                            }
-                        
+
+                        var aaName = aa.FullName;
+                        if (aaName != null && !assemblyDictionary.ContainsKey(aaName))
+                        {
+                            items.Push(aa);
+                        }
                     }
                     catch (Exception) { }
                 }

@@ -92,10 +92,13 @@ public static class ExtensionsStream
     public static void WriteToFile(this Stream stream, string path, int bufferSize = Constant.BUFFER_SIZE_OPTIMAL)
     {
         var directoryName = Path.GetDirectoryName(path);
-        if (directoryName != null) Directory.CreateDirectory(directoryName);
-        
+        if (directoryName != null)
+        {
+            Directory.CreateDirectory(directoryName);
+        }
+
         //if (File.Exists(path)) File.Delete(path);
-        
+
         using var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, FileOptions.None);
         CopyToWithCount(stream, fs, bufferSize);
         fs.Flush();

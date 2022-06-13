@@ -17,7 +17,7 @@ namespace MaxRunSoftware.Utilities;
 public interface ILogAppender
 {
     LogLevel Level { get; }
-    
+
     // ReSharper disable once UnusedParameter.Global
     void Log(object sender, LogEventArgs args);
 }

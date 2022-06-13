@@ -20,9 +20,18 @@ public class BucketStoreMemoryString : BucketStoreMemory<string, string>
 
     public BucketStoreMemoryString() : base(dictionaryFactory: dictionaryFactoryDefault) { }
 
-    protected override string CleanName(string name) => base.CleanName(name).CheckNotNullTrimmed(nameof(name));
+    protected override string CleanName(string name)
+    {
+        return base.CleanName(name).CheckNotNullTrimmed(nameof(name));
+    }
 
-    protected override string CleanKey(string key) => base.CleanKey(key).CheckNotNullTrimmed(nameof(key));
+    protected override string CleanKey(string key)
+    {
+        return base.CleanKey(key).CheckNotNullTrimmed(nameof(key));
+    }
 
-    protected override string CleanValue(string value) => base.CleanValue(value).TrimOrNull();
+    protected override string CleanValue(string value)
+    {
+        return base.CleanValue(value).TrimOrNull();
+    }
 }

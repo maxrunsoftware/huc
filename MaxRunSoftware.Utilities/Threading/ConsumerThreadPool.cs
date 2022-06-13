@@ -96,10 +96,10 @@ public class ConsumerThreadPool<T> : IDisposable
                         }
 
                         threads.Add(thread);
-                        
+
                         //threadCounter++;
                         Interlocked.Increment(ref threadCounter);
-                        
+
                         log.Debug(threadName + ": Created and Started thread");
                     }
                 }
@@ -142,15 +142,27 @@ public class ConsumerThreadPool<T> : IDisposable
         }
     }
 
-    protected virtual ConsumerThread<T> CreateThread(Action<T> workToPerform) => new ConsumerThread<T>(queue, workToPerform);
+    protected virtual ConsumerThread<T> CreateThread(Action<T> workToPerform)
+    {
+        return new(queue, workToPerform);
+    }
 
-    protected virtual void DestroyThread(ConsumerThread<T> consumerThread) => consumerThread.Cancel();
+    protected virtual void DestroyThread(ConsumerThread<T> consumerThread)
+    {
+        consumerThread.Cancel();
+    }
 
-    public void AddWorkItem(T item) => queue.Add(item);
-    
+    public void AddWorkItem(T item)
+    {
+        queue.Add(item);
+    }
 
-    public void FinishedAddingWorkItems() => queue.CompleteAdding();
-    
+
+    public void FinishedAddingWorkItems()
+    {
+        queue.CompleteAdding();
+    }
+
 
     public void Dispose()
     {

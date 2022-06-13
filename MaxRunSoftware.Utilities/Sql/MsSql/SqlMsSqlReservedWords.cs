@@ -15,7 +15,10 @@
 namespace MaxRunSoftware.Utilities;
 
 /// <summary>
-/// <see href="https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql">Reserved Words</see>
+///     <see href="https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql">
+///     Reserved
+///     Words
+///     </see>
 /// </summary>
 public static class SqlMsSqlReservedWords
 {

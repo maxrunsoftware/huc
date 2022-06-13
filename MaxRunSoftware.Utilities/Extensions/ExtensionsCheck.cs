@@ -304,7 +304,10 @@ public static class ExtensionsCheck
     }
 
     // ReSharper disable once UnusedParameter.Global
-    public static byte CheckNotNegative(this byte argument, string argumentName) => argument;
+    public static byte CheckNotNegative(this byte argument, string argumentName)
+    {
+        return argument;
+    }
 
     public static decimal CheckNotNegative(this decimal argument, string argumentName)
     {

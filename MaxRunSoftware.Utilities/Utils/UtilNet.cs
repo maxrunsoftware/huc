@@ -287,7 +287,10 @@ public static partial class Util
                 if (outFilename.ContainsAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString()))
                 {
                     var directoryName = Path.GetDirectoryName(outFilename);
-                    if (directoryName != null) Directory.CreateDirectory(directoryName);
+                    if (directoryName != null)
+                    {
+                        Directory.CreateDirectory(directoryName);
+                    }
                 }
             }
 
@@ -326,10 +329,7 @@ public static partial class Util
                 }
 
                 return new WebResponse(url, data, cli.ResponseHeaders);
-
             }
-
-            
         }
     }
 

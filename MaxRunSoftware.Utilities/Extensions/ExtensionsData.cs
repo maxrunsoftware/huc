@@ -79,7 +79,11 @@ public static class ExtensionsData
     public static IDataParameter SetParameterValue(this IDbCommand command, int parameterIndex, object value)
     {
         var o = command.Parameters[parameterIndex];
-        if (o is not IDbDataParameter p) return null;
+        if (o is not IDbDataParameter p)
+        {
+            return null;
+        }
+
         p.Value = value ?? DBNull.Value;
         return p;
     }
