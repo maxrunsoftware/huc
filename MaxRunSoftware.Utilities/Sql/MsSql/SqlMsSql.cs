@@ -20,6 +20,7 @@ public class SqlMsSql : Sql
 
     public SqlMsSql()
     {
+        // ReSharper disable once StringLiteralTypo
         ExcludedDatabases.Add("master", "model", "msdb", "tempdb");
         DefaultDataTypeString = GetSqlDbType(SqlMsSqlType.NVarChar).SqlTypeName + "(MAX)";
         DefaultDataTypeInteger = GetSqlDbType(SqlMsSqlType.Int).SqlTypeName;
@@ -62,7 +63,7 @@ public class SqlMsSql : Sql
     public override IEnumerable<SqlObjectSchema> GetSchemas(string database = null)
     {
         var databaseNames = GetDatabaseNames(database);
-        var sqls = new List<string>();
+        var sqlStatements = new List<string>();
         foreach (var d in databaseNames)
         {
             var sql = new StringBuilder();
@@ -74,12 +75,12 @@ public class SqlMsSql : Sql
             }
 
             sql.Append(';');
-            sqls.Add(sql.ToString());
+            sqlStatements.Add(sql.ToString());
         }
 
         var querySuccess = false;
         var exceptions = new List<Exception>();
-        foreach (var sql in sqls)
+        foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
             if (t == null)
@@ -102,14 +103,14 @@ public class SqlMsSql : Sql
 
         if (!querySuccess && exceptions.IsNotEmpty())
         {
-            throw CreateExceptionErrorInSqls(sqls, exceptions);
+            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
         }
     }
 
     public override IEnumerable<SqlObjectTable> GetTables(string database = null, string schema = null)
     {
         var databaseNames = GetDatabaseNames(database);
-        var sqls = new List<string>();
+        var sqlStatements = new List<string>();
         foreach (var d in databaseNames)
         {
             var sql = new StringBuilder();
@@ -127,12 +128,12 @@ public class SqlMsSql : Sql
             }
 
             sql.Append(';');
-            sqls.Add(sql.ToString());
+            sqlStatements.Add(sql.ToString());
         }
 
         var querySuccess = false;
         var exceptions = new List<Exception>();
-        foreach (var sql in sqls)
+        foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
             if (t == null)
@@ -161,7 +162,7 @@ public class SqlMsSql : Sql
 
         if (!querySuccess && exceptions.IsNotEmpty())
         {
-            throw CreateExceptionErrorInSqls(sqls, exceptions);
+            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
         }
     }
 
@@ -183,7 +184,7 @@ public class SqlMsSql : Sql
             "NUMERIC_SCALE", // 9
             "COLUMN_DEFAULT" // 10
         };
-        var sqls = new List<string>();
+        var sqlStatements = new List<string>();
         foreach (var d in databaseNames)
         {
             var sql = new StringBuilder();
@@ -207,12 +208,12 @@ public class SqlMsSql : Sql
             }
 
             sql.Append(';');
-            sqls.Add(sql.ToString());
+            sqlStatements.Add(sql.ToString());
         }
 
         var querySuccess = false;
         var exceptions = new List<Exception>();
-        foreach (var sql in sqls)
+        foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
             if (t == null)
@@ -224,7 +225,7 @@ public class SqlMsSql : Sql
             foreach (var r in t)
             {
                 var dbTypeItem = GetSqlDbType(r[4]);
-                var dbType = dbTypeItem != null ? dbTypeItem.DbType : DbType.String;
+                var dbType = dbTypeItem?.DbType ?? DbType.String;
                 var so = new SqlObjectTableColumn(
                     r[0],
                     r[1],
@@ -261,7 +262,7 @@ public class SqlMsSql : Sql
 
         if (!querySuccess && exceptions.IsNotEmpty())
         {
-            throw CreateExceptionErrorInSqls(sqls, exceptions);
+            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
         }
     }
 
@@ -281,7 +282,7 @@ public class SqlMsSql : Sql
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
-        return GetTables(database, schema).Where(o => o.TableName.EqualsCaseInsensitive(table)).Any();
+        return GetTables(database, schema).Any(o => o.TableName.EqualsCaseInsensitive(table));
     }
 
     public override bool DropTable(string database, string schema, string table)

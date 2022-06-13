@@ -46,7 +46,7 @@ public sealed class SqlParameter
         if (value == null)
         {
             Type = DbType.String;
-            Value = value;
+            Value = null;
         }
         else
         {

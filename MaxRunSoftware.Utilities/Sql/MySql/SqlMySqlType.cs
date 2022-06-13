@@ -98,6 +98,7 @@ public enum SqlMySqlType
     /// <summary>
     /// Obsolete Use Datetime or Date type
     /// </summary>
+    // ReSharper disable once IdentifierTypo
     [SqlType(DbType.DateTime)] Newdate = 14,
 
     /// <summary>

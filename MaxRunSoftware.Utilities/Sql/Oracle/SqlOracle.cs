@@ -20,7 +20,6 @@ public class SqlOracle : Sql
 
     public SqlOracle()
     {
-        //ExcludedDatabases.Add("master", "model", "msdb", "tempdb");
         DefaultDataTypeString = GetSqlDbType(SqlOracleType.NClob).SqlTypeName;
         DefaultDataTypeInteger = GetSqlDbType(SqlOracleType.Int32).SqlTypeName;
         DefaultDataTypeDateTime = GetSqlDbType(SqlOracleType.DateTime).SqlTypeName;
@@ -44,8 +43,8 @@ public class SqlOracle : Sql
         {
             return currentDatabaseName;
         }
-
-        var sqls = new[]
+        
+        var sqlStatements = new[]
         {
             "select SYS_CONTEXT('USERENV','DB_NAME') from dual;",
             "select global_name from global_name;",
@@ -55,7 +54,7 @@ public class SqlOracle : Sql
         };
 
         var exceptions = new List<Exception>();
-        foreach (var sql in sqls)
+        foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
             if (t == null)
@@ -78,7 +77,7 @@ public class SqlOracle : Sql
 
         if (exceptions.IsNotEmpty())
         {
-            throw CreateExceptionErrorInSqls(sqls, exceptions);
+            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
         }
 
         return null;
@@ -86,7 +85,7 @@ public class SqlOracle : Sql
 
     public override string GetCurrentSchemaName()
     {
-        var sqls = new[]
+        var sqlStatements = new[]
         {
             "select SYS_CONTEXT('USERENV','CURRENT_SCHEMA') from dual;",
             "select user from dual;",
@@ -94,7 +93,7 @@ public class SqlOracle : Sql
         };
 
         var exceptions = new List<Exception>();
-        foreach (var sql in sqls)
+        foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
             if (t == null)
@@ -114,7 +113,7 @@ public class SqlOracle : Sql
 
         if (exceptions.IsNotEmpty())
         {
-            throw CreateExceptionErrorInSqls(sqls, exceptions);
+            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
         }
 
         return null;
@@ -146,7 +145,7 @@ public class SqlOracle : Sql
         }
 
         // TODO: Expensive operation
-        var sqls = new[]
+        var sqlStatements = new[]
         {
             "SELECT DISTINCT username FROM dba_users;",
             "SELECT DISTINCT username FROM all_users;",
@@ -158,7 +157,7 @@ public class SqlOracle : Sql
 
         var exceptions = new List<Exception>();
         var alreadyUsed = new HashSet<SqlObjectSchema>();
-        foreach (var sql in sqls)
+        foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
             if (t == null)
@@ -191,7 +190,7 @@ public class SqlOracle : Sql
 
         if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty())
         {
-            throw CreateExceptionErrorInSqls(sqls, exceptions);
+            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
         }
     }
 
@@ -205,7 +204,7 @@ public class SqlOracle : Sql
         var currentSchema = GetCurrentSchemaName();
 
         // TODO: Expensive operation
-        var sqls = new[]
+        var sqlStatements = new[]
         {
             "SELECT DISTINCT OWNER,TABLE_NAME FROM dba_tables;",
             "SELECT DISTINCT OWNER,TABLE_NAME FROM all_tables;",
@@ -214,7 +213,7 @@ public class SqlOracle : Sql
 
         var exceptions = new List<Exception>();
         var alreadyUsed = new HashSet<SqlObjectTable>();
-        foreach (var sql in sqls)
+        foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
             if (t == null)
@@ -249,7 +248,7 @@ public class SqlOracle : Sql
 
         if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty())
         {
-            throw CreateExceptionErrorInSqls(sqls, exceptions);
+            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
         }
     }
 
@@ -276,7 +275,7 @@ public class SqlOracle : Sql
             "DATA_DEFAULT",
             "CHAR_LENGTH"
         };
-        var sqls = new[]
+        var sqlStatements = new[]
         {
             "SELECT DISTINCT      " + cols.ToStringDelimited(",") + " FROM dba_tab_columns;",
             "SELECT DISTINCT      " + cols.ToStringDelimited(",") + " FROM all_tab_columns;",
@@ -285,7 +284,7 @@ public class SqlOracle : Sql
 
         var exceptions = new List<Exception>();
         var alreadyUsed = new HashSet<SqlObjectTableColumn>();
-        foreach (var sql in sqls)
+        foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
             if (t == null)
@@ -321,7 +320,7 @@ public class SqlOracle : Sql
                 }
 
                 var dbTypeItem = GetSqlDbType(r["DATA_TYPE"]);
-                var dbType = dbTypeItem != null ? dbTypeItem.DbType : DbType.String;
+                var dbType = dbTypeItem?.DbType ?? DbType.String;
 
                 var so = new SqlObjectTableColumn(
                     dbName,
@@ -354,7 +353,7 @@ public class SqlOracle : Sql
 
         if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty())
         {
-            throw CreateExceptionErrorInSqls(sqls, exceptions);
+            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
         }
     }
 
@@ -410,10 +409,7 @@ public class SqlOracle : Sql
         return true;
     }
 
-    public override string TextCreateTableColumn(TableColumn column)
-    {
-        throw new NotImplementedException();
-    }
+    public override string TextCreateTableColumn(TableColumn column) => throw new NotImplementedException();
 
     private bool ShouldStop(string database, out string dbName)
     {
@@ -438,7 +434,7 @@ public class SqlOracle : Sql
         {
             if (ExcludedDatabases.Contains(dbName))
             {
-                log.Debug($"Requesred database name '{database}' is in our list of {nameof(ExcludedDatabases)} so we are not continuing request");
+                log.Debug($"Requested database name '{database}' is in our list of {nameof(ExcludedDatabases)} so we are not continuing request");
                 return true;
             }
         }

@@ -22,7 +22,6 @@ public class SqlMySql : Sql
 
     public SqlMySql()
     {
-        //ExcludedDatabases.Add("master", "model", "msdb", "tempdb");
         DefaultDataTypeString = GetSqlDbType(SqlMySqlType.LongText).SqlTypeName;
         DefaultDataTypeInteger = GetSqlDbType(SqlMySqlType.Int32).SqlTypeName;
         DefaultDataTypeDateTime = GetSqlDbType(SqlMySqlType.DateTime).SqlTypeName;
@@ -163,7 +162,7 @@ public class SqlMySql : Sql
         foreach (var r in t)
         {
             var dbTypeItem = GetSqlDbType(r[3]);
-            var dbType = dbTypeItem != null ? dbTypeItem.DbType : DbType.String;
+            var dbType = dbTypeItem?.DbType ?? DbType.String;
 
             var so = new SqlObjectTableColumn(
                 r[0],
@@ -214,7 +213,7 @@ public class SqlMySql : Sql
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
-        return GetTables(dbName, dbName).Where(o => o.TableName.EqualsCaseInsensitive(table)).Any();
+        return GetTables(dbName, dbName).Any(o => o.TableName.EqualsCaseInsensitive(table));
     }
 
     public override bool DropTable(string database, string schema, string table)

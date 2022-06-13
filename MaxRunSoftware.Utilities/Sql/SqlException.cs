@@ -87,7 +87,7 @@ public class SqlException : Exception
         catch (Exception e)
         {
             var msgPart = new StringBuilder(": [Unable to parse parameters");
-            var parseParametersMsg = e?.Message?.TrimOrNull();
+            var parseParametersMsg = e.Message.TrimOrNull();
             if (parseParametersMsg != null)
             {
                 parseParametersMsg = parseParametersMsg.SplitOnNewline().TrimOrNull().WhereNotNull().ToStringDelimited(" ").TrimOrNull();

@@ -163,7 +163,7 @@ public class SqlType
             }
             else
             {
-                throw new InvalidOperationException(enumType.FullNameFormatted() + "." + item.EnumName + " references non-existant item " + item.actualItemName);
+                throw new InvalidOperationException(enumType.FullNameFormatted() + "." + item.EnumName + " references non-existent item " + item.actualItemName);
             }
         }
 
@@ -176,13 +176,13 @@ public class SqlType
         // Update SqlTypeName for other objects
         foreach (var item in list.Where(o => o.ActualItem == null))
         {
-            var areadyCheckedItemNames = new HashSet<string>();
+            var alreadyCheckedItemNames = new HashSet<string>();
             var current = item;
             while (current.ActualItem != null)
             {
-                if (!areadyCheckedItemNames.Add(current.EnumName))
+                if (!alreadyCheckedItemNames.Add(current.EnumName))
                 {
-                    throw new InvalidOperationException($"Circular [{nameof(SqlTypeAttribute.ActualSqlType)}] reference detected in {item.EnumType.FullNameFormatted()} with items " + areadyCheckedItemNames.OrderBy(o => o.ToUpper().ToStringDelimited(", ")));
+                    throw new InvalidOperationException($"Circular [{nameof(SqlTypeAttribute.ActualSqlType)}] reference detected in {item.EnumType.FullNameFormatted()} with items " + alreadyCheckedItemNames.OrderBy(o => o.ToUpper().ToStringDelimited(", ")));
                 }
 
                 current = current.ActualItem;

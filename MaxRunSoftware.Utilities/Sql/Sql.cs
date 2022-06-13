@@ -14,11 +14,10 @@
 
 namespace MaxRunSoftware.Utilities;
 
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 public abstract class Sql
 {
     protected readonly ILogger log;
-
-    public bool IsDisposed { get; private set; }
 
     public virtual Func<IDbConnection> ConnectionFactory { get; set; }
     public bool ExceptionShowFullSql { get; set; }
@@ -28,6 +27,7 @@ public abstract class Sql
     public ushort InsertBatchSize { get; set; } = 1000;
     public ushort InsertBatchSizeMax { get; set; } = 2000; // MSSQL Limit
     public ISet<string> ExcludedDatabases { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    // ReSharper disable once CollectionNeverUpdated.Global
     public ISet<string> ExcludedSchemas { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public int CommandTimeout { get; set; } = 60 * 60 * 24; // 24 hours
     public string DefaultDataTypeString { get; set; }
@@ -38,7 +38,7 @@ public abstract class Sql
     public ISet<string> ReservedWords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public ISet<char> ValidIdentifierChars { get; } = new HashSet<char>();
 
-    public Sql()
+    protected Sql()
     {
         log = LogFactory.LogFactoryImpl.GetLogger(GetType());
     }
@@ -99,15 +99,15 @@ public abstract class Sql
         sb.Append(") VALUES (");
         sb.Append(string.Join(",", columnParameterNames));
         sb.Append(");");
-        using (var cmd = CreateCommand(connection, sb.ToString()))
+        
+        using var cmd = CreateCommand(connection, sb.ToString());
+        
+        for (var i = 0; i < columnValues.Length; i++)
         {
-            for (var i = 0; i < columnValues.Length; i++)
-            {
-                cmd.AddParameter(parameterName: columnParameterNames[i], value: columnValues[i]);
-            }
-
-            cmd.ExecuteNonQuery();
+            cmd.AddParameter(parameterName: columnParameterNames[i], value: columnValues[i]);
         }
+
+        cmd.ExecuteNonQuery();
     }
 
     public virtual void Insert(string database, string schema, string table, Table tableData, ushort? batchSize = null)
@@ -119,7 +119,7 @@ public abstract class Sql
 
         var sqlObjectTableColumns = InsertGetTableColumns(database, schema, table);
 
-        int bs = batchSize != null ? batchSize.Value : InsertBatchSize;
+        int bs = batchSize ?? InsertBatchSize;
         int bsm = InsertBatchSize;
         if (bs > bsm)
         {
@@ -165,10 +165,7 @@ public abstract class Sql
             IDbCommand command = null;
             foreach (var row in tableData)
             {
-                if (command == null)
-                {
-                    command = CreateCommand(connection, null);
-                }
+                command ??= CreateCommand(connection, null);
 
                 currentRow++;
                 currentRowInBatch++;
@@ -179,9 +176,9 @@ public abstract class Sql
                     var val = row[i];
                     if (InsertCoerceValues)
                     {
-                        if (sqlObjectTableColumns != null && sqlObjectTableColumns.TryGetValue(tableData.Columns[i].Name, out var sotc))
+                        if (sqlObjectTableColumns != null && sqlObjectTableColumns.TryGetValue(tableData.Columns[i].Name, out var sqlObjectTableColumn))
                         {
-                            val = InsertCoerceValue(val, sotc);
+                            val = InsertCoerceValue(val, sqlObjectTableColumn);
                         }
                     }
 
@@ -209,13 +206,15 @@ public abstract class Sql
                 }
             }
 
-            if (command != null)
+            if (command == null)
             {
-                log.Trace("ExecuteNonQuery: " + command.CommandText);
-                command.ExecuteNonQueryExceptionWrapped(ExceptionShowFullSql);
-                command.Dispose();
-                command = null;
+                return;
             }
+
+            log.Trace("ExecuteNonQuery: " + command.CommandText);
+            command.ExecuteNonQueryExceptionWrapped(ExceptionShowFullSql);
+            command.Dispose();
+            //command = null;
         }
     }
 
@@ -434,7 +433,7 @@ public abstract class Sql
         objectToEscape = objectToEscape.TrimOrNull();
         if (objectToEscape == null)
         {
-            return objectToEscape;
+            return null;
         }
 
         if (!NeedsEscaping(objectToEscape))
@@ -462,13 +461,13 @@ public abstract class Sql
         objectToUnescape = objectToUnescape.TrimOrNull();
         if (objectToUnescape == null)
         {
-            return objectToUnescape;
+            return null;
         }
 
         var el = EscapeLeft;
         if (el != null)
         {
-            while (objectToUnescape != null && objectToUnescape.Length > 0 && objectToUnescape.StartsWith(el.Value))
+            while (!string.IsNullOrEmpty(objectToUnescape) && objectToUnescape.StartsWith(el.Value))
             {
                 objectToUnescape = objectToUnescape.RemoveLeft(1).TrimOrNull();
             }
@@ -477,7 +476,7 @@ public abstract class Sql
         var er = EscapeRight;
         if (er != null)
         {
-            while (objectToUnescape != null && objectToUnescape.Length > 0 && objectToUnescape.EndsWith(er.Value))
+            while (!string.IsNullOrEmpty(objectToUnescape) && objectToUnescape.EndsWith(er.Value))
             {
                 objectToUnescape = objectToUnescape.RemoveRight(1).TrimOrNull();
             }
@@ -505,21 +504,13 @@ public abstract class Sql
         return null;
     }
 
-    protected AggregateException CreateExceptionErrorInSqls(IEnumerable<string> sqls, IEnumerable<Exception> exceptions)
+    protected AggregateException CreateExceptionErrorInSqlStatements(IEnumerable<string> sqlStatements, IEnumerable<Exception> exceptions)
     {
-        var sqlsArray = sqls.ToArray();
-        return new AggregateException("Error executing " + sqlsArray.Length + " SQL queries", exceptions);
+        var sqlStatementsArray = sqlStatements.ToArray();
+        return new AggregateException("Error executing " + sqlStatementsArray.Length + " SQL queries", exceptions);
     }
 
-    public SqlType GetSqlDbType(object sqlDbTypeEnum)
-    {
-        if (sqlDbTypeEnum == null)
-        {
-            return null;
-        }
-
-        return GetSqlDbType(sqlDbTypeEnum.ToString());
-    }
+    public SqlType GetSqlDbType(object sqlDbTypeEnum) => sqlDbTypeEnum == null ? null : GetSqlDbType(sqlDbTypeEnum.ToString());
 
     public SqlType GetSqlDbType(string rawSqlDbType)
     {

@@ -268,7 +268,7 @@ public class SqlResultRow : SqlResultBase, IReadOnlyList<object>
         return GetConvert<T>(GetObject(column));
     }
 
-    private static readonly Dictionary<Type, Func<string, object>> CONVERTERS = CreateConverters();
+    private static readonly Dictionary<Type, Func<string, object>> converters = CreateConverters();
 
     private static Dictionary<Type, Func<string, object>> CreateConverters()
     {
@@ -336,7 +336,7 @@ public class SqlResultRow : SqlResultBase, IReadOnlyList<object>
             return default;
         }
 
-        if (CONVERTERS.TryGetValue(returnType, out var converter))
+        if (converters.TryGetValue(returnType, out var converter))
         {
             return (T)converter(os);
         }

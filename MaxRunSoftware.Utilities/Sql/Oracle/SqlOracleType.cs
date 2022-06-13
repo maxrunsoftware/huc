@@ -208,6 +208,7 @@ public enum SqlOracleType
     /// fixed size of 13 bytes. Use the .NET DateTime or OracleClient OracleDateTime data type in Value.
     /// </summary>
     [SqlType(DbType.DateTime, SqlTypeNames = "TIMESTAMP WITH TIME ZONE")]
+    // ReSharper disable once InconsistentNaming
     TimestampWithTZ = 20,
 
     /// <summary>
