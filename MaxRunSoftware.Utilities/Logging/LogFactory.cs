@@ -16,6 +16,7 @@ using System.Diagnostics;
 
 namespace MaxRunSoftware.Utilities;
 
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 public class LogFactory : ILogFactory
 {
     public static ILogFactory LogFactoryImpl { get; } = new LogFactory();
@@ -218,7 +219,7 @@ public class LogFactory : ILogFactory
                 IsErrorEnabled = true;
                 IsCriticalEnabled = true;
             }
-            else if (level == LogLevel.Error)
+            else if (level == LogLevel.Critical)
             {
                 IsCriticalEnabled = true;
             }

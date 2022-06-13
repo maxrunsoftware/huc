@@ -82,14 +82,14 @@ public sealed class LogEventArgs : EventArgs
 
             try
             {
-                var cfln = frame.GetFileLineNumber();
-                if (cfln < 1)
+                var fileLineNumber = frame.GetFileLineNumber();
+                if (fileLineNumber < 1)
                 {
                     CallingFileLineNumber = null;
                 }
                 else
                 {
-                    CallingFileLineNumber = cfln;
+                    CallingFileLineNumber = fileLineNumber;
                 }
             }
             catch (Exception) { }
