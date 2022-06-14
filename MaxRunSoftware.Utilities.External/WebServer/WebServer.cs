@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -34,6 +32,7 @@ public class WebServer : IDisposable
     {
         public Swan.Logging.LogLevel LogLevel { get; }
         private readonly ILogger logSwan;
+
         private SwanLogger(Swan.Logging.LogLevel logLevel, ILogger logSwan)
         {
             LogLevel = logLevel;
@@ -52,28 +51,80 @@ public class WebServer : IDisposable
 
         public void Log(LogMessageReceivedEventArgs logEvent)
         {
-            if (logEvent.MessageType != LogLevel) return;
+            if (logEvent.MessageType != LogLevel)
+            {
+                return;
+            }
+
             switch (LogLevel)
             {
                 case Swan.Logging.LogLevel.None:
                     break;
                 case Swan.Logging.LogLevel.Trace:
-                    if (logEvent.Exception == null) logSwan.Trace(logEvent.Message); else logSwan.Trace(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null)
+                    {
+                        logSwan.Trace(logEvent.Message);
+                    }
+                    else
+                    {
+                        logSwan.Trace(logEvent.Message, logEvent.Exception);
+                    }
+
                     break;
                 case Swan.Logging.LogLevel.Debug:
-                    if (logEvent.Exception == null) logSwan.Debug(logEvent.Message); else logSwan.Debug(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null)
+                    {
+                        logSwan.Debug(logEvent.Message);
+                    }
+                    else
+                    {
+                        logSwan.Debug(logEvent.Message, logEvent.Exception);
+                    }
+
                     break;
                 case Swan.Logging.LogLevel.Info:
-                    if (logEvent.Exception == null) logSwan.Info(logEvent.Message); else logSwan.Info(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null)
+                    {
+                        logSwan.Info(logEvent.Message);
+                    }
+                    else
+                    {
+                        logSwan.Info(logEvent.Message, logEvent.Exception);
+                    }
+
                     break;
                 case Swan.Logging.LogLevel.Warning:
-                    if (logEvent.Exception == null) logSwan.Warn(logEvent.Message); else logSwan.Warn(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null)
+                    {
+                        logSwan.Warn(logEvent.Message);
+                    }
+                    else
+                    {
+                        logSwan.Warn(logEvent.Message, logEvent.Exception);
+                    }
+
                     break;
                 case Swan.Logging.LogLevel.Error:
-                    if (logEvent.Exception == null) logSwan.Error(logEvent.Message); else logSwan.Error(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null)
+                    {
+                        logSwan.Error(logEvent.Message);
+                    }
+                    else
+                    {
+                        logSwan.Error(logEvent.Message, logEvent.Exception);
+                    }
+
                     break;
                 case Swan.Logging.LogLevel.Fatal:
-                    if (logEvent.Exception == null) logSwan.Critical(logEvent.Message); else logSwan.Critical(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null)
+                    {
+                        logSwan.Critical(logEvent.Message);
+                    }
+                    else
+                    {
+                        logSwan.Critical(logEvent.Message, logEvent.Exception);
+                    }
+
                     break;
             }
         }
@@ -81,18 +132,26 @@ public class WebServer : IDisposable
 
     private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
-    private readonly SingleUse started = new SingleUse();
-    private readonly SingleUse disposable = new SingleUse();
-    private static readonly SingleUse registerLoggers = new SingleUse();
+    private readonly SingleUse started = new();
+    private readonly SingleUse disposable = new();
+    private static readonly SingleUse registerLoggers = new();
+
     private static void RegisterLoggers()
     {
-        if (!registerLoggers.TryUse()) return;
+        if (!registerLoggers.TryUse())
+        {
+            return;
+        }
+
         Logger.NoLogging();
-        foreach (var logger in SwanLogger.CreateLoggers(log)) Logger.RegisterLogger(logger);
-
-
+        foreach (var logger in SwanLogger.CreateLoggers(log))
+        {
+            Logger.RegisterLogger(logger);
+        }
     }
+
     private EmbedIO.WebServer server;
+
     public WebServer()
     {
         RegisterLoggers();
@@ -114,19 +173,23 @@ public class WebServer : IDisposable
 
     public void Start(WebServerConfig config)
     {
+        if (!started.TryUse())
+        {
+            throw new Exception("Start() already called");
+        }
 
-        if (!started.TryUse()) throw new Exception("Start() already called");
         config = config.Copy();
         log.Debug(config.ToString());
         server = new EmbedIO.WebServer(o => o.WithUrlPrefixes(config.UrlPrefixes).WithMode(HttpListenerMode.EmbedIO));
 
         if (config.Users.Count > 0)
         {
-            BasicAuthenticationModule b = new BasicAuthenticationModule("/");
+            var b = new BasicAuthenticationModule("/");
             foreach (var account in config.Users)
             {
                 b.Accounts[account.username] = account.password;
             }
+
             server = server.WithModule(b);
         }
 
@@ -135,15 +198,24 @@ public class WebServer : IDisposable
         foreach (var pathHandler in config.PathHandlers)
         {
             var path = pathHandler.Key;
-            if (!path.StartsWith("/")) path = "/" + path;
+            if (!path.StartsWith("/"))
+            {
+                path = "/" + path;
+            }
+
             log.Debug(nameof(pathHandler) + "[" + path + "]: " + pathHandler.Value.Item1);
             var am = new ActionModule(path, pathHandler.Value.Item1, ctx => ProcessAction(ctx, pathHandler.Value.handler));
             server = server.WithModule(am);
         }
+
         if (config.DirectoryToServe != null && config.DirectoryToServeUrlPath != null)
         {
             var directoryToServeUrlPath = config.DirectoryToServeUrlPath;
-            if (!directoryToServeUrlPath.StartsWith("/")) directoryToServeUrlPath = "/" + directoryToServeUrlPath;
+            if (!directoryToServeUrlPath.StartsWith("/"))
+            {
+                directoryToServeUrlPath = "/" + directoryToServeUrlPath;
+            }
+
             log.Debug(nameof(config.DirectoryToServeUrlPath) + ": " + directoryToServeUrlPath);
             log.Debug(nameof(config.DirectoryToServe) + ": " + config.DirectoryToServe);
             server = server.WithStaticFolder(directoryToServeUrlPath, config.DirectoryToServe, false, o => o.DirectoryLister = DirectoryLister.Html);
@@ -177,13 +249,22 @@ public class WebServer : IDisposable
     }
 
     public int ResponseDelayMilliseconds { get; set; } = 100;
+
     public void Dispose()
     {
-        if (!disposable.TryUse()) return;
+        if (!disposable.TryUse())
+        {
+            return;
+        }
+
         log.Debug("Shutting down web server");
         var s = server;
         server = null;
-        if (s == null) return;
+        if (s == null)
+        {
+            return;
+        }
+
         try
         {
             s.Dispose();
@@ -192,6 +273,7 @@ public class WebServer : IDisposable
         {
             log.Warn("Error disposing of " + s.GetType().FullNameFormatted(), e);
         }
+
         log.Debug("Web server shut down");
     }
 
@@ -201,17 +283,30 @@ public class WebServer : IDisposable
         sb.AppendLine("<html>");
         sb.AppendLine("  <head>");
         sb.AppendLine("    <meta charset=\"utf - 8\">");
-        if (title != null) sb.AppendLine($"    <title>{title}</title>");
+        if (title != null)
+        {
+            sb.AppendLine($"    <title>{title}</title>");
+        }
+
         if (css != null)
         {
             sb.AppendLine("    <style>");
             sb.AppendLine($"    {css}");
             sb.AppendLine("    </style>");
         }
+
         sb.AppendLine("  </head>");
         sb.AppendLine("  <body>");
-        if (title != null) sb.AppendLine($"    <h1>{title}</h1>");
-        if (msg != null) sb.AppendLine($"    {msg}");
+        if (title != null)
+        {
+            sb.AppendLine($"    <h1>{title}</h1>");
+        }
+
+        if (msg != null)
+        {
+            sb.AppendLine($"    {msg}");
+        }
+
         sb.AppendLine("  </body>");
         sb.AppendLine("</html>");
         return sb.ToString();

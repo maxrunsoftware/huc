@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -83,7 +81,11 @@ public abstract class FtpClientBase : IFtpClient
         if (!path.StartsWith("/"))
         {
             var wd = WorkingDirectory;
-            if (!wd.EndsWith("/")) path = "/" + path;
+            if (!wd.EndsWith("/"))
+            {
+                path = "/" + path;
+            }
+
             path = wd + path;
         }
 
@@ -91,17 +93,20 @@ public abstract class FtpClientBase : IFtpClient
         var stack = new Stack<string>();
         foreach (var pathPart in pathParts)
         {
-            if (pathPart.TrimOrNull() == ".")
-            { }
+            if (pathPart.TrimOrNull() == ".") { }
             else if (pathPart.TrimOrNull() == "..")
             {
-                if (stack.Count > 0) stack.Pop();
+                if (stack.Count > 0)
+                {
+                    stack.Pop();
+                }
             }
             else
             {
                 stack.Push(pathPart);
             }
         }
+
         path = "/" + string.Join("/", stack);
         return path;
     }
@@ -121,7 +126,11 @@ public abstract class FtpClientBase : IFtpClient
         }
 
         //remoteFile = ToAbsolutePath(remoteFile);
-        if (!ExistsFile(remoteFile)) throw new FileNotFoundException($"Remote file {remoteFile} does not exist", remoteFile);
+        if (!ExistsFile(remoteFile))
+        {
+            throw new FileNotFoundException($"Remote file {remoteFile} does not exist", remoteFile);
+        }
+
         log.Debug($"Downloading file {remoteFile} --> {localFile}");
 
         using (var localFileStream = Util.FileOpenWrite(localFile))
@@ -129,7 +138,8 @@ public abstract class FtpClientBase : IFtpClient
             GetFile(remoteFile, localFileStream);
             localFileStream.Flush();
         }
-        var fl = (new FileInfo(localFile)).Length.ToStringCommas();
+
+        var fl = new FileInfo(localFile).Length.ToStringCommas();
         log.Debug($"Downloaded {fl} byte file {remoteFile} --> {localFile}");
     }
 
@@ -148,7 +158,8 @@ public abstract class FtpClientBase : IFtpClient
             PutFile(remoteFile, localFileStream);
             localFileStream.Flush();
         }
-        var fl = (new FileInfo(localFile)).Length.ToStringCommas();
+
+        var fl = new FileInfo(localFile).Length.ToStringCommas();
         log.Debug($"Uploaded {fl} byte file {localFile} --> {remoteFile}");
     }
 
@@ -171,7 +182,7 @@ public abstract class FtpClientBase : IFtpClient
 
         var list = new List<FtpClientFile>
         {
-            new FtpClientFile(remotePath.Split('/').LastOrDefault(o => o.TrimOrNull() != null), remotePath, FtpClientFileType.Directory)
+            new(remotePath.Split('/').LastOrDefault(o => o.TrimOrNull() != null), remotePath, FtpClientFileType.Directory)
         };
         var checkedDirectories = new HashSet<string>();
         foreach (var dir in list.Where(o => o.Type == FtpClientFileType.Directory).ToList())
@@ -194,8 +205,12 @@ public abstract class FtpClientBase : IFtpClient
         {
             var pathParts = remoteFile.Split("/").TrimOrNull().WhereNotNull().ToList();
             var remoteFileName = pathParts.PopTail();
-            string path = string.Empty;
-            if (pathParts.Count > 0) path = "/" + string.Join("/", pathParts);
+            var path = string.Empty;
+            if (pathParts.Count > 0)
+            {
+                path = "/" + string.Join("/", pathParts);
+            }
+
             foreach (var file in ListFiles(path))
             {
                 if (file.Name.EqualsWildcard(remoteFileName))

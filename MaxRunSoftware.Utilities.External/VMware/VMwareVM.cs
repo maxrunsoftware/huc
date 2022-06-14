@@ -1,30 +1,36 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+
 // ReSharper disable RedundantCast
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class VMwareVM : VMwareObject
 {
-    public enum VmHardwareConnectionState { Connected, RecoverableError, UnrecoverableError, NotConnected, Unknown }
+    public enum VmHardwareConnectionState
+    {
+        Connected,
+        RecoverableError,
+        UnrecoverableError,
+        NotConnected,
+        Unknown
+    }
 
     public class GuestLocalFilesystem : VMwareObject
     {
@@ -180,7 +186,6 @@ public class VMwareVM : VMwareObject
             BackingAutoDetect = obj.ToBool("value", "backing", "auto_detect");
             BackingHostDevice = obj.ToString("value", "backing", "host_device");
             BackingImageFile = obj.ToString("value", "backing", "image_file");
-
         }
     }
 
@@ -223,7 +228,14 @@ public class VMwareVM : VMwareObject
         }
     }
 
-    public enum VMPowerState { Unknown, PoweredOff, PoweredOn, Suspended }
+    public enum VMPowerState
+    {
+        Unknown,
+        PoweredOff,
+        PoweredOn,
+        Suspended
+    }
+
     public string VM { get; }
     public string Name { get; }
     public long? MemorySizeMB { get; }
@@ -258,6 +270,7 @@ public class VMwareVM : VMwareObject
     public IReadOnlyList<GuestLocalFilesystem> GuestLocalFilesystems { get; }
     public bool IsVMwareToolsInstalled { get; }
     public string LibraryItem { get; }
+
     public VMwareVM(VMwareClient vmware, JToken obj)
     {
         VM = obj.ToString("vm");
@@ -267,7 +280,11 @@ public class VMwareVM : VMwareObject
         PowerState = obj.ToPowerState("power_state");
 
         obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM);
-        if (obj == null) return;
+        if (obj == null)
+        {
+            return;
+        }
+
         GuestOS = obj.ToString("guest_OS");
 
         MemoryHotAddEnabled = obj.ToBool("memory", "hot_add_enabled");
@@ -306,8 +323,14 @@ public class VMwareVM : VMwareObject
         var localFilesystem = QueryValueArraySafe(vmware, $"/rest/vcenter/vm/{VM}/guest/local-filesystem").ToArray();
         GuestLocalFilesystems = localFilesystem.Select(o => new GuestLocalFilesystem(o)).ToList();
 
-        if (obj == null && localFilesystem.Length == 0) IsVMwareToolsInstalled = false;
-        else IsVMwareToolsInstalled = true;
+        if (obj == null && localFilesystem.Length == 0)
+        {
+            IsVMwareToolsInstalled = false;
+        }
+        else
+        {
+            IsVMwareToolsInstalled = true;
+        }
 
         obj = QueryValueObjectSafe(vmware, $"/rest/vcenter/vm/{VM}/library-item");
         if (obj != null)
@@ -331,11 +354,21 @@ public class VMwareVM : VMwareObject
             .OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase)
             .FirstOrDefault(o => o[fieldName]?.ToString() != null && string.Equals(o[fieldName]?.ToString(), fieldValue, StringComparison.OrdinalIgnoreCase));
 
-        if (obj == null) return null;
+        if (obj == null)
+        {
+            return null;
+        }
+
         return new VMwareVM(vmware, obj);
     }
-    public static VMwareVM QueryByName(VMwareClient vmware, string name) => QueryBy(vmware, "name", name);
-    public static VMwareVM QueryByVM(VMwareClient vmware, string vm) => QueryBy(vmware, "vm", vm);
 
+    public static VMwareVM QueryByName(VMwareClient vmware, string name)
+    {
+        return QueryBy(vmware, "name", name);
+    }
 
+    public static VMwareVM QueryByVM(VMwareClient vmware, string vm)
+    {
+        return QueryBy(vmware, "vm", vm);
+    }
 }

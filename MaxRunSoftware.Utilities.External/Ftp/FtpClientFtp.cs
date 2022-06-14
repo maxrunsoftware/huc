@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -32,7 +30,11 @@ public class FtpClientFtp : FtpClientBase
         get
         {
             var c = client;
-            if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
+            if (c == null)
+            {
+                throw new ObjectDisposedException(GetType().FullNameFormatted());
+            }
+
             return c;
         }
     }
@@ -64,7 +66,11 @@ public class FtpClientFtp : FtpClientBase
         username ??= password = "anonymous";
 
         client = new FtpClient(host, port, new NetworkCredential(username, password));
-        client.ValidateCertificate += (_, e) => { log.Debug("Cert: " + e.Certificate.GetRawCertDataString()); e.Accept = true; };
+        client.ValidateCertificate += (_, e) =>
+        {
+            log.Debug("Cert: " + e.Certificate.GetRawCertDataString());
+            e.Accept = true;
+        };
         client.EncryptionMode = Util.GetEnumItem<FtpEncryptionMode>(encryptionMode.ToString());
 
         client.SslProtocols = sslProtocols;
@@ -80,17 +86,32 @@ public class FtpClientFtp : FtpClientBase
     private void LogMessage(FtpTraceLevel ftpTraceLevel, string message)
     {
         var msg = "FTP: " + message;
-        if (ftpTraceLevel == FtpTraceLevel.Verbose) log.Trace(msg);
-        else if (ftpTraceLevel == FtpTraceLevel.Info) log.Debug(msg);
-        else if (ftpTraceLevel == FtpTraceLevel.Warn) log.Warn(msg);
-        else if (ftpTraceLevel == FtpTraceLevel.Error) log.Error(msg);
+        if (ftpTraceLevel == FtpTraceLevel.Verbose)
+        {
+            log.Trace(msg);
+        }
+        else if (ftpTraceLevel == FtpTraceLevel.Info)
+        {
+            log.Debug(msg);
+        }
+        else if (ftpTraceLevel == FtpTraceLevel.Warn)
+        {
+            log.Warn(msg);
+        }
+        else if (ftpTraceLevel == FtpTraceLevel.Error)
+        {
+            log.Error(msg);
+        }
     }
 
-    protected override void GetFile(string remoteFile, Stream localStream) => Client.Download(localStream, remoteFile);
+    protected override void GetFile(string remoteFile, Stream localStream)
+    {
+        Client.Download(localStream, remoteFile);
+    }
 
     protected override void PutFile(string remoteFile, Stream localStream)
     {
-        bool success = false;
+        var success = false;
         try
         {
             Client.Upload(localStream, remoteFile);
@@ -113,7 +134,6 @@ public class FtpClientFtp : FtpClientBase
                 log.Error("Error putting file (second time)", ee);
                 throw;
             }
-
         }
     }
 
@@ -123,18 +143,33 @@ public class FtpClientFtp : FtpClientBase
         {
             var name = file.Name;
             var fullName = file.FullName;
-            if (!fullName.StartsWith("/")) fullName = "/" + fullName;
+            if (!fullName.StartsWith("/"))
+            {
+                fullName = "/" + fullName;
+            }
 
             var type = FtpClientFileType.Unknown;
-            if (file.Type == FtpFileSystemObjectType.Directory) type = FtpClientFileType.Directory;
-            else if (file.Type == FtpFileSystemObjectType.File) type = FtpClientFileType.File;
-            else if (file.Type == FtpFileSystemObjectType.Link) type = FtpClientFileType.Link;
+            if (file.Type == FtpFileSystemObjectType.Directory)
+            {
+                type = FtpClientFileType.Directory;
+            }
+            else if (file.Type == FtpFileSystemObjectType.File)
+            {
+                type = FtpClientFileType.File;
+            }
+            else if (file.Type == FtpFileSystemObjectType.Link)
+            {
+                type = FtpClientFileType.Link;
+            }
 
             fileList.Add(new FtpClientFile(name, fullName, type));
         }
     }
 
-    protected override string GetServerInfo() => Client.ServerOS.ToString() + " : " + Client.ServerType.ToString();
+    protected override string GetServerInfo()
+    {
+        return Client.ServerOS + " : " + Client.ServerType;
+    }
 
     protected override void DeleteFileSingle(string remoteFile)
     {
@@ -147,14 +182,18 @@ public class FtpClientFtp : FtpClientBase
         var c = client;
         client = null;
 
-        if (c == null) return;
+        if (c == null)
+        {
+            return;
+        }
+
         try
         {
             c.Disconnect();
         }
         catch (Exception e)
         {
-            log.Warn($"Error disconnecting from server", e);
+            log.Warn("Error disconnecting from server", e);
         }
 
         try
@@ -167,6 +206,13 @@ public class FtpClientFtp : FtpClientBase
         }
     }
 
-    protected override bool ExistsFile(string remoteFile) => Client.FileExists(remoteFile);
-    protected override bool ExistsDirectory(string remoteDirectory) => Client.DirectoryExists(remoteDirectory);
+    protected override bool ExistsFile(string remoteFile)
+    {
+        return Client.FileExists(remoteFile);
+    }
+
+    protected override bool ExistsDirectory(string remoteDirectory)
+    {
+        return Client.DirectoryExists(remoteDirectory);
+    }
 }

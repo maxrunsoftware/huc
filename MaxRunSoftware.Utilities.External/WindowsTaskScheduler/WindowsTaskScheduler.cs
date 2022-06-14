@@ -1,32 +1,31 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Win32.TaskScheduler;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class WindowsTaskScheduler : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
-    private readonly object locker = new object();
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private readonly object locker = new();
     private TaskService taskService;
-    public static readonly IReadOnlyList<string> PATH_PARSE_CHARACTERS = (new[] { "/", "\\" }).ToList().AsReadOnly();
+    public static readonly IReadOnlyList<string> PATH_PARSE_CHARACTERS = new[] { "/", "\\" }.ToList().AsReadOnly();
     public static readonly string USER_SYSTEM = "NT AUTHORITY\\SYSTEM";
     public static readonly string USER_LOCALSERVICE = "NT AUTHORITY\\LOCALSERVICE";
     public static readonly string USER_NETWORKSERVICE = "NT AUTHORITY\\NETWORKSERVICE";
@@ -37,7 +36,11 @@ public class WindowsTaskScheduler : IDisposable
         {
             lock (locker)
             {
-                if (taskService != null) return taskService;
+                if (taskService != null)
+                {
+                    return taskService;
+                }
+
                 throw new ObjectDisposedException(GetType().FullNameFormatted());
             }
         }
@@ -55,10 +58,11 @@ public class WindowsTaskScheduler : IDisposable
                 username = parts[1];
             }
         }
+
         accountDomain ??= host;
 
         log.Debug($"Creating new {typeof(TaskService).FullNameFormatted()}(host: {host}, username: {username}, accountDomain: {accountDomain}, password: {password}, forceV1: {forceV1})");
-        taskService = new TaskService(host, userName: username, accountDomain: accountDomain, password: password, forceV1: forceV1);
+        taskService = new TaskService(host, username, accountDomain, password, forceV1);
     }
 
     public Task TaskAdd(WindowsTaskSchedulerPath path, string[] filePaths, IEnumerable<Trigger> triggers, string arguments = null, string workingDirectory = null, string description = null, string documentation = null, string username = null, string password = null)
@@ -86,6 +90,7 @@ public class WindowsTaskScheduler : IDisposable
                 break;
             }
         }
+
         td.Principal.LogonType = tlt;
         td.Principal.UserId = username;
         td.Settings.Hidden = false;
@@ -99,7 +104,7 @@ public class WindowsTaskScheduler : IDisposable
             td.Actions.Add(new ExecAction(filePath, arguments, workingDirectory));
         }
 
-        var task = dir.RegisterTaskDefinition(taskName, td, TaskCreation.CreateOrUpdate, username, password: password, logonType: tlt);
+        var task = dir.RegisterTaskDefinition(taskName, td, TaskCreation.CreateOrUpdate, username, password, tlt);
 
         return task;
     }
@@ -151,7 +156,11 @@ public class WindowsTaskScheduler : IDisposable
     public bool TaskDelete(WindowsTaskSchedulerPath path)
     {
         var t = GetTask(path);
-        if (t == null) return false;
+        if (t == null)
+        {
+            return false;
+        }
+
         return TaskDelete(t);
     }
 
@@ -174,6 +183,7 @@ public class WindowsTaskScheduler : IDisposable
         {
             d.AddToList(tf.GetPath(), tf.Tasks.ToArray());
         }
+
         return d;
     }
 
@@ -186,8 +196,16 @@ public class WindowsTaskScheduler : IDisposable
         while (queue.Count > 0)
         {
             var currentFolder = queue.Dequeue();
-            if (!h.Add(currentFolder.GetPath())) continue;
-            foreach (var subfolder in currentFolder.SubFolders) queue.Enqueue(subfolder);
+            if (!h.Add(currentFolder.GetPath()))
+            {
+                continue;
+            }
+
+            foreach (var subfolder in currentFolder.SubFolders)
+            {
+                queue.Enqueue(subfolder);
+            }
+
             log.Trace("Found TaskFolder: " + currentFolder.GetPath());
             yield return currentFolder;
         }
@@ -198,27 +216,46 @@ public class WindowsTaskScheduler : IDisposable
         log.Debug("Getting Task: " + path);
         foreach (var task in GetTasks())
         {
-            if (path.Equals(task.GetPath())) return task;
+            if (path.Equals(task.GetPath()))
+            {
+                return task;
+            }
         }
+
         return null;
     }
-    public Task GetTask(string path) => GetTask(new WindowsTaskSchedulerPath(path));
+
+    public Task GetTask(string path)
+    {
+        return GetTask(new WindowsTaskSchedulerPath(path));
+    }
 
     public TaskFolder GetTaskFolder(WindowsTaskSchedulerPath path)
     {
         log.Debug("Getting TaskFolder: " + path);
         foreach (var folder in GetTaskFolders())
         {
-            if (path.Equals(folder.GetPath())) return folder;
+            if (path.Equals(folder.GetPath()))
+            {
+                return folder;
+            }
         }
+
         return null;
     }
-    public TaskFolder GetTaskFolder(string path) => GetTaskFolder(new WindowsTaskSchedulerPath(path));
+
+    public TaskFolder GetTaskFolder(string path)
+    {
+        return GetTaskFolder(new WindowsTaskSchedulerPath(path));
+    }
 
     public TaskFolder CreateTaskFolder(WindowsTaskSchedulerPath path)
     {
         var existingFolder = GetTaskFolder(path);
-        if (existingFolder != null) return existingFolder;
+        if (existingFolder != null)
+        {
+            return existingFolder;
+        }
 
         var parent = path.Parent;
         var parentFolder = GetTaskFolder(parent) ?? CreateTaskFolder(parent);
@@ -234,6 +271,7 @@ public class WindowsTaskScheduler : IDisposable
             ts = taskService;
             taskService = null;
         }
+
         if (ts != null)
         {
             log.Debug($"Dispose() called, disposing of {typeof(TaskService).FullNameFormatted()}");

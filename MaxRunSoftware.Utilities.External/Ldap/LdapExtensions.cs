@@ -13,18 +13,21 @@
 // limitations under the License.
 
 using System;
+using System.DirectoryServices;
+using System.DirectoryServices.AccountManagement;
+using System.Reflection;
 using System.Text;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public static class LdapExtensions
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private static string ToStringDebugOutput(object o)
     {
         var sb = new StringBuilder();
-        foreach (var prop in ClassReaderWriter.GetProperties(o.GetType(), canGet: true, isInstance: true))
+        foreach (var prop in ClassReaderWriter.GetProperties(o.GetType(), true, isInstance: true))
         {
             object val = null;
             try
@@ -38,12 +41,22 @@ public static class LdapExtensions
 
             sb.AppendLine("    " + prop.Name + ": " + val.ToStringGuessFormat());
         }
+
         return sb.ToString();
     }
 
-    public static string ToStringDebug(this System.DirectoryServices.DirectoryEntry entry) => ToStringDebugOutput(entry);
+    public static string ToStringDebug(this DirectoryEntry entry)
+    {
+        return ToStringDebugOutput(entry);
+    }
 
-    public static string ToStringDebug(this System.DirectoryServices.DirectorySearcher searcher) => ToStringDebugOutput(searcher);
+    public static string ToStringDebug(this DirectorySearcher searcher)
+    {
+        return ToStringDebugOutput(searcher);
+    }
 
-    public static string ToStringDebug(this System.DirectoryServices.AccountManagement.PrincipalContext context) => ToStringDebugOutput(context);
+    public static string ToStringDebug(this PrincipalContext context)
+    {
+        return ToStringDebugOutput(context);
+    }
 }

@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
@@ -30,20 +28,36 @@ public class FtpClientSFtp : FtpClientBase
         get
         {
             var c = client;
-            if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
+            if (c == null)
+            {
+                throw new ObjectDisposedException(GetType().FullNameFormatted());
+            }
+
             return c;
         }
     }
 
     public override string WorkingDirectory => Client.WorkingDirectory;
 
-    public FtpClientSFtp(string host, ushort port, string username, string password) => client = Ssh.CreateSFtpClient(host, port, username, password, null);
+    public FtpClientSFtp(string host, ushort port, string username, string password)
+    {
+        client = Ssh.CreateSFtpClient(host, port, username, password, null);
+    }
 
-    public FtpClientSFtp(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys) => client = Ssh.CreateSFtpClient(host, port, username, null, privateKeys);
+    public FtpClientSFtp(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys)
+    {
+        client = Ssh.CreateSFtpClient(host, port, username, null, privateKeys);
+    }
 
-    protected override void GetFile(string remoteFile, Stream localStream) => Client.DownloadFile(remoteFile, localStream);
+    protected override void GetFile(string remoteFile, Stream localStream)
+    {
+        Client.DownloadFile(remoteFile, localStream);
+    }
 
-    protected override void PutFile(string remoteFile, Stream localStream) => Client.UploadFile(localStream, remoteFile, true);
+    protected override void PutFile(string remoteFile, Stream localStream)
+    {
+        Client.UploadFile(localStream, remoteFile, true);
+    }
 
     protected override void ListFiles(string remotePath, List<FtpClientFile> fileList)
     {
@@ -52,17 +66,33 @@ public class FtpClientSFtp : FtpClientBase
         {
             var name = file.Name;
             var fullName = file.FullName;
-            if (!fullName.StartsWith("/")) fullName = "/" + fullName;
+            if (!fullName.StartsWith("/"))
+            {
+                fullName = "/" + fullName;
+            }
+
             var type = FtpClientFileType.Unknown;
-            if (file.IsDirectory) type = FtpClientFileType.Directory;
-            else if (file.IsRegularFile) type = FtpClientFileType.File;
-            else if (file.IsSymbolicLink) type = FtpClientFileType.Link;
+            if (file.IsDirectory)
+            {
+                type = FtpClientFileType.Directory;
+            }
+            else if (file.IsRegularFile)
+            {
+                type = FtpClientFileType.File;
+            }
+            else if (file.IsSymbolicLink)
+            {
+                type = FtpClientFileType.Link;
+            }
 
             fileList.Add(new FtpClientFile(name, fullName, type));
         }
     }
 
-    protected override string GetServerInfo() => Client.ConnectionInfo.ClientVersion;
+    protected override string GetServerInfo()
+    {
+        return Client.ConnectionInfo.ClientVersion;
+    }
 
     protected override void DeleteFileSingle(string remoteFile)
     {
@@ -84,14 +114,18 @@ public class FtpClientSFtp : FtpClientBase
         var c = client;
         client = null;
 
-        if (c == null) return;
+        if (c == null)
+        {
+            return;
+        }
+
         try
         {
             c.Disconnect();
         }
         catch (Exception e)
         {
-            log.Warn($"Error disconnecting from server", e);
+            log.Warn("Error disconnecting from server", e);
         }
 
         try
@@ -104,6 +138,13 @@ public class FtpClientSFtp : FtpClientBase
         }
     }
 
-    protected override bool ExistsFile(string remoteFile) => Client.Exists(remoteFile);
-    protected override bool ExistsDirectory(string remoteDirectory) => Client.Exists(remoteDirectory);
+    protected override bool ExistsFile(string remoteFile)
+    {
+        return Client.Exists(remoteFile);
+    }
+
+    protected override bool ExistsDirectory(string remoteDirectory)
+    {
+        return Client.Exists(remoteDirectory);
+    }
 }

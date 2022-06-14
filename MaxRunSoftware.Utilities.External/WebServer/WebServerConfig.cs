@@ -1,22 +1,21 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using EmbedIO;
 
@@ -34,22 +33,41 @@ public class WebServerConfig
 
     public WebServerConfig()
     {
-        foreach (var ip in Util.NetGetIPAddresses().Where(o => o.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
+        foreach (var ip in Util.NetGetIPAddresses().Where(o => o.AddressFamily == AddressFamily.InterNetwork))
         {
             Hostnames.Add(ip.ToString());
         }
-        if (!Hostnames.Contains("localhost")) Hostnames.Add("localhost");
-        if (!Hostnames.Contains("127.0.0.1")) Hostnames.Add("127.0.0.1");
+
+        if (!Hostnames.Contains("localhost"))
+        {
+            Hostnames.Add("localhost");
+        }
+
+        if (!Hostnames.Contains("127.0.0.1"))
+        {
+            Hostnames.Add("127.0.0.1");
+        }
     }
 
     private WebServerConfig(WebServerConfig config)
     {
-        foreach (var hostname in config.Hostnames) this.Hostnames.Add(hostname);
-        this.Port = config.Port;
-        this.DirectoryToServe = config.DirectoryToServe;
-        this.DirectoryToServeUrlPath = config.DirectoryToServeUrlPath;
-        foreach (var kvp in config.PathHandlers) this.PathHandlers.Add(kvp.Key, (kvp.Value.verbs, kvp.Value.handler));
-        foreach (var item in config.Users) this.Users.Add((item.username, item.password));
+        foreach (var hostname in config.Hostnames)
+        {
+            Hostnames.Add(hostname);
+        }
+
+        Port = config.Port;
+        DirectoryToServe = config.DirectoryToServe;
+        DirectoryToServeUrlPath = config.DirectoryToServeUrlPath;
+        foreach (var kvp in config.PathHandlers)
+        {
+            PathHandlers.Add(kvp.Key, (kvp.Value.verbs, kvp.Value.handler));
+        }
+
+        foreach (var item in config.Users)
+        {
+            Users.Add((item.username, item.password));
+        }
     }
 
     public WebServerConfig Copy()
@@ -57,31 +75,62 @@ public class WebServerConfig
         return new WebServerConfig(this);
     }
 
-    public void AddPathHandler(string path, HttpVerbs httpVerbs, Func<IHttpContext, object> handler) => PathHandlers.Add(path, (httpVerbs, handler));
+    public void AddPathHandler(string path, HttpVerbs httpVerbs, Func<IHttpContext, object> handler)
+    {
+        PathHandlers.Add(path, (httpVerbs, handler));
+    }
 
     public override string ToString()
     {
         var sb = new StringBuilder();
         sb.AppendLine(GetType().NameFormatted());
 
-        if (Hostnames.IsEmpty()) sb.AppendLine("  " + nameof(Hostnames) + ": <empty>");
-        for (int i = 0; i < Hostnames.Count; i++) sb.AppendLine("  " + nameof(Hostnames) + "[" + i + "]: " + Hostnames[i]);
+        if (Hostnames.IsEmpty())
+        {
+            sb.AppendLine("  " + nameof(Hostnames) + ": <empty>");
+        }
+
+        for (var i = 0; i < Hostnames.Count; i++)
+        {
+            sb.AppendLine("  " + nameof(Hostnames) + "[" + i + "]: " + Hostnames[i]);
+        }
 
         sb.AppendLine("  " + nameof(Port) + ": " + Port);
         sb.AppendLine("  " + nameof(DirectoryToServe) + ": " + DirectoryToServe);
         sb.AppendLine("  " + nameof(DirectoryToServeUrlPath) + ": " + DirectoryToServeUrlPath);
 
         var pathHandlers = PathHandlers.ToList();
-        if (pathHandlers.IsEmpty()) sb.AppendLine("  " + nameof(PathHandlers) + ": <empty>");
-        for (int i = 0; i < pathHandlers.Count; i++) sb.AppendLine("  " + nameof(PathHandlers) + "[" + i + "]: " + pathHandlers[i].Key + "  (" + pathHandlers[i].Value.verbs + ")");
+        if (pathHandlers.IsEmpty())
+        {
+            sb.AppendLine("  " + nameof(PathHandlers) + ": <empty>");
+        }
+
+        for (var i = 0; i < pathHandlers.Count; i++)
+        {
+            sb.AppendLine("  " + nameof(PathHandlers) + "[" + i + "]: " + pathHandlers[i].Key + "  (" + pathHandlers[i].Value.verbs + ")");
+        }
 
         var users = Users.OrderBy(o => o.username, StringComparer.OrdinalIgnoreCase).ToList();
-        if (users.IsEmpty()) sb.AppendLine("  " + nameof(Users) + ": <empty>");
-        for (int i = 0; i < users.Count; i++) sb.AppendLine("  " + nameof(Users) + "[" + users[i].username + "]: " + users[i].password);
+        if (users.IsEmpty())
+        {
+            sb.AppendLine("  " + nameof(Users) + ": <empty>");
+        }
+
+        for (var i = 0; i < users.Count; i++)
+        {
+            sb.AppendLine("  " + nameof(Users) + "[" + users[i].username + "]: " + users[i].password);
+        }
 
         var urlPrefixes = UrlPrefixes.ToList();
-        if (urlPrefixes.IsEmpty()) sb.AppendLine("  " + nameof(UrlPrefixes) + ": <empty>");
-        for (int i = 0; i < urlPrefixes.Count; i++) sb.AppendLine("  " + nameof(UrlPrefixes) + "[" + i + "]: " + urlPrefixes[i]);
+        if (urlPrefixes.IsEmpty())
+        {
+            sb.AppendLine("  " + nameof(UrlPrefixes) + ": <empty>");
+        }
+
+        for (var i = 0; i < urlPrefixes.Count; i++)
+        {
+            sb.AppendLine("  " + nameof(UrlPrefixes) + "[" + i + "]: " + urlPrefixes[i]);
+        }
 
         return sb.ToString();
     }

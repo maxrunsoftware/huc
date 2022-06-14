@@ -1,29 +1,28 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class ActiveDirectoryObjectCache
 {
     //private static readonly IEnumerable<ActiveDirectoryObject> empty = Enumerable.Empty<ActiveDirectoryObject>();
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private readonly Dictionary<string, List<ActiveDirectoryObject>> cache = new(StringComparer.OrdinalIgnoreCase);
 
@@ -64,18 +63,30 @@ public class ActiveDirectoryObjectCache
 
     private void Add(string cacheKey, List<ActiveDirectoryObject> objects)
     {
-        if (objects.Count == 0) return;
-        else if (objects.Count == 1) log.Trace($"Cache[{cacheKey}]: " + objects.First());
+        if (objects.Count == 0)
+        {
+            return;
+        }
+
+        if (objects.Count == 1)
+        {
+            log.Trace($"Cache[{cacheKey}]: " + objects.First());
+        }
         else
         {
-            for (int i = 0; i < objects.Count; i++)
+            for (var i = 0; i < objects.Count; i++)
             {
                 log.Trace($"Cache[{cacheKey}][{i}]: " + objects[i]);
             }
         }
+
         cache[cacheKey] = objects;
     }
-    private void Add(string cacheKey, ActiveDirectoryObject obj) => Add(cacheKey, new List<ActiveDirectoryObject>(1) { obj });
+
+    private void Add(string cacheKey, ActiveDirectoryObject obj)
+    {
+        Add(cacheKey, new List<ActiveDirectoryObject>(1) { obj });
+    }
 
     public IEnumerable<ActiveDirectoryObject> Get(string filter, LdapQueryConfig queryConfig)
     {
@@ -86,8 +97,12 @@ public class ActiveDirectoryObjectCache
         {
             return l;
         }
+
         return null;
     }
 
-    public void Clear() => cache.Clear();
+    public void Clear()
+    {
+        cache.Clear();
+    }
 }

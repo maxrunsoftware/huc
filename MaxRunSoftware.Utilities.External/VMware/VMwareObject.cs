@@ -1,18 +1,16 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections;
@@ -38,6 +36,7 @@ public abstract class VMwareObject
         {
             log.Warn("Error querying " + path, e);
         }
+
         return null;
     }
 
@@ -51,6 +50,7 @@ public abstract class VMwareObject
         {
             log.Warn("Error querying " + path, e);
         }
+
         return Array.Empty<JObject>();
     }
 
@@ -59,9 +59,14 @@ public abstract class VMwareObject
         var list = new List<PropertyInfo>();
         foreach (var prop in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (!prop.CanRead) continue;
+            if (!prop.CanRead)
+            {
+                continue;
+            }
+
             list.Add(prop);
         }
+
         return list.OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase).ToArray();
     }
 
@@ -89,10 +94,11 @@ public abstract class VMwareObject
                     var itemVmware = (VMwareObject)item;
                     var vItemType = itemVmware.GetType();
                     sb.AppendLine("  " + vItemType.NameFormatted() + "[" + count + "]");
-                    foreach (var prop in ClassReaderWriter.GetProperties(vItemType, canGet: true, isInstance: true))
+                    foreach (var prop in ClassReaderWriter.GetProperties(vItemType, true, isInstance: true))
                     {
                         sb.AppendLine("    " + prop.Name + ": " + prop.GetValue(itemVmware).ToStringGuessFormat());
                     }
+
                     count++;
                 }
             }
