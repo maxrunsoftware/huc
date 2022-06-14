@@ -252,7 +252,7 @@ public static class ExtensionsType
         enumType.CheckIsEnum(nameof(enumType));
         enumItemName = enumItemName.CheckNotNullTrimmed(nameof(enumItemName));
 
-        foreach (var sc in Constant.LIST_StringComparer)
+        foreach (var sc in Constant.STRINGCOMPARERS)
         {
             foreach (var name in enumType.GetEnumNames())
             {

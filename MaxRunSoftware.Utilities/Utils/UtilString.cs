@@ -153,7 +153,7 @@ public static partial class Util
     {
         var type = GuessType(strings);
 
-        if (Constant.Type_DbType.TryGetValue(type, out var dbType))
+        if (Constant.TYPE_DBTYPE.TryGetValue(type, out var dbType))
         {
             return dbType;
         }

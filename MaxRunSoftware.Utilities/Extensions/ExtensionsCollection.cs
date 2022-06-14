@@ -854,7 +854,7 @@ public static class ExtensionsCollection
             return true;
         }
 
-        foreach (var sc in Constant.LIST_StringComparison)
+        foreach (var sc in Constant.STRINGCOMPARISONS)
         {
             foreach (var kvp in dictionary)
             {

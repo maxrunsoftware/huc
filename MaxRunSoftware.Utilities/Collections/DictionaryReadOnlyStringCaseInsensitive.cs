@@ -91,7 +91,7 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
                 itemsCurrentD.Add(i, items[i]);
             }
 
-            foreach (var sc in Constant.LIST_StringComparer)
+            foreach (var sc in Constant.STRINGCOMPARERS)
             {
                 foreach (var item in itemsCurrentD.ToArray())
                 {

@@ -22,7 +22,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
     {
         File = Path.GetFullPath(file);
         Comparison = comparison;
-        Comparer = Constant.StringComparison_StringComparer[comparison];
+        Comparer = Constant.STRINGCOMPARISON_STRINGCOMPARER[comparison];
         BucketNameDelimiter = bucketNameDelimiter.CheckNotNull(nameof(bucketNameDelimiter));
     }
 

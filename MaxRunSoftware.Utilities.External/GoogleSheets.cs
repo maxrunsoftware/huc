@@ -375,7 +375,7 @@ public static class GoogleSheetsExtensions
         {
             d[sheet.Properties.Title] = sheet;
         }
-        foreach (var comp in Constant.LIST_StringComparison)
+        foreach (var comp in Constant.STRINGCOMPARISONS)
         {
             foreach (var kvp in d)
             {

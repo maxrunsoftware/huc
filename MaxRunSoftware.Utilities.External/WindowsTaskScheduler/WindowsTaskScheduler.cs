@@ -76,7 +76,7 @@ public class WindowsTaskScheduler : IDisposable
         username ??= USER_SYSTEM;
 
         var tlt = TaskLogonType.Password;
-        foreach (var sc in Constant.LIST_StringComparer)
+        foreach (var sc in Constant.STRINGCOMPARERS)
         {
             if (username.In(sc, USER_SYSTEM, USER_LOCALSERVICE, USER_NETWORKSERVICE))
             {

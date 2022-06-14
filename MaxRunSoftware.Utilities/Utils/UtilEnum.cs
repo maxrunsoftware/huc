@@ -105,7 +105,7 @@ public static partial class Util
                 }
 
                 var d = enums[enumType];
-                foreach (var sc in Constant.LIST_StringComparison)
+                foreach (var sc in Constant.STRINGCOMPARISONS)
                 {
                     foreach (var kvp in d)
                     {

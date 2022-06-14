@@ -21,7 +21,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using MaxRunSoftware.Utilities;
-// ReSharper disable InconsistentNaming
 
 [assembly: Guid(Constant.ID)]
 
@@ -226,7 +225,7 @@ public static class Constant
     /// <summary>
     /// List of String Comparisons from most restrictive to least
     /// </summary>
-    public static readonly IReadOnlyList<StringComparer> LIST_StringComparer = new List<StringComparer>
+    public static readonly IReadOnlyList<StringComparer> STRINGCOMPARERS = new List<StringComparer>
     {
         StringComparer.Ordinal,
         StringComparer.CurrentCulture,
@@ -239,7 +238,7 @@ public static class Constant
     /// <summary>
     /// Map of StringComparer to StringComparison
     /// </summary>
-    public static readonly IReadOnlyDictionary<StringComparer, StringComparison> StringComparer_StringComparison = MAP_StringComparer_StringComparison_Create();
+    public static readonly IReadOnlyDictionary<StringComparer, StringComparison> STRINGCOMPARER_STRINGCOMPARISON = MAP_StringComparer_StringComparison_Create();
 
     private static IReadOnlyDictionary<StringComparer, StringComparison> MAP_StringComparer_StringComparison_Create()
     {
@@ -260,7 +259,7 @@ public static class Constant
     /// <summary>
     /// List of String Comparisons from most restrictive to least
     /// </summary>
-    public static readonly IReadOnlyList<StringComparison> LIST_StringComparison = new List<StringComparison>
+    public static readonly IReadOnlyList<StringComparison> STRINGCOMPARISONS = new List<StringComparison>
     {
         StringComparison.Ordinal,
         StringComparison.CurrentCulture,
@@ -273,7 +272,7 @@ public static class Constant
     /// <summary>
     /// Map of StringComparison to StringComparer
     /// </summary>
-    public static readonly IReadOnlyDictionary<StringComparison, StringComparer> StringComparison_StringComparer = MAP_StringComparison_StringComparer_Create();
+    public static readonly IReadOnlyDictionary<StringComparison, StringComparer> STRINGCOMPARISON_STRINGCOMPARER = MAP_StringComparison_StringComparer_Create();
 
     private static IReadOnlyDictionary<StringComparison, StringComparer> MAP_StringComparison_StringComparer_Create()
     {
@@ -312,7 +311,7 @@ public static class Constant
     /// <summary>
     /// Map of DotNet types to DbType
     /// </summary>
-    public static readonly IReadOnlyDictionary<Type, DbType> Type_DbType = new Dictionary<Type, DbType>
+    public static readonly IReadOnlyDictionary<Type, DbType> TYPE_DBTYPE = new Dictionary<Type, DbType>
     {
         { typeof(bool), DbType.Boolean },
         { typeof(bool?), DbType.Boolean },
@@ -376,7 +375,7 @@ public static class Constant
     /// <summary>
     /// Map of DbType to DotNet types
     /// </summary>
-    public static readonly IReadOnlyDictionary<DbType, Type> DbType_Type = new Dictionary<DbType, Type>
+    public static readonly IReadOnlyDictionary<DbType, Type> DBTYPE_TYPE = new Dictionary<DbType, Type>
     {
         { DbType.AnsiString, typeof(string) },
         { DbType.AnsiStringFixedLength, typeof(char[]) },
@@ -513,33 +512,33 @@ public static class Constant
 
     #region Bool
 
-    private const string BOOL_TRUE = "1 T TRUE Y YES";
-    private const string BOOL_FALSE = "0 F FALSE N NO";
+    private const string boolTrue = "1 T TRUE Y YES";
+    private const string boolFalse = "0 F FALSE N NO";
 
     /// <summary>
     /// Case-Insensitive hashset of boolean true values
     /// </summary>
-    public static readonly IReadOnlySet<string> BOOLS_TRUE = new HashSet<string>(BOOL_TRUE.Split(' '), StringComparer.OrdinalIgnoreCase);
+    public static readonly IReadOnlySet<string> BOOLS_TRUE = new HashSet<string>(boolTrue.Split(' '), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Case-Insensitive hashset of boolean false values
     /// </summary>
-    public static readonly IReadOnlySet<string> BOOLS_FALSE = new HashSet<string>(BOOL_FALSE.Split(' '), StringComparer.OrdinalIgnoreCase);
+    public static readonly IReadOnlySet<string> BOOLS_FALSE = new HashSet<string>(boolFalse.Split(' '), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Case-Insensitive map of boolean string values to boolean values
     /// </summary>
-    public static readonly IReadOnlyDictionary<string, bool> String_Bool = String_Bool_get();
+    public static readonly IReadOnlyDictionary<string, bool> STRING_BOOL = String_Bool_get();
 
     private static IReadOnlyDictionary<string, bool> String_Bool_get()
     {
         var d = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-        foreach (var item in BOOL_TRUE.Split(' '))
+        foreach (var item in boolTrue.Split(' '))
         {
             d.Add(item, true);
         }
 
-        foreach (var item in BOOL_FALSE.Split(' '))
+        foreach (var item in boolFalse.Split(' '))
         {
             d.Add(item, false);
         }

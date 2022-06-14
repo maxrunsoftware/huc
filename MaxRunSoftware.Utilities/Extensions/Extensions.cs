@@ -30,7 +30,7 @@ public static class Extensions
     /// <returns>The DbType</returns>
     public static DbType GetDbType(this Type type, DbType defaultDbType)
     {
-        return Constant.Type_DbType.TryGetValue(type, out var dbType) ? dbType : defaultDbType;
+        return Constant.TYPE_DBTYPE.TryGetValue(type, out var dbType) ? dbType : defaultDbType;
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public static class Extensions
     /// <returns>The DbType</returns>
     public static DbType? GetDbType(this Type type)
     {
-        return Constant.Type_DbType.TryGetValue(type, out var dbType) ? dbType : null;
+        return Constant.TYPE_DBTYPE.TryGetValue(type, out var dbType) ? dbType : null;
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public static class Extensions
     /// <returns>The DotNet type</returns>
     public static Type GetDotNetType(this DbType dbType)
     {
-        return Constant.DbType_Type.TryGetValue(dbType, out var type) ? type : typeof(string);
+        return Constant.DBTYPE_TYPE.TryGetValue(dbType, out var type) ? type : typeof(string);
     }
 
     /// <summary>

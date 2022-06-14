@@ -34,7 +34,7 @@ public sealed class TableColumnCollection : IReadOnlyList<TableColumn>, IBucketR
         // Use a fast cache for column name lookups by any case formatting
         columnNameCache = new BucketCacheThreadSafeCopyOnWrite<string, TableColumn>(columnName =>
         {
-            foreach (var sc in Constant.LIST_StringComparison)
+            foreach (var sc in Constant.STRINGCOMPARISONS)
             {
                 foreach (var item in tableColumns)
                 {
