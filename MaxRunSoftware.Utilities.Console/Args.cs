@@ -24,19 +24,17 @@ namespace MaxRunSoftware.Utilities.Console
 {
     public class Args
     {
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        public string Command { get; init; }
-        public IReadOnlyList<string> Values { get; init; }
-        public IReadOnlyDictionary<string, string> Parameters { get; init; }
-        public bool IsDebug { get; init; }
-        public bool IsTrace { get; init; }
-        public bool IsNoBanner { get; init; }
-        public bool IsHelp { get; init; }
-        public bool IsShowHidden { get; init; }
-        public bool IsVersion { get; init; }
-        public bool IsExpandFileArgs { get; init; }
-        public bool IsExpandFileArgsNoTrim { get; init; }
+        public string Command { get; }
+        public IReadOnlyList<string> Values { get; }
+        public IReadOnlyDictionary<string, string> Parameters { get; }
+        public bool IsDebug { get; }
+        public bool IsTrace { get; }
+        public bool IsNoBanner { get; }
+        public bool IsHelp { get; }
+        public bool IsShowHidden { get; }
+        public bool IsVersion { get; }
+        public bool IsExpandFileArgs { get; }
+        public bool IsExpandFileArgsNoTrim { get; }
 
         public string[] ArgsString => args.Copy();
         private readonly string[] args;
@@ -49,23 +47,23 @@ namespace MaxRunSoftware.Utilities.Console
             while (list.Count > 0)
             {
                 var arg = list.Dequeue();
-                if (arg.TrimOrNull() == null) continue;
-                if (arg.TrimOrNull().StartsWith("-"))
+                var argTrimmed = arg.TrimOrNull();
+                if (argTrimmed == null) continue;
+                if (argTrimmed.StartsWith("-"))
                 {
                     while (arg.Length > 0)
                     {
                         var c = arg[0];
                         if (char.IsWhiteSpace(c) || c == '-')
                         {
-                            if (arg.Length == 1) arg = string.Empty;
-                            else arg = arg.Substring(1);
+                            arg = arg.Length == 1 ? string.Empty : arg[1..];
                             continue;
                         }
                         break;
                     }
                     if (arg.TrimOrNull() == null) continue; // nothing left
-                    if (arg.IndexOf("=") == 0) continue; // no key supplied
-                    if (arg.IndexOf("=") > 0)
+                    if (arg.IndexOf("=", StringComparison.Ordinal) == 0) continue; // no key supplied
+                    if (arg.IndexOf("=", StringComparison.Ordinal) > 0)
                     {
                         string[] parts = arg.Split('=', 2);
                         var key = parts[0].TrimOrNull();
@@ -74,13 +72,9 @@ namespace MaxRunSoftware.Utilities.Console
                         if (val.TrimOrNull() == null) continue; // no value supplied
                         d[key] = val;
                     }
-                    if (arg.IndexOf("=") < 0)
+                    if (arg.IndexOf("=", StringComparison.Ordinal) < 0)
                     {
-                        var key = arg;
-                        var val = "true";
-                        if (key == null) continue; // no key supplied
-                        d[key] = val;
-
+                        d[arg] = "true";
                     }
                 }
                 else
@@ -95,16 +89,18 @@ namespace MaxRunSoftware.Utilities.Console
 
             IsDebug = d.Remove("DEBUG");
             IsTrace = d.Remove("TRACE");
+            // ReSharper disable StringLiteralTypo
             IsNoBanner = d.Remove("NOBANNER");
             IsShowHidden = d.Remove("SHOWHIDDEN");
             if (!IsHelp) IsHelp = d.Remove("HELP");
             IsVersion = d.Remove("VERSION");
             IsExpandFileArgs = d.Remove("EXPANDFILEARGS");
             IsExpandFileArgsNoTrim = d.Remove("EXPANDFILEARGSNOTRIM");
+            // ReSharper restore StringLiteralTypo
 
             if (IsExpandFileArgs)
             {
-                values = values.Select(o => ParseParameterFile(o)).ToList();
+                values = values.Select(ParseParameterFile).ToList();
                 foreach (var key in d.Keys.ToArray())
                 {
                     d[key] = ParseParameterFile(d[key]);
@@ -118,7 +114,7 @@ namespace MaxRunSoftware.Utilities.Console
 
         private string ParseParameterFile(string str)
         {
-            if (str == null) return str;
+            if (str == null) return null;
             if (!str.Contains("F{")) return str;
             if (!str.Contains("}")) return str;
 
@@ -139,10 +135,10 @@ namespace MaxRunSoftware.Utilities.Console
                     if (filename != null)
                     {
                         if (!File.Exists(filename)) throw new FileNotFoundException("File not found " + filename, filename);
-                        var filedata = Util.FileRead(filename, Constant.ENCODING_UTF8);
-                        if (!IsExpandFileArgsNoTrim) filedata = filedata.TrimOrNull();
-                        filedata = filedata ?? "";
-                        stack.Peek().Append(filedata);
+                        var fileData = Util.FileRead(filename, Constant.ENCODING_UTF8);
+                        if (!IsExpandFileArgsNoTrim) fileData = fileData.TrimOrNull();
+                        fileData = fileData ?? "";
+                        stack.Peek().Append(fileData);
                     }
                 }
                 else

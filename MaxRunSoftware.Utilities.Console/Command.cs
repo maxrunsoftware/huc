@@ -42,22 +42,15 @@ namespace MaxRunSoftware.Utilities.Console
     public abstract class Command : ICommand
     {
         private Args args;
-        public string[] Args { get { return args.ArgsString; } set { args = new Args(value); } }
+        public string[] Args { get => args.ArgsString; set => args = new Args(value); }
         private ConfigFile config;
-        private ConfigFile Config
-        {
-            get
-            {
-                if (config == null) config = new ConfigFile();
-                return config;
-            }
-        }
+        private ConfigFile Config => config ??= new ConfigFile();
         protected string Encrypt(string data) => Config.Encrypt(data);
 
         protected readonly ILogger log;
 
-        public bool IsHidden => GetType().GetCustomAttributes(true).Where(o => o is HideCommandAttribute).Any();
-        public bool SuppressBanner => GetType().GetCustomAttributes(true).Where(o => o is SuppressBannerAttribute).Any();
+        public bool IsHidden => GetType().GetCustomAttributes(true).Any(o => o is HideCommandAttribute);
+        public bool SuppressBanner => GetType().GetCustomAttributes(true).Any(o => o is SuppressBannerAttribute);
 
         public CommandHelpBuilder Help { get; }
         public string Name => Help.Name;
@@ -105,13 +98,14 @@ namespace MaxRunSoftware.Utilities.Console
         {
             log = Program.LogFactory.GetLogger(GetType());
             Help = new CommandHelpBuilder(GetType().Name);
+            // ReSharper disable once VirtualMemberCallInConstructor
             CreateHelp(Help);
         }
 
         public void Execute()
         {
             if (args == null) throw new Exception("Args not set");
-            using (var diag = Util.Diagnostic(log.Debug))
+            using (Util.Diagnostic(log.Debug))
             {
                 ExecuteInternal();
             }
@@ -148,7 +142,7 @@ namespace MaxRunSoftware.Utilities.Console
             foreach (var directory in directories) CheckDirectoryExists(directory);
         }
 
-        protected string ReadFile(string path, System.Text.Encoding encoding = null)
+        protected string ReadFile(string path, Encoding encoding = null)
         {
             string data;
             path = Path.GetFullPath(path);
@@ -176,7 +170,7 @@ namespace MaxRunSoftware.Utilities.Console
             return data;
         }
 
-        protected void WriteFile(string path, string data, System.Text.Encoding encoding = null)
+        protected void WriteFile(string path, string data, Encoding encoding = null)
         {
             path = Path.GetFullPath(path);
             log.Debug($"Writing text file {path}   {data.Length} characters");
@@ -200,34 +194,34 @@ namespace MaxRunSoftware.Utilities.Console
             log.Debug($"Wrote binary file {path}   {data.Length} bytes");
         }
 
-        protected Utilities.Table ReadTableTab(string path, System.Text.Encoding encoding = null, bool headerRow = true)
+        protected Table ReadTableTab(string path, Encoding encoding = null, bool headerRow = true)
         {
             var data = ReadFile(path, encoding);
             log.Debug($"Read {data.Length} characters from file {path}");
 
             var lines = data.SplitOnNewline();
-            if (lines.Length > 0 && lines[lines.Length - 1] != null && lines[lines.Length - 1].Length == 0) lines = lines.RemoveTail(); // Ignore if last line is just line feed
+            if (lines.Length > 0 && lines[^1] != null && lines[^1].Length == 0) lines = lines.RemoveTail(); // Ignore if last line is just line feed
             log.Debug($"Found {lines.Length} lines in file {path}");
 
-            var t = Utilities.Table.Create(lines.Select(l => l.Split('\t')), headerRow);
+            var t = Table.Create(lines.Select(l => l.Split('\t')), headerRow);
             log.Debug($"Created table with {t.Columns.Count} columns and {t.Count} rows");
 
             return t;
         }
 
-        protected void WriteTableTab(Utilities.Table table, TextWriter writer)
+        protected void WriteTableTab(Table table, TextWriter writer)
         {
             table.CheckNotNull(nameof(table));
 
             table.ToDelimited(
-                o => writer.Write(o),
+                writer.Write,
                 headerDelimiter: "\t",
                 headerQuoting: null,
                 includeHeader: true,
                 dataDelimiter: "\t",
                 dataQuoting: null,
                 includeRows: true,
-                newLine: Utilities.Constant.NEWLINE_WINDOWS,
+                newLine: Constant.NEWLINE_WINDOWS,
                 headerDelimiterReplacement: "        ",
                 dataDelimiterReplacement: "        "
                 );
@@ -235,22 +229,22 @@ namespace MaxRunSoftware.Utilities.Console
         }
 
 
-        protected void WriteTableTab(string fileName, Utilities.Table table, string suffix = null)
+        protected void WriteTableTab(string fileName, Table table, string suffix = null)
         {
             fileName = Path.GetFullPath(fileName);
 
             log.Debug("Writing TAB delimited Table to file " + fileName);
             using (var stream = Util.FileOpenWrite(fileName))
-            using (var writer = new StreamWriter(stream, Utilities.Constant.ENCODING_UTF8))
+            using (var writer = new StreamWriter(stream, Constant.ENCODING_UTF8))
             {
                 WriteTableTab(table, writer);
                 stream.Flush(true);
             }
 
-            log.Info("Successfully wrote " + table.ToString() + " to file " + fileName + (suffix ?? string.Empty));
+            log.Info("Successfully wrote " + table + " to file " + fileName + (suffix ?? string.Empty));
         }
 
-        protected string WriteTableTab(Utilities.Table table)
+        protected string WriteTableTab(Table table)
         {
             using (var writer = new StringWriter())
             {
@@ -305,7 +299,7 @@ namespace MaxRunSoftware.Utilities.Console
             throw new ArgsException(key1, msg);
         }
 
-        public System.Text.Encoding GetArgParameterOrConfigEncoding(string key1, string key2)
+        public Encoding GetArgParameterOrConfigEncoding(string key1, string key2)
         {
             var v = GetArgParameter(key1, key2);
             if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
@@ -454,7 +448,7 @@ namespace MaxRunSoftware.Utilities.Console
             {
                 var idx1 = fileName.LastIndexOf(Path.DirectorySeparatorChar);
                 var idx2 = fileName.LastIndexOf(Path.AltDirectorySeparatorChar);
-                var workingDirectory = System.Environment.CurrentDirectory;
+                var workingDirectory = Environment.CurrentDirectory;
                 var filePattern = fileName;
                 if (idx1 == -1 && idx2 == -1)
                 {
