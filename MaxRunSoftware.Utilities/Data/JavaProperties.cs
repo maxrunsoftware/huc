@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// ReSharper disable InconsistentNaming
 namespace MaxRunSoftware.Utilities;
 
 public static class JavaPropertiesExtensions
@@ -110,7 +111,7 @@ public class JavaProperties : Hashtable
     /// Load Java Properties from a stream expecting the format as described in <see cref="JavaPropertyReader" />.
     /// </summary>
     /// <param name="streamIn">An input stream to read properties from.</param>
-    /// <exception cref="ParseException">If the stream source is invalid.</exception>
+    /// <exception cref="JavaPropertyParseException">If the stream source is invalid.</exception>
     public void Load(Stream streamIn)
     {
         var reader = new JavaPropertyReader(this);
@@ -493,7 +494,7 @@ public class JavaPropertyReader
                         }
                         else
                         {
-                            throw new ParseException("Invalid Unicode character.");
+                            throw new JavaPropertyParseException("Invalid Unicode character.");
                         }
                     }
 
@@ -729,7 +730,7 @@ public class JavaPropertyReader
 
             if (!matched)
             {
-                throw new ParseException("Unexpected character at " + 1 + ": <<<" + ch + ">>>");
+                throw new JavaPropertyParseException("Unexpected character at " + 1 + ": <<<" + ch + ">>>");
             }
         } while (state != STATE_finish);
     }
@@ -937,11 +938,11 @@ public class JavaPropertyWriter
 /// An exception thrown by <see cref="JavaPropertyReader" /> when parsing a properties stream.
 /// https://github.com/Kajabity/Kajabity-Tools/
 /// </summary>
-public class ParseException : Exception
+public class JavaPropertyParseException : Exception
 {
     /// <summary>
     /// Construct an exception with an error message.
     /// </summary>
     /// <param name="message">A descriptive message for the exception</param>
-    public ParseException(string message) : base(message) { }
+    public JavaPropertyParseException(string message) : base(message) { }
 }

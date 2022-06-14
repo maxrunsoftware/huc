@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using MaxRunSoftware.Utilities;
+// ReSharper disable InconsistentNaming
 
 [assembly: Guid(Constant.ID)]
 
@@ -449,7 +450,7 @@ public static class Constant
     /// <summary>
     /// Case-Sensitive map of Color names to Colors
     /// </summary>
-    public static IReadOnlyDictionary<string, Color> COLORS = COLORS_get();
+    public static readonly IReadOnlyDictionary<string, Color> COLORS = COLORS_get();
 
     private static IReadOnlyDictionary<string, Color> COLORS_get()
     {
@@ -477,7 +478,7 @@ public static class Constant
                 }
 
                 var colorObjectType = colorObject.GetType();
-                if (!colorObjectType.Equals(typeof(Color)))
+                if (colorObjectType != typeof(Color))
                 {
                     continue;
                 }
