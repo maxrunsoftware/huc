@@ -35,14 +35,14 @@ public class WebBrowser : IDisposable
 {
     public static OperatingSystem os;
 
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
 
-    private SingleUse isDisposed = new();
+    private readonly SingleUse isDisposed = new();
 
     public WebBrowserLocation Location { get; set; }
     public string DriverDirectory { get; set; }
     public string DriverDownloadDirectoryBase { get; set; }
-    public static string DriverDownloadDirectoryBaseDefault { get; } = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(Constant.CURRENT_EXE)), "WebBrowserDrivers");
+    public static string DriverDownloadDirectoryBaseDefault { get; } = Path.Combine(Constant.CURRENT_EXE_DIRECTORY, "WebBrowserDrivers");
     public string Version { get; set; }
     public bool NativeEvents { get; set; } = true;
     public IList<string> OptionArguments { get; } = new List<string>()
@@ -103,7 +103,7 @@ public class WebBrowser : IDisposable
         var driverUrl = browserArchitecture == Architecture.X32 ? driverConfig.GetUrl32() : driverConfig.GetUrl64();
         driverUrl = UrlHelper.BuildUrl(driverUrl, browserVersion);
 
-        if (DriverDownloadDirectoryBase == null) DriverDownloadDirectoryBase = DriverDownloadDirectoryBaseDefault;
+        DriverDownloadDirectoryBase ??= DriverDownloadDirectoryBaseDefault;
 
         //var binDestination = Path.Combine(currentDirectory, driverConfig.GetName(), browserVersion, browserArchitecture.ToString(), driverConfig.GetBinaryName());
         var browserDriverFile = Path.Combine(DriverDownloadDirectoryBase, driverConfig.GetName() + "_" + browserVersion + "_" + browserArchitecture.ToString(), driverConfig.GetBinaryName());
@@ -226,9 +226,8 @@ public class WebBrowser : IDisposable
             throw new NotImplementedException("Unknown [BrowserType] " + bt);
         }
 
-        Browser.Manage().Timeouts().PageLoad.Add(TimeSpan.FromSeconds(60));
-        Browser.Manage().Timeouts().AsynchronousJavaScript.Add(TimeSpan.FromSeconds(60));
-
+        Browser.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(60);
+        Browser.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(60);
     }
 
     public void GoTo(string url)
@@ -283,8 +282,8 @@ public class WebBrowser : IDisposable
     private IWebElement SearchRequiredOne(WebBrowserElementSearch search)
     {
         var elements = search.FindElements(Browser);
-        if (elements.IsEmpty()) throw new Exception("No element found matching " + search.ToString());
-        if (elements.Count > 1) throw new Exception($"Multiple elements ({elements.Count}) found matching " + search.ToString());
+        if (elements.IsEmpty()) throw new Exception("No element found matching " + search);
+        if (elements.Count > 1) throw new Exception($"Multiple elements ({elements.Count}) found matching " + search);
         return elements[0];
     }
 

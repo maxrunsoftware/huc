@@ -18,13 +18,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class WebBrowserLocation
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
 
     public WebBrowserType BrowserType { get; }
     public OSPlatform BrowserOS { get; }
@@ -51,7 +50,7 @@ public class WebBrowserLocation
         BrowserExecutable = browserExecutable.CheckNotNullTrimmed(nameof(browserExecutable));
         if (browserType == null)
         {
-            var name = Path.GetFileName(BrowserExecutable).ToLower();
+            var name = Path.GetFileName(BrowserExecutable)!.ToLower();
             if (name.ContainsAny("chrome")) browserType = WebBrowserType.Chrome;
             else if (name.ContainsAny("edge")) browserType = WebBrowserType.Edge;
             else if (name.ContainsAny("firefox")) browserType = WebBrowserType.Firefox;
@@ -61,16 +60,16 @@ public class WebBrowserLocation
         if (browserType == null) throw new Exception("Could not determine browser type from executable " + BrowserExecutable);
         BrowserType = browserType.Value;
 
-        BrowserOS = browserOS == null ? Constant.OS : browserOS.Value;
+        BrowserOS = browserOS ?? Constant.OS;
         if (isBrowser64Bit == null)
         {
-            if (BrowserOS == OSPlatform.Windows && BrowserExecutable.ToLower().Contains("\\program files\\")) isBrowser64Bit = true;
-            else if (BrowserOS == OSPlatform.Windows && BrowserExecutable.ToLower().Contains("\\program files (x86)\\")) isBrowser64Bit = false;
+            if (BrowserOS == OSPlatform.Windows && BrowserExecutable!.ToLower().Contains("\\program files\\")) isBrowser64Bit = true;
+            else if (BrowserOS == OSPlatform.Windows && BrowserExecutable!.ToLower().Contains("\\program files (x86)\\")) isBrowser64Bit = false;
         }
         IsBrowser64Bit = isBrowser64Bit ?? Constant.OS_X64;
     }
 
-    public static IReadOnlyList<WebBrowserLocation> DEFAULT_LOCATIONS { get; } = new List<WebBrowserLocation>()
+    public static IReadOnlyList<WebBrowserLocation> DefaultLocations { get; } = new List<WebBrowserLocation>()
     {
         new WebBrowserLocation("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", browserType: WebBrowserType.Chrome, browserOS: OSPlatform.Windows, isBrowser64Bit: true),
         new WebBrowserLocation("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe", browserType: WebBrowserType.Chrome, browserOS: OSPlatform.Windows, isBrowser64Bit: false),
@@ -91,7 +90,7 @@ public class WebBrowserLocation
 
     public static WebBrowserLocation FindBrowser(WebBrowserType? browserType = null)
     {
-        foreach (var loc in DEFAULT_LOCATIONS)
+        foreach (var loc in DefaultLocations)
         {
             if (loc.BrowserOS != Constant.OS) continue;
             if (browserType != null && loc.BrowserType != browserType.Value) continue;
@@ -103,7 +102,7 @@ public class WebBrowserLocation
 
     public WebBrowserLocation ChangeArchitecture(bool? isBrowser64Bit = null)
     {
-        if (isBrowser64Bit == null) isBrowser64Bit = !IsBrowser64Bit;
+        isBrowser64Bit ??= !IsBrowser64Bit;
         return new WebBrowserLocation(BrowserExecutable, BrowserType, BrowserOS, isBrowser64Bit);
     }
 

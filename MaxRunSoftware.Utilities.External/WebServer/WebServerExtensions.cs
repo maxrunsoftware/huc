@@ -16,7 +16,6 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using EmbedIO;
 
 namespace MaxRunSoftware.Utilities.External;
@@ -71,7 +70,7 @@ public static class WebServerExtensions
     }
     public static void SendFile(this IHttpContext context, string data, string fileName, System.Text.Encoding encoding = null)
     {
-        if (encoding == null) encoding = Constant.ENCODING_UTF8;
+        encoding ??= Constant.ENCODING_UTF8;
         var bytes = encoding.GetBytes(data);
         SendFile(context, bytes, fileName);
     }

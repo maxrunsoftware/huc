@@ -63,7 +63,7 @@ public class WebBrowserElementSearch
         else if (ClassName != null)
         {
             searchedClassName = true;
-            if (ClassName.IndexOf(" ") < 0)
+            if (ClassName.IndexOf(" ", StringComparison.Ordinal) < 0)
             {
                 list.AddRange(driver.FindElements(By.ClassName(ClassName)));
             }
@@ -78,7 +78,7 @@ public class WebBrowserElementSearch
                     ;
 
                 var xpath = $"//*[{query}]";
-                list.AddRange(driver.FindElements(By.XPath(XPath)));
+                list.AddRange(driver.FindElements(By.XPath(xpath)));
             }
         }
         else if (Name != null)
@@ -97,7 +97,7 @@ public class WebBrowserElementSearch
 
             // https://stackoverflow.com/a/5075279
             var xpath = $"//text()[. = '{ValueEquals}']";
-            list.AddRange(driver.FindElements(By.XPath(XPath)));
+            list.AddRange(driver.FindElements(By.XPath(xpath)));
         }
         else if (ValueContains != null)
         {
@@ -105,7 +105,7 @@ public class WebBrowserElementSearch
 
             // https://stackoverflow.com/a/5075279
             var xpath = $"//text()[contains(.,'{ValueContains}')]";
-            list.AddRange(driver.FindElements(By.XPath(XPath)));
+            list.AddRange(driver.FindElements(By.XPath(xpath)));
         }
 
         if (Id != null && !searchedId)
@@ -220,6 +220,7 @@ public class WebBrowserElementSearch
     /// driver.findElements(new ByChained(by1, by2))
     /// </code>
     /// </example>
+    // ReSharper disable once UnusedType.Local
     private class ByChained : By
     {
         private readonly By[] bys;
@@ -243,7 +244,7 @@ public class WebBrowserElementSearch
             ReadOnlyCollection<IWebElement> elements = this.FindElements(context);
             if (elements.Count == 0)
             {
-                throw new NoSuchElementException("Cannot locate an element using " + this.ToString());
+                throw new NoSuchElementException("Cannot locate an element using " + ToString());
             }
 
             return elements[0];
@@ -281,7 +282,7 @@ public class WebBrowserElementSearch
                 elems = newElems;
             }
 
-            return elems.AsReadOnly();
+            return elems.OrEmpty().ToList().AsReadOnly();
         }
 
         /// <summary>

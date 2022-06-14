@@ -23,7 +23,7 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IComparable<WindowsTaskSchedulerPath>
 {
-    private static readonly IReadOnlyList<string> PATH_PARSE_CHARACTERS = (new string[] { "/", "\\" }).ToList().AsReadOnly();
+    private static readonly IReadOnlyList<string> pathParseCharacters = (new[] { "/", "\\" }).ToList().AsReadOnly();
 
     public IReadOnlyList<string> PathFull { get; }
     public IReadOnlyList<string> Path
@@ -56,7 +56,7 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
     public WindowsTaskSchedulerPath(Task task) : this(task.Folder.Path + "/" + task.Name) { }
     public WindowsTaskSchedulerPath(IEnumerable<string> pathParts) => PathFull = pathParts.ToList();
     public WindowsTaskSchedulerPath(TaskFolder folder) : this(folder.Path) { }
-    public WindowsTaskSchedulerPath(string path) : this(Util.PathParse(path ?? string.Empty, PATH_PARSE_CHARACTERS).TrimOrNull().WhereNotNull()) { }
+    public WindowsTaskSchedulerPath(string path) : this(Util.PathParse(path ?? string.Empty, pathParseCharacters).TrimOrNull().WhereNotNull()) { }
 
     public override string ToString() => "/" + PathFull.ToStringDelimited("/");
 
@@ -67,7 +67,7 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
         if (other == null) return 1;
         var p1 = PathFull;
         var p2 = other.PathFull;
-        if (p1 == p2) return 0;
+        if (ReferenceEquals(p1, p2)) return 0;
         if (p1 == null) return -1;
         if (p2 == null) return 1;
         return Util.Compare(p1, p2, StringComparer.OrdinalIgnoreCase);

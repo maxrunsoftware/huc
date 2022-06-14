@@ -16,6 +16,7 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,12 +32,12 @@ public class WebServer : IDisposable
 {
     private class SwanLogger : Swan.Logging.ILogger
     {
-        public Swan.Logging.LogLevel LogLevel { get; init; }
-        private readonly ILogger log;
-        private SwanLogger(Swan.Logging.LogLevel logLevel, ILogger log)
+        public Swan.Logging.LogLevel LogLevel { get; }
+        private readonly ILogger logSwan;
+        private SwanLogger(Swan.Logging.LogLevel logLevel, ILogger logSwan)
         {
-            this.LogLevel = logLevel;
-            this.log = log;
+            LogLevel = logLevel;
+            this.logSwan = logSwan;
         }
 
         public static IEnumerable<Swan.Logging.ILogger> CreateLoggers(ILogger log)
@@ -57,30 +58,28 @@ public class WebServer : IDisposable
                 case Swan.Logging.LogLevel.None:
                     break;
                 case Swan.Logging.LogLevel.Trace:
-                    if (logEvent.Exception == null) log.Trace(logEvent.Message); else log.Trace(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) logSwan.Trace(logEvent.Message); else logSwan.Trace(logEvent.Message, logEvent.Exception);
                     break;
                 case Swan.Logging.LogLevel.Debug:
-                    if (logEvent.Exception == null) log.Debug(logEvent.Message); else log.Debug(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) logSwan.Debug(logEvent.Message); else logSwan.Debug(logEvent.Message, logEvent.Exception);
                     break;
                 case Swan.Logging.LogLevel.Info:
-                    if (logEvent.Exception == null) log.Info(logEvent.Message); else log.Info(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) logSwan.Info(logEvent.Message); else logSwan.Info(logEvent.Message, logEvent.Exception);
                     break;
                 case Swan.Logging.LogLevel.Warning:
-                    if (logEvent.Exception == null) log.Warn(logEvent.Message); else log.Warn(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) logSwan.Warn(logEvent.Message); else logSwan.Warn(logEvent.Message, logEvent.Exception);
                     break;
                 case Swan.Logging.LogLevel.Error:
-                    if (logEvent.Exception == null) log.Error(logEvent.Message); else log.Error(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) logSwan.Error(logEvent.Message); else logSwan.Error(logEvent.Message, logEvent.Exception);
                     break;
                 case Swan.Logging.LogLevel.Fatal:
-                    if (logEvent.Exception == null) log.Critical(logEvent.Message); else log.Critical(logEvent.Message, logEvent.Exception);
-                    break;
-                default:
+                    if (logEvent.Exception == null) logSwan.Critical(logEvent.Message); else logSwan.Critical(logEvent.Message, logEvent.Exception);
                     break;
             }
         }
     }
 
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private readonly SingleUse started = new SingleUse();
     private readonly SingleUse disposable = new SingleUse();
@@ -88,8 +87,8 @@ public class WebServer : IDisposable
     private static void RegisterLoggers()
     {
         if (!registerLoggers.TryUse()) return;
-        Swan.Logging.Logger.NoLogging();
-        foreach (var logger in SwanLogger.CreateLoggers(log)) Swan.Logging.Logger.RegisterLogger(logger);
+        Logger.NoLogging();
+        foreach (var logger in SwanLogger.CreateLoggers(log)) Logger.RegisterLogger(logger);
 
 
     }
@@ -101,8 +100,7 @@ public class WebServer : IDisposable
 
     private async Task ProcessAction(IHttpContext context, Func<IHttpContext, object> handler)
     {
-        var o = handler(context);
-        if (o == null) o = string.Empty;
+        var o = handler(context) ?? string.Empty;
         if (o is string s)
         {
             await context.SendStringAsync(s, "text/html", Encoding.UTF8);
@@ -148,11 +146,11 @@ public class WebServer : IDisposable
             if (!directoryToServeUrlPath.StartsWith("/")) directoryToServeUrlPath = "/" + directoryToServeUrlPath;
             log.Debug(nameof(config.DirectoryToServeUrlPath) + ": " + directoryToServeUrlPath);
             log.Debug(nameof(config.DirectoryToServe) + ": " + config.DirectoryToServe);
-            server = server.WithStaticFolder(directoryToServeUrlPath, config.DirectoryToServe, false, (o) => o.DirectoryLister = DirectoryLister.Html);
+            server = server.WithStaticFolder(directoryToServeUrlPath, config.DirectoryToServe, false, o => o.DirectoryLister = DirectoryLister.Html);
         }
 
 
-        server.StateChanged += (s, e) => log.Debug($"WebServer New State - {e.NewState}");
+        server.StateChanged += (_, e) => log.Debug($"WebServer New State - {e.NewState}");
         server.HandleHttpException(async (context, exception) =>
         {
             context.Response.StatusCode = exception.StatusCode;
@@ -165,7 +163,7 @@ public class WebServer : IDisposable
                     break;
                 case 401:
                     context.AddHeader("WWW-Authenticate", "Basic");
-                    await context.SendStringAsync(HtmlMessage("401 - Unauthorized", $"<p>Please login to continue</p>"), "text/html", Encoding.UTF8);
+                    await context.SendStringAsync(HtmlMessage("401 - Unauthorized", "<p>Please login to continue</p>"), "text/html", Encoding.UTF8);
                     break;
                 default:
                     await HttpExceptionHandler.Default(context, exception);
@@ -200,22 +198,22 @@ public class WebServer : IDisposable
     public static string HtmlMessage(string title, string msg, string css = null)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"<html>");
-        sb.AppendLine($"  <head>");
-        sb.AppendLine($"    <meta charset=\"utf - 8\">");
+        sb.AppendLine("<html>");
+        sb.AppendLine("  <head>");
+        sb.AppendLine("    <meta charset=\"utf - 8\">");
         if (title != null) sb.AppendLine($"    <title>{title}</title>");
         if (css != null)
         {
-            sb.AppendLine($"    <style>");
+            sb.AppendLine("    <style>");
             sb.AppendLine($"    {css}");
-            sb.AppendLine($"    </style>");
+            sb.AppendLine("    </style>");
         }
-        sb.AppendLine($"  </head>");
-        sb.AppendLine($"  <body>");
+        sb.AppendLine("  </head>");
+        sb.AppendLine("  <body>");
         if (title != null) sb.AppendLine($"    <h1>{title}</h1>");
         if (msg != null) sb.AppendLine($"    {msg}");
-        sb.AppendLine($"  </body>");
-        sb.AppendLine($"</html>");
+        sb.AppendLine("  </body>");
+        sb.AppendLine("</html>");
         return sb.ToString();
     }
 }

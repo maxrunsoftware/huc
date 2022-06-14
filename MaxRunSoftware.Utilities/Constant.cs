@@ -560,61 +560,72 @@ public static class Constant
 
     #region CurrentLocation
 
-    public static readonly ImmutableArray<string> CURRENT_EXE_DIRECTORIES = CURRENT_EXE_DIRECTORIES_get().ToImmutableArray();
-
-    private static List<string> CURRENT_EXE_DIRECTORIES_get()
-    {
-        var list = new List<string>();
-        foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
-        {
-            if (!item.Any(o => PATH_DELIMITERS.Contains(o)))
-            {
-                continue;
-            }
-
-            // contains directory delimiters
-            try
-            {
-                var dn = Path.GetDirectoryName(item);
-                if (dn == null)
-                {
-                    continue;
-                }
-
-                var a = Path.GetFullPath(dn);
-                list.Add(a);
-            }
-            catch (Exception) { }
-        }
-
-        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
-        return list.Select(TrimOrNull).Where(v => v != null).Where(v => set.Add(v)).ToList();
-    }
+    public static readonly IReadOnlyList<string> CURRENT_EXE_DIRECTORIES = GetCurrentLocationsDirectory().AsReadOnly();
 
     public static readonly string CURRENT_EXE_DIRECTORY = CURRENT_EXE_DIRECTORIES.FirstOrDefault();
 
-    public static readonly ImmutableArray<string> CURRENT_EXES = CURRENT_EXES_get().ToImmutableArray();
+    public static readonly IReadOnlyList<string> CURRENT_EXES = GetCurrentLocationsFile().AsReadOnly();
 
-    private static List<string> CURRENT_EXES_get()
+    /// <summary>
+    /// The current EXE file name. Could be a full file path, or a partial file path, or null
+    /// </summary>
+    public static readonly string CURRENT_EXE = CURRENT_EXES.FirstOrDefault();
+
+
+    private static List<string> GetCurrentLocationsDirectory()
     {
         var list = new List<string>();
-        foreach (var item in CURRENT_POTENTIAL_LOCATIONS)
+        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
+
+        foreach (var location in GetCurrentLocations())
         {
             try
             {
-                var a = Path.GetFullPath(item);
-                list.Add(a);
+                if (Directory.Exists(location))
+                {
+                    if (set.Add(location)) list.Add(location);
+                }
+                else if (File.Exists(location))
+                {
+                    var location2 = Path.GetDirectoryName(location);
+                    if (location2 != null)
+                    {
+                        location2 = Path.GetFullPath(location2);
+                        if (Directory.Exists(location2))
+                        {
+                            if (set.Add(location2)) list.Add(location2);
+                        }
+                    }
+
+                }
             }
-            catch (Exception) { }
+            catch { }
         }
-
-        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
-        return list.Select(TrimOrNull).Where(v => v != null).Where(v => set.Add(v)).ToList();
+        
+        return list;
     }
+    
+    private static List<string> GetCurrentLocationsFile()
+    {
+        var list = new List<string>();
+        var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
 
-    private static readonly IReadOnlyList<string> CURRENT_POTENTIAL_LOCATIONS = CURRENT_POTENTIAL_LOCATIONS_get().AsReadOnly();
-
-    private static List<string> CURRENT_POTENTIAL_LOCATIONS_get()
+        foreach (var location in GetCurrentLocations())
+        {
+            try
+            {
+                if (File.Exists(location))
+                {
+                    if (set.Add(location)) list.Add(location);
+                }
+            }
+            catch { }
+        }
+        
+        return list;
+    }
+    
+    private static List<string> GetCurrentLocations()
     {
         // https://stackoverflow.com/questions/616584/how-do-i-get-the-name-of-the-current-executable-in-c
 
@@ -628,12 +639,6 @@ public static class Constant
         try
         {
             list.Add(AppDomain.CurrentDomain.FriendlyName);
-        }
-        catch { }
-
-        try
-        {
-            list.Add(Process.GetCurrentProcess().ProcessName);
         }
         catch { }
 
@@ -662,16 +667,46 @@ public static class Constant
         catch { }
 
         var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
-        return list.Select(TrimOrNull).Where(v => v != null).Where(v => set.Add(v)).ToList();
+
+        var list2 = new List<string>();
+        foreach (var item in list)
+        {
+            var item2 = TrimOrNull(item);
+            if (item2 == null) continue;
+            
+            try
+            {
+                item2 = Path.GetFullPath(item2);
+            }
+            catch { }
+            
+            try
+            {
+                if (!File.Exists(item2) && !Directory.Exists(item2))
+                {
+                    if (File.Exists(item2 + ".exe"))
+                    {
+                        item2 += ".exe";
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+            catch { }
+
+            if (!set.Add(item2)) continue;
+
+            list2.Add(item2);
+        }
+
+        return list2;
     }
-
+    
+    
     /// <summary>
-    /// The current EXE file name. Could be a full file path, or a partial file path, or null
-    /// </summary>
-    public static readonly string CURRENT_EXE = CURRENT_POTENTIAL_LOCATIONS.FirstOrDefault();
-
-    /// <summary>
-    /// Are we executing via a batchfile or script or running the command directly from the console window?
+    /// Are we executing via a batch file or script or running the command directly from the console window?
     /// </summary>
     public static readonly bool IS_BATCHFILE_EXECUTED = IS_BATCHFILE_EXECUTED_get();
 

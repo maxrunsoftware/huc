@@ -23,10 +23,10 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class WindowsTaskScheduler : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
     private readonly object locker = new object();
     private TaskService taskService;
-    public static readonly IReadOnlyList<string> PATH_PARSE_CHARACTERS = (new string[] { "/", "\\" }).ToList().AsReadOnly();
+    public static readonly IReadOnlyList<string> PATH_PARSE_CHARACTERS = (new[] { "/", "\\" }).ToList().AsReadOnly();
     public static readonly string USER_SYSTEM = "NT AUTHORITY\\SYSTEM";
     public static readonly string USER_LOCALSERVICE = "NT AUTHORITY\\LOCALSERVICE";
     public static readonly string USER_NETWORKSERVICE = "NT AUTHORITY\\NETWORKSERVICE";
@@ -55,7 +55,7 @@ public class WindowsTaskScheduler : IDisposable
                 username = parts[1];
             }
         }
-        if (accountDomain == null) accountDomain = host;
+        accountDomain ??= host;
 
         log.Debug($"Creating new {typeof(TaskService).FullNameFormatted()}(host: {host}, username: {username}, accountDomain: {accountDomain}, password: {password}, forceV1: {forceV1})");
         taskService = new TaskService(host, userName: username, accountDomain: accountDomain, password: password, forceV1: forceV1);
@@ -73,10 +73,10 @@ public class WindowsTaskScheduler : IDisposable
         td.RegistrationInfo.Description = description.TrimOrNull();
         td.RegistrationInfo.Documentation = documentation.TrimOrNull();
 
-        if (username == null) username = USER_SYSTEM;
+        username ??= USER_SYSTEM;
 
         var tlt = TaskLogonType.Password;
-        foreach (var sc in Utilities.Constant.LIST_StringComparer)
+        foreach (var sc in Constant.LIST_StringComparer)
         {
             if (username.In(sc, USER_SYSTEM, USER_LOCALSERVICE, USER_NETWORKSERVICE))
             {
@@ -120,7 +120,7 @@ public class WindowsTaskScheduler : IDisposable
             }
         }
 
-        if (task.Enabled == true)
+        if (task.Enabled)
         {
             try
             {
@@ -221,8 +221,7 @@ public class WindowsTaskScheduler : IDisposable
         if (existingFolder != null) return existingFolder;
 
         var parent = path.Parent;
-        var parentFolder = GetTaskFolder(parent);
-        if (parentFolder == null) parentFolder = CreateTaskFolder(parent);
+        var parentFolder = GetTaskFolder(parent) ?? CreateTaskFolder(parent);
         log.Debug("Creating TaskFolder: " + path);
         return parentFolder.CreateFolder(path.Name);
     }

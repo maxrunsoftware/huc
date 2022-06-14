@@ -23,7 +23,7 @@ public static class WebBrowserExtensions
     public static string GetId(this IWebElement element)
     {
         // TODO: All kinds of potential performance issues with this.
-        var namesId = new string[] { "id", "Id", "ID", "iD" };
+        var namesId = new[] { "id", "Id", "ID", "iD" };
         for (int i = 0; i < namesId.Length; i++)
         {
             var val = element.GetDomAttribute(namesId[i]).TrimOrNull();
@@ -40,7 +40,7 @@ public static class WebBrowserExtensions
     public static string GetName(this IWebElement element)
     {
         // TODO: All kinds of potential performance issues with this.
-        var namesId = new string[] { "name", "Name", "NAME" };
+        var namesId = new[] { "name", "Name", "NAME" };
         for (int i = 0; i < namesId.Length; i++)
         {
             var val = element.GetDomAttribute(namesId[i]).TrimOrNull();
@@ -57,7 +57,7 @@ public static class WebBrowserExtensions
     public static string GetClassName(this IWebElement element)
     {
         // TODO: All kinds of potential performance issues with this.
-        var namesClass = new string[] { "class", "Class", "CLASS", "classname", "className", "Classname", "ClassName", "CLASSNAME" };
+        var namesClass = new[] { "class", "Class", "CLASS", "classname", "className", "Classname", "ClassName", "CLASSNAME" };
         for (int i = 0; i < namesClass.Length; i++)
         {
             var val = element.GetDomAttribute(namesClass[i]).TrimOrNull();

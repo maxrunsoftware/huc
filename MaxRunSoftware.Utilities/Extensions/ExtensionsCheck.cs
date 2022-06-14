@@ -636,6 +636,7 @@ public static class ExtensionsCheck
     /// <param name="argument">The argument to check</param>
     /// <param name="argumentName">The nameof argument</param>
     /// <returns>The argument</returns>
+    [ContractAnnotation("argument: null => halt")]
     public static T[] CheckNotNullNotEmpty<T>(this T[] argument, string argumentName)
     {
         if (argument == null)
@@ -658,6 +659,7 @@ public static class ExtensionsCheck
     /// <param name="argument">The argument to check</param>
     /// <param name="argumentName">The nameof argument</param>
     /// <returns>The argument</returns>
+    [ContractAnnotation("argument: null => halt")]
     public static T? CheckNotNull<T>(this T? argument, string argumentName) where T : struct
     {
         if (argument == null)
@@ -674,6 +676,7 @@ public static class ExtensionsCheck
     /// <param name="argument">The argument to check</param>
     /// <param name="argumentName">The nameof argument</param>
     /// <returns>The trimmed argument</returns>
+    [ContractAnnotation("argument: null => halt")]
     public static string CheckNotNullTrimmed(this string argument, string argumentName)
     {
         var s = argument.TrimOrNull();

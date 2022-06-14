@@ -18,6 +18,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32.TaskScheduler;
+// ReSharper disable IdentifierTypo
+// ReSharper disable InconsistentNaming
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -37,7 +39,7 @@ public class WindowsTaskSchedulerTrigger
         Friday,
         Saturday
     }
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+    private static readonly ILogger log = Logging.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private static void CheckTime(int hour, int minute, int second)
     {
@@ -60,8 +62,8 @@ public class WindowsTaskSchedulerTrigger
 
     public static IEnumerable<Trigger> CreateTriggers(string line, string logPrefix = null)
     {
-        if (logPrefix != null) logPrefix = logPrefix + " ";
-        if (logPrefix == null) logPrefix = string.Empty;
+        if (logPrefix != null) logPrefix += " ";
+        logPrefix ??= string.Empty;
 
         var triggerParts = line.SplitOnWhiteSpace().TrimOrNull().WhereNotNull();
         var triggerPartsQueue = new Queue<string>();
@@ -167,19 +169,20 @@ public class WindowsTaskSchedulerTrigger
         log.Trace($"Parsing hours and minutes from {time}");
         var timeparts = time.Split(':').TrimOrNull().WhereNotNull().ToArray();
         if (timeparts.Length < 2) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected HH:MM. Expected : character in time {time}");
-        if (timeparts.Length > 2) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected HH:MM. Encountered multiple : characters in time {time} but only 1 is allowed seperating hours and minutes");
+        if (timeparts.Length > 2) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected HH:MM. Encountered multiple : characters in time {time} but only 1 is allowed separating hours and minutes");
         var hours = timeparts[0].ToByte();
         var mins = timeparts[1].ToByte();
         log.Trace($"Parsed {hours} hours and {mins} minutes from {time}");
         return (hours, mins);
     }
 
+    // ReSharper disable once UnusedParameter.Global
     public static MonthlyTrigger CreateTriggerMonthly(int dayOfMonth, int hour = 0, int minute = 0, int second = 0)
     {
         // TODO: Check daysOfMonth
         var t = new MonthlyTrigger(monthsOfYear: MonthsOfTheYear.AllMonths)
         {
-            DaysOfMonth = new int[] { dayOfMonth },
+            DaysOfMonth = new[] { dayOfMonth },
             StartBoundary = DateTime.Today + TimeSpan.FromHours(hour) + TimeSpan.FromMinutes(minute)
         };
         return t;
