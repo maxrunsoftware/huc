@@ -63,16 +63,16 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             { "DQ", "\"" },
             { "\\\"", "\"" },
 
-            { "\\r\\n", Utilities.Constant.NEWLINE_WINDOWS },
-            { "WIN", Utilities.Constant.NEWLINE_WINDOWS },
-            { "WINDOWS", Utilities.Constant.NEWLINE_WINDOWS },
-            { "\\n", Utilities.Constant.NEWLINE_UNIX },
-            { "UNIX", Utilities.Constant.NEWLINE_UNIX },
-            { "NIX", Utilities.Constant.NEWLINE_UNIX },
-            { "LINUX", Utilities.Constant.NEWLINE_UNIX },
-            { "\\r", Utilities.Constant.NEWLINE_MAC },
-            { "MAC", Utilities.Constant.NEWLINE_MAC },
-            { "APPLE", Utilities.Constant.NEWLINE_MAC },
+            { "\\r\\n", Constant.NEWLINE_WINDOWS },
+            { "WIN", Constant.NEWLINE_WINDOWS },
+            { "WINDOWS", Constant.NEWLINE_WINDOWS },
+            { "\\n", Constant.NEWLINE_UNIX },
+            { "UNIX", Constant.NEWLINE_UNIX },
+            { "NIX", Constant.NEWLINE_UNIX },
+            { "LINUX", Constant.NEWLINE_UNIX },
+            { "\\r", Constant.NEWLINE_MAC },
+            { "MAC", Constant.NEWLINE_MAC },
+            { "APPLE", Constant.NEWLINE_MAC },
         }.AsReadOnly();
 
         public static string ParseOption(string input)

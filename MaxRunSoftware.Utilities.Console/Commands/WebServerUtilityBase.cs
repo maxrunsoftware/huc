@@ -17,7 +17,6 @@ limitations under the License.
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using EmbedIO;
 using MaxRunSoftware.Utilities.External;
 using HttpMultipartParser;

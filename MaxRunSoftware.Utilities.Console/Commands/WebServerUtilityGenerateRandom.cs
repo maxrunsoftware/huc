@@ -18,8 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
-using EmbedIO;
-using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

@@ -15,11 +15,8 @@ limitations under the License.
 */
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {
@@ -120,7 +117,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandTimeout = commandTimeout;
-                        command.CommandType = System.Data.CommandType.Text;
+                        command.CommandType = CommandType.Text;
                         command.CommandText = sql;
                         log.Trace($"ExecuteQuery: {sql}");
 

@@ -117,7 +117,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
     public class ConvertBase16ToBase64 : ConvertTextToBinary
     {
         protected override string Summary => "Converts base 16 file to base 64 file";
-        protected override byte[] Convert(string str) => Utilities.Constant.ENCODING_UTF8.GetBytes(Util.Base64(Util.Base16(str)));
+        protected override byte[] Convert(string str) => Constant.ENCODING_UTF8.GetBytes(Util.Base64(Util.Base16(str)));
     }
 
     public class ConvertBase64ToBinary : ConvertTextToBinary
@@ -129,7 +129,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
     public class ConvertBase64ToBase16 : ConvertTextToBinary
     {
         protected override string Summary => "Converts base 64 file to base 16 file";
-        protected override byte[] Convert(string str) => Utilities.Constant.ENCODING_UTF8.GetBytes(Util.Base16(Util.Base64(str)));
+        protected override byte[] Convert(string str) => Constant.ENCODING_UTF8.GetBytes(Util.Base16(Util.Base64(str)));
     }
 
 }

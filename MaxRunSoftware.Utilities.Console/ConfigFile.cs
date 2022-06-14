@@ -16,7 +16,6 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -26,7 +25,7 @@ namespace MaxRunSoftware.Utilities.Console
 {
     public class ConfigFile : IBucketReadOnly<string, string>
     {
-        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = Program.LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
         private readonly IDictionary<string, string> values = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public static string Name => Path.GetFileName(FullPathName);
@@ -35,10 +34,9 @@ namespace MaxRunSoftware.Utilities.Console
         {
             get
             {
-                using (var processModule = Process.GetCurrentProcess().MainModule)
-                {
-                    return Path.GetFullPath(processModule?.FileName);
-                }
+                var fileName = Constant.CURRENT_EXE;
+                if (fileName == null) throw new InvalidOperationException("Could not determine current executable name");
+                return fileName;
             }
         }
 
@@ -66,11 +64,11 @@ namespace MaxRunSoftware.Utilities.Console
             }
         }
 
-        private static string KEY => Constant.ID.Replace("-", "");
+        private static string Key => Constant.ID.Replace("-", "");
 
         public string Encrypt(string unencryptedData)
         {
-            var encryptedData = Encryption.EncryptSymmetric(Constant.ENCODING_UTF8.GetBytes(KEY), Constant.ENCODING_UTF8.GetBytes(unencryptedData));
+            var encryptedData = Encryption.EncryptSymmetric(Constant.ENCODING_UTF8.GetBytes(Key), Constant.ENCODING_UTF8.GetBytes(unencryptedData));
             var encryptedDataBase64 = Util.Base64(encryptedData);
             var encryptedDataBase64Padded = ProgramPasswordEscape + encryptedDataBase64;
             return encryptedDataBase64Padded;
@@ -81,7 +79,7 @@ namespace MaxRunSoftware.Utilities.Console
             if (!encryptedData.StartsWith(ProgramPasswordEscape)) return null;
             var encryptedDataBase64 = encryptedData.Substring(ProgramPasswordEscape.Length);
             var encryptedDataBytes = Util.Base64(encryptedDataBase64);
-            var unencryptedData = Encryption.DecryptSymmetric(Constant.ENCODING_UTF8.GetBytes(KEY), encryptedDataBytes);
+            var unencryptedData = Encryption.DecryptSymmetric(Constant.ENCODING_UTF8.GetBytes(Key), encryptedDataBytes);
             return Constant.ENCODING_UTF8.GetString(unencryptedData);
         }
 
@@ -112,24 +110,24 @@ namespace MaxRunSoftware.Utilities.Console
 
         public static List<string> GetAllKeys()
         {
-            var cmdobjs = Program.CommandObjects;
-            var cmdobjsParams = new List<string>();
-            cmdobjsParams.Add("Log.FileLevel");
-            cmdobjsParams.Add("Log.FileName");
-            cmdobjsParams.Add("Program.SuppressBanner");
-            cmdobjsParams.Add("Program.PasswordEscape");
-            foreach (var cmdobj in cmdobjs)
+            var commandObjects = Program.CommandObjects;
+            var commandObjectParams = new List<string>();
+            commandObjectParams.Add("Log.FileLevel");
+            commandObjectParams.Add("Log.FileName");
+            commandObjectParams.Add("Program.SuppressBanner");
+            commandObjectParams.Add("Program.PasswordEscape");
+            foreach (var commandObject in commandObjects)
             {
-                if (cmdobj is Command cmdobj2)
+                if (commandObject is Command commandObject2)
                 {
-                    foreach (var p in cmdobj2.Help.Parameters)
+                    foreach (var p in commandObject2.Help.Parameters)
                     {
-                        cmdobjsParams.Add(cmdobj.Name + "." + p.p1);
+                        commandObjectParams.Add(commandObject.Name + "." + p.p1);
                     }
                 }
             }
 
-            return cmdobjsParams;
+            return commandObjectParams;
         }
 
         public string LogFileLevel => this["Log.FileLevel"] ?? "info";
@@ -143,9 +141,9 @@ namespace MaxRunSoftware.Utilities.Console
             if (programFile == null) throw new Exception("Could not determine current program location");
             var propFile = FullPathName;
             if (File.Exists(propFile)) return;
-            var cmdobjsParams = GetAllKeys();
+            var commandObjectParams = GetAllKeys();
             var sb = new StringBuilder();
-            foreach (var cmdobjsParam in cmdobjsParams) sb.AppendLine(cmdobjsParam + "=");
+            foreach (var commandObjectParam in commandObjectParams) sb.AppendLine(commandObjectParam + "=");
             Util.FileWrite(propFile, sb.ToString(), Constant.ENCODING_UTF8);
         }
 

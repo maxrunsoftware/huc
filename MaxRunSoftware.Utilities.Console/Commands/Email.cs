@@ -19,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
-using MaxRunSoftware.Utilities;
 
 namespace MaxRunSoftware.Utilities.Console.Commands
 {

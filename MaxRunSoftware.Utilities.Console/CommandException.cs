@@ -20,20 +20,12 @@ namespace MaxRunSoftware.Utilities.Console
 {
     public class CommandException : ApplicationException
     {
-        public CommandException() : base()
-        {
-        }
+        public CommandException() { }
 
-        public CommandException(string message) : base(message)
-        {
-        }
+        public CommandException(string message) : base(message) { }
 
-        public CommandException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+        public CommandException(string message, Exception innerException) : base(message, innerException) { }
 
-        protected CommandException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+        protected CommandException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }

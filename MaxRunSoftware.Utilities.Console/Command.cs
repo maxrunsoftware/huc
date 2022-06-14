@@ -352,20 +352,19 @@ namespace MaxRunSoftware.Utilities.Console
 
         public T? GetArgParameterOrConfigEnum<T>(string key1, string key2) where T : struct, IConvertible, IComparable, IFormattable
         {
-            var v = GetArgParameter(key1, key2).TrimOrNull();
-            if (v == null) v = GetArgParameterConfig(key1);
+            var v = GetArgParameter(key1, key2).TrimOrNull() ?? GetArgParameterConfig(key1);
             log.Debug($"{key1}String: {v}");
 
             if (v == null)
             {
-                log.Debug($"{key1}: {v}");
+                log.Debug($"{key1}: {null}");
                 return null;
             }
 
-            var onullable = Util.GetEnumItemNullable<T>(v);
-            if (onullable == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
+            var objectNullable = Util.GetEnumItemNullable<T>(v);
+            if (objectNullable == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
 
-            var o = onullable.Value;
+            var o = objectNullable.Value;
             log.Debug($"{key1}: {o}");
 
             return o;
@@ -434,7 +433,7 @@ namespace MaxRunSoftware.Utilities.Console
             .TrimOrNull()
             .WhereNotNull()
             .SelectMany(o => ParseFileName(o, recursive: recursive))
-            .Select(o => Path.GetFullPath(o))
+            .Select(Path.GetFullPath)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
             .ToList();

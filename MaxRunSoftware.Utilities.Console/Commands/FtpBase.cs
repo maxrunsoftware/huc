@@ -83,7 +83,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 
             var fileName = ParseFileNameFromPath(remoteFile);
             if (fileName == null) throw new ArgumentException($"Could not determine LocalFile from RemoteFile {remoteFile}", "RemoteFile");
-            localFile = Path.Combine(System.Environment.CurrentDirectory, fileName);
+            localFile = Path.Combine(Environment.CurrentDirectory, fileName);
             return localFile;
         }
 
@@ -206,7 +206,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 c = new FtpClientSFtp(host, port, username, pkfs);
             }
             log.Debug("Connection successful");
-            var bs = bufferSizeMegabytes * (uint)Utilities.Constant.BYTES_MEGA;
+            var bs = bufferSizeMegabytes * (uint)Constant.BYTES_MEGA;
             log.Debug($"Setting Buffer Size: {bs}");
             c.SetBufferSize(bs);
             return c;

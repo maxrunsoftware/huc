@@ -35,17 +35,17 @@ namespace MaxRunSoftware.Utilities.Console.Commands
             { "DoubleQuote", "\"" },
             { "\\\"", "\"" },
 
-            { "\\r\\n", Utilities.Constant.NEWLINE_WINDOWS },
-            { "LinefeedWindows", Utilities.Constant.NEWLINE_WINDOWS },
+            { "\\r\\n", Constant.NEWLINE_WINDOWS },
+            { "LinefeedWindows", Constant.NEWLINE_WINDOWS },
 
-            { "\\n", Utilities.Constant.NEWLINE_UNIX },
-            { "NewLine", Utilities.Constant.NEWLINE_UNIX },
-            { "LinefeedUNIX", Utilities.Constant.NEWLINE_UNIX },
+            { "\\n", Constant.NEWLINE_UNIX },
+            { "NewLine", Constant.NEWLINE_UNIX },
+            { "LinefeedUNIX", Constant.NEWLINE_UNIX },
 
-            { "\\r", Utilities.Constant.NEWLINE_MAC },
-            { "CarriageReturn", Utilities.Constant.NEWLINE_MAC },
-            { "LinefeedMAC", Utilities.Constant.NEWLINE_MAC },
-            { "LinefeedApple", Utilities.Constant.NEWLINE_MAC },
+            { "\\r", Constant.NEWLINE_MAC },
+            { "CarriageReturn", Constant.NEWLINE_MAC },
+            { "LinefeedMAC", Constant.NEWLINE_MAC },
+            { "LinefeedApple", Constant.NEWLINE_MAC },
 
             { "BackSlash", "\\" },
             { "\\\\", "\\" },

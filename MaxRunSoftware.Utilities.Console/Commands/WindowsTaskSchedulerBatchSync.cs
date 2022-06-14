@@ -16,7 +16,6 @@ limitations under the License.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -69,7 +68,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 FileName = Path.GetFileName(FilePath);
                 TaskName = Path.GetFileNameWithoutExtension(FilePath);
 
-                var fileText = Util.FileRead(FilePath, Utilities.Constant.ENCODING_UTF8).TrimOrNull() ?? string.Empty;
+                var fileText = Util.FileRead(FilePath, Constant.ENCODING_UTF8).TrimOrNull() ?? string.Empty;
                 var fileLines = fileText.SplitOnNewline().TrimOrNull().ToList();
 
                 var triggers = new List<Trigger>();
@@ -90,7 +89,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                     try
                     {
                         var triggerLine = fileLineParts.ToStringDelimited(" ");
-                        var triggersOfLine = External.WindowsTaskSchedulerTrigger.CreateTriggers(triggerLine, logHeader).ToList();
+                        var triggersOfLine = WindowsTaskSchedulerTrigger.CreateTriggers(triggerLine, logHeader).ToList();
                         if (triggersOfLine.IsNotEmpty())
                         {
                             triggers.AddRange(triggersOfLine);
@@ -116,7 +115,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 var ext = Path.GetExtension(filename).TrimOrNull();
                 if (ext == null) return false;
                 if (!ext.In(StringComparer.OrdinalIgnoreCase, "cmd", ".cmd", "bat", ".bat")) return false;
-                if (Util.FileGetSize(filename) > (Utilities.Constant.BYTES_MEGA * 10L)) return false; // no batch file should be over 10MB
+                if (Util.FileGetSize(filename) > (Constant.BYTES_MEGA * 10L)) return false; // no batch file should be over 10MB
                 return true;
             }
         }
@@ -185,7 +184,7 @@ namespace MaxRunSoftware.Utilities.Console.Commands
                 }
 
                 log.Error($"Failed to create Task with {batchFile.Triggers.Count} triggers from file {batchFile.FilePath}", e);
-                log.Error(string.Join(System.Environment.NewLine + "  ", items) + System.Environment.NewLine);
+                log.Error(string.Join(Environment.NewLine + "  ", items) + Environment.NewLine);
             }
         }
 

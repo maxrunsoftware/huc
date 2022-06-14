@@ -22,10 +22,10 @@ namespace MaxRunSoftware.Utilities.Console
 {
     public class Program
     {
-        private static readonly ILogger log = LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILogger log = LogFactory.GetLogger(System.Reflection.MethodBase.GetCurrentMethod()!.DeclaringType);
         private ConfigFile config;
 
-        public static ILogFactory LogFactory { get { return Utilities.LogFactory.LogFactoryImpl; } }
+        public static ILogFactory LogFactory => Utilities.LogFactory.LogFactoryImpl;
 
         public static List<Type> CommandTypes => typeof(Program).Assembly
             .GetTypesOf<ICommand>(requireNoArgConstructor: true)
@@ -33,7 +33,7 @@ namespace MaxRunSoftware.Utilities.Console
             .ToList();
 
         public static List<ICommand> CommandObjects => CommandTypes
-            .Select(o => CreateCommand(o))
+            .Select(CreateCommand)
             .ToList();
 
         private static ICommand CreateCommand(Type type) => (ICommand)Activator.CreateInstance(type);
@@ -81,7 +81,7 @@ namespace MaxRunSoftware.Utilities.Console
             {
                 var logFileLevel = config.LogFileLevel.TrimOrNull() ?? "info";
                 logFileLevel = logFileLevel.ToLower();
-                var level = LogLevel.Info;
+                LogLevel level;
                 if (logFileLevel.EqualsCaseInsensitive(LogLevel.Critical.ToString())) level = LogLevel.Critical;
                 else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Error.ToString())) level = LogLevel.Error;
                 else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Warn.ToString())) level = LogLevel.Warn;
@@ -94,7 +94,7 @@ namespace MaxRunSoftware.Utilities.Console
             }
 
 
-            void listCommand(ICommand c)
+            void ListCommand(ICommand c)
             {
                 if (a.IsShowHidden || !c.IsHidden)
                 {
@@ -112,21 +112,21 @@ namespace MaxRunSoftware.Utilities.Console
                 ShowBanner(a, null);
                 log.Info("No command specified");
                 log.Info("Commands: ");
-                foreach (var c in CommandObjects) listCommand(c);
+                foreach (var c in CommandObjects) ListCommand(c);
                 return 2;
             }
             if (a.Command.Contains("*") || a.Command.Contains("?"))
             {
-                foreach (var c in CommandObjects) if (c.Name.EqualsWildcard(a.Command)) listCommand(c);
+                foreach (var c in CommandObjects) if (c.Name.EqualsWildcard(a.Command)) ListCommand(c);
                 return 5;
             }
-            var command = commandTypes.Where(o => o.Name.Equals(a.Command, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            var command = commandTypes.FirstOrDefault(o => o.Name.Equals(a.Command, StringComparison.OrdinalIgnoreCase));
             if (command == null)
             {
                 ShowBanner(a, null);
                 log.Info($"Command '{a.Command}' does not exist");
                 log.Info("Commands: ");
-                foreach (var c in CommandObjects) listCommand(c);
+                foreach (var c in CommandObjects) ListCommand(c);
                 return 3;
             }
             if (a.IsHelp)
@@ -162,8 +162,8 @@ namespace MaxRunSoftware.Utilities.Console
             else if (Constant.OS_UNIX) os = " (Linux)";
             else if (Constant.OS_MAC) os = " (Mac)";
 
-            if (command == null) log.Info(typeof(Program).Namespace + " " + MaxRunSoftware.Utilities.Console.Version.Value + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
-            else log.Info(typeof(Program).Namespace + " " + MaxRunSoftware.Utilities.Console.Version.Value + " : " + command.Name + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
+            if (command == null) log.Info(typeof(Program).Namespace + " " + Version.Value + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
+            else log.Info(typeof(Program).Namespace + " " + Version.Value + " : " + command.Name + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
 
         }
 
