@@ -41,10 +41,7 @@ public static partial class Util
         request.ContentType = "application/x-www-form-urlencoded";
         request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore); //No caching
         var response = (HttpWebResponse)request.GetResponse();
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            throw new WebException(response.StatusCode + ":" + response.StatusDescription);
-        }
+        if (response.StatusCode != HttpStatusCode.OK) throw new WebException(response.StatusCode + ":" + response.StatusDescription);
 
         var responseStream = response.GetResponseStream();
         responseStream.CheckNotNull(nameof(responseStream));
@@ -61,16 +58,14 @@ public static partial class Util
     /// Get all of the IP addresses on the current machine
     /// </summary>
     /// <returns>The IP addresses</returns>
-    public static IEnumerable<IPAddress> NetGetIPAddresses()
-    {
-        return NetworkInterface.GetAllNetworkInterfaces()
+    public static IEnumerable<IPAddress> NetGetIPAddresses() =>
+        NetworkInterface.GetAllNetworkInterfaces()
             .Where(o => o.OperationalStatus == OperationalStatus.Up)
             .Select(o => o.GetIPProperties())
             .WhereNotNull()
             .SelectMany(o => o.UnicastAddresses)
             .Select(o => o.Address)
             .WhereNotNull();
-    }
 
     private static bool[] NetGetPortStatusInternal()
     {
@@ -79,15 +74,9 @@ public static partial class Util
 
         var ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
 
-        foreach (var tcpConnectionInformation in ipGlobalProperties.GetActiveTcpConnections())
-        {
-            array[tcpConnectionInformation.LocalEndPoint.Port] = false;
-        }
+        foreach (var tcpConnectionInformation in ipGlobalProperties.GetActiveTcpConnections()) array[tcpConnectionInformation.LocalEndPoint.Port] = false;
 
-        foreach (var ipEndPoint in ipGlobalProperties.GetActiveTcpListeners())
-        {
-            array[ipEndPoint.Port] = false;
-        }
+        foreach (var ipEndPoint in ipGlobalProperties.GetActiveTcpListeners()) array[ipEndPoint.Port] = false;
 
         return array;
     }
@@ -95,26 +84,14 @@ public static partial class Util
     public static IEnumerable<(int port, bool isOpen)> NetGetPortStatus()
     {
         var portStatus = NetGetPortStatusInternal();
-        for (var i = 1; i < portStatus.Length; i++)
-        {
-            yield return (i, portStatus[i]);
-        }
+        for (var i = 1; i < portStatus.Length; i++) yield return (i, portStatus[i]);
     }
 
-    public static IEnumerable<int> NetGetOpenPorts()
-    {
-        return NetGetPortStatus().Where(o => o.isOpen).Select(o => o.port);
-    }
+    public static IEnumerable<int> NetGetOpenPorts() => NetGetPortStatus().Where(o => o.isOpen).Select(o => o.port);
 
-    public static IEnumerable<int> NetGetClosedPorts()
-    {
-        return NetGetPortStatus().Where(o => !o.isOpen).Select(o => o.port);
-    }
+    public static IEnumerable<int> NetGetClosedPorts() => NetGetPortStatus().Where(o => !o.isOpen).Select(o => o.port);
 
-    public static bool NetIsPortAvailable(int port)
-    {
-        return NetGetPortStatus().Where(o => o.port == port).Select(o => o.isOpen).FirstOrDefault();
-    }
+    public static bool NetIsPortAvailable(int port) => NetGetPortStatus().Where(o => o.port == port).Select(o => o.isOpen).FirstOrDefault();
 
     /// <summary>
     /// Tries to find an open port in a range or if none is found a -1 is returned
@@ -124,32 +101,17 @@ public static partial class Util
     /// <returns>An open port or -1 if none were found</returns>
     public static int NetFindOpenPort(int startInclusive, int endInclusive = 65535)
     {
-        if (startInclusive < 1)
-        {
-            startInclusive = 1;
-        }
+        if (startInclusive < 1) startInclusive = 1;
 
-        if (endInclusive > 65535)
-        {
-            endInclusive = 65535;
-        }
+        if (endInclusive > 65535) endInclusive = 65535;
 
         foreach (var portStatus in NetGetPortStatus())
         {
-            if (portStatus.port < startInclusive)
-            {
-                continue;
-            }
+            if (portStatus.port < startInclusive) continue;
 
-            if (portStatus.port > endInclusive)
-            {
-                continue;
-            }
+            if (portStatus.port > endInclusive) continue;
 
-            if (!portStatus.isOpen)
-            {
-                continue;
-            }
+            if (!portStatus.isOpen) continue;
 
             return portStatus.port;
         }
@@ -177,12 +139,8 @@ public static partial class Util
             get
             {
                 if (Headers.TryGetValue("Content-Type", out var list))
-                {
                     if (list.Count > 0)
-                    {
                         return list[0];
-                    }
-                }
 
                 return null;
             }
@@ -197,19 +155,13 @@ public static partial class Util
             {
                 var key = headers.GetKey(i).TrimOrNull();
                 var val = headers.Get(i);
-                if (key != null && val.TrimOrNull() != null)
-                {
-                    d.AddToList(key, val);
-                }
+                if (key != null && val.TrimOrNull() != null) d.AddToList(key, val);
             }
 
             Headers = d;
         }
 
-        public override string ToString()
-        {
-            return GetType().Name + $"[{Url}] Headers:{Headers.Count} Data:" + (Data == null ? "null" : Data.Length);
-        }
+        public override string ToString() => GetType().Name + $"[{Url}] Headers:{Headers.Count} Data:" + (Data == null ? "null" : Data.Length);
 
         public string ToStringDetail()
         {
@@ -221,32 +173,17 @@ public static partial class Util
             {
                 var key = kvp.Key;
                 var valList = kvp.Value;
-                if (key == null)
-                {
-                    continue;
-                }
+                if (key == null) continue;
 
-                if (valList == null)
-                {
-                    continue;
-                }
+                if (valList == null) continue;
 
-                if (valList.IsEmpty())
-                {
-                    continue;
-                }
+                if (valList.IsEmpty()) continue;
 
                 if (valList.Count == 1)
-                {
                     sb.AppendLine("\t" + key + ": " + valList[0]);
-                }
                 else
-                {
                     for (var i = 0; i < valList.Count; i++)
-                    {
                         sb.AppendLine("\t" + key + "[" + i + "]: " + valList[i]);
-                    }
-                }
             }
 
             return sb.ToString().TrimOrNull(); // remove trailing newline
@@ -267,15 +204,9 @@ public static partial class Util
             {
                 var name = kvp.Key.TrimOrNull();
                 var val = kvp.Value.TrimOrNull();
-                if (name == null || val == null)
-                {
-                    continue;
-                }
+                if (name == null || val == null) continue;
 
-                if (sb.Length > 0)
-                {
-                    sb.Append(";");
-                }
+                if (sb.Length > 0) sb.Append(";");
 
                 sb.Append(kvp.Key + "=" + kvp.Value);
             }
@@ -283,50 +214,34 @@ public static partial class Util
             cli.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
 
             if (outFilename != null)
-            {
                 if (outFilename.ContainsAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString()))
                 {
                     var directoryName = Path.GetDirectoryName(outFilename);
-                    if (directoryName != null)
-                    {
-                        Directory.CreateDirectory(directoryName);
-                    }
+                    if (directoryName != null) Directory.CreateDirectory(directoryName);
                 }
-            }
 
             try
             {
                 byte[] data = null;
                 if (outFilename == null)
-                {
                     data = cli.DownloadData(url);
-                }
                 else
-                {
                     cli.DownloadFile(url, outFilename);
-                }
 
                 return new WebResponse(url, data, cli.ResponseHeaders);
             }
             catch (WebException we)
             {
-                if (username == null || password == null || !we.Message.Contains("(401)"))
-                {
-                    throw;
-                }
+                if (username == null || password == null || !we.Message.Contains("(401)")) throw;
 
                 // https://stackoverflow.com/a/26016919
                 var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
                 cli.Headers[HttpRequestHeader.Authorization] = $"Basic {credentials}";
                 byte[] data = null;
                 if (outFilename == null)
-                {
                     data = cli.DownloadData(url);
-                }
                 else
-                {
                     cli.DownloadFile(url, outFilename);
-                }
 
                 return new WebResponse(url, data, cli.ResponseHeaders);
             }
@@ -355,10 +270,7 @@ public static partial class Util
             sb.Clear();
 
             var index = s.IndexOf('=');
-            if (index == -1)
-            {
-                return null;
-            }
+            if (index == -1) return null;
 
             var item1 = s.Substring(0, index).Trim().ToUpper();
             var item2 = s.Substring(index + 1).Trim();
@@ -379,10 +291,7 @@ public static partial class Util
                         case ';':
                             // Separator found, yield parsed component
                             var component = ParseComponent(currentComponent);
-                            if (component != null)
-                            {
-                                yield return component;
-                            }
+                            if (component != null) yield return component;
 
                             break;
 
@@ -395,10 +304,8 @@ public static partial class Util
                         case '"':
                             // Quotation mark found
                             if (previousChar == currentChar)
-                            {
                                 // Double quotes inside quoted string produce single quote
                                 currentComponent.Append(currentChar);
-                            }
 
                             currentState = quotedString;
                             break;
@@ -446,10 +353,7 @@ public static partial class Util
         if (currentComponent.Length > 0)
         {
             var component = ParseComponent(currentComponent);
-            if (component != null)
-            {
-                yield return component;
-            }
+            if (component != null) yield return component;
         }
     }
 }

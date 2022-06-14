@@ -35,38 +35,23 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         entry.CheckNotNull(nameof(entry));
 
         var attributes = entry.Attributes;
-        if (attributes == null)
-        {
-            return; // no attributes for this object
-        }
+        if (attributes == null) return; // no attributes for this object
 
         foreach (DictionaryEntry da in attributes)
         {
-            if (da.Value is not DirectoryAttribute directoryAttribute)
-            {
-                continue;
-            }
+            if (da.Value is not DirectoryAttribute directoryAttribute) continue;
 
             var name = directoryAttribute.Name.TrimOrNull();
-            if (name == null)
-            {
-                continue;
-            }
+            if (name == null) continue;
 
             AddItems(name, directoryAttribute);
         }
 
         Guid? objectGUID = null;
         var objectGuidBytes = GetByteArray("objectGUID");
-        if (objectGuidBytes != null && objectGuidBytes.Length > 0)
-        {
-            objectGUID = Ldap.Bytes2Guid(objectGuidBytes);
-        }
+        if (objectGuidBytes != null && objectGuidBytes.Length > 0) objectGUID = Ldap.Bytes2Guid(objectGuidBytes);
 
-        if (objectGUID != null)
-        {
-            ObjectGUID = objectGUID.Value;
-        }
+        if (objectGUID != null) ObjectGUID = objectGUID.Value;
 
         DistinguishedName = GetString("distinguishedName");
 
@@ -74,10 +59,7 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         foreach (var attributeName in dictionary.Keys.ToList())
         {
             var range = ParseRange(attributeName);
-            if (range.name == null)
-            {
-                continue;
-            }
+            if (range.name == null) continue;
 
             if (ldap == null)
             {
@@ -99,57 +81,33 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
 
             while (range.rangeEnd != null)
             {
-                if (blockSize == 0)
-                {
-                    blockSize = 1 + range.rangeEnd.Value - range.rangeStart;
-                }
+                if (blockSize == 0) blockSize = 1 + range.rangeEnd.Value - range.rangeStart;
 
                 var start = range.rangeStart + blockSize;
                 var end = range.rangeEnd.Value + blockSize;
                 var attributeFilter = range.name + ";range=" + start + "-" + end;
 
                 if (objectGUID != null)
-                {
                     entry = ldap.SearchResultEntryGetByObjectGuid(objectGUID.Value, new LdapQueryConfig(attributes: attributeFilter.Yield()));
-                }
                 else if (DistinguishedName != null)
-                {
                     entry = ldap.SearchResultEntryGetByDistinguishedName(DistinguishedName, new LdapQueryConfig(attributes: attributeFilter.Yield()));
-                }
                 else
-                {
                     break;
-                }
 
                 attributes = entry.Attributes;
-                if (attributes == null)
-                {
-                    break;
-                }
+                if (attributes == null) break;
 
                 var valuesBefore = values.Count;
                 foreach (DictionaryEntry da in attributes)
                 {
-                    if (da.Value == null)
-                    {
-                        continue;
-                    }
+                    if (da.Value == null) continue;
 
-                    if (da.Value is not DirectoryAttribute directoryAttribute)
-                    {
-                        continue;
-                    }
+                    if (da.Value is not DirectoryAttribute directoryAttribute) continue;
 
                     var name = directoryAttribute.Name.TrimOrNull();
-                    if (name == null)
-                    {
-                        continue;
-                    }
+                    if (name == null) continue;
 
-                    if (!name.StartsWith(range.name + ";range=", StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
+                    if (!name.StartsWith(range.name + ";range=", StringComparison.OrdinalIgnoreCase)) continue;
 
                     if (!dictionary.TryGetValue(name, out var rangeList))
                     {
@@ -164,10 +122,7 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
                     range = ParseRange(name);
                 }
 
-                if (values.Count == valuesBefore)
-                {
-                    break; // sanity check
-                }
+                if (values.Count == valuesBefore) break; // sanity check
             }
 
             dictionary[range.name] = values;
@@ -181,39 +136,21 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
     private static (string name, int rangeStart, int? rangeEnd) ParseRange(string name)
     {
         (string name, int rangeStart, int? rangeEnd) def = (null, -1, null);
-        if (name.IndexOf(";range=", StringComparison.OrdinalIgnoreCase) <= 0)
-        {
-            return def;
-        }
+        if (name.IndexOf(";range=", StringComparison.OrdinalIgnoreCase) <= 0) return def;
 
         var nameParts = name.Split(";range=").TrimOrNull().WhereNotNull();
-        if (nameParts.Length != 2)
-        {
-            return def;
-        }
+        if (nameParts.Length != 2) return def;
 
         var n = nameParts[0].TrimOrNull();
-        if (n == null)
-        {
-            return def;
-        }
+        if (n == null) return def;
 
         var rangeParts = nameParts[1].Split("-").TrimOrNull().WhereNotNull();
-        if (rangeParts.Length != 2)
-        {
-            return def;
-        }
+        if (rangeParts.Length != 2) return def;
 
-        if (!rangeParts[0].ToIntTry(out var rangeStart))
-        {
-            return def;
-        }
+        if (!rangeParts[0].ToIntTry(out var rangeStart)) return def;
 
         int? rangeEnd = null;
-        if (rangeParts[1].ToIntTry(out var rangeEnd2))
-        {
-            rangeEnd = rangeEnd2;
-        }
+        if (rangeParts[1].ToIntTry(out var rangeEnd2)) rangeEnd = rangeEnd2;
 
         return (n, rangeStart, rangeEnd);
     }
@@ -223,13 +160,9 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         var values = LdapEntryAttributeValue.Parse(directoryAttribute);
 
         if (dictionary.TryGetValue(name, out var list))
-        {
             list.AddRange(values); // we already have a list there so add to it
-        }
         else
-        {
             dictionary.Add(name, values.ToList()); // new key so add the key and list
-        }
     }
 
     /// <summary>
@@ -242,13 +175,9 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
             var list = kvp.Value;
             list = list.OrEmpty().WhereNotNull().ToList();
             if (list.IsEmpty())
-            {
                 dictionary.Remove(kvp.Key);
-            }
             else
-            {
                 dictionary[kvp.Key] = list;
-            }
         }
     }
 
@@ -257,93 +186,42 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
     private IReadOnlyList<LdapEntryAttributeValue> GetList(string name)
     {
         name = name.TrimOrNull();
-        if (name == null)
-        {
-            return empty;
-        }
+        if (name == null) return empty;
 
-        if (dictionary.TryGetValue(name, out var list))
-        {
-            return list;
-        }
+        if (dictionary.TryGetValue(name, out var list)) return list;
 
         return empty;
     }
 
-    public IEnumerable<string> GetStrings(string name)
-    {
-        return GetList(name).Select(o => o.String).WhereNotNull();
-    }
+    public IEnumerable<string> GetStrings(string name) => GetList(name).Select(o => o.String).WhereNotNull();
 
-    public string GetString(string name)
-    {
-        return GetStrings(name).FirstOrDefault();
-    }
+    public string GetString(string name) => GetStrings(name).FirstOrDefault();
 
-    public IEnumerable<byte[]> GetByteArrays(string name)
-    {
-        return GetList(name).Select(o => o.Bytes).WhereNotNull();
-    }
+    public IEnumerable<byte[]> GetByteArrays(string name) => GetList(name).Select(o => o.Bytes).WhereNotNull();
 
-    public byte[] GetByteArray(string name)
-    {
-        return GetByteArrays(name).FirstOrDefault();
-    }
+    public byte[] GetByteArray(string name) => GetByteArrays(name).FirstOrDefault();
 
-    public IEnumerable<long> GetLongs(string name)
-    {
-        return GetList(name).Where(o => o.Long.HasValue).Select(o => o.Long.Value);
-    }
+    public IEnumerable<long> GetLongs(string name) => GetList(name).Where(o => o.Long.HasValue).Select(o => o.Long.Value);
 
-    public long? GetLong(string name)
-    {
-        return GetLongs(name).FirstOrNull();
-    }
+    public long? GetLong(string name) => GetLongs(name).FirstOrNull();
 
-    public IEnumerable<int> GetInts(string name)
-    {
-        return GetList(name).Where(o => o.Int.HasValue).Select(o => o.Int.Value);
-    }
+    public IEnumerable<int> GetInts(string name) => GetList(name).Where(o => o.Int.HasValue).Select(o => o.Int.Value);
 
-    public int? GetInt(string name)
-    {
-        return GetInts(name).FirstOrNull();
-    }
+    public int? GetInt(string name) => GetInts(name).FirstOrNull();
 
-    public IEnumerable<uint> GetUInts(string name)
-    {
-        return GetList(name).Where(o => o.UInt.HasValue).Select(o => o.UInt.Value);
-    }
+    public IEnumerable<uint> GetUInts(string name) => GetList(name).Where(o => o.UInt.HasValue).Select(o => o.UInt.Value);
 
-    public uint? GetUInt(string name)
-    {
-        return GetUInts(name).FirstOrNull();
-    }
+    public uint? GetUInt(string name) => GetUInts(name).FirstOrNull();
 
-    public IEnumerable<bool> GetBools(string name)
-    {
-        return GetList(name).Where(o => o.Bool.HasValue).Select(o => o.Bool.Value);
-    }
+    public IEnumerable<bool> GetBools(string name) => GetList(name).Where(o => o.Bool.HasValue).Select(o => o.Bool.Value);
 
-    public bool? GetBool(string name)
-    {
-        return GetBools(name).FirstOrNull();
-    }
+    public bool? GetBool(string name) => GetBools(name).FirstOrNull();
 
-    public IEnumerable<DateTime> GetDateTimeUTCs(string name)
-    {
-        return GetList(name).Where(o => o.DateTimeUtc.HasValue).Select(o => o.DateTimeUtc.Value);
-    }
+    public IEnumerable<DateTime> GetDateTimeUTCs(string name) => GetList(name).Where(o => o.DateTimeUtc.HasValue).Select(o => o.DateTimeUtc.Value);
 
-    public DateTime? GetDateTimeUTC(string name)
-    {
-        return GetDateTimeUTCs(name).FirstOrNull();
-    }
+    public DateTime? GetDateTimeUTC(string name) => GetDateTimeUTCs(name).FirstOrNull();
 
-    public bool IsCollection(string name)
-    {
-        return GetList(name).Count > 1;
-    }
+    public bool IsCollection(string name) => GetList(name).Count > 1;
 
     #endregion Get
 
@@ -360,22 +238,13 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         sb.AppendLine(GetType().NameFormatted() + " [");
         foreach (var kvp in dictionary.OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase))
         {
-            if (kvp.Value.Count == 0)
-            {
-                continue;
-            }
+            if (kvp.Value.Count == 0) continue;
 
             if (kvp.Value.Count == 1)
-            {
                 sb.AppendLine("  " + kvp.Key + ": " + kvp.Value.First());
-            }
             else
-            {
                 for (var i = 0; i < kvp.Value.Count; i++)
-                {
                     sb.AppendLine("  " + kvp.Key + "[" + i + "]: " + kvp.Value[i]);
-                }
-            }
         }
 
         sb.AppendLine("]");

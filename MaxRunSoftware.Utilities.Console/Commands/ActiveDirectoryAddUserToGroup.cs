@@ -36,10 +36,7 @@ public class ActiveDirectoryAddUserToGroup : ActiveDirectoryBase
 
         var groups = values.otherValues;
         log.Debug(groups, nameof(groups));
-        if (groups.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(groups));
-        }
+        if (groups.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(groups));
 
         log.Debug("Adding user " + samAccountName + " to groups " + groups.ToStringDelimited(", "));
 

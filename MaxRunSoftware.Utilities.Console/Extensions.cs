@@ -20,30 +20,18 @@ public static class Extensions
 {
     public static void Debug<T>(this ILogger log, IEnumerable<T> enumerable, string name)
     {
-        if (enumerable == null)
-        {
-            return;
-        }
+        if (enumerable == null) return;
 
         var list = new List<T>(enumerable);
-        for (var i = 0; i < list.Count; i++)
-        {
-            log.Debug(name + "[" + i + "]: " + list[i]);
-        }
+        for (var i = 0; i < list.Count; i++) log.Debug(name + "[" + i + "]: " + list[i]);
     }
 
-    public static void DebugParameter(this ILogger log, string parameterName, object parameterValue)
-    {
-        log.Debug(parameterName + ": " + parameterValue);
-    }
+    public static void DebugParameter(this ILogger log, string parameterName, object parameterValue) => log.Debug(parameterName + ": " + parameterValue);
 
     public static string CheckValueNotNull(this string val, string valName, ILogger log)
     {
         log.DebugParameter(valName, val);
-        if (val == null)
-        {
-            throw ArgsException.ValueNotSpecified(valName);
-        }
+        if (val == null) throw ArgsException.ValueNotSpecified(valName);
 
         return val;
     }

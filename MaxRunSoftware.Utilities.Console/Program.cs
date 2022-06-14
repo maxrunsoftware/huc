@@ -35,10 +35,7 @@ public class Program
         .Select(CreateCommand)
         .ToList();
 
-    private static ICommand CreateCommand(Type type)
-    {
-        return (ICommand)Activator.CreateInstance(type);
-    }
+    private static ICommand CreateCommand(Type type) => (ICommand)Activator.CreateInstance(type);
 
     public static int Main(string[] args)
     {
@@ -62,27 +59,16 @@ public class Program
         var a = new Args(args);
         var logLevel = LogLevel.Info;
         if (a.IsTrace)
-        {
             logLevel = LogLevel.Trace;
-        }
-        else if (a.IsDebug)
-        {
-            logLevel = LogLevel.Debug;
-        }
+        else if (a.IsDebug) logLevel = LogLevel.Debug;
 
         Utilities.LogFactory.LogFactoryImpl.SetupConsole(logLevel);
         log.Debug(a.ToString());
 
         var commandTypes = CommandTypes;
 
-        try
-        {
-            ConfigFile.CreateDefaultPropertiesFile();
-        }
-        catch (Exception e)
-        {
-            log.Warn("Could not create default properties file", e);
-        }
+        try { ConfigFile.CreateDefaultPropertiesFile(); }
+        catch (Exception e) { log.Warn("Could not create default properties file", e); }
 
         config = new ConfigFile();
 
@@ -93,33 +79,19 @@ public class Program
             logFileLevel = logFileLevel.ToLower();
             LogLevel level;
             if (logFileLevel.EqualsCaseInsensitive(LogLevel.Critical.ToString()))
-            {
                 level = LogLevel.Critical;
-            }
             else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Error.ToString()))
-            {
                 level = LogLevel.Error;
-            }
             else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Warn.ToString()))
-            {
                 level = LogLevel.Warn;
-            }
             else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Info.ToString()))
-            {
                 level = LogLevel.Info;
-            }
             else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Debug.ToString()))
-            {
                 level = LogLevel.Debug;
-            }
             else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Trace.ToString()))
-            {
                 level = LogLevel.Trace;
-            }
             else
-            {
                 throw new Exception("Unrecognized file log level in config file: " + logFileLevel + "   valid values are TRACE/DEBUG/INFO/WARN/ERROR/CRITICAL");
-            }
 
             Utilities.LogFactory.LogFactoryImpl.SetupFile(level, logFileName);
         }
@@ -127,10 +99,7 @@ public class Program
 
         void ListCommand(ICommand c)
         {
-            if (a.IsShowHidden || !c.IsHidden)
-            {
-                log.Info((c.IsHidden ? "* " : "  ") + c.HelpSummary);
-            }
+            if (a.IsShowHidden || !c.IsHidden) log.Info((c.IsHidden ? "* " : "  ") + c.HelpSummary);
         }
 
         if (a.IsVersion || (a.Command != null && a.Command.EqualsCaseInsensitive("VERSION")))
@@ -144,10 +113,7 @@ public class Program
             ShowBanner(a, null);
             log.Info("No command specified");
             log.Info("Commands: ");
-            foreach (var c in CommandObjects)
-            {
-                ListCommand(c);
-            }
+            foreach (var c in CommandObjects) ListCommand(c);
 
             return 2;
         }
@@ -155,12 +121,8 @@ public class Program
         if (a.Command.Contains("*") || a.Command.Contains("?"))
         {
             foreach (var c in CommandObjects)
-            {
                 if (c.Name.EqualsWildcard(a.Command))
-                {
                     ListCommand(c);
-                }
-            }
 
             return 5;
         }
@@ -171,10 +133,7 @@ public class Program
             ShowBanner(a, null);
             log.Info($"Command '{a.Command}' does not exist");
             log.Info("Commands: ");
-            foreach (var c in CommandObjects)
-            {
-                ListCommand(c);
-            }
+            foreach (var c in CommandObjects) ListCommand(c);
 
             return 3;
         }
@@ -187,10 +146,7 @@ public class Program
         }
 
         var cmd = CreateCommand(command);
-        if (!cmd.SuppressBanner)
-        {
-            ShowBanner(a, command);
-        }
+        if (!cmd.SuppressBanner) ShowBanner(a, command);
 
         cmd.Args = args;
         cmd.Execute();
@@ -200,48 +156,28 @@ public class Program
 
     private void ShowBanner(Args a, Type command)
     {
-        if (a.IsNoBanner)
-        {
-            return;
-        }
+        if (a.IsNoBanner) return;
 
         var suppressBanner = false;
         var programSuppressBanner = config.ProgramSuppressBanner.TrimOrNull();
         if (programSuppressBanner != null)
         {
             programSuppressBanner = programSuppressBanner.ToLower();
-            if (programSuppressBanner.In("t", "true", "y", "yes", "1"))
-            {
-                suppressBanner = true;
-            }
+            if (programSuppressBanner.In("t", "true", "y", "yes", "1")) suppressBanner = true;
         }
 
-        if (suppressBanner)
-        {
-            return;
-        }
+        if (suppressBanner) return;
 
         var os = "";
         if (Constant.OS_WINDOWS)
-        {
             os = " (Windows)";
-        }
         else if (Constant.OS_UNIX)
-        {
             os = " (Linux)";
-        }
-        else if (Constant.OS_MAC)
-        {
-            os = " (Mac)";
-        }
+        else if (Constant.OS_MAC) os = " (Mac)";
 
         if (command == null)
-        {
             log.Info(typeof(Program).Namespace + " " + Version.Value + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
-        }
         else
-        {
             log.Info(typeof(Program).Namespace + " " + Version.Value + " : " + command.Name + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
-        }
     }
 }

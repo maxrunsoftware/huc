@@ -30,10 +30,7 @@ public class FtpClientFtp : FtpClientBase
         get
         {
             var c = client;
-            if (c == null)
-            {
-                throw new ObjectDisposedException(GetType().FullNameFormatted());
-            }
+            if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
 
             return c;
         }
@@ -87,27 +84,15 @@ public class FtpClientFtp : FtpClientBase
     {
         var msg = "FTP: " + message;
         if (ftpTraceLevel == FtpTraceLevel.Verbose)
-        {
             log.Trace(msg);
-        }
         else if (ftpTraceLevel == FtpTraceLevel.Info)
-        {
             log.Debug(msg);
-        }
         else if (ftpTraceLevel == FtpTraceLevel.Warn)
-        {
             log.Warn(msg);
-        }
-        else if (ftpTraceLevel == FtpTraceLevel.Error)
-        {
-            log.Error(msg);
-        }
+        else if (ftpTraceLevel == FtpTraceLevel.Error) log.Error(msg);
     }
 
-    protected override void GetFile(string remoteFile, Stream localStream)
-    {
-        Client.Download(localStream, remoteFile);
-    }
+    protected override void GetFile(string remoteFile, Stream localStream) => Client.Download(localStream, remoteFile);
 
     protected override void PutFile(string remoteFile, Stream localStream)
     {
@@ -117,13 +102,9 @@ public class FtpClientFtp : FtpClientBase
             Client.Upload(localStream, remoteFile);
             success = true;
         }
-        catch (Exception e)
-        {
-            log.Warn("Error putting file using security protocol, retrying with all known security protocols", e);
-        }
+        catch (Exception e) { log.Warn("Error putting file using security protocol, retrying with all known security protocols", e); }
 
         if (!success)
-        {
             try
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
@@ -134,7 +115,6 @@ public class FtpClientFtp : FtpClientBase
                 log.Error("Error putting file (second time)", ee);
                 throw;
             }
-        }
     }
 
     protected override void ListFiles(string remotePath, List<FtpClientFile> fileList)
@@ -143,33 +123,20 @@ public class FtpClientFtp : FtpClientBase
         {
             var name = file.Name;
             var fullName = file.FullName;
-            if (!fullName.StartsWith("/"))
-            {
-                fullName = "/" + fullName;
-            }
+            if (!fullName.StartsWith("/")) fullName = "/" + fullName;
 
             var type = FtpClientFileType.Unknown;
             if (file.Type == FtpFileSystemObjectType.Directory)
-            {
                 type = FtpClientFileType.Directory;
-            }
             else if (file.Type == FtpFileSystemObjectType.File)
-            {
                 type = FtpClientFileType.File;
-            }
-            else if (file.Type == FtpFileSystemObjectType.Link)
-            {
-                type = FtpClientFileType.Link;
-            }
+            else if (file.Type == FtpFileSystemObjectType.Link) type = FtpClientFileType.Link;
 
             fileList.Add(new FtpClientFile(name, fullName, type));
         }
     }
 
-    protected override string GetServerInfo()
-    {
-        return Client.ServerOS + " : " + Client.ServerType;
-    }
+    protected override string GetServerInfo() => Client.ServerOS + " : " + Client.ServerType;
 
     protected override void DeleteFileSingle(string remoteFile)
     {
@@ -182,37 +149,16 @@ public class FtpClientFtp : FtpClientBase
         var c = client;
         client = null;
 
-        if (c == null)
-        {
-            return;
-        }
+        if (c == null) return;
 
-        try
-        {
-            c.Disconnect();
-        }
-        catch (Exception e)
-        {
-            log.Warn("Error disconnecting from server", e);
-        }
+        try { c.Disconnect(); }
+        catch (Exception e) { log.Warn("Error disconnecting from server", e); }
 
-        try
-        {
-            c.Dispose();
-        }
-        catch (Exception e)
-        {
-            log.Warn($"Error disposing of {c.GetType().FullNameFormatted()}", e);
-        }
+        try { c.Dispose(); }
+        catch (Exception e) { log.Warn($"Error disposing of {c.GetType().FullNameFormatted()}", e); }
     }
 
-    protected override bool ExistsFile(string remoteFile)
-    {
-        return Client.FileExists(remoteFile);
-    }
+    protected override bool ExistsFile(string remoteFile) => Client.FileExists(remoteFile);
 
-    protected override bool ExistsDirectory(string remoteDirectory)
-    {
-        return Client.DirectoryExists(remoteDirectory);
-    }
+    protected override bool ExistsDirectory(string remoteDirectory) => Client.DirectoryExists(remoteDirectory);
 }

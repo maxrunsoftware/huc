@@ -44,23 +44,14 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
     {
         get
         {
-            if (dictionary.TryGetValue(key, out var val))
-            {
-                return val;
-            }
+            if (dictionary.TryGetValue(key, out var val)) return val;
 
             lock (locker)
             {
-                if (dictionary.TryGetValue(key, out val))
-                {
-                    return val;
-                }
+                if (dictionary.TryGetValue(key, out val)) return val;
 
                 var d = dictionaryFactory();
-                foreach (var kvp in dictionary)
-                {
-                    d.Add(kvp.Key, kvp.Value);
-                }
+                foreach (var kvp in dictionary) d.Add(kvp.Key, kvp.Value);
 
                 val = factory(key);
                 d.Add(key, val);
@@ -75,10 +66,7 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
         lock (locker)
         {
             var d = dictionaryFactory();
-            foreach (var kvp in dictionary)
-            {
-                d.Add(kvp.Key, kvp.Value);
-            }
+            foreach (var kvp in dictionary) d.Add(kvp.Key, kvp.Value);
 
             foreach (var key in keys)
             {
@@ -92,9 +80,6 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
 
     public void Clear()
     {
-        lock (locker)
-        {
-            dictionary = dictionaryFactory().AsReadOnly();
-        }
+        lock (locker) { dictionary = dictionaryFactory().AsReadOnly(); }
     }
 }

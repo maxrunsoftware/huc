@@ -80,17 +80,11 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
             {
                 var fileLineParts = fileLines[i].OrEmpty().SplitOnWhiteSpace().TrimOrNull().WhereNotNull().ToArray();
 
-                if (!fileLineParts.EqualsAtAny(0, StringComparer.OrdinalIgnoreCase, "REM", "::"))
-                {
-                    continue;
-                }
+                if (!fileLineParts.EqualsAtAny(0, StringComparer.OrdinalIgnoreCase, "REM", "::")) continue;
 
                 fileLineParts = fileLineParts.RemoveHead();
 
-                if (!fileLineParts.EqualsAt(0, StringComparer.OrdinalIgnoreCase, batchKeyword))
-                {
-                    continue;
-                }
+                if (!fileLineParts.EqualsAt(0, StringComparer.OrdinalIgnoreCase, batchKeyword)) continue;
 
                 fileLineParts = fileLineParts.RemoveHead();
 
@@ -105,10 +99,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
                         hashList.Add(triggerLine);
                     }
                 }
-                catch (Exception e)
-                {
-                    log.Warn(logHeader + e.Message, e);
-                }
+                catch (Exception e) { log.Warn(logHeader + e.Message, e); }
             }
 
             Triggers = triggers.AsReadOnly();
@@ -120,26 +111,14 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
         public static bool IsBatchFile(string filename)
         {
             filename = filename.TrimOrNull();
-            if (filename == null)
-            {
-                return false;
-            }
+            if (filename == null) return false;
 
             var ext = Path.GetExtension(filename).TrimOrNull();
-            if (ext == null)
-            {
-                return false;
-            }
+            if (ext == null) return false;
 
-            if (!ext.In(StringComparer.OrdinalIgnoreCase, "cmd", ".cmd", "bat", ".bat"))
-            {
-                return false;
-            }
+            if (!ext.In(StringComparer.OrdinalIgnoreCase, "cmd", ".cmd", "bat", ".bat")) return false;
 
-            if (Util.FileGetSize(filename) > Constant.BYTES_MEGA * 10L)
-            {
-                return false; // no batch file should be over 10MB
-            }
+            if (Util.FileGetSize(filename) > Constant.BYTES_MEGA * 10L) return false; // no batch file should be over 10MB
 
             return true;
         }
@@ -158,39 +137,24 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
             batchFilesInDir = batchFilesInDir.Where(o => o.Triggers.Count > 0).ToList();
             log.Debug($"Found {batchFilesInDir.Count} batch files containing {nameof(WindowsTaskSchedulerBatchSync)} triggers in directory {dir}");
 
-            foreach (var batchFile in batchFilesInDir)
-            {
-                batchFiles.Add(batchFile);
-            }
+            foreach (var batchFile in batchFilesInDir) batchFiles.Add(batchFile);
         }
 
         var potentialTaskNameCollisions = new SortedDictionary<string, List<BatchFile>>(StringComparer.OrdinalIgnoreCase);
-        foreach (var batchFile in batchFiles)
-        {
-            potentialTaskNameCollisions.AddToList(batchFile.TaskName, batchFile);
-        }
+        foreach (var batchFile in batchFiles) potentialTaskNameCollisions.AddToList(batchFile.TaskName, batchFile);
 
         foreach (var taskName in potentialTaskNameCollisions.Keys.ToList())
         {
-            if (potentialTaskNameCollisions[taskName].Count == 1)
-            {
-                continue;
-            }
+            if (potentialTaskNameCollisions[taskName].Count == 1) continue;
 
             var l = potentialTaskNameCollisions[taskName];
-            for (var i = 0; i < l.Count; i++)
-            {
-                log.Warn($"Task name collision for task [{taskName}] {i + 1}/{l.Count} --> {l[i].FilePath}");
-            }
+            for (var i = 0; i < l.Count; i++) log.Warn($"Task name collision for task [{taskName}] {i + 1}/{l.Count} --> {l[i].FilePath}");
 
             log.Warn($"Task [{taskName}] skipped because of task name collisions and will be removed if it exists in the task scheduler");
             potentialTaskNameCollisions.Remove(taskName);
         }
 
-        if (potentialTaskNameCollisions.Values.Any(o => o.Count != 1))
-        {
-            throw new Exception("Expecting all Tasks to have only 1 batch file at this point");
-        }
+        if (potentialTaskNameCollisions.Values.Any(o => o.Count != 1)) throw new Exception("Expecting all Tasks to have only 1 batch file at this point");
 
         batchFiles = potentialTaskNameCollisions.Values.Select(o => o.First()).OrderBy(o => o.TaskName, StringComparer.OrdinalIgnoreCase).ToList();
 
@@ -217,10 +181,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
                 "BatchFile:  " + batchFile.FilePath,
                 "TaskName:  " + batchFile.TaskName
             };
-            for (var i = 0; i < batchFile.Triggers.Count; i++)
-            {
-                items.Add("Trigger[" + Util.FormatRunningCount(i, batchFile.Triggers.Count) + "]:  " + batchFile.Triggers[i]);
-            }
+            for (var i = 0; i < batchFile.Triggers.Count; i++) items.Add("Trigger[" + Util.FormatRunningCount(i, batchFile.Triggers.Count) + "]:  " + batchFile.Triggers[i]);
 
             log.Error($"Failed to create Task with {batchFile.Triggers.Count} triggers from file {batchFile.FilePath}", e);
             log.Error(string.Join(Environment.NewLine + "  ", items) + Environment.NewLine);
@@ -233,10 +194,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
 
         taskUsername = GetArgParameterOrConfigRequired(nameof(taskUsername), "tu").TrimOrNull();
         taskPassword = GetArgParameterOrConfig(nameof(taskPassword), "tp").TrimOrNull();
-        if (RemapUsername(ref taskUsername))
-        {
-            taskPassword = null;
-        }
+        if (RemapUsername(ref taskUsername)) taskPassword = null;
 
         log.DebugParameter(nameof(taskUsername), taskUsername);
         log.DebugParameter(nameof(taskPassword), taskPassword);
@@ -251,10 +209,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
 
         var foldersToScan = GetArgValuesTrimmed();
         log.Debug(foldersToScan, nameof(foldersToScan));
-        if (foldersToScan.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(foldersToScan));
-        }
+        if (foldersToScan.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(foldersToScan));
 
         foldersToScan = foldersToScan.Select(Path.GetFullPath).ToList();
         log.Debug(foldersToScan, nameof(foldersToScan));
@@ -268,18 +223,12 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
             log.Debug($"Using task folder {taskSchedulerFolderPath}");
 
             var existingTasks = new SortedDictionary<string, Task>();
-            foreach (var t in currentDirectory.Tasks)
-            {
-                existingTasks.Add(t.Name, t);
-            }
+            foreach (var t in currentDirectory.Tasks) existingTasks.Add(t.Name, t);
 
             if (forceRebuild)
             {
                 log.Debug("Forcing rebuild of " + currentDirectory.GetPath());
-                foreach (var t in currentDirectory.Tasks)
-                {
-                    scheduler.TaskDelete(t);
-                }
+                foreach (var t in currentDirectory.Tasks) scheduler.TaskDelete(t);
 
                 existingTasks.Clear();
             }
@@ -293,10 +242,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
                     tasksToVerify.Add(Tuple.Create(task, batchFile));
                     existingTasks.Remove(batchFile.TaskName);
                 }
-                else
-                {
-                    tasksToCreate.Add(batchFile);
-                }
+                else { tasksToCreate.Add(batchFile); }
             }
 
             var tasksToDelete = existingTasks.Values.ToList();
@@ -311,10 +257,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
                 scheduler.TaskDelete(task);
             }
 
-            foreach (var batchFile in tasksToCreate)
-            {
-                TaskCreate(scheduler, taskSchedulerFolderPath, batchFile, taskUsername, taskPassword);
-            }
+            foreach (var batchFile in tasksToCreate) TaskCreate(scheduler, taskSchedulerFolderPath, batchFile, taskUsername, taskPassword);
 
             foreach (var tuple in tasksToVerify)
             {
@@ -325,15 +268,9 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
 
                 log.Debug($"Comparing existing task [{taskHash}] {task.Name} to batch file [{batchFileHash}] {batchFile.FilePath}");
 
-                if (taskHash == null && batchFileHash == null)
-                {
-                    throw new NotImplementedException("Both taskHash and batchFileHash are null, not sure what to do here");
-                }
+                if (taskHash == null && batchFileHash == null) throw new NotImplementedException("Both taskHash and batchFileHash are null, not sure what to do here");
 
-                if (taskHash == batchFileHash)
-                {
-                    log.Debug($"Task {task.Name} and batchfile {batchFile.FilePath} are the same, ignoring");
-                }
+                if (taskHash == batchFileHash) { log.Debug($"Task {task.Name} and batchfile {batchFile.FilePath} are the same, ignoring"); }
                 else
                 {
                     log.Debug("Hashes are different, removing and recreating task");

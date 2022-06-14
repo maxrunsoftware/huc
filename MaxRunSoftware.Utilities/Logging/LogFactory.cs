@@ -51,10 +51,7 @@ public class LogFactory : ILogFactory
 
         protected override void Log(string message, Exception exception, LogLevel level)
         {
-            if (logFactory.ShouldLog(level))
-            {
-                logFactory.thread.AddItem(new LogEventArgs(message, exception, level, type));
-            }
+            if (logFactory.ShouldLog(level)) logFactory.thread.AddItem(new LogEventArgs(message, exception, level, type));
         }
     }
 
@@ -72,30 +69,18 @@ public class LogFactory : ILogFactory
         }
     }
 
-    protected virtual ILogger CreateLogger(Type type)
-    {
-        return new Logger(this, type);
-    }
+    protected virtual ILogger CreateLogger(Type type) => new Logger(this, type);
 
-    public ILogger GetLogger<T>()
-    {
-        return GetLogger(typeof(T));
-    }
+    public ILogger GetLogger<T>() => GetLogger(typeof(T));
 
     public ILogger GetLogger(Type type)
     {
         type.CheckNotNull(nameof(type));
-        if (loggers.TryGetValue(type, out var logger))
-        {
-            return logger;
-        }
+        if (loggers.TryGetValue(type, out var logger)) return logger;
 
         lock (locker)
         {
-            if (loggers.TryGetValue(type, out logger))
-            {
-                return logger;
-            }
+            if (loggers.TryGetValue(type, out logger)) return logger;
 
             logger = CreateLogger(type);
             var d = new Dictionary<Type, ILogger>(loggers) { { type, logger } };
@@ -108,10 +93,7 @@ public class LogFactory : ILogFactory
     {
         foreach (var appender in appenders)
         {
-            if (appender == null)
-            {
-                continue;
-            }
+            if (appender == null) continue;
 
             var shouldLog = false;
             try
@@ -119,48 +101,26 @@ public class LogFactory : ILogFactory
                 var level = args.Level;
                 var levelAppender = appender.Level;
                 if (level == LogLevel.Trace && levelAppender.In(LogLevel.Trace))
-                {
                     shouldLog = true;
-                }
                 else if (level == LogLevel.Debug && levelAppender.In(LogLevel.Debug, LogLevel.Trace))
-                {
                     shouldLog = true;
-                }
                 else if (level == LogLevel.Info && levelAppender.In(LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
-                {
                     shouldLog = true;
-                }
                 else if (level == LogLevel.Warn && levelAppender.In(LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
-                {
                     shouldLog = true;
-                }
                 else if (level == LogLevel.Error && levelAppender.In(LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
-                {
                     shouldLog = true;
-                }
-                else if (level == LogLevel.Critical)
-                {
-                    shouldLog = true;
-                }
+                else if (level == LogLevel.Critical) shouldLog = true;
 
-                if (shouldLog)
-                {
-                    appender.Log(this, args);
-                }
+                if (shouldLog) appender.Log(this, args);
             }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e);
-            }
+            catch (Exception e) { Debug.WriteLine(e); }
         }
     }
 
     public void Dispose()
     {
-        try
-        {
-            thread.Dispose();
-        }
+        try { thread.Dispose(); }
         catch (Exception e)
         {
             Console.Error.Write("ERROR DISPOSING OF " + GetType().FullNameFormatted());
@@ -219,10 +179,7 @@ public class LogFactory : ILogFactory
                 IsErrorEnabled = true;
                 IsCriticalEnabled = true;
             }
-            else if (level == LogLevel.Critical)
-            {
-                IsCriticalEnabled = true;
-            }
+            else if (level == LogLevel.Critical) { IsCriticalEnabled = true; }
         }
     }
 }

@@ -42,16 +42,10 @@ public class FtpPut : FtpBase
 
         var localFiles = GetArgValuesTrimmed();
         log.Debug(localFiles, nameof(localFiles));
-        if (localFiles.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(localFiles));
-        }
+        if (localFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(localFiles));
 
         remotePath = GetArgParameterOrConfig(nameof(remotePath), null);
-        if (remotePath != null && remotePath.Last() != '/')
-        {
-            remotePath = remotePath + "/";
-        }
+        if (remotePath != null && remotePath.Last() != '/') remotePath = remotePath + "/";
 
         log.DebugParameter(nameof(remotePath), remotePath);
 
@@ -63,20 +57,13 @@ public class FtpPut : FtpBase
         foreach (var localFile in localFiles)
         {
             var lf = Path.GetFullPath(localFile);
-            if (File.Exists(lf))
-            {
-                localFiles2.Add(lf);
-            }
+            if (File.Exists(lf)) { localFiles2.Add(lf); }
             else
             {
                 if (ignoreMissingFiles)
-                {
                     log.Warn($"File does not exist {lf}");
-                }
                 else
-                {
                     throw new FileNotFoundException($"File does not exist {lf}");
-                }
             }
         }
 
@@ -86,10 +73,7 @@ public class FtpPut : FtpBase
             return;
         }
 
-        for (var i = 0; i < localFiles2.Count; i++)
-        {
-            log.Debug($"{nameof(localFiles)}[{i}]: {localFiles2[i]}");
-        }
+        for (var i = 0; i < localFiles2.Count; i++) log.Debug($"{nameof(localFiles)}[{i}]: {localFiles2[i]}");
 
 
         using (var c = OpenClient())

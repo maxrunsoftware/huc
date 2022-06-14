@@ -19,12 +19,10 @@ namespace MaxRunSoftware.Utilities;
 
 public static partial class Util
 {
-    public static bool DynamicHasProperty(dynamic obj, string propertyName)
-    {
-        return obj is ExpandoObject
+    public static bool DynamicHasProperty(dynamic obj, string propertyName) =>
+        obj is ExpandoObject
             ? ((IDictionary<string, object>)obj).ContainsKey(propertyName)
             : (bool)(obj.GetType().GetProperty(propertyName) != null);
-    }
 
     /// <summary>
     /// Gets a 001/100 format for a running count
@@ -32,18 +30,12 @@ public static partial class Util
     /// <param name="index">The zero based index, +1 will be added automatically</param>
     /// <param name="total">The total number of items</param>
     /// <returns>001/100 formatted string</returns>
-    public static string FormatRunningCount(int index, int total)
-    {
-        return (index + 1).ToStringPadded().Right(total.ToString().Length) + "/" + total;
-    }
+    public static string FormatRunningCount(int index, int total) => (index + 1).ToStringPadded().Right(total.ToString().Length) + "/" + total;
 
     public static string FormatRunningCountPercent(int index, int total, int decimalPlaces)
     {
         var len = 3;
-        if (decimalPlaces > 0)
-        {
-            len += 1; // decimal
-        }
+        if (decimalPlaces > 0) len += 1; // decimal
 
         len += decimalPlaces;
 
@@ -60,10 +52,7 @@ public static partial class Util
 
         var data = new byte[4 * size];
 
-        using (var crypto = RandomNumberGenerator.Create())
-        {
-            crypto.GetBytes(data);
-        }
+        using (var crypto = RandomNumberGenerator.Create()) { crypto.GetBytes(data); }
 
         var result = new StringBuilder(size);
         for (var i = 0; i < size; i++)
@@ -90,9 +79,8 @@ public static partial class Util
     /// </summary>
     /// <param name="encoding">The encoding name string</param>
     /// <returns>The Encoding or UTF8 Encoding if null is provided</returns>
-    public static Encoding ParseEncoding(string encoding)
-    {
-        return (encoding.TrimOrNull() ?? "UTF8") switch
+    public static Encoding ParseEncoding(string encoding) =>
+        (encoding.TrimOrNull() ?? "UTF8") switch
         {
             "ASCII" => Encoding.ASCII,
             "BIGENDIANUNICODE" => Encoding.BigEndianUnicode,
@@ -103,5 +91,4 @@ public static partial class Util
             "UTF8BOM" => Constant.ENCODING_UTF8_BOM,
             _ => throw new Exception("Unknown encoding type specified: " + encoding)
         };
-    }
 }

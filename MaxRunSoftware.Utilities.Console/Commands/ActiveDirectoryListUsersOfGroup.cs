@@ -27,10 +27,7 @@ public class ActiveDirectoryListUsersOfGroup : ActiveDirectoryListBase
         base.CreateHelp(help);
     }
 
-    protected override bool IsValidObject(ActiveDirectoryObject obj)
-    {
-        return obj.IsUser && obj.MemberOfNames.Any(o => o.EqualsWildcard(groupPattern, true));
-    }
+    protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser && obj.MemberOfNames.Any(o => o.EqualsWildcard(groupPattern, true));
 
     private string groupPattern;
     public override string[] DefaultColumnsToInclude => base.DefaultColumnsToInclude.Add(nameof(ActiveDirectoryObject.MemberOfNamesString));

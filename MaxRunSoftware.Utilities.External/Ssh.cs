@@ -44,10 +44,7 @@ public class Ssh : IDisposable
         get
         {
             var c = client;
-            if (c == null)
-            {
-                throw new ObjectDisposedException(GetType().FullNameFormatted());
-            }
+            if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
 
             return c;
         }
@@ -55,22 +52,13 @@ public class Ssh : IDisposable
 
     public string ClientVersion => Client.ConnectionInfo.ClientVersion;
 
-    public Ssh(string host, ushort port, string username, string password)
-    {
-        client = (SshClient)CreateClient(host, port, username, password, null, typeof(SshClient));
-    }
+    public Ssh(string host, ushort port, string username, string password) { client = (SshClient)CreateClient(host, port, username, password, null, typeof(SshClient)); }
 
-    public Ssh(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys)
-    {
-        client = (SshClient)CreateClient(host, port, username, null, privateKeys, typeof(SshClient));
-    }
+    public Ssh(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys) { client = (SshClient)CreateClient(host, port, username, null, privateKeys, typeof(SshClient)); }
 
     public string RunCommand(string command)
     {
-        using (var cmd = Client.CreateCommand(command))
-        {
-            return cmd.Execute();
-        }
+        using (var cmd = Client.CreateCommand(command)) { return cmd.Execute(); }
     }
 
     #region Create Clients
@@ -83,15 +71,9 @@ public class Ssh : IDisposable
         username = username.CheckNotNullTrimmed(nameof(username));
         password = password.TrimOrNull();
         var pks = (keyFiles ?? Enumerable.Empty<SshKeyFile>()).WhereNotNull().ToList();
-        if (password == null && pks.Count == 0)
-        {
-            throw new ArgumentException("No password provided and no keyFiles provided.", nameof(password));
-        }
+        if (password == null && pks.Count == 0) throw new ArgumentException("No password provided and no keyFiles provided.", nameof(password));
 
-        if (password != null && pks.Count > 0)
-        {
-            throw new ArgumentException("Keyfiles are not supported when a Password is supplied.", nameof(password));
-        }
+        if (password != null && pks.Count > 0) throw new ArgumentException("Keyfiles are not supported when a Password is supplied.", nameof(password));
 
         var privateKeyFiles = new List<PrivateKeyFile>();
         foreach (var pk in pks)
@@ -113,20 +95,11 @@ public class Ssh : IDisposable
         }
 
         BaseClient client = null;
-        if (clientType == typeof(SshClient))
-        {
-            client = password == null ? new SshClient(host, port, username, privateKeyFiles.ToArray()) : new SshClient(host, port, username, password);
-        }
+        if (clientType == typeof(SshClient)) client = password == null ? new SshClient(host, port, username, privateKeyFiles.ToArray()) : new SshClient(host, port, username, password);
 
-        if (clientType == typeof(SftpClient))
-        {
-            client = password == null ? new SftpClient(host, port, username, privateKeyFiles.ToArray()) : new SftpClient(host, port, username, password);
-        }
+        if (clientType == typeof(SftpClient)) client = password == null ? new SftpClient(host, port, username, privateKeyFiles.ToArray()) : new SftpClient(host, port, username, password);
 
-        if (client == null)
-        {
-            throw new NotImplementedException("Cannot create SSH Client for type " + clientType.FullNameFormatted());
-        }
+        if (client == null) throw new NotImplementedException("Cannot create SSH Client for type " + clientType.FullNameFormatted());
 
         try
         {
@@ -138,24 +111,12 @@ public class Ssh : IDisposable
         {
             try
             {
-                if (client.IsConnected)
-                {
-                    client.Disconnect();
-                }
+                if (client.IsConnected) client.Disconnect();
             }
-            catch (Exception ee)
-            {
-                log.Warn("Error disconnecting", ee);
-            }
+            catch (Exception ee) { log.Warn("Error disconnecting", ee); }
 
-            try
-            {
-                client.Dispose();
-            }
-            catch (Exception ee)
-            {
-                log.Warn("Error disposing", ee);
-            }
+            try { client.Dispose(); }
+            catch (Exception ee) { log.Warn("Error disposing", ee); }
 
             throw;
         }
@@ -163,15 +124,9 @@ public class Ssh : IDisposable
         return client;
     }
 
-    public static SftpClient CreateSFtpClient(string host, ushort port, string username, string password, IEnumerable<SshKeyFile> keyFiles)
-    {
-        return (SftpClient)CreateClient(host, port, username, password, keyFiles, typeof(SftpClient));
-    }
+    public static SftpClient CreateSFtpClient(string host, ushort port, string username, string password, IEnumerable<SshKeyFile> keyFiles) => (SftpClient)CreateClient(host, port, username, password, keyFiles, typeof(SftpClient));
 
-    public static SshClient CreateSshClient(string host, ushort port, string username, string password, IEnumerable<SshKeyFile> keyFiles)
-    {
-        return (SshClient)CreateClient(host, port, username, password, keyFiles, typeof(SshClient));
-    }
+    public static SshClient CreateSshClient(string host, ushort port, string username, string password, IEnumerable<SshKeyFile> keyFiles) => (SshClient)CreateClient(host, port, username, password, keyFiles, typeof(SshClient));
 
     #endregion Create Clients
 
@@ -180,27 +135,12 @@ public class Ssh : IDisposable
         var c = client;
         client = null;
 
-        if (c == null)
-        {
-            return;
-        }
+        if (c == null) return;
 
-        try
-        {
-            c.Disconnect();
-        }
-        catch (Exception e)
-        {
-            log.Warn("Error disconnecting from server", e);
-        }
+        try { c.Disconnect(); }
+        catch (Exception e) { log.Warn("Error disconnecting from server", e); }
 
-        try
-        {
-            c.Dispose();
-        }
-        catch (Exception e)
-        {
-            log.Warn($"Error disposing of {c.GetType().FullNameFormatted()}", e);
-        }
+        try { c.Dispose(); }
+        catch (Exception e) { log.Warn($"Error disposing of {c.GetType().FullNameFormatted()}", e); }
     }
 }

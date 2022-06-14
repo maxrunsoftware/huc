@@ -57,15 +57,9 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
 
 
         var lastLoginDaysS = GetArgParameterOrConfig(nameof(lastLoginDays), "l").TrimOrNull();
-        if (lastLoginDaysS != null)
-        {
-            lastLoginDays = lastLoginDaysS.ToUInt();
-        }
+        if (lastLoginDaysS != null) lastLoginDays = lastLoginDaysS.ToUInt();
 
-        if (lastLoginDays == null)
-        {
-            throw new ArgsException(nameof(lastLoginDays), "No criteria to disable user accounts specified");
-        }
+        if (lastLoginDays == null) throw new ArgsException(nameof(lastLoginDays), "No criteria to disable user accounts specified");
 
         var users = ad.GetUsers();
         var usersToBeDisabled = new List<(ActiveDirectoryObject, string)>();
@@ -77,37 +71,23 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
 
             foreach (var user in users)
             {
-                if (ShouldSkip(user))
-                {
-                    continue;
-                }
+                if (ShouldSkip(user)) continue;
 
                 var lastLogon = DateTime.MinValue;
                 if (user.LastLogon != null)
-                {
                     if (user.LastLogon.Value > lastLogon)
-                    {
                         lastLogon = user.LastLogon.Value;
-                    }
-                }
 
                 if (user.LastLogonTimestamp != null)
-                {
                     if (user.LastLogonTimestamp.Value > lastLogon)
-                    {
                         lastLogon = user.LastLogonTimestamp.Value;
-                    }
-                }
 
                 lastLogon = lastLogon.ToUniversalTime();
 
                 if (lastLogon < dateDaysAgo)
                 {
                     var msg = "lastLogin: " + lastLogon.ToLocalTime().ToStringYYYYMMDD();
-                    if (lastLogon == DateTime.MinValue.ToUniversalTime())
-                    {
-                        msg = "never logged in";
-                    }
+                    if (lastLogon == DateTime.MinValue.ToUniversalTime()) msg = "never logged in";
 
                     usersToBeDisabled.Add((user, msg));
                 }
@@ -126,17 +106,12 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
             log.Info(msg + userToBeDisabled.ObjectName + " (" + item.Item2 + ")");
 
             if (execute)
-            {
                 try
                 {
                     var result = ad.DisableUser(userToBeDisabled.SAMAccountName);
                     log.Debug((result ? "User disabled: " : "User was already disabled: ") + userToBeDisabled.ObjectName);
                 }
-                catch (Exception e)
-                {
-                    log.Error("Error disabling user '" + userToBeDisabled.SAMAccountName + "'", e);
-                }
-            }
+                catch (Exception e) { log.Error("Error disabling user '" + userToBeDisabled.SAMAccountName + "'", e); }
         }
     }
 
@@ -160,34 +135,21 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
         groupsToSkip.AddRange(excludeGroups.OrEmpty());
 
 
-        if (ado.SAMAccountName == null)
-        {
-            return true;
-        }
+        if (ado.SAMAccountName == null) return true;
 
 
         foreach (var accountToSkip in accountsToSkip)
         {
-            if (ado.SAMAccountName.EqualsCaseInsensitive(accountToSkip))
-            {
-                return true;
-            }
+            if (ado.SAMAccountName.EqualsCaseInsensitive(accountToSkip)) return true;
 
-            if (ado.ObjectName.EqualsCaseInsensitive(accountToSkip))
-            {
-                return true;
-            }
+            if (ado.ObjectName.EqualsCaseInsensitive(accountToSkip)) return true;
         }
 
         foreach (var groupToSkip in groupsToSkip)
         {
             foreach (var mem in ado.MemberOfNames)
-            {
                 if (groupToSkip.EqualsCaseInsensitive(mem))
-                {
                     return true;
-                }
-            }
         }
 
         return false;

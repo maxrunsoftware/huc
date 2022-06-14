@@ -39,10 +39,7 @@ public class FileAppend : Command
 
         var sourceFiles = values.otherValues;
         log.Debug(sourceFiles, nameof(sourceFiles));
-        if (values.otherValues.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(sourceFiles));
-        }
+        if (values.otherValues.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(sourceFiles));
 
         sourceFiles = ParseInputFiles(values.otherValues);
         log.Debug(sourceFiles, nameof(sourceFiles));

@@ -24,38 +24,23 @@ public static class ExtensionsType
         return underlyingType != null;
     }
 
-    public static bool IsNullable(this Type type)
-    {
-        return Nullable.GetUnderlyingType(type) != null;
-    }
+    public static bool IsNullable(this Type type) => Nullable.GetUnderlyingType(type) != null;
 
     /// <summary>Is this type a generic type</summary>
     /// <param name="type"></param>
     /// <returns>True if generic, otherwise False</returns>
-    public static bool IsGeneric(this Type type)
-    {
-        return type.IsGenericType && type.Name.Contains("`");
-        //TODO: Figure out why IsGenericType isn't good enough and document (or remove) this condition
-    }
+    public static bool IsGeneric(this Type type) => type.IsGenericType && type.Name.Contains("`");
 
+    //TODO: Figure out why IsGenericType isn't good enough and document (or remove) this condition
     public static Type AsNullable(this Type type)
     {
         // https://stackoverflow.com/a/23402284
         type.CheckNotNull(nameof(type));
-        if (!type.IsValueType)
-        {
-            return type;
-        }
+        if (!type.IsValueType) return type;
 
-        if (Nullable.GetUnderlyingType(type) != null)
-        {
-            return type; // Already nullable
-        }
+        if (Nullable.GetUnderlyingType(type) != null) return type; // Already nullable
 
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-        {
-            return type; // Already nullable
-        }
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) return type; // Already nullable
 
         return typeof(Nullable<>).MakeGenericType(type);
     }
@@ -79,12 +64,10 @@ public static class ExtensionsType
     {
         // https://stackoverflow.com/a/25287378
         if (type.IsGenericType)
-        {
             return string.Format(
                 "{0}<{1}>",
                 type.Name.Substring(0, type.Name.LastIndexOf("`", StringComparison.InvariantCulture)),
                 string.Join(", ", type.GetGenericArguments().Select(NameFormatted)));
-        }
 
         return type.Name;
     }
@@ -93,35 +76,17 @@ public static class ExtensionsType
     {
         foreach (var t in assembly.GetTypes())
         {
-            if (t.Namespace == null)
-            {
-                continue;
-            }
+            if (t.Namespace == null) continue;
 
-            if (t.Namespace.StartsWith("System.", StringComparison.OrdinalIgnoreCase) && namespaceSystem == false)
-            {
-                continue;
-            }
+            if (t.Namespace.StartsWith("System.", StringComparison.OrdinalIgnoreCase) && namespaceSystem == false) continue;
 
-            if (t.IsInterface && allowInterface == false)
-            {
-                continue;
-            }
+            if (t.IsInterface && allowInterface == false) continue;
 
-            if (t.IsAbstract && t.IsInterface == false && allowAbstract == false)
-            {
-                continue;
-            }
+            if (t.IsAbstract && t.IsInterface == false && allowAbstract == false) continue;
 
-            if (requireNoArgConstructor && t.GetConstructor(Type.EmptyTypes) == null)
-            {
-                continue;
-            }
+            if (requireNoArgConstructor && t.GetConstructor(Type.EmptyTypes) == null) continue;
 
-            if (typeof(T).IsAssignableFrom(t) == false)
-            {
-                continue;
-            }
+            if (typeof(T).IsAssignableFrom(t) == false) continue;
 
             yield return t;
         }
@@ -129,85 +94,37 @@ public static class ExtensionsType
 
     #region EqualsAny
 
-    public static bool Equals<T1>(this Type type)
-    {
-        return typeof(T1) == type;
-    }
+    public static bool Equals<T1>(this Type type) => typeof(T1) == type;
 
-    public static bool Equals<T1, T2>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type;
-    }
+    public static bool Equals<T1, T2>(this Type type) => typeof(T1) == type || typeof(T2) == type;
 
-    public static bool Equals<T1, T2, T3>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type;
-    }
+    public static bool Equals<T1, T2, T3>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type;
 
-    public static bool Equals<T1, T2, T3, T4>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type;
 
-    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Type type)
-    {
-        return typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type || typeof(T16) == type;
-    }
+    public static bool Equals<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>(this Type type) => typeof(T1) == type || typeof(T2) == type || typeof(T3) == type || typeof(T4) == type || typeof(T5) == type || typeof(T6) == type || typeof(T7) == type || typeof(T8) == type || typeof(T9) == type || typeof(T10) == type || typeof(T11) == type || typeof(T12) == type || typeof(T13) == type || typeof(T14) == type || typeof(T15) == type || typeof(T16) == type;
 
     #endregion EqualsAny
 
@@ -222,10 +139,7 @@ public static class ExtensionsType
         public object this[Type key] => key == null ? null : key.IsValueType ? bucket[key] : null;
     }
 
-    public static object GetDefaultValue(this Type type)
-    {
-        return getDefaultValueCache[type];
-    }
+    public static object GetDefaultValue(this Type type) => getDefaultValueCache[type];
 
     public static object GetDefaultValue2(this Type type)
     {
@@ -259,10 +173,7 @@ public static class ExtensionsType
                 if (sc.Equals(name, enumItemName))
                 {
                     var field = enumType.GetField(name, BindingFlags.Public | BindingFlags.Static);
-                    if (field != null)
-                    {
-                        return field.GetCustomAttributes<TAttribute>(false).ToArray();
-                    }
+                    if (field != null) return field.GetCustomAttributes<TAttribute>(false).ToArray();
                 }
             }
         }
@@ -271,14 +182,8 @@ public static class ExtensionsType
     }
 
 
-    public static TAttribute GetEnumItemAttribute<TAttribute>(this Type enumType, string enumItemName) where TAttribute : Attribute
-    {
-        return GetEnumItemAttributes<TAttribute>(enumType, enumItemName).FirstOrDefault();
-    }
+    public static TAttribute GetEnumItemAttribute<TAttribute>(this Type enumType, string enumItemName) where TAttribute : Attribute => GetEnumItemAttributes<TAttribute>(enumType, enumItemName).FirstOrDefault();
 
-    public static bool IsStatic(this PropertyInfo info, bool nonPublic = false)
-    {
-        return info.GetAccessors(nonPublic).Any(x => x.IsStatic);
-        // https://stackoverflow.com/a/51441889
-    }
+    public static bool IsStatic(this PropertyInfo info, bool nonPublic = false) => info.GetAccessors(nonPublic).Any(x => x.IsStatic);
+    // https://stackoverflow.com/a/51441889
 }

@@ -37,36 +37,18 @@ public sealed class MutexLock : IDisposable
     private static string MutexNameFormat(string mutexName)
     {
         mutexName = mutexName.CheckNotNullTrimmed(nameof(mutexName));
-        for (var i = 0; i < illegalMutexChars.Length; i++)
-        {
-            mutexName = mutexName.Replace(illegalMutexChars[i], '_');
-        }
+        for (var i = 0; i < illegalMutexChars.Length; i++) mutexName = mutexName.Replace(illegalMutexChars[i], '_');
 
-        while (mutexName.Contains("__"))
-        {
-            mutexName = mutexName.Replace("__", "_");
-        }
+        while (mutexName.Contains("__")) { mutexName = mutexName.Replace("__", "_"); }
 
-        while (mutexName.StartsWith("_"))
-        {
-            mutexName = mutexName.RemoveLeft();
-        }
+        while (mutexName.StartsWith("_")) { mutexName = mutexName.RemoveLeft(); }
 
-        while (mutexName.EndsWith("_"))
-        {
-            mutexName = mutexName.RemoveRight();
-        }
+        while (mutexName.EndsWith("_")) { mutexName = mutexName.RemoveRight(); }
 
         mutexName = mutexName.TrimOrNullUpper();
-        if (mutexName == null)
-        {
-            return "MUTEX";
-        }
+        if (mutexName == null) return "MUTEX";
 
-        if (mutexName.StartsWith("MUTEX"))
-        {
-            return mutexName;
-        }
+        if (mutexName.StartsWith("MUTEX")) return mutexName;
 
         return "MUTEX_" + mutexName;
     }
@@ -95,73 +77,38 @@ public sealed class MutexLock : IDisposable
         try
         {
             hasHandle = mutex.WaitOne(timeout, false);
-            if (hasHandle == false)
-            {
-                throw new MutexLockTimeoutException(mutexName, timeout);
-            }
+            if (hasHandle == false) throw new MutexLockTimeoutException(mutexName, timeout);
         }
-        catch (AbandonedMutexException)
-        {
-            hasHandle = true;
-        }
+        catch (AbandonedMutexException) { hasHandle = true; }
     }
 
     public void Dispose()
     {
-        if (!su.TryUse())
-        {
-            return;
-        }
+        if (!su.TryUse()) return;
 
-        if (hasHandle)
-        {
-            mutex.ReleaseMutex();
-        }
+        if (hasHandle) mutex.ReleaseMutex();
     }
 
-    public static MutexLock Create(TimeSpan timeout, string mutexName)
-    {
-        return new MutexLock(mutexName, timeout);
-    }
+    public static MutexLock Create(TimeSpan timeout, string mutexName) => new(mutexName, timeout);
 
-    public static MutexLock Create(TimeSpan timeout, Guid mutexId)
-    {
-        return Create(timeout, ParseGuid(mutexId));
-    }
+    public static MutexLock Create(TimeSpan timeout, Guid mutexId) => Create(timeout, ParseGuid(mutexId));
 
-    public static MutexLock Create(TimeSpan timeout, FileInfo file)
-    {
-        return Create(timeout, ParseFile(file));
-    }
+    public static MutexLock Create(TimeSpan timeout, FileInfo file) => Create(timeout, ParseFile(file));
 
-    public static MutexLock CreateGlobal(TimeSpan timeout, string mutexName)
-    {
+    public static MutexLock CreateGlobal(TimeSpan timeout, string mutexName) =>
         // ReSharper disable once UseStringInterpolation
-        return new MutexLock(string.Format("Global\\{{{0}}}", mutexName), timeout);
-    }
+        new(string.Format("Global\\{{{0}}}", mutexName), timeout);
 
-    public static MutexLock CreateGlobal(TimeSpan timeout, Guid mutexId)
-    {
-        return CreateGlobal(timeout, ParseGuid(mutexId));
-    }
+    public static MutexLock CreateGlobal(TimeSpan timeout, Guid mutexId) => CreateGlobal(timeout, ParseGuid(mutexId));
 
-    public static MutexLock CreateGlobal(TimeSpan timeout, FileInfo file)
-    {
-        return CreateGlobal(timeout, ParseFile(file));
-    }
+    public static MutexLock CreateGlobal(TimeSpan timeout, FileInfo file) => CreateGlobal(timeout, ParseFile(file));
 
-    private static string ParseGuid(Guid guid)
-    {
-        return guid.ToString().Replace("-", "");
-    }
+    private static string ParseGuid(Guid guid) => guid.ToString().Replace("-", "");
 
     private static string ParseFile(FileInfo file)
     {
         var fn = file.FullName;
-        if (fn.Length > 180)
-        {
-            fn = fn.Left(20) + fn.Right(160); // TODO: Maybe a better way to do this?
-        }
+        if (fn.Length > 180) fn = fn.Left(20) + fn.Right(160); // TODO: Maybe a better way to do this?
 
         return fn;
     }

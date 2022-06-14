@@ -38,24 +38,15 @@ public class FtpMPut : FtpBase
         base.ExecuteInternal();
 
         remotePath = GetArgParameterOrConfig(nameof(remotePath), null);
-        if (remotePath != null && remotePath.Last() != '/')
-        {
-            remotePath = remotePath + "/";
-        }
+        if (remotePath != null && remotePath.Last() != '/') remotePath = remotePath + "/";
 
         log.DebugParameter(nameof(remotePath), remotePath);
 
         localPath = Path.GetFullPath(GetArgParameterOrConfig(nameof(localPath), null, Environment.CurrentDirectory));
-        if (!Directory.Exists(localPath))
-        {
-            throw new DirectoryNotFoundException("Could not find <" + nameof(localPath) + "> directory " + localPath);
-        }
+        if (!Directory.Exists(localPath)) throw new DirectoryNotFoundException("Could not find <" + nameof(localPath) + "> directory " + localPath);
 
         filePattern = GetArgParameterOrConfig(nameof(filePattern), null);
-        if (filePattern.TrimOrNull() == null)
-        {
-            filePattern = null;
-        }
+        if (filePattern.TrimOrNull() == null) filePattern = null;
 
         log.DebugParameter(nameof(filePattern), filePattern);
 
@@ -64,10 +55,7 @@ public class FtpMPut : FtpBase
             foreach (var localFilePath in Util.FileListFiles(localPath))
             {
                 var localFile = Path.GetFileName(localFilePath);
-                if (filePattern != null && filePattern != "*" && !localFile.EqualsWildcard(filePattern, true))
-                {
-                    continue;
-                }
+                if (filePattern != null && filePattern != "*" && !localFile.EqualsWildcard(filePattern, true)) continue;
 
                 var remoteFilePath = (remotePath ?? string.Empty) + localFile;
                 log.Debug("Uploading file " + localFilePath + " to " + remoteFilePath);

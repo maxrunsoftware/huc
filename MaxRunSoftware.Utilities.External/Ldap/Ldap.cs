@@ -110,10 +110,7 @@ public class Ldap : IDisposable
         }
         set
         {
-            lock (locker)
-            {
-                queryConfig = value ?? new LdapQueryConfig();
-            }
+            lock (locker) { queryConfig = value ?? new LdapQueryConfig(); }
         }
     }
 
@@ -144,10 +141,7 @@ public class Ldap : IDisposable
         if (domainName == null && userName != null && userName.IndexOf("\\", StringComparison.Ordinal) >= 0)
         {
             var userNameParts = userName.Split('\\').TrimOrNull().WhereNotNull().ToArray();
-            if (userNameParts.Length == 1)
-            {
-                userName = userNameParts[0];
-            }
+            if (userNameParts.Length == 1) userName = userNameParts[0];
 
             if (userNameParts.Length > 1)
             {
@@ -173,10 +167,7 @@ public class Ldap : IDisposable
         var directoryIdentifier = new LdapDirectoryIdentifier(server, portNumber, false, false);
 
         // Create the connection to the server(s).
-        if (useLogonCredentials)
-        {
-            connection = new LdapConnection(directoryIdentifier);
-        }
+        if (useLogonCredentials) { connection = new LdapConnection(directoryIdentifier); }
         else
         {
             // Setup the credential to use when accessing the server. (Or null for Anonymous.)
@@ -184,19 +175,13 @@ public class Ldap : IDisposable
             if (authType != AuthType.Anonymous)
             {
                 credential = new NetworkCredential(userName, password);
-                if (domainName != null)
-                {
-                    credential.Domain = domainName; // A domain was provided. Use it when creating the credential.
-                }
+                if (domainName != null) credential.Domain = domainName; // A domain was provided. Use it when creating the credential.
             }
 
             connection = new LdapConnection(directoryIdentifier, credential, authType);
         }
 
-        if (portNumber == LDAP_SSL_PORT)
-        {
-            connection.SessionOptions.SecureSocketLayer = true;
-        }
+        if (portNumber == LDAP_SSL_PORT) connection.SessionOptions.SecureSocketLayer = true;
 
         // Gather information about the LDAP server(s) from the RootDSE entry.
         var rootDSESearchResponse = (SearchResponse)connection.SendRequest(new SearchRequest(null, "(objectClass=*)", SearchScope.Base));
@@ -229,10 +214,7 @@ public class Ldap : IDisposable
 
         var ldapConnectionString = "LDAP://" + this.server + ":" + port;
         var usernameAndDomain = this.userName;
-        if (domainName != null)
-        {
-            usernameAndDomain = domainName + "\\" + usernameAndDomain;
-        }
+        if (domainName != null) usernameAndDomain = domainName + "\\" + usernameAndDomain;
 
         searchRoot = new DirectoryEntry(ldapConnectionString, usernameAndDomain, this.password);
         log.Debug(nameof(searchRoot) + Environment.NewLine + searchRoot.ToStringDebug());
@@ -248,15 +230,9 @@ public class Ldap : IDisposable
     {
         request.CheckNotNull(nameof(request));
         var response = connection.SendRequest(request);
-        if (response == null)
-        {
-            return false;
-        }
+        if (response == null) return false;
 
-        if (response.ResultCode == ResultCode.Success)
-        {
-            return true;
-        }
+        if (response.ResultCode == ResultCode.Success) return true;
 
         log.Warn(request.GetType().Name + " request failed. " + response.ResultCode + " - " + response.ErrorMessage);
         return false;
@@ -301,10 +277,7 @@ public class Ldap : IDisposable
 
             var response = (SearchResponse)connection.SendRequest(request);
 
-            if (response == null)
-            {
-                return results; // No response was received.
-            }
+            if (response == null) return results; // No response was received.
 
             // A response was received.
             // Get the paging response control to allow us to gather the results in batches.
@@ -340,10 +313,7 @@ public class Ldap : IDisposable
             }
 
             // Check whether the cookies is empty and all the results have been gathered.
-            if (pageResultRequestControl.Cookie.Length == 0)
-            {
-                break; // The cookie is empty. We're done gathering results.
-            }
+            if (pageResultRequestControl.Cookie.Length == 0) break; // The cookie is empty. We're done gathering results.
         }
 
         return results;
@@ -359,18 +329,12 @@ public class Ldap : IDisposable
     {
         // Create an LDAP search filter string that will find the entry in the directory with the specified GUID.
         var guidBuilder = new StringBuilder(48);
-        foreach (var guidByte in objectGuid.ToByteArray())
-        {
-            guidBuilder.Append('\\' + guidByte.ToString("x2"));
-        }
+        foreach (var guidByte in objectGuid.ToByteArray()) guidBuilder.Append('\\' + guidByte.ToString("x2"));
 
         return SearchResultEntryGet($"(objectGUID={guidBuilder})", config).FirstOrDefault();
     }
 
-    public SearchResultEntry SearchResultEntryGetByDistinguishedName(string distinguishedName, LdapQueryConfig config)
-    {
-        return SearchResultEntryGet("(&(distinguishedName=" + distinguishedName.CheckNotNullTrimmed(nameof(distinguishedName)) + "))", config).FirstOrDefault();
-    }
+    public SearchResultEntry SearchResultEntryGetByDistinguishedName(string distinguishedName, LdapQueryConfig config) => SearchResultEntryGet("(&(distinguishedName=" + distinguishedName.CheckNotNullTrimmed(nameof(distinguishedName)) + "))", config).FirstOrDefault();
 
     public List<LdapEntryAttributeCollection> EntryGet(string filter, LdapQueryConfig config)
     {
@@ -425,10 +389,7 @@ public class Ldap : IDisposable
         distinguishedName = distinguishedName.CheckNotNullTrimmed(nameof(distinguishedName));
         newParentDistinguishedName = newParentDistinguishedName.CheckNotNullTrimmed(nameof(newParentDistinguishedName));
         newCommonName = newCommonName.CheckNotNullTrimmed(nameof(newCommonName));
-        if (!newCommonName.StartsWith("CN=", StringComparison.OrdinalIgnoreCase))
-        {
-            newCommonName = "CN=" + newCommonName;
-        }
+        if (!newCommonName.StartsWith("CN=", StringComparison.OrdinalIgnoreCase)) newCommonName = "CN=" + newCommonName;
 
         var request = new ModifyDNRequest(distinguishedName, newParentDistinguishedName, newCommonName);
         return MakeRequest(request);
@@ -452,10 +413,7 @@ public class Ldap : IDisposable
         var directoryIdentifier = new LdapDirectoryIdentifier(server.Yield().ToArray(), portNumber, false, false);
 
         var credential = new NetworkCredential(userName, password);
-        if (domainName != null)
-        {
-            credential.Domain = domainName; // A domain was provided. Use it when creating the credential.
-        }
+        if (domainName != null) credential.Domain = domainName; // A domain was provided. Use it when creating the credential.
 
         var un = (credential.Domain == null ? "" : credential.Domain + "\\") + credential.UserName;
         try
@@ -489,10 +447,7 @@ public class Ldap : IDisposable
         return searcher.FindOne()?.GetDirectoryEntry();
     }
 
-    public UserPrincipal GetUserPrincipalByDistinguishedName(string distinguishedName)
-    {
-        return UserPrincipal.FindByIdentity(context, IdentityType.DistinguishedName, distinguishedName);
-    }
+    public UserPrincipal GetUserPrincipalByDistinguishedName(string distinguishedName) => UserPrincipal.FindByIdentity(context, IdentityType.DistinguishedName, distinguishedName);
 
     #endregion ActiveDirectory specific functions
 
@@ -529,10 +484,7 @@ public class Ldap : IDisposable
     {
         lock (this)
         {
-            if (isDisposed)
-            {
-                return;
-            }
+            if (isDisposed) return;
 
             isDisposed = true;
         }
@@ -551,25 +503,16 @@ public class Ldap : IDisposable
     public static string Guid2String(Guid guid)
     {
         var guidBuilder = new StringBuilder(48);
-        foreach (var guidByte in guid.ToByteArray())
-        {
-            guidBuilder.Append('\\' + guidByte.ToString("x2"));
-        }
+        foreach (var guidByte in guid.ToByteArray()) guidBuilder.Append('\\' + guidByte.ToString("x2"));
 
         return guidBuilder.ToString();
     }
 
     public static Guid Bytes2Guid(byte[] bytes)
     {
-        if (bytes == null)
-        {
-            return Guid.Empty;
-        }
+        if (bytes == null) return Guid.Empty;
 
-        if (bytes.Length == 0)
-        {
-            return Guid.Empty;
-        }
+        if (bytes.Length == 0) return Guid.Empty;
 
         return new Guid(bytes);
     }

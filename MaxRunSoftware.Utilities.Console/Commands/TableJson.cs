@@ -23,8 +23,5 @@ public class TableJson : TableBase
         help.AddExample("Orders.json");
     }
 
-    protected override string Convert(Utilities.Table table)
-    {
-        return table.ToJson();
-    }
+    protected override string Convert(Utilities.Table table) => table.ToJson();
 }

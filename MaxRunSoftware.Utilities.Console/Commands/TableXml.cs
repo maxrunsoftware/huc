@@ -23,8 +23,5 @@ public class TableXml : TableBase
         help.AddExample("Orders.xml");
     }
 
-    protected override string Convert(Utilities.Table table)
-    {
-        return table.ToXml();
-    }
+    protected override string Convert(Utilities.Table table) => table.ToXml();
 }

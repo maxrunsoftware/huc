@@ -239,9 +239,8 @@ public enum SqlOracleType
 
 public static class SqlOracleTypeExtensions
 {
-    public static SqlOracleType ToOracleSqlType(this DbType dbType)
-    {
-        return dbType switch
+    public static SqlOracleType ToOracleSqlType(this DbType dbType) =>
+        dbType switch
         {
             DbType.AnsiString => SqlOracleType.Clob,
             DbType.Binary => SqlOracleType.Blob,
@@ -272,5 +271,4 @@ public static class SqlOracleTypeExtensions
             DbType.DateTimeOffset => SqlOracleType.DateTime,
             _ => throw new NotImplementedException()
         };
-    }
 }

@@ -20,35 +20,20 @@ public class SqlObjectDatabase : SqlObject, IEquatable<SqlObjectDatabase>
 {
     public string DatabaseName { get; }
 
-    public SqlObjectDatabase(string databaseName)
-    {
-        DatabaseName = databaseName;
-    }
+    public SqlObjectDatabase(string databaseName) { DatabaseName = databaseName; }
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as SqlObjectDatabase);
-    }
+    public override bool Equals(object obj) => Equals(obj as SqlObjectDatabase);
 
     public bool Equals(SqlObjectDatabase other)
     {
-        if (other == null)
-        {
-            return false;
-        }
+        if (other == null) return false;
 
-        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName))
-        {
-            return false;
-        }
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName)) return false;
 
         return true;
     }
 
-    public override int GetHashCode()
-    {
-        return Util.GenerateHashCode(DatabaseName?.ToUpper());
-    }
+    public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper());
 }
 
 public class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
@@ -62,30 +47,18 @@ public class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
         SchemaName = schemaName;
     }
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as SqlObjectSchema);
-    }
+    public override bool Equals(object obj) => Equals(obj as SqlObjectSchema);
 
     public bool Equals(SqlObjectSchema other)
     {
-        if (other == null)
-        {
-            return false;
-        }
+        if (other == null) return false;
 
-        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName))
-        {
-            return false;
-        }
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName)) return false;
 
         return true;
     }
 
-    public override int GetHashCode()
-    {
-        return Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper());
-    }
+    public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper());
 }
 
 public class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
@@ -101,30 +74,18 @@ public class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
         TableName = tableName;
     }
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as SqlObjectTable);
-    }
+    public override bool Equals(object obj) => Equals(obj as SqlObjectTable);
 
     public bool Equals(SqlObjectTable other)
     {
-        if (other == null)
-        {
-            return false;
-        }
+        if (other == null) return false;
 
-        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName, TableName, other.TableName))
-        {
-            return false;
-        }
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName, TableName, other.TableName)) return false;
 
         return true;
     }
 
-    public override int GetHashCode()
-    {
-        return Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
-    }
+    public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
 }
 
 public class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableColumn>
@@ -173,33 +134,18 @@ public class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableColumn>
         ColumnDefault = columnDefault;
     }
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as SqlObjectTableColumn);
-    }
+    public override bool Equals(object obj) => Equals(obj as SqlObjectTableColumn);
 
     public bool Equals(SqlObjectTableColumn other)
     {
-        if (other == null)
-        {
-            return false;
-        }
+        if (other == null) return false;
 
-        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName, TableName, other.TableName, ColumnName, other.ColumnName))
-        {
-            return false;
-        }
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName, TableName, other.TableName, ColumnName, other.ColumnName)) return false;
 
-        if (Ordinal != other.Ordinal)
-        {
-            return false;
-        }
+        if (Ordinal != other.Ordinal) return false;
 
         return true;
     }
 
-    public override int GetHashCode()
-    {
-        return Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper(), ColumnName?.ToUpper(), Ordinal);
-    }
+    public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper(), ColumnName?.ToUpper(), Ordinal);
 }

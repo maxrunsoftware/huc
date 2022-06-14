@@ -90,19 +90,13 @@ public sealed class TableColumn : IEquatable<TableColumn>
     {
         var columnType = table.Columns[index].Type;
         columnType = Nullable.GetUnderlyingType(columnType) ?? columnType;
-        if (columnType.NotIn(Constant.TYPES_BASE_NUMERIC))
-        {
-            return 0;
-        }
+        if (columnType.NotIn(Constant.TYPES_BASE_NUMERIC)) return 0;
 
         var result = 0;
         foreach (var row in table)
         {
             var val = row[index].TrimOrNull();
-            if (val == null)
-            {
-                continue;
-            }
+            if (val == null) continue;
 
             var digits = val.Count(char.IsDigit);
 
@@ -117,32 +111,21 @@ public sealed class TableColumn : IEquatable<TableColumn>
         var decimalChar = (NumberFormatInfo.CurrentInfo.NumberDecimalSeparator.TrimOrNull() ?? ".")[0];
 
         var columnType = table.Columns[index].Type;
-        if (columnType.NotIn(typeof(decimal), typeof(float), typeof(double)))
-        {
-            return 0;
-        }
+        if (columnType.NotIn(typeof(decimal), typeof(float), typeof(double))) return 0;
 
         var result = 0;
         foreach (var row in table)
         {
             var val = row[index].TrimOrNull();
-            if (val == null)
-            {
-                continue;
-            }
+            if (val == null) continue;
 
             var foundDecimal = false;
             var decimalDigits = 0;
             foreach (var c in val)
             {
                 if (c == decimalChar)
-                {
                     foundDecimal = true;
-                }
-                else if (char.IsDigit(c) && foundDecimal)
-                {
-                    decimalDigits++;
-                }
+                else if (char.IsDigit(c) && foundDecimal) decimalDigits++;
             }
 
             result = Math.Max(result, decimalDigits);
@@ -151,48 +134,24 @@ public sealed class TableColumn : IEquatable<TableColumn>
         return result;
     }
 
-    public override string ToString()
-    {
-        return Name;
-    }
+    public override string ToString() => Name;
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as TableColumn);
-    }
+    public override bool Equals(object obj) => Equals(obj as TableColumn);
 
     public bool Equals(TableColumn other)
     {
-        if (other == null)
-        {
-            return false;
-        }
+        if (other == null) return false;
 
-        if (other.GetHashCode() != GetHashCode())
-        {
-            return false;
-        }
+        if (other.GetHashCode() != GetHashCode()) return false;
 
-        if (!other.Table.Id.Equals(Table.Id))
-        {
-            return false;
-        }
+        if (!other.Table.Id.Equals(Table.Id)) return false;
 
-        if (!other.Index.Equals(Index))
-        {
-            return false;
-        }
+        if (!other.Index.Equals(Index)) return false;
 
-        if (!string.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
+        if (!string.Equals(other.Name, Name, StringComparison.OrdinalIgnoreCase)) return false;
 
         return true;
     }
 
-    public override int GetHashCode()
-    {
-        return hashCode.Value;
-    }
+    public override int GetHashCode() => hashCode.Value;
 }

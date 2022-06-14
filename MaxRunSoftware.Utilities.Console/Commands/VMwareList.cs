@@ -28,10 +28,7 @@ public class VMwareList : VMwareBase
         help.AddSummary("Lists the objects in a VMware VCenter");
         help.AddValue("<object type 1> <object type 2> <etc>");
         help.AddDetail("ObjectTypes:");
-        foreach (var name in ObjectTypeNames)
-        {
-            help.AddDetail("  " + name);
-        }
+        foreach (var name in ObjectTypeNames) help.AddDetail("  " + name);
 
         help.AddExample(HelpExamplePrefix + " " + nameof(VMwareDatacenter));
         help.AddExample(HelpExamplePrefix + " " + nameof(VMwareFolder) + " " + nameof(VMwareNetwork));
@@ -65,32 +62,19 @@ public class VMwareList : VMwareBase
     protected override void ExecuteInternal(VMwareClient vmware)
     {
         var objectTypes = GetArgValuesTrimmed();
-        if (objectTypes.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(objectTypes));
-        }
+        if (objectTypes.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(objectTypes));
 
         var h = new HashSet<string>(ObjectTypeNames, StringComparer.OrdinalIgnoreCase);
         foreach (var objectType in objectTypes)
-        {
             if (!h.Contains(objectType))
-            {
                 throw new ArgsException(nameof(objectType), $"Invalid <{nameof(objectType)}> specified: {objectType}");
-            }
-        }
 
         foreach (var objectType in objectTypes)
         {
             var func = GetFunc(objectType);
-            if (func == null)
-            {
-                throw new NotImplementedException("Object type " + objectType + " has not been implemented");
-            }
+            if (func == null) throw new NotImplementedException("Object type " + objectType + " has not been implemented");
 
-            foreach (var obj in func(vmware))
-            {
-                log.Info(obj.ToString());
-            }
+            foreach (var obj in func(vmware)) log.Info(obj.ToString());
 
             log.Info("");
         }
@@ -100,12 +84,8 @@ public class VMwareList : VMwareBase
     {
         objectType = "VMware" + objectType;
         foreach (var kvp in handlerFunctions)
-        {
             if (objectType.EqualsCaseInsensitive(kvp.Key))
-            {
                 return kvp.Value;
-            }
-        }
 
         return null;
     }

@@ -25,8 +25,5 @@ public class SingleUse
     /// true. Otherwise we return false if we have already been used.
     /// </summary>
     /// <returns>true if we have never used before, false if we have already been used</returns>
-    public bool TryUse()
-    {
-        return boolean.SetTrue();
-    }
+    public bool TryUse() => boolean.SetTrue();
 }

@@ -26,19 +26,13 @@ public static class WebBrowserExtensions
         for (var i = 0; i < namesId.Length; i++)
         {
             var val = element.GetDomAttribute(namesId[i]).TrimOrNull();
-            if (val != null)
-            {
-                return val;
-            }
+            if (val != null) return val;
         }
 
         for (var i = 0; i < namesId.Length; i++)
         {
             var val = element.GetAttribute(namesId[i]).TrimOrNull();
-            if (val != null)
-            {
-                return val;
-            }
+            if (val != null) return val;
         }
 
         return null;
@@ -51,19 +45,13 @@ public static class WebBrowserExtensions
         for (var i = 0; i < namesId.Length; i++)
         {
             var val = element.GetDomAttribute(namesId[i]).TrimOrNull();
-            if (val != null)
-            {
-                return val;
-            }
+            if (val != null) return val;
         }
 
         for (var i = 0; i < namesId.Length; i++)
         {
             var val = element.GetAttribute(namesId[i]).TrimOrNull();
-            if (val != null)
-            {
-                return val;
-            }
+            if (val != null) return val;
         }
 
         return null;
@@ -76,19 +64,13 @@ public static class WebBrowserExtensions
         for (var i = 0; i < namesClass.Length; i++)
         {
             var val = element.GetDomAttribute(namesClass[i]).TrimOrNull();
-            if (val != null)
-            {
-                return val;
-            }
+            if (val != null) return val;
         }
 
         for (var i = 0; i < namesClass.Length; i++)
         {
             var val = element.GetAttribute(namesClass[i]).TrimOrNull();
-            if (val != null)
-            {
-                return val;
-            }
+            if (val != null) return val;
         }
 
         return null;
@@ -97,10 +79,7 @@ public static class WebBrowserExtensions
     public static string[] GetClassNames(this IWebElement element)
     {
         var v = GetClassName(element);
-        if (v == null)
-        {
-            return Array.Empty<string>();
-        }
+        if (v == null) return Array.Empty<string>();
 
         return v.Split(' ').TrimOrNull().WhereNotNull();
     }

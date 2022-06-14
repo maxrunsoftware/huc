@@ -24,10 +24,7 @@ public abstract class SqlTestBase<TSql> where TSql : Sql, new()
 {
     protected readonly ITestOutputHelper output;
 
-    protected SqlTestBase(ITestOutputHelper testOutputHelper)
-    {
-        output = testOutputHelper;
-    }
+    protected SqlTestBase(ITestOutputHelper testOutputHelper) { output = testOutputHelper; }
 
     protected abstract IDbConnection CreateConnection();
 
@@ -58,10 +55,7 @@ public abstract class SqlTestBase<TSql> where TSql : Sql, new()
 
 public class MsSqlTests : SqlTestBase<SqlMsSql>
 {
-    protected override IDbConnection CreateConnection()
-    {
-        return new SqlConnection(Config.Sql_MsSql_ConnectionString);
-    }
+    protected override IDbConnection CreateConnection() => new SqlConnection(Config.Sql_MsSql_ConnectionString);
 
     public MsSqlTests(ITestOutputHelper output) : base(output) { }
 
@@ -74,10 +68,7 @@ public class MsSqlTests : SqlTestBase<SqlMsSql>
 
 public class MySqlTests : SqlTestBase<SqlMySql>
 {
-    protected override IDbConnection CreateConnection()
-    {
-        return new MySqlConnection(Config.Sql_MySql_ConnectionString);
-    }
+    protected override IDbConnection CreateConnection() => new MySqlConnection(Config.Sql_MySql_ConnectionString);
 
     public MySqlTests(ITestOutputHelper output) : base(output) { }
 
@@ -90,10 +81,7 @@ public class MySqlTests : SqlTestBase<SqlMySql>
 
 public class OracleTests : SqlTestBase<SqlOracle>
 {
-    protected override IDbConnection CreateConnection()
-    {
-        return new OracleConnection(Config.Sql_Oracle_ConnectionString);
-    }
+    protected override IDbConnection CreateConnection() => new OracleConnection(Config.Sql_Oracle_ConnectionString);
 
     public OracleTests(ITestOutputHelper output) : base(output) { }
 

@@ -30,10 +30,7 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
         get
         {
             var path = PathFull.ToList();
-            if (path.IsEmpty())
-            {
-                return path;
-            }
+            if (path.IsEmpty()) return path;
 
             path.PopTail();
             return path;
@@ -45,10 +42,7 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
         get
         {
             var path = PathFull.ToList();
-            if (path.IsEmpty())
-            {
-                return null;
-            }
+            if (path.IsEmpty()) return null;
 
             return path.PopTail();
         }
@@ -58,10 +52,7 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
     {
         get
         {
-            if (PathFull.IsEmpty())
-            {
-                return null;
-            }
+            if (PathFull.IsEmpty()) return null;
 
             return new WindowsTaskSchedulerPath(Path);
         }
@@ -69,63 +60,33 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
 
     public WindowsTaskSchedulerPath(Task task) : this(task.Folder.Path + "/" + task.Name) { }
 
-    public WindowsTaskSchedulerPath(IEnumerable<string> pathParts)
-    {
-        PathFull = pathParts.ToList();
-    }
+    public WindowsTaskSchedulerPath(IEnumerable<string> pathParts) { PathFull = pathParts.ToList(); }
 
     public WindowsTaskSchedulerPath(TaskFolder folder) : this(folder.Path) { }
     public WindowsTaskSchedulerPath(string path) : this(Util.PathParse(path ?? string.Empty, pathParseCharacters).TrimOrNull().WhereNotNull()) { }
 
-    public override string ToString()
-    {
-        return "/" + PathFull.ToStringDelimited("/");
-    }
+    public override string ToString() => "/" + PathFull.ToStringDelimited("/");
 
-    public bool Equals(WindowsTaskSchedulerPath other)
-    {
-        return CompareTo(other) == 0;
-    }
+    public bool Equals(WindowsTaskSchedulerPath other) => CompareTo(other) == 0;
 
     public int CompareTo(WindowsTaskSchedulerPath other)
     {
-        if (other == null)
-        {
-            return 1;
-        }
+        if (other == null) return 1;
 
         var p1 = PathFull;
         var p2 = other.PathFull;
-        if (ReferenceEquals(p1, p2))
-        {
-            return 0;
-        }
+        if (ReferenceEquals(p1, p2)) return 0;
 
-        if (p1 == null)
-        {
-            return -1;
-        }
+        if (p1 == null) return -1;
 
-        if (p2 == null)
-        {
-            return 1;
-        }
+        if (p2 == null) return 1;
 
         return Util.Compare(p1, p2, StringComparer.OrdinalIgnoreCase);
     }
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as WindowsTaskSchedulerPath);
-    }
+    public override bool Equals(object obj) => Equals(obj as WindowsTaskSchedulerPath);
 
-    public override int GetHashCode()
-    {
-        return Util.GenerateHashCode(PathFull.Select(o => o.ToUpper()));
-    }
+    public override int GetHashCode() => Util.GenerateHashCode(PathFull.Select(o => o.ToUpper()));
 
-    public WindowsTaskSchedulerPath Add(string name)
-    {
-        return new WindowsTaskSchedulerPath(PathFull.ToArray().Add(name));
-    }
+    public WindowsTaskSchedulerPath Add(string name) => new(PathFull.ToArray().Add(name));
 }

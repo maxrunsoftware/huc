@@ -26,8 +26,5 @@ public class WebServerUtilityGenerateRandomFile : WebServerUtilityBase
         return "Generated Random File";
     }
 
-    public override string HandleHtml()
-    {
-        return Handle();
-    }
+    public override string HandleHtml() => Handle();
 }

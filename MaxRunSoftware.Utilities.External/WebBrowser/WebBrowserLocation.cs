@@ -33,14 +33,8 @@ public class WebBrowserLocation
     {
         get
         {
-            try
-            {
-                return File.Exists(BrowserExecutable);
-            }
-            catch (Exception e)
-            {
-                log.Debug("Error on File.Exists(" + BrowserExecutable + ")", e);
-            }
+            try { return File.Exists(BrowserExecutable); }
+            catch (Exception e) { log.Debug("Error on File.Exists(" + BrowserExecutable + ")", e); }
 
             return false;
         }
@@ -53,31 +47,17 @@ public class WebBrowserLocation
         {
             var name = Path.GetFileName(BrowserExecutable)!.ToLower();
             if (name.ContainsAny("chrome"))
-            {
                 browserType = WebBrowserType.Chrome;
-            }
             else if (name.ContainsAny("edge"))
-            {
                 browserType = WebBrowserType.Edge;
-            }
             else if (name.ContainsAny("firefox"))
-            {
                 browserType = WebBrowserType.Firefox;
-            }
             else if (name.ContainsAny("opera"))
-            {
                 browserType = WebBrowserType.Opera;
-            }
-            else if (name.ContainsAny("explorer", "ie", "iexplore"))
-            {
-                browserType = WebBrowserType.InternetExplorer;
-            }
+            else if (name.ContainsAny("explorer", "ie", "iexplore")) browserType = WebBrowserType.InternetExplorer;
         }
 
-        if (browserType == null)
-        {
-            throw new Exception("Could not determine browser type from executable " + BrowserExecutable);
-        }
+        if (browserType == null) throw new Exception("Could not determine browser type from executable " + BrowserExecutable);
 
         BrowserType = browserType.Value;
 
@@ -85,13 +65,8 @@ public class WebBrowserLocation
         if (isBrowser64Bit == null)
         {
             if (BrowserOS == OSPlatform.Windows && BrowserExecutable!.ToLower().Contains("\\program files\\"))
-            {
                 isBrowser64Bit = true;
-            }
-            else if (BrowserOS == OSPlatform.Windows && BrowserExecutable!.ToLower().Contains("\\program files (x86)\\"))
-            {
-                isBrowser64Bit = false;
-            }
+            else if (BrowserOS == OSPlatform.Windows && BrowserExecutable!.ToLower().Contains("\\program files (x86)\\")) isBrowser64Bit = false;
         }
 
         IsBrowser64Bit = isBrowser64Bit ?? Constant.OS_X64;
@@ -118,20 +93,11 @@ public class WebBrowserLocation
     {
         foreach (var loc in DefaultLocations)
         {
-            if (loc.BrowserOS != Constant.OS)
-            {
-                continue;
-            }
+            if (loc.BrowserOS != Constant.OS) continue;
 
-            if (browserType != null && loc.BrowserType != browserType.Value)
-            {
-                continue;
-            }
+            if (browserType != null && loc.BrowserType != browserType.Value) continue;
 
-            if (!loc.IsExist)
-            {
-                continue;
-            }
+            if (!loc.IsExist) continue;
 
             return loc;
         }
@@ -145,8 +111,5 @@ public class WebBrowserLocation
         return new WebBrowserLocation(BrowserExecutable, BrowserType, BrowserOS, isBrowser64Bit);
     }
 
-    public override string ToString()
-    {
-        return this.ToStringGenerated();
-    }
+    public override string ToString() => this.ToStringGenerated();
 }

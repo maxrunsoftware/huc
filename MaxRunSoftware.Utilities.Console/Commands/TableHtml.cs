@@ -39,17 +39,11 @@ public class TableHtml : TableBase
     private string ReadFileContent(string fileName)
     {
         fileName = fileName.TrimOrNull();
-        if (fileName == null)
-        {
-            return null;
-        }
+        if (fileName == null) return null;
 
         var files = ParseInputFiles(fileName.Yield());
         var content = new StringBuilder();
-        foreach (var file in files)
-        {
-            content.AppendLine(ReadFile(file));
-        }
+        foreach (var file in files) content.AppendLine(ReadFile(file));
 
         var s = content.ToString().TrimOrNull();
         return s;
@@ -73,18 +67,12 @@ public class TableHtml : TableBase
         noCSS = GetArgParameterOrConfigBool(nameof(noCSS), "nc", false);
         cssFile = GetArgParameterOrConfig(nameof(cssFile), "css");
         css = ReadFileContent(cssFile);
-        if (css == null && !noCSS)
-        {
-            css = HtmlWriter.CSS_TABLE;
-        }
+        if (css == null && !noCSS) css = HtmlWriter.CSS_TABLE;
 
         noJavascript = GetArgParameterOrConfigBool(nameof(noJavascript), "nj", false);
         javascriptFile = GetArgParameterOrConfig(nameof(javascriptFile), "js");
         js = ReadFileContent(javascriptFile);
-        if (js == null && !noJavascript)
-        {
-            js = HtmlWriter.JS_TABLE;
-        }
+        if (js == null && !noJavascript) js = HtmlWriter.JS_TABLE;
 
         base.ExecuteInternal();
     }

@@ -37,10 +37,7 @@ public class BucketCacheThreadSafe<TKey, TValue> : IBucketReadOnly<TKey, TValue>
     {
         get
         {
-            lock (locker)
-            {
-                return dictionary.Keys;
-            }
+            lock (locker) { return dictionary.Keys; }
         }
     }
 
@@ -63,9 +60,6 @@ public class BucketCacheThreadSafe<TKey, TValue> : IBucketReadOnly<TKey, TValue>
 
     public void Clear()
     {
-        lock (locker)
-        {
-            dictionary.Clear();
-        }
+        lock (locker) { dictionary.Clear(); }
     }
 }

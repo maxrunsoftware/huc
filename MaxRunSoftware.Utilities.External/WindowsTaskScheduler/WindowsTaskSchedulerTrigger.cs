@@ -44,68 +44,35 @@ public class WindowsTaskSchedulerTrigger
 
     private static void CheckTime(int hour, int minute, int second)
     {
-        if (hour < 0 || hour > 23)
-        {
-            throw new ArgumentOutOfRangeException(nameof(hour), hour, $"Argument [{nameof(hour)}] must be between 0 - 23");
-        }
+        if (hour < 0 || hour > 23) throw new ArgumentOutOfRangeException(nameof(hour), hour, $"Argument [{nameof(hour)}] must be between 0 - 23");
 
-        if (minute < 0 || minute > 59)
-        {
-            throw new ArgumentOutOfRangeException(nameof(minute), minute, $"Argument [{nameof(minute)}] must be between 0 - 59");
-        }
+        if (minute < 0 || minute > 59) throw new ArgumentOutOfRangeException(nameof(minute), minute, $"Argument [{nameof(minute)}] must be between 0 - 59");
 
-        if (second < 0 || second > 59)
-        {
-            throw new ArgumentOutOfRangeException(nameof(second), second, $"Argument [{nameof(second)}] must be between 0 - 59");
-        }
+        if (second < 0 || second > 59) throw new ArgumentOutOfRangeException(nameof(second), second, $"Argument [{nameof(second)}] must be between 0 - 59");
     }
 
     private static Directive ParseDirective(string directive)
     {
-        if (directive.EqualsCaseInsensitive("SUN"))
-        {
-            directive = Directive.Sunday.ToString();
-        }
+        if (directive.EqualsCaseInsensitive("SUN")) directive = Directive.Sunday.ToString();
 
-        if (directive.EqualsCaseInsensitive("MON"))
-        {
-            directive = Directive.Monday.ToString();
-        }
+        if (directive.EqualsCaseInsensitive("MON")) directive = Directive.Monday.ToString();
 
-        if (directive.EqualsCaseInsensitive("TUE"))
-        {
-            directive = Directive.Tuesday.ToString();
-        }
+        if (directive.EqualsCaseInsensitive("TUE")) directive = Directive.Tuesday.ToString();
 
-        if (directive.EqualsCaseInsensitive("WED"))
-        {
-            directive = Directive.Wednesday.ToString();
-        }
+        if (directive.EqualsCaseInsensitive("WED")) directive = Directive.Wednesday.ToString();
 
-        if (directive.EqualsCaseInsensitive("THU"))
-        {
-            directive = Directive.Thursday.ToString();
-        }
+        if (directive.EqualsCaseInsensitive("THU")) directive = Directive.Thursday.ToString();
 
-        if (directive.EqualsCaseInsensitive("FRI"))
-        {
-            directive = Directive.Friday.ToString();
-        }
+        if (directive.EqualsCaseInsensitive("FRI")) directive = Directive.Friday.ToString();
 
-        if (directive.EqualsCaseInsensitive("SAT"))
-        {
-            directive = Directive.Saturday.ToString();
-        }
+        if (directive.EqualsCaseInsensitive("SAT")) directive = Directive.Saturday.ToString();
 
         return Util.GetEnumItem<Directive>(directive);
     }
 
     public static IEnumerable<Trigger> CreateTriggers(string line, string logPrefix = null)
     {
-        if (logPrefix != null)
-        {
-            logPrefix += " ";
-        }
+        if (logPrefix != null) logPrefix += " ";
 
         logPrefix ??= string.Empty;
 
@@ -113,16 +80,10 @@ public class WindowsTaskSchedulerTrigger
         var triggerPartsQueue = new Queue<string>();
         triggerParts.ForEach(triggerPartsQueue.Enqueue);
 
-        if (triggerPartsQueue.IsEmpty())
-        {
-            throw new Exception("No trigger provided");
-        }
+        if (triggerPartsQueue.IsEmpty()) throw new Exception("No trigger provided");
 
         var directiveString = triggerPartsQueue.Dequeue().ToUpper();
-        if (triggerPartsQueue.IsEmpty())
-        {
-            throw new Exception("No trigger details provided for trigger " + directiveString);
-        }
+        if (triggerPartsQueue.IsEmpty()) throw new Exception("No trigger details provided for trigger " + directiveString);
 
         var directive = ParseDirective(directiveString);
 
@@ -185,15 +146,9 @@ public class WindowsTaskSchedulerTrigger
                 log.Debug($"{logPrefix}{directive} created for {dayOfMonth} {hour}:{minute} --> " + t);
             }
         }
-        else
-        {
-            throw new NotImplementedException($"Trigger type {directive} has not been implemented yet");
-        }
+        else { throw new NotImplementedException($"Trigger type {directive} has not been implemented yet"); }
 
-        for (var i = 0; i < triggers.Count; i++)
-        {
-            log.Debug($"Created trigger[{i}]: " + triggers[i]);
-        }
+        for (var i = 0; i < triggers.Count; i++) log.Debug($"Created trigger[{i}]: " + triggers[i]);
 
         return triggers;
     }
@@ -201,10 +156,7 @@ public class WindowsTaskSchedulerTrigger
     private static byte ParseTimeMM(string time, Directive directive)
     {
         time = ("00" + time).Right(2);
-        if (!time.ToByteTry(out var minute))
-        {
-            throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected MM");
-        }
+        if (!time.ToByteTry(out var minute)) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected MM");
 
         return minute;
     }
@@ -213,25 +165,13 @@ public class WindowsTaskSchedulerTrigger
     {
         log.Trace($"Parsing dayOfMonth, hours, and minutes from {time}");
         var timeparts = time.Split(':').TrimOrNull().WhereNotNull().ToArray();
-        if (timeparts.Length != 3)
-        {
-            throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected format dayOfMonth:HH:MM");
-        }
+        if (timeparts.Length != 3) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected format dayOfMonth:HH:MM");
 
-        if (!timeparts[0].ToByteTry(out var dayOfMonth))
-        {
-            throw new Exception($"Error creating {directive} triggers from value {time}. Invalid day of month format, expected format dayOfMonth:HH:MM");
-        }
+        if (!timeparts[0].ToByteTry(out var dayOfMonth)) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid day of month format, expected format dayOfMonth:HH:MM");
 
-        if (!timeparts[1].ToByteTry(out var hour))
-        {
-            throw new Exception($"Error creating {directive} triggers from value {time}. Invalid hour format, expected format dayOfMonth:HH:MM");
-        }
+        if (!timeparts[1].ToByteTry(out var hour)) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid hour format, expected format dayOfMonth:HH:MM");
 
-        if (!timeparts[2].ToByteTry(out var minute))
-        {
-            throw new Exception($"Error creating {directive} triggers from value {time}. Invalid minute format, expected format dayOfMonth:HH:MM");
-        }
+        if (!timeparts[2].ToByteTry(out var minute)) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid minute format, expected format dayOfMonth:HH:MM");
 
         log.Trace($"Parsed {dayOfMonth} day of month, {hour} hour, and {minute} minute from {time}");
         return (dayOfMonth, hour, minute);
@@ -241,15 +181,9 @@ public class WindowsTaskSchedulerTrigger
     {
         log.Trace($"Parsing hours and minutes from {time}");
         var timeparts = time.Split(':').TrimOrNull().WhereNotNull().ToArray();
-        if (timeparts.Length < 2)
-        {
-            throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected HH:MM. Expected : character in time {time}");
-        }
+        if (timeparts.Length < 2) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected HH:MM. Expected : character in time {time}");
 
-        if (timeparts.Length > 2)
-        {
-            throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected HH:MM. Encountered multiple : characters in time {time} but only 1 is allowed separating hours and minutes");
-        }
+        if (timeparts.Length > 2) throw new Exception($"Error creating {directive} triggers from value {time}. Invalid time format, expected HH:MM. Encountered multiple : characters in time {time} but only 1 is allowed separating hours and minutes");
 
         var hours = timeparts[0].ToByte();
         var mins = timeparts[1].ToByte();
@@ -277,10 +211,7 @@ public class WindowsTaskSchedulerTrigger
         var nowHour = now.AddMinutes(now.Minute * -1).AddSeconds(now.Second * -1).AddMilliseconds(now.Millisecond * -1);
 
         // if it is 6:45 right now but our nowHour (6:00) + interval (22) has already passed then add an hour (7:00)
-        if (now > nowHour + interval)
-        {
-            nowHour = nowHour.AddHours(1);
-        }
+        if (now > nowHour + interval) nowHour = nowHour.AddHours(1);
 
         var trigger = new TimeTrigger();
         trigger.StartBoundary = nowHour;
@@ -313,8 +244,5 @@ public class WindowsTaskSchedulerTrigger
         return t;
     }
 
-    public static IEnumerable<Trigger> CreateTriggerCron(string cron)
-    {
-        return Trigger.FromCronFormat(cron);
-    }
+    public static IEnumerable<Trigger> CreateTriggerCron(string cron) => Trigger.FromCronFormat(cron);
 }

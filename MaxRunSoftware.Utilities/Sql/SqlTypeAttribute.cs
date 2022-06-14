@@ -23,8 +23,5 @@ public class SqlTypeAttribute : Attribute
     public string SqlTypeNames { get; set; }
     public object ActualSqlType { get; set; }
 
-    public SqlTypeAttribute(DbType dbType)
-    {
-        DbType = dbType;
-    }
+    public SqlTypeAttribute(DbType dbType) { DbType = dbType; }
 }

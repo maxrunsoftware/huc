@@ -47,10 +47,7 @@ public class Args
         {
             var arg = list.Dequeue();
             var argTrimmed = arg.TrimOrNull();
-            if (argTrimmed == null)
-            {
-                continue;
-            }
+            if (argTrimmed == null) continue;
 
             if (argTrimmed.StartsWith("-"))
             {
@@ -66,53 +63,32 @@ public class Args
                     break;
                 }
 
-                if (arg.TrimOrNull() == null)
-                {
-                    continue; // nothing left
-                }
+                if (arg.TrimOrNull() == null) continue; // nothing left
 
-                if (arg.IndexOf("=", StringComparison.Ordinal) == 0)
-                {
-                    continue; // no key supplied
-                }
+                if (arg.IndexOf("=", StringComparison.Ordinal) == 0) continue; // no key supplied
 
                 if (arg.IndexOf("=", StringComparison.Ordinal) > 0)
                 {
                     var parts = arg.Split('=', 2);
                     var key = parts[0].TrimOrNull();
                     var val = parts[1];
-                    if (key == null)
-                    {
-                        continue; // no key supplied
-                    }
+                    if (key == null) continue; // no key supplied
 
-                    if (val.TrimOrNull() == null)
-                    {
-                        continue; // no value supplied
-                    }
+                    if (val.TrimOrNull() == null) continue; // no value supplied
 
                     d[key] = val;
                 }
 
-                if (arg.IndexOf("=", StringComparison.Ordinal) < 0)
-                {
-                    d[arg] = "true";
-                }
+                if (arg.IndexOf("=", StringComparison.Ordinal) < 0) d[arg] = "true";
             }
             else
             {
                 if (arg.EqualsCaseInsensitive("HELP"))
-                {
                     IsHelp = true;
-                }
                 else if (Command == null)
-                {
                     Command = arg;
-                }
                 else
-                {
                     values.Add(arg);
-                }
             }
         }
 
@@ -121,10 +97,7 @@ public class Args
         // ReSharper disable StringLiteralTypo
         IsNoBanner = d.Remove("NOBANNER");
         IsShowHidden = d.Remove("SHOWHIDDEN");
-        if (!IsHelp)
-        {
-            IsHelp = d.Remove("HELP");
-        }
+        if (!IsHelp) IsHelp = d.Remove("HELP");
 
         IsVersion = d.Remove("VERSION");
         IsExpandFileArgs = d.Remove("EXPANDFILEARGS");
@@ -134,10 +107,7 @@ public class Args
         if (IsExpandFileArgs)
         {
             values = values.Select(ParseParameterFile).ToList();
-            foreach (var key in d.Keys.ToArray())
-            {
-                d[key] = ParseParameterFile(d[key]);
-            }
+            foreach (var key in d.Keys.ToArray()) d[key] = ParseParameterFile(d[key]);
         }
 
         Values = values;
@@ -146,20 +116,11 @@ public class Args
 
     private string ParseParameterFile(string str)
     {
-        if (str == null)
-        {
-            return null;
-        }
+        if (str == null) return null;
 
-        if (!str.Contains("F{"))
-        {
-            return str;
-        }
+        if (!str.Contains("F{")) return str;
 
-        if (!str.Contains("}"))
-        {
-            return str;
-        }
+        if (!str.Contains("}")) return str;
 
         var stack = new Stack<StringBuilder>();
         stack.Push(new StringBuilder());
@@ -177,25 +138,16 @@ public class Args
                 var filename = stack.Pop().ToString().TrimOrNull();
                 if (filename != null)
                 {
-                    if (!File.Exists(filename))
-                    {
-                        throw new FileNotFoundException("File not found " + filename, filename);
-                    }
+                    if (!File.Exists(filename)) throw new FileNotFoundException("File not found " + filename, filename);
 
                     var fileData = Util.FileRead(filename, Constant.ENCODING_UTF8);
-                    if (!IsExpandFileArgsNoTrim)
-                    {
-                        fileData = fileData.TrimOrNull();
-                    }
+                    if (!IsExpandFileArgsNoTrim) fileData = fileData.TrimOrNull();
 
                     fileData = fileData ?? "";
                     stack.Peek().Append(fileData);
                 }
             }
-            else
-            {
-                stack.Peek().Append(c);
-            }
+            else { stack.Peek().Append(c); }
         }
 
         return stack.ToListReversed().Select(o => o.ToString()).ToStringDelimited("");
@@ -205,15 +157,9 @@ public class Args
     {
         var sb = new StringBuilder();
         sb.AppendLine("Args [ Command=" + Command);
-        foreach (var kvp in Parameters)
-        {
-            sb.AppendLine("  " + kvp.Key + "=" + kvp.Value);
-        }
+        foreach (var kvp in Parameters) sb.AppendLine("  " + kvp.Key + "=" + kvp.Value);
 
-        for (var i = 0; i < Values.Count; i++)
-        {
-            sb.AppendLine("  [" + (i + 1) + "] " + Values[i]);
-        }
+        for (var i = 0; i < Values.Count; i++) sb.AppendLine("  [" + (i + 1) + "] " + Values[i]);
 
         sb.AppendLine("]");
 
@@ -226,12 +172,8 @@ public class Args
         foreach (var key in keys.OrEmpty().TrimOrNull().WhereNotNull())
         {
             if (Parameters.TryGetValue(key, out var v))
-            {
                 if (v != null)
-                {
                     return v;
-                }
-            }
         }
 
         return null;
@@ -242,8 +184,5 @@ public class ArgsException : Exception
 {
     public ArgsException(string argName, string message) : base(argName + ": " + message) { }
 
-    public static ArgsException ValueNotSpecified(string argName)
-    {
-        return new(argName, "Arg <" + argName + "> not specified");
-    }
+    public static ArgsException ValueNotSpecified(string argName) => new(argName, "Arg <" + argName + "> not specified");
 }

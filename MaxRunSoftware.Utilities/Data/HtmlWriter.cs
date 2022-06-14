@@ -65,15 +65,9 @@ tr:hover {background-color: #ddd;}
     private readonly List<string> cssItems = new();
     private readonly StringBuilder body = new();
 
-    public void Javascript(string javascript)
-    {
-        javascriptItems.Add(javascript);
-    }
+    public void Javascript(string javascript) => javascriptItems.Add(javascript);
 
-    public void CSS(string css)
-    {
-        cssItems.Add(css);
-    }
+    public void CSS(string css) => cssItems.Add(css);
 
     public void Table(Table table)
     {
@@ -81,10 +75,7 @@ tr:hover {background-color: #ddd;}
         s.AppendLine("<table>");
         s.AppendLine("<thead>");
         s.Append("<tr>");
-        foreach (var c in table.Columns)
-        {
-            s.Append("<th>" + c.Name + "</th>");
-        }
+        foreach (var c in table.Columns) s.Append("<th>" + c.Name + "</th>");
 
         s.AppendLine("</tr>");
         s.AppendLine("</thead>");
@@ -92,10 +83,7 @@ tr:hover {background-color: #ddd;}
         foreach (var r in table)
         {
             s.Append("<tr>");
-            foreach (var cell in r)
-            {
-                s.Append("<td>" + cell + "</td>");
-            }
+            foreach (var cell in r) s.Append("<td>" + cell + "</td>");
 
             s.AppendLine("</tr>");
         }
@@ -108,20 +96,14 @@ tr:hover {background-color: #ddd;}
 
     public void Br(int count = 1)
     {
-        for (var i = 0; i < count; i++)
-        {
-            body.AppendLine("<br>");
-        }
+        for (var i = 0; i < count; i++) body.AppendLine("<br>");
     }
 
     private class AttributeBuilder
     {
         private readonly string name;
 
-        public AttributeBuilder(string name)
-        {
-            this.name = name;
-        }
+        public AttributeBuilder(string name) { this.name = name; }
 
         private readonly List<(string name, string value)> attributes = new();
 
@@ -151,30 +133,18 @@ tr:hover {background-color: #ddd;}
         }
     }
 
-    private AttributeBuilder Element(string name)
-    {
-        return new AttributeBuilder(name);
-    }
+    private AttributeBuilder Element(string name) => new(name);
 
-    private AttributeBuilder Element(string name, string id)
-    {
-        return Element(name).Add("id", id).Add("name", id);
-    }
+    private AttributeBuilder Element(string name, string id) => Element(name).Add("id", id).Add("name", id);
 
     public void InputText(string id, string label = null, int size = 0, string value = null)
     {
         BodyLabel(id, label);
         var element = Element("input", id);
         element.Add("type", "text");
-        if (size > 0)
-        {
-            element.Add("size", size);
-        }
+        if (size > 0) element.Add("size", size);
 
-        if (value != null)
-        {
-            element.Add("value", value);
-        }
+        if (value != null) element.Add("value", value);
 
         Body(element);
     }
@@ -183,25 +153,16 @@ tr:hover {background-color: #ddd;}
     {
         BodyLabel(id, label);
         var element = Element("input", id).Add("type", "password");
-        if (size > 0)
-        {
-            element.Add("size", size);
-        }
+        if (size > 0) element.Add("size", size);
 
         Body(element);
     }
 
     public void BodyLabel(string forId, string labelText)
     {
-        if (forId == null)
-        {
-            return;
-        }
+        if (forId == null) return;
 
-        if (labelText == null)
-        {
-            return;
-        }
+        if (labelText == null) return;
 
         Body(Element("label").Add("for", forId) + labelText + "</label>");
     }
@@ -210,44 +171,26 @@ tr:hover {background-color: #ddd;}
     {
         BodyLabel(id, label);
         Body(Element("select", id));
-        foreach (var enumItem in Util.GetEnumItems<TEnum>())
-        {
-            Body(Element("option").Add("value", enumItem).ToString() + enumItem + "</option>");
-        }
+        foreach (var enumItem in Util.GetEnumItems<TEnum>()) Body(Element("option").Add("value", enumItem).ToString() + enumItem + "</option>");
 
         Body("</select>");
     }
 
-    public void InputSubmit(string value)
-    {
-        Body(Element("input").Add("type", "submit").Add("value", value));
-    }
+    public void InputSubmit(string value) => Body(Element("input").Add("type", "submit").Add("value", value));
 
-    public void InputFile(string id)
-    {
-        Body(Element("input", id).Add("type", "file"));
-    }
+    public void InputFile(string id) => Body(Element("input", id).Add("type", "file"));
 
     public void Form(string action = null)
     {
         var element = Element("form");
-        if (action != null)
-        {
-            element.Add("action", action);
-        }
+        if (action != null) element.Add("action", action);
 
         Body(element);
     }
 
-    public void FormEnd()
-    {
-        Body("</form>");
-    }
+    public void FormEnd() => Body("</form>");
 
-    public void P()
-    {
-        Body("<p>");
-    }
+    public void P() => Body("<p>");
 
     public void P(string text)
     {
@@ -256,58 +199,34 @@ tr:hover {background-color: #ddd;}
         PEnd();
     }
 
-    public void PEnd()
-    {
-        Body("</p>");
-    }
+    public void PEnd() => Body("</p>");
 
     public void TextArea(string id, int rows = 0, int cols = 0, string text = null)
     {
         var element = Element("textarea", id);
-        if (rows > 0)
-        {
-            element.Add("rows", rows);
-        }
+        if (rows > 0) element.Add("rows", rows);
 
-        if (cols > 0)
-        {
-            element.Add("cols", cols);
-        }
+        if (cols > 0) element.Add("cols", cols);
 
         Body(element);
         Body(text);
         Body("</textarea>");
     }
 
-    public void Body(object text)
-    {
-        Body(text?.ToString());
-    }
+    public void Body(object text) => Body(text?.ToString());
 
     public void Body(string text)
     {
-        if (text == null)
-        {
-            return;
-        }
+        if (text == null) return;
 
-        if (text.Length == 0)
-        {
-            return;
-        }
+        if (text.Length == 0) return;
 
         body.AppendLine(text);
     }
 
-    public void H1(string text)
-    {
-        Body("<h1>" + text + "</h1>");
-    }
+    public void H1(string text) => Body("<h1>" + text + "</h1>");
 
-    public void Pre(string text)
-    {
-        Body("<pre>" + text + "</pre>");
-    }
+    public void Pre(string text) => Body("<pre>" + text + "</pre>");
 
     public void Exception(Exception e)
     {

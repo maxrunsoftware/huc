@@ -50,26 +50,15 @@ public class FtpGet : FtpBase
         {
             var dir = dirs.Dequeue();
             var objects = ftp.ListFiles(dir.FullName).ToList();
-            foreach (var d in objects.Where(o => o.Type == FtpClientFileType.Directory))
-            {
-                dirs.Enqueue(d);
-            }
+            foreach (var d in objects.Where(o => o.Type == FtpClientFileType.Directory)) dirs.Enqueue(d);
 
             foreach (var f in objects.Where(o => o.Type == FtpClientFileType.File))
-            {
                 if (string.Equals(f.Name, fileName))
-                {
                     return f;
-                }
-            }
 
             foreach (var f in objects.Where(o => o.Type == FtpClientFileType.File))
-            {
                 if (string.Equals(f.Name, fileName, StringComparison.OrdinalIgnoreCase))
-                {
                     return f;
-                }
-            }
         }
 
         return null;
@@ -80,10 +69,7 @@ public class FtpGet : FtpBase
         base.ExecuteInternal();
 
         var remoteFiles = GetArgValuesTrimmed();
-        if (remoteFiles.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(remoteFiles));
-        }
+        if (remoteFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(remoteFiles));
 
         log.Debug(remoteFiles, nameof(remoteFiles));
 
@@ -94,10 +80,7 @@ public class FtpGet : FtpBase
         using (var c = OpenClient())
         {
             var queue = new Queue<string>();
-            foreach (var rfp in remoteFiles)
-            {
-                queue.Enqueue(rfp);
-            }
+            foreach (var rfp in remoteFiles) queue.Enqueue(rfp);
 
             while (queue.Count > 0)
             {
@@ -109,10 +92,7 @@ public class FtpGet : FtpBase
                     var remoteFileDirectoryParts = remoteFilePath.Split('/', '\\').ToList();
                     remoteFileDirectoryParts.PopTail();
                     var remoteFileDirectory = remoteFileDirectoryParts.ToStringDelimited("/");
-                    if (remoteFileDirectory.TrimOrNull() == null)
-                    {
-                        remoteFileDirectory = ".";
-                    }
+                    if (remoteFileDirectory.TrimOrNull() == null) remoteFileDirectory = ".";
 
                     log.Debug($"Found wildcard '{remoteFileName}' searching directory '{remoteFileDirectory}'");
                     var remoteFileDirectoryFiles = c.ListFiles(remoteFileDirectory).Where(o => o.Type == FtpClientFileType.File).ToList();
@@ -136,10 +116,8 @@ public class FtpGet : FtpBase
                 {
                     var file = FindFile(c, remoteFileName);
                     if (file != null)
-                    {
                         remoteFilePath = file.FullName;
-                        //remoteFileName = file.Name;
-                    }
+                    //remoteFileName = file.Name;
                 }
 
                 log.Debug($"Downloading file {remoteFilePath} to {localFilePath}");
@@ -151,10 +129,7 @@ public class FtpGet : FtpBase
                         c.GetFile(remoteFilePath, localFilePath);
                         log.Info(remoteFilePath + "  -->  " + localFilePath);
                     }
-                    catch (Exception e)
-                    {
-                        log.Warn($"ERROR downloading file {remoteFilePath} to {localFilePath}", e);
-                    }
+                    catch (Exception e) { log.Warn($"ERROR downloading file {remoteFilePath} to {localFilePath}", e); }
                 }
                 else
                 {

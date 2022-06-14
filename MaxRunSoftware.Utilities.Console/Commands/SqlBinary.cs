@@ -45,10 +45,7 @@ public class SqlBinary : SqlQueryBase
             }
 
             var fileDataIndex = dataReader.GetNameIndex("FileData");
-            if (fileDataIndex < 0)
-            {
-                throw new Exception("Column [FileData] not specified in result set " + numResultSet);
-            }
+            if (fileDataIndex < 0) throw new Exception("Column [FileData] not specified in result set " + numResultSet);
 
             var fieldCount = dataReader.FieldCount;
             var numRow = 0;
@@ -95,16 +92,12 @@ public class SqlBinary : SqlQueryBase
 
         var sql = GetSql();
 
-        if (serverType.NotIn(SqlServerType.MsSql))
-        {
-            throw new Exception("SQL server type [" + serverType + "] is currently unsupported");
-        }
+        if (serverType.NotIn(SqlServerType.MsSql)) throw new Exception("SQL server type [" + serverType + "] is currently unsupported");
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
         if (serverType == SqlServerType.MsSql)
-        {
             using (var connection = CreateConnectionMsSql())
             {
                 connection.Open();
@@ -115,13 +108,9 @@ public class SqlBinary : SqlQueryBase
                     command.CommandText = sql;
                     log.Trace($"ExecuteQuery: {sql}");
 
-                    using (var dataReader = command.ExecuteReader())
-                    {
-                        ProcessResults(dataReader);
-                    }
+                    using (var dataReader = command.ExecuteReader()) { ProcessResults(dataReader); }
                 }
             }
-        }
 
         stopwatch.Stop();
         var stopwatchTime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);

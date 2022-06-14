@@ -52,10 +52,7 @@ public class WebServerBucketStore : WebServerBase
         if (context.HasParameter("value"))
         {
             // store value
-            if (name != null && key != null)
-            {
-                store[name][key] = value;
-            }
+            if (name != null && key != null) store[name][key] = value;
 
             using (var w = new JsonWriter(true))
             {
@@ -70,38 +67,32 @@ public class WebServerBucketStore : WebServerBase
         }
 
         if (name == null)
-        {
             // show all buckets
             /*
-            {
-                "bucketsNames":
-                [
-                    "store1",
-                    "store2"
-                ]
-            }
-            */
+                {
+                    "bucketsNames":
+                    [
+                        "store1",
+                        "store2"
+                    ]
+                }
+                */
             using (var w = new JsonWriter(true))
             {
-                using (w.Object())
-                {
-                    w.Array("bucketNames", store.Buckets.ToArray());
-                }
+                using (w.Object()) { w.Array("bucketNames", store.Buckets.ToArray()); }
 
                 return w.ToString();
             }
-        }
 
         var bucket = store[name];
         if (key != null)
-        {
             // return value
             /*
-            {   
-                key="a98"
-                value="dfa"
-            }
-            */
+                {   
+                    key="a98"
+                    value="dfa"
+                }
+                */
             using (var w = new JsonWriter(true))
             {
                 using (w.Object())
@@ -112,7 +103,6 @@ public class WebServerBucketStore : WebServerBase
 
                 return w.ToString();
             }
-        }
 
 
         // return name+key value

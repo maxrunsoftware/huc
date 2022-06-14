@@ -40,25 +40,16 @@ public abstract class ConvertBase : Command
         var inputFile = GetArgValueTrimmed(0);
         log.DebugParameter(nameof(inputFile), inputFile);
         inputFile = ParseInputFile(inputFile);
-        if (!File.Exists(inputFile))
-        {
-            throw new FileNotFoundException($"{nameof(inputFile)} {inputFile} does not exist");
-        }
+        if (!File.Exists(inputFile)) throw new FileNotFoundException($"{nameof(inputFile)} {inputFile} does not exist");
 
         log.DebugParameter(nameof(inputFile), inputFile);
 
         var outputFile = GetArgValueTrimmed(1);
         log.DebugParameter(nameof(outputFile), outputFile);
-        if (outputFile == null)
-        {
-            throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
-        }
+        if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
 
         outputFile = Path.GetFullPath(outputFile);
-        if (inputFile.EqualsCaseInsensitive(outputFile))
-        {
-            throw new ArgsException(nameof(outputFile), $"{nameof(outputFile)} cannot be the same as {nameof(inputFile)}");
-        }
+        if (inputFile.EqualsCaseInsensitive(outputFile)) throw new ArgsException(nameof(outputFile), $"{nameof(outputFile)} cannot be the same as {nameof(inputFile)}");
 
         log.DebugParameter(nameof(outputFile), outputFile);
         DeleteExistingFile(outputFile);
@@ -97,10 +88,7 @@ public abstract class ConvertTextToBinary : ConvertBase
     {
         using (var writer = new BinaryWriter(outputStream))
         {
-            using (var reader = new StreamReader(inputStream, encoding, false, bufferSizeMegabytes))
-            {
-                reader.Read(o => writer.Write(Convert(new string(o))));
-            }
+            using (var reader = new StreamReader(inputStream, encoding, false, bufferSizeMegabytes)) { reader.Read(o => writer.Write(Convert(new string(o)))); }
 
             writer.FlushSafe();
         }
@@ -113,58 +101,40 @@ public class ConvertBinaryToBase16 : ConvertBinaryToText
 {
     protected override string Summary => "Converts binary file to base 16 file";
 
-    protected override string Convert(byte[] bytes)
-    {
-        return Util.Base16(bytes);
-    }
+    protected override string Convert(byte[] bytes) => Util.Base16(bytes);
 }
 
 public class ConvertBinaryToBase64 : ConvertBinaryToText
 {
     protected override string Summary => "Converts binary file to base 64 file";
 
-    protected override string Convert(byte[] bytes)
-    {
-        return Util.Base64(bytes);
-    }
+    protected override string Convert(byte[] bytes) => Util.Base64(bytes);
 }
 
 public class ConvertBase16ToBinary : ConvertTextToBinary
 {
     protected override string Summary => "Converts base 16 file to binary file";
 
-    protected override byte[] Convert(string str)
-    {
-        return Util.Base16(str);
-    }
+    protected override byte[] Convert(string str) => Util.Base16(str);
 }
 
 public class ConvertBase16ToBase64 : ConvertTextToBinary
 {
     protected override string Summary => "Converts base 16 file to base 64 file";
 
-    protected override byte[] Convert(string str)
-    {
-        return Constant.ENCODING_UTF8.GetBytes(Util.Base64(Util.Base16(str)));
-    }
+    protected override byte[] Convert(string str) => Constant.ENCODING_UTF8.GetBytes(Util.Base64(Util.Base16(str)));
 }
 
 public class ConvertBase64ToBinary : ConvertTextToBinary
 {
     protected override string Summary => "Converts base 64 file to binary file";
 
-    protected override byte[] Convert(string str)
-    {
-        return Util.Base64(str);
-    }
+    protected override byte[] Convert(string str) => Util.Base64(str);
 }
 
 public class ConvertBase64ToBase16 : ConvertTextToBinary
 {
     protected override string Summary => "Converts base 64 file to base 16 file";
 
-    protected override byte[] Convert(string str)
-    {
-        return Constant.ENCODING_UTF8.GetBytes(Util.Base16(Util.Base64(str)));
-    }
+    protected override byte[] Convert(string str) => Constant.ENCODING_UTF8.GetBytes(Util.Base16(Util.Base64(str)));
 }

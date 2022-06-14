@@ -38,20 +38,14 @@ public abstract class VMwareBase : Command
         username = GetArgParameterOrConfig(nameof(username), "u");
         password = GetArgParameterOrConfig(nameof(password), "p");
 
-        using (var vmware = GetVMware())
-        {
-            ExecuteInternal(vmware);
-        }
+        using (var vmware = GetVMware()) { ExecuteInternal(vmware); }
     }
 
     protected abstract void ExecuteInternal(VMwareClient vmware);
 
     protected VMwareClient GetVMware()
     {
-        if (host == null)
-        {
-            throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-        }
+        if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
 
         return new VMwareClient(host, username, password);
     }

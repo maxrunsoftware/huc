@@ -26,30 +26,18 @@ public sealed class ClassReaderWriter
         Type = type.CheckNotNull(nameof(type));
 
         var list = new List<PropertyReaderWriter>();
-        foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            list.Add(new PropertyReaderWriter(propertyInfo, false));
-        }
+        foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Instance)) list.Add(new PropertyReaderWriter(propertyInfo, false));
 
-        foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy))
-        {
-            list.Add(new PropertyReaderWriter(propertyInfo, true));
-        }
+        foreach (var propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)) list.Add(new PropertyReaderWriter(propertyInfo, true));
         //list = list.Where(o => o.CanGet || o.CanSet).ToList();
 
         var d = new Dictionary<string, PropertyReaderWriter>();
-        foreach (var prop in list)
-        {
-            d.Add(prop.Name, prop);
-        }
+        foreach (var prop in list) d.Add(prop.Name, prop);
 
         Properties = new DictionaryReadOnlyStringCaseInsensitive<PropertyReaderWriter>(d);
     }
 
-    public static ClassReaderWriter Get(Type type)
-    {
-        return cache[type.CheckNotNull(nameof(type))];
-    }
+    public static ClassReaderWriter Get(Type type) => cache[type.CheckNotNull(nameof(type))];
 
     public static IEnumerable<PropertyReaderWriter> GetProperties(
         Type type,
@@ -62,40 +50,19 @@ public sealed class ClassReaderWriter
         var list = new List<PropertyReaderWriter>();
         foreach (var prop in Get(type).Properties.Values)
         {
-            if (canGet.HasValue && canGet == true && !prop.CanGet)
-            {
-                continue;
-            }
+            if (canGet.HasValue && canGet == true && !prop.CanGet) continue;
 
-            if (canGet.HasValue && canGet == false && prop.CanGet)
-            {
-                continue;
-            }
+            if (canGet.HasValue && canGet == false && prop.CanGet) continue;
 
-            if (canSet.HasValue && canSet == true && !prop.CanSet)
-            {
-                continue;
-            }
+            if (canSet.HasValue && canSet == true && !prop.CanSet) continue;
 
-            if (canSet.HasValue && canSet == false && prop.CanSet)
-            {
-                continue;
-            }
+            if (canSet.HasValue && canSet == false && prop.CanSet) continue;
 
-            if (!isStatic && !isInstance)
-            {
-                continue; // don't include anything? maybe throw exception because you probably forgot something
-            }
+            if (!isStatic && !isInstance) continue; // don't include anything? maybe throw exception because you probably forgot something
 
-            if (!isStatic && prop.IsStatic)
-            {
-                continue; // don't include static
-            }
+            if (!isStatic && prop.IsStatic) continue; // don't include static
 
-            if (isStatic && !isInstance && prop.IsInstance)
-            {
-                continue; // don't include instance
-            }
+            if (isStatic && !isInstance && prop.IsInstance) continue; // don't include instance
 
             //if (isStatic && isInstance) ; // include everything
 
@@ -114,20 +81,14 @@ public sealed class ClassReaderWriter
     )
     {
         var d = new Dictionary<string, PropertyReaderWriter>();
-        foreach (var prop in GetProperties(type, canGet, canSet, isStatic, isInstance))
-        {
-            d.Add(prop.Name, prop);
-        }
+        foreach (var prop in GetProperties(type, canGet, canSet, isStatic, isInstance)) d.Add(prop.Name, prop);
 
         return new DictionaryReadOnlyStringCaseInsensitive<PropertyReaderWriter>(d);
     }
 
     public static IEnumerable<KeyValuePair<string, object>> GetPropertiesValues(object source)
     {
-        foreach (var prop in GetProperties(source.GetType(), true, isInstance: true))
-        {
-            yield return KeyValuePair.Create(prop.Name, prop.GetValue(source));
-        }
+        foreach (var prop in GetProperties(source.GetType(), true, isInstance: true)) yield return KeyValuePair.Create(prop.Name, prop.GetValue(source));
     }
 
     public static void CopyProperties(object source, object target, bool ignoreMissingPropertiesOnTarget = false)
@@ -149,10 +110,7 @@ public sealed class ClassReaderWriter
             }
             else
             {
-                if (!ignoreMissingPropertiesOnTarget)
-                {
-                    throw new MissingMemberException(targetType.FullNameFormatted(), sourceProp.Name);
-                }
+                if (!ignoreMissingPropertiesOnTarget) throw new MissingMemberException(targetType.FullNameFormatted(), sourceProp.Name);
             }
         }
     }

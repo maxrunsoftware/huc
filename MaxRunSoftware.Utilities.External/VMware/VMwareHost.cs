@@ -48,46 +48,25 @@ public class VMwareHost : VMwareObject
 
         var connectionState = obj.ToString("connection_state");
         if (connectionState == null)
-        {
             ConnectionState = HostConnectionState.Unknown;
-        }
         else if (connectionState.EqualsCaseInsensitive("CONNECTED"))
-        {
             ConnectionState = HostConnectionState.Connected;
-        }
         else if (connectionState.EqualsCaseInsensitive("DISCONNECTED"))
-        {
             ConnectionState = HostConnectionState.Disconnected;
-        }
-        else if (connectionState.EqualsCaseInsensitive("NOT_RESPONDING"))
-        {
-            ConnectionState = HostConnectionState.NotResponding;
-        }
+        else if (connectionState.EqualsCaseInsensitive("NOT_RESPONDING")) ConnectionState = HostConnectionState.NotResponding;
 
         var powerState = obj.ToString("power_state");
         if (powerState == null)
-        {
             PowerState = HostPowerState.Unknown;
-        }
         else if (powerState.EqualsCaseInsensitive("POWERED_OFF"))
-        {
             PowerState = HostPowerState.PoweredOff;
-        }
         else if (powerState.EqualsCaseInsensitive("POWERED_ON"))
-        {
             PowerState = HostPowerState.PoweredOn;
-        }
-        else if (powerState.EqualsCaseInsensitive("STANDBY"))
-        {
-            PowerState = HostPowerState.Standby;
-        }
+        else if (powerState.EqualsCaseInsensitive("STANDBY")) PowerState = HostPowerState.Standby;
     }
 
     public static IEnumerable<VMwareHost> Query(VMwareClient vmware)
     {
-        foreach (var obj in vmware.GetValueArray("/rest/vcenter/host"))
-        {
-            yield return new VMwareHost(vmware, obj);
-        }
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/host")) yield return new VMwareHost(vmware, obj);
     }
 }

@@ -35,10 +35,7 @@ public class ConfigFile : IBucketReadOnly<string, string>
         get
         {
             var fileName = Constant.CURRENT_EXE;
-            if (fileName == null)
-            {
-                throw new InvalidOperationException("Could not determine current executable name");
-            }
+            if (fileName == null) throw new InvalidOperationException("Could not determine current executable name");
 
             return fileName;
         }
@@ -51,22 +48,13 @@ public class ConfigFile : IBucketReadOnly<string, string>
         get
         {
             key = key.TrimOrNull();
-            if (key == null)
-            {
-                return null;
-            }
+            if (key == null) return null;
 
             if (values.TryGetValue(key, out var v))
             {
-                if (v == null)
-                {
-                    return null;
-                }
+                if (v == null) return null;
 
-                if (v.StartsWith(ProgramPasswordEscape))
-                {
-                    return Decrypt(v);
-                }
+                if (v.StartsWith(ProgramPasswordEscape)) return Decrypt(v);
 
                 return v;
             }
@@ -87,10 +75,7 @@ public class ConfigFile : IBucketReadOnly<string, string>
 
     private string Decrypt(string encryptedData)
     {
-        if (!encryptedData.StartsWith(ProgramPasswordEscape))
-        {
-            return null;
-        }
+        if (!encryptedData.StartsWith(ProgramPasswordEscape)) return null;
 
         var encryptedDataBase64 = encryptedData.Substring(ProgramPasswordEscape.Length);
         var encryptedDataBytes = Util.Base64(encryptedDataBase64);
@@ -109,24 +94,15 @@ public class ConfigFile : IBucketReadOnly<string, string>
             foreach (var kvp in props.ToDictionary())
             {
                 var key = kvp.Key.TrimOrNull();
-                if (key == null)
-                {
-                    continue;
-                }
+                if (key == null) continue;
 
                 var val = kvp.Value.TrimOrNull().WhereNotNull().FirstOrDefault();
-                if (val == null)
-                {
-                    continue;
-                }
+                if (val == null) continue;
 
                 values[key] = val;
             }
         }
-        catch (Exception e)
-        {
-            log.Warn("Could not load config file", e);
-        }
+        catch (Exception e) { log.Warn("Could not load config file", e); }
     }
 
     public ConfigFile() : this(FullPathName) { }
@@ -142,12 +118,8 @@ public class ConfigFile : IBucketReadOnly<string, string>
         foreach (var commandObject in commandObjects)
         {
             if (commandObject is Command commandObject2)
-            {
                 foreach (var p in commandObject2.Help.Parameters)
-                {
                     commandObjectParams.Add(commandObject.Name + "." + p.p1);
-                }
-            }
         }
 
         return commandObjectParams;
@@ -161,23 +133,14 @@ public class ConfigFile : IBucketReadOnly<string, string>
     public static void CreateDefaultPropertiesFile()
     {
         var programFile = ProgramFullPathName;
-        if (programFile == null)
-        {
-            throw new Exception("Could not determine current program location");
-        }
+        if (programFile == null) throw new Exception("Could not determine current program location");
 
         var propFile = FullPathName;
-        if (File.Exists(propFile))
-        {
-            return;
-        }
+        if (File.Exists(propFile)) return;
 
         var commandObjectParams = GetAllKeys();
         var sb = new StringBuilder();
-        foreach (var commandObjectParam in commandObjectParams)
-        {
-            sb.AppendLine(commandObjectParam + "=");
-        }
+        foreach (var commandObjectParam in commandObjectParams) sb.AppendLine(commandObjectParam + "=");
 
         Util.FileWrite(propFile, sb.ToString(), Constant.ENCODING_UTF8);
     }

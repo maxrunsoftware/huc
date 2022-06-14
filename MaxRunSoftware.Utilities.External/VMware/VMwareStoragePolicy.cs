@@ -50,9 +50,6 @@ public class VMwareStoragePolicy : VMwareObject
 
     public static IEnumerable<VMwareStoragePolicy> Query(VMwareClient vmware)
     {
-        foreach (var obj in vmware.GetValueArray("/rest/vcenter/storage/policies"))
-        {
-            yield return new VMwareStoragePolicy(vmware, obj);
-        }
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/storage/policies")) yield return new VMwareStoragePolicy(vmware, obj);
     }
 }

@@ -38,19 +38,13 @@ internal class LogBackgroundThread : IDisposable
         thread.Start();
     }
 
-    private static void LogError(object o)
-    {
-        Console.Error.WriteLine(o);
-    }
+    private static void LogError(object o) => Console.Error.WriteLine(o);
 
     private void Work()
     {
         while (true)
         {
-            if (queue.IsAddingCompleted && queue.IsCompleted)
-            {
-                return;
-            }
+            if (queue.IsAddingCompleted && queue.IsCompleted) return;
 
             LogEventArgs t = null;
             try
@@ -74,19 +68,13 @@ internal class LogBackgroundThread : IDisposable
                 return;
             }
 
-            if (t != null)
-            {
-                onLogging(t);
-            }
+            if (t != null) onLogging(t);
         }
     }
 
     public void AddItem(LogEventArgs logEventArgs)
     {
-        try
-        {
-            queue.Add(logEventArgs);
-        }
+        try { queue.Add(logEventArgs); }
         catch (Exception e)
         {
             LogError("Received unexpected exception adding item --> " + logEventArgs.ToStringDetailed());
@@ -96,10 +84,7 @@ internal class LogBackgroundThread : IDisposable
 
     public void Dispose()
     {
-        try
-        {
-            queue.CompleteAdding();
-        }
+        try { queue.CompleteAdding(); }
         catch (Exception e)
         {
             LogError("Received exception on queue.CompleteAdding()");
@@ -126,10 +111,7 @@ internal class LogBackgroundThread : IDisposable
             LogError(e);
         }
 
-        try
-        {
-            cancellation.Cancel();
-        }
+        try { cancellation.Cancel(); }
         catch (Exception e)
         {
             LogError("Received exception on cancellation.Cancel()");
@@ -141,18 +123,14 @@ internal class LogBackgroundThread : IDisposable
             var timeStart = DateTime.UtcNow;
             var duration = TimeSpan.FromSeconds(5);
             if (queue.Count > 0)
-            {
                 while (thread.IsAlive)
                 {
                     Thread.Sleep(50);
                     if (DateTime.UtcNow - timeStart > duration)
-                    {
                         //LogError("Waiting for thread.IsAlive == true");
                         //timeStart = DateTime.UtcNow;
                         throw new Exception("Timeout waiting for thread exceeded");
-                    }
                 }
-            }
         }
 
         catch (Exception)
@@ -161,10 +139,7 @@ internal class LogBackgroundThread : IDisposable
             //LogError(e);
         }
 
-        try
-        {
-            thread.Join();
-        }
+        try { thread.Join(); }
         catch (Exception e)
         {
             LogError("Received exception on thread.Join()");

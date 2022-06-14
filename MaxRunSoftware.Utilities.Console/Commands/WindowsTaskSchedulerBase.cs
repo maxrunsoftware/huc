@@ -31,10 +31,7 @@ public abstract class WindowsTaskSchedulerBase : Command
 
     protected WindowsTaskScheduler GetTaskScheduler()
     {
-        if (host == null)
-        {
-            throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-        }
+        if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
 
         return new WindowsTaskScheduler(host, username, password, forceV1);
     }
@@ -54,10 +51,7 @@ public abstract class WindowsTaskSchedulerBase : Command
 
     protected bool RemapUsername(ref string usernameRaw)
     {
-        if (usernameRaw == null)
-        {
-            return false;
-        }
+        if (usernameRaw == null) return false;
 
         if (usernameRaw.EqualsCaseInsensitive("SYSTEM"))
         {

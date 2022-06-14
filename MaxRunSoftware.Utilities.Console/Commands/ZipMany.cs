@@ -48,26 +48,17 @@ public class ZipMany : Command
             var outputFile = inputFile.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ? inputFile + ".zip" : Util.FileChangeExtension(inputFile, "zip");
 
             // shouldn't happen but sanity check anyways
-            if (string.Equals(inputFile, outputFile, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new Exception("Input file same as output file " + inputFile);
-            }
+            if (string.Equals(inputFile, outputFile, StringComparison.OrdinalIgnoreCase)) throw new Exception("Input file same as output file " + inputFile);
 
             DeleteExistingFile(outputFile);
 
             int currentCount;
-            lock (locker)
-            {
-                currentCount = processCurrent++;
-            }
+            lock (locker) { currentCount = processCurrent++; }
 
             var runningCount = "[" + Util.FormatRunningCount(currentCount, processTotal) + "]  ";
 
             log.Debug(runningCount + inputFile + "  -->  " + outputFile + "  [starting]");
-            lock (locker)
-            {
-                log.Info(runningCount + Path.GetFileName(inputFile) + "  -->  " + Path.GetFileName(outputFile));
-            }
+            lock (locker) { log.Info(runningCount + Path.GetFileName(inputFile) + "  -->  " + Path.GetFileName(outputFile)); }
 
             using (var fs = Util.FileOpenWrite(outputFile))
             {
@@ -75,10 +66,7 @@ public class ZipMany : Command
                 {
                     zos.SetLevel(compressionLevel);
 
-                    if (!File.Exists(inputFile) && !Directory.Exists(inputFile))
-                    {
-                        throw new FileNotFoundException($"File or directory to compress not found {inputFile}", inputFile);
-                    }
+                    if (!File.Exists(inputFile) && !Directory.Exists(inputFile)) throw new FileNotFoundException($"File or directory to compress not found {inputFile}", inputFile);
 
                     if (Util.IsFile(inputFile))
                     {
@@ -100,15 +88,9 @@ public class ZipMany : Command
 
             log.Debug(runningCount + inputFile + "  -->  " + outputFile + "  [complete]");
 
-            if (delete)
-            {
-                DeleteExistingFile(inputFile);
-            }
+            if (delete) DeleteExistingFile(inputFile);
         }
-        catch (Exception e)
-        {
-            log.Error("Failed compressing file " + inputFile, e);
-        }
+        catch (Exception e) { log.Error("Failed compressing file " + inputFile, e); }
     }
 
     protected override void ExecuteInternal()
@@ -117,15 +99,9 @@ public class ZipMany : Command
         bufferSize = bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
 
         compressionLevel = GetArgParameterOrConfigInt(nameof(compressionLevel), "l", 9);
-        if (compressionLevel < 0)
-        {
-            compressionLevel = 0;
-        }
+        if (compressionLevel < 0) compressionLevel = 0;
 
-        if (compressionLevel > 9)
-        {
-            compressionLevel = 9;
-        }
+        if (compressionLevel > 9) compressionLevel = 9;
 
         log.DebugParameter(nameof(compressionLevel), compressionLevel);
 
@@ -137,24 +113,15 @@ public class ZipMany : Command
         log.Debug(inputFiles, nameof(inputFiles));
         inputFiles = ParseInputFiles(inputFiles);
         log.Debug(inputFiles, nameof(inputFiles));
-        if (inputFiles.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(inputFiles));
-        }
+        if (inputFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(inputFiles));
 
         using (var tp = new ConsumerThreadPool<string>(ProcessFile))
         {
-            foreach (var fileToZip in inputFiles)
-            {
-                tp.AddWorkItem(fileToZip);
-            }
+            foreach (var fileToZip in inputFiles) tp.AddWorkItem(fileToZip);
 
             tp.FinishedAddingWorkItems();
             tp.NumberOfThreads = threads;
-            while (!tp.IsComplete)
-            {
-                Thread.Sleep(100);
-            }
+            while (!tp.IsComplete) { Thread.Sleep(100); }
         }
 
         log.Info("Completed processing " + inputFiles.Count + " files");

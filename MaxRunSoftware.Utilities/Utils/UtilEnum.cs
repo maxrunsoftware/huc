@@ -38,20 +38,11 @@ public static partial class Util
                 hashCode = GenerateHashCode(enumType, enumItemName);
             }
 
-            public override int GetHashCode()
-            {
-                return hashCode;
-            }
+            public override int GetHashCode() => hashCode;
 
-            public override bool Equals(object obj)
-            {
-                return obj is DicKey key && Equals(key);
-            }
+            public override bool Equals(object obj) => obj is DicKey key && Equals(key);
 
-            public bool Equals(DicKey other)
-            {
-                return hashCode == other.hashCode && enumType == other.enumType && enumItemName.Equals(other.enumItemName);
-            }
+            public bool Equals(DicKey other) => hashCode == other.hashCode && enumType == other.enumType && enumItemName.Equals(other.enumItemName);
         }
 
         public bool TryGetEnumObject(Type enumType, string enumItemName, out object enumObject, bool throwExceptions)
@@ -76,10 +67,7 @@ public static partial class Util
                 var ut = Nullable.GetUnderlyingType(enumType);
                 if (ut == null || !ut.IsEnum)
                 {
-                    if (throwExceptions)
-                    {
-                        throw new ArgumentException("Type [" + enumType.FullNameFormatted() + "] is not an enum", nameof(enumType));
-                    }
+                    if (throwExceptions) throw new ArgumentException("Type [" + enumType.FullNameFormatted() + "] is not an enum", nameof(enumType));
 
                     enumObject = null;
                     return false;
@@ -113,10 +101,7 @@ public static partial class Util
                         {
                             eo = kvp.Value;
                             var c = new Dictionary<DicKey, object>();
-                            foreach (var kvp2 in cache)
-                            {
-                                c.Add(kvp2.Key, kvp2.Value);
-                            }
+                            foreach (var kvp2 in cache) c.Add(kvp2.Key, kvp2.Value);
 
                             c.Add(key, eo);
                             cache = c.AsReadOnly();
@@ -139,15 +124,9 @@ public static partial class Util
         }
     }
 
-    public static TEnum GetEnumItem<TEnum>(string name) where TEnum : struct, Enum
-    {
-        return (TEnum)GetEnumItem(typeof(TEnum), name);
-    }
+    public static TEnum GetEnumItem<TEnum>(string name) where TEnum : struct, Enum => (TEnum)GetEnumItem(typeof(TEnum), name);
 
-    public static object GetEnumItem(Type enumType, string name)
-    {
-        return enumCache.TryGetEnumObject(enumType.CheckIsEnum(nameof(enumType)), name, out var o, true) ? o : null;
-    }
+    public static object GetEnumItem(Type enumType, string name) => enumCache.TryGetEnumObject(enumType.CheckIsEnum(nameof(enumType)), name, out var o, true) ? o : null;
 
     /// <summary>
     /// Tries to parse a string to an Enum value, if not found return null
@@ -157,54 +136,33 @@ public static partial class Util
     /// <returns>The enum item or null if not found</returns>
     public static TEnum? GetEnumItemNullable<TEnum>(string name) where TEnum : struct, Enum
     {
-        if (name == null)
-        {
-            return null;
-        }
+        if (name == null) return null;
 
         var o = GetEnumItemNullable(typeof(TEnum), name);
-        if (o == null)
-        {
-            return null;
-        }
+        if (o == null) return null;
 
         return (TEnum)o;
     }
 
     public static object GetEnumItemNullable(Type enumType, string name)
     {
-        if (name == null)
-        {
-            return null;
-        }
+        if (name == null) return null;
 
-        if (enumCache.TryGetEnumObject(enumType.CheckIsEnum(nameof(enumType)), name, out var o, false))
-        {
-            return o;
-        }
+        if (enumCache.TryGetEnumObject(enumType.CheckIsEnum(nameof(enumType)), name, out var o, false)) return o;
 
         return null;
     }
 
-    public static IReadOnlyList<TEnum> GetEnumItems<TEnum>() where TEnum : struct, Enum
-    {
-        return (TEnum[])Enum.GetValues(typeof(TEnum));
-    }
+    public static IReadOnlyList<TEnum> GetEnumItems<TEnum>() where TEnum : struct, Enum => (TEnum[])Enum.GetValues(typeof(TEnum));
 
     public static IReadOnlyList<object> GetEnumItems(Type enumType)
     {
         enumType.CheckIsEnum(nameof(enumType));
         var list = new List<object>();
-        foreach (var item in Enum.GetValues(enumType))
-        {
-            list.Add(item);
-        }
+        foreach (var item in Enum.GetValues(enumType)) list.Add(item);
 
         return list;
     }
 
-    public static TEnum CombineEnumFlags<TEnum>(IEnumerable<TEnum> enums) where TEnum : struct, Enum
-    {
-        return (TEnum)Enum.Parse(typeof(TEnum), string.Join(", ", enums.Select(o => o.ToString())));
-    }
+    public static TEnum CombineEnumFlags<TEnum>(IEnumerable<TEnum> enums) where TEnum : struct, Enum => (TEnum)Enum.Parse(typeof(TEnum), string.Join(", ", enums.Select(o => o.ToString())));
 }

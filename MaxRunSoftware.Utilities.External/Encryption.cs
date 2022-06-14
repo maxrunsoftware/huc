@@ -23,38 +23,20 @@ public class Encryption
     private static byte[] RandomBytes(int length)
     {
         var array = new byte[length];
-        using (var rng = RandomNumberGenerator.Create())
-        {
-            rng.GetBytes(array);
-        }
+        using (var rng = RandomNumberGenerator.Create()) { rng.GetBytes(array); }
 
         return array;
     }
 
-    public static byte[] EncryptAsymmetric(string pemPublicKey, byte[] data)
-    {
-        return Util.EncryptionEncryptAsymmetric(pemPublicKey, data, RSAEncryptionPadding.OaepSHA512);
-    }
+    public static byte[] EncryptAsymmetric(string pemPublicKey, byte[] data) => Util.EncryptionEncryptAsymmetric(pemPublicKey, data, RSAEncryptionPadding.OaepSHA512);
 
-    public static byte[] DecryptAsymmetric(string pemPrivateKey, byte[] data)
-    {
-        return Util.EncryptionDecryptAsymmetric(pemPrivateKey, data, RSAEncryptionPadding.OaepSHA512);
-    }
+    public static byte[] DecryptAsymmetric(string pemPrivateKey, byte[] data) => Util.EncryptionDecryptAsymmetric(pemPrivateKey, data, RSAEncryptionPadding.OaepSHA512);
 
-    public static byte[] EncryptSymmetric(byte[] password, byte[] data, byte[] salt = null)
-    {
-        return SuiteB.Encrypt(password, data, salt);
-    }
+    public static byte[] EncryptSymmetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Encrypt(password, data, salt);
 
-    public static byte[] DecryptSymmetric(byte[] password, byte[] data, byte[] salt = null)
-    {
-        return SuiteB.Decrypt(password, data, salt);
-    }
+    public static byte[] DecryptSymmetric(byte[] password, byte[] data, byte[] salt = null) => SuiteB.Decrypt(password, data, salt);
 
-    public static (string publicKey, string privateKey) GenerateKeyPair(int length)
-    {
-        return Util.EncryptionGeneratePublicPrivateKeys(length);
-    }
+    public static (string publicKey, string privateKey) GenerateKeyPair(int length) => Util.EncryptionGeneratePublicPrivateKeys(length);
 
     public static byte[] Encrypt(string publicKey, byte[] data)
     {
@@ -62,10 +44,7 @@ public class Encryption
 
         var encryptedData = EncryptSymmetric(password, data);
         var encryptedPass = EncryptAsymmetric(publicKey, password);
-        if (encryptedPass.Length != 512)
-        {
-            throw new Exception("Expecting encrypted password length of 512 but was " + encryptedPass.Length);
-        }
+        if (encryptedPass.Length != 512) throw new Exception("Expecting encrypted password length of 512 but was " + encryptedPass.Length);
 
         var result = encryptedPass.Append(encryptedData);
 

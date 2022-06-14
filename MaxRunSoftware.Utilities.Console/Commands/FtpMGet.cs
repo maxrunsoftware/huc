@@ -39,25 +39,16 @@ public class FtpMGet : FtpBase
         base.ExecuteInternal();
 
         remotePath = GetArgParameterOrConfig(nameof(remotePath), null);
-        if (remotePath != null && remotePath.Last() != '/')
-        {
-            remotePath = remotePath + "/";
-        }
+        if (remotePath != null && remotePath.Last() != '/') remotePath = remotePath + "/";
 
         log.DebugParameter(nameof(remotePath), remotePath);
 
         localPath = Path.GetFullPath(GetArgParameterOrConfig(nameof(localPath), null, Environment.CurrentDirectory));
         log.DebugParameter(nameof(localPath), localPath);
-        if (!Directory.Exists(localPath))
-        {
-            throw new DirectoryNotFoundException("Could not find <" + nameof(localPath) + "> directory " + localPath);
-        }
+        if (!Directory.Exists(localPath)) throw new DirectoryNotFoundException("Could not find <" + nameof(localPath) + "> directory " + localPath);
 
         filePattern = GetArgParameterOrConfig(nameof(filePattern), null);
-        if (filePattern.TrimOrNull() == null)
-        {
-            filePattern = null;
-        }
+        if (filePattern.TrimOrNull() == null) filePattern = null;
 
         log.DebugParameter(nameof(filePattern), filePattern);
 
@@ -65,15 +56,9 @@ public class FtpMGet : FtpBase
         {
             foreach (var remoteFile in c.ListFiles(remotePath))
             {
-                if (remoteFile.Type != FtpClientFileType.File)
-                {
-                    continue;
-                }
+                if (remoteFile.Type != FtpClientFileType.File) continue;
 
-                if (filePattern != null && filePattern != "*" && !remoteFile.Name.EqualsWildcard(filePattern, true))
-                {
-                    continue;
-                }
+                if (filePattern != null && filePattern != "*" && !remoteFile.Name.EqualsWildcard(filePattern, true)) continue;
 
                 var localFilePath = Path.GetFullPath(Path.Combine(localPath, remoteFile.Name));
                 DeleteExistingFile(localFilePath);

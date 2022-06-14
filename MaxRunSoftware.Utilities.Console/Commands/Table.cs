@@ -78,20 +78,11 @@ public class Table : TableBase
 
     public static string ParseOption(string input)
     {
-        if (input == null)
-        {
-            return string.Empty;
-        }
+        if (input == null) return string.Empty;
 
-        if (input.Length == 0)
-        {
-            return string.Empty;
-        }
+        if (input.Length == 0) return string.Empty;
 
-        if (optionKeywordMap.TryGetValue(input, out var val))
-        {
-            return val;
-        }
+        if (optionKeywordMap.TryGetValue(input, out var val)) return val;
 
         return input;
     }
@@ -126,10 +117,7 @@ public class Table : TableBase
             var isColumnGuid = table.Columns.Select(column => column.Type.In(typeof(System.Guid), typeof(System.Guid?))).ToArray();
             if (isColumnGuid.Any(o => o))
             {
-                string Handler(Utilities.Table handlerTable, TableColumn column, TableRow row, int rowIndex, string value)
-                {
-                    return isColumnGuid[column.Index] ? "{" + value + "}" : value;
-                }
+                string Handler(Utilities.Table handlerTable, TableColumn column, TableRow row, int rowIndex, string value) => isColumnGuid[column.Index] ? "{" + value + "}" : value;
 
                 table = table.Modify(Handler);
             }

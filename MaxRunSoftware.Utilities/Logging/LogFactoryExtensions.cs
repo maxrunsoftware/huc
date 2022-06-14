@@ -16,15 +16,9 @@ namespace MaxRunSoftware.Utilities;
 
 public static class LogFactoryExtensions
 {
-    public static void SetupConsole(this ILogFactory logFactory, LogLevel level)
-    {
-        logFactory.AddAppender(new ConsoleLogger(level));
-    }
+    public static void SetupConsole(this ILogFactory logFactory, LogLevel level) => logFactory.AddAppender(new ConsoleLogger(level));
 
-    public static void SetupFile(this ILogFactory logFactory, LogLevel level, string filename)
-    {
-        logFactory.AddAppender(new FileLogger(level, filename));
-    }
+    public static void SetupFile(this ILogFactory logFactory, LogLevel level, string filename) => logFactory.AddAppender(new FileLogger(level, filename));
 
     private class FileLogger : ILogAppender
     {
@@ -43,15 +37,9 @@ public static class LogFactoryExtensions
 
         public void Log(object sender, LogEventArgs e)
         {
-            if (e == null)
-            {
-                return;
-            }
+            if (e == null) return;
 
-            using (MutexLock.CreateGlobal(TimeSpan.FromSeconds(10), file))
-            {
-                Util.FileWrite(filename, e.ToStringDetailed(id: id) + Environment.NewLine, Constant.ENCODING_UTF8, true);
-            }
+            using (MutexLock.CreateGlobal(TimeSpan.FromSeconds(10), file)) { Util.FileWrite(filename, e.ToStringDetailed(id: id) + Environment.NewLine, Constant.ENCODING_UTF8, true); }
         }
     }
 
@@ -59,10 +47,7 @@ public static class LogFactoryExtensions
     {
         public LogLevel Level { get; }
 
-        public ConsoleLogger(LogLevel level)
-        {
-            Level = level;
-        }
+        public ConsoleLogger(LogLevel level) { Level = level; }
 
         private IDisposable LogConsoleColor(LogLevel level)
         {
@@ -80,29 +65,17 @@ public static class LogFactoryExtensions
 
         public void Log(object sender, LogEventArgs e)
         {
-            if (e == null)
-            {
-                return;
-            }
+            if (e == null) return;
 
             if (Level == LogLevel.Debug || Level == LogLevel.Trace)
             {
-                using (LogConsoleColor(e.Level))
-                {
-                    Console.WriteLine(e.ToStringDetailed());
-                }
+                using (LogConsoleColor(e.Level)) { Console.WriteLine(e.ToStringDetailed()); }
             }
             else
             {
-                if (e.Message != null)
-                {
-                    Console.WriteLine(e.Message);
-                }
+                if (e.Message != null) Console.WriteLine(e.Message);
 
-                if (e.Exception != null)
-                {
-                    Console.WriteLine(e.Exception.ToString());
-                }
+                if (e.Exception != null) Console.WriteLine(e.Exception.ToString());
             }
         }
     }

@@ -25,44 +25,26 @@ public abstract class ConsumerProducerThreadBase<TConsume, TProduce> : ConsumerT
     private readonly BlockingCollection<TProduce> producerQueue;
     private readonly CancellationTokenSource cancellation = new();
 
-    protected ConsumerProducerThreadBase(BlockingCollection<TConsume> consumerQueue, BlockingCollection<TProduce> producerQueue) : base(consumerQueue)
-    {
-        this.producerQueue = producerQueue.CheckNotNull(nameof(producerQueue));
-    }
+    protected ConsumerProducerThreadBase(BlockingCollection<TConsume> consumerQueue, BlockingCollection<TProduce> producerQueue) : base(consumerQueue) { this.producerQueue = producerQueue.CheckNotNull(nameof(producerQueue)); }
 
     protected override void WorkConsume(TConsume item)
     {
-        if (IsCancelled)
-        {
-            return;
-        }
+        if (IsCancelled) return;
 
         try
         {
             var produceItem = WorkConsumeProduce(item);
-            if (IsCancelled)
-            {
-                return;
-            }
+            if (IsCancelled) return;
 
             producerQueue.Add(produceItem, cancellation.Token);
         }
-        catch (OperationCanceledException)
-        {
-            Cancel();
-        }
+        catch (OperationCanceledException) { Cancel(); }
     }
 
     protected override void CancelInternal()
     {
-        try
-        {
-            cancellation.Cancel();
-        }
-        catch (Exception e)
-        {
-            log.Warn("CancellationTokenSource.Cancel() request threw exception", e);
-        }
+        try { cancellation.Cancel(); }
+        catch (Exception e) { log.Warn("CancellationTokenSource.Cancel() request threw exception", e); }
 
         base.CancelInternal();
     }

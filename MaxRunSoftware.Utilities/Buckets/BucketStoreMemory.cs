@@ -32,10 +32,7 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
     {
         get
         {
-            lock (buckets)
-            {
-                return buckets.Keys.ToList();
-            }
+            lock (buckets) { return buckets.Keys.ToList(); }
         }
     }
 
@@ -44,16 +41,10 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
         IDictionary<TKey, TValue> d;
         lock (buckets)
         {
-            if (!buckets.TryGetValue(bucketName, out d))
-            {
-                return new TKey[] { };
-            }
+            if (!buckets.TryGetValue(bucketName, out d)) return new TKey[] { };
         }
 
-        lock (d)
-        {
-            return d.Keys.ToArray();
-        }
+        lock (d) { return d.Keys.ToArray(); }
     }
 
     protected override TValue GetValue(string bucketName, TKey bucketKey)
@@ -61,16 +52,10 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
         IDictionary<TKey, TValue> d;
         lock (buckets)
         {
-            if (!buckets.TryGetValue(bucketName, out d))
-            {
-                return nullValue;
-            }
+            if (!buckets.TryGetValue(bucketName, out d)) return nullValue;
         }
 
-        lock (d)
-        {
-            return d.TryGetValue(bucketKey, out var val) ? val : nullValue;
-        }
+        lock (d) { return d.TryGetValue(bucketKey, out var val) ? val : nullValue; }
     }
 
     protected override void SetValue(string bucketName, TKey bucketKey, TValue bucketValue)
@@ -80,10 +65,7 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
         {
             if (!buckets.TryGetValue(bucketName, out d))
             {
-                if (bucketValue == null)
-                {
-                    return;
-                }
+                if (bucketValue == null) return;
 
                 buckets.Add(bucketName, d = dictionaryFactory());
             }
@@ -92,13 +74,9 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
         lock (d)
         {
             if (bucketValue == null)
-            {
                 d.Remove(bucketKey);
-            }
             else
-            {
                 d[bucketKey] = bucketValue;
-            }
         }
     }
 }

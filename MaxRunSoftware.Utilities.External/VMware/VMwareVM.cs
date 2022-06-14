@@ -280,10 +280,7 @@ public class VMwareVM : VMwareObject
         PowerState = obj.ToPowerState("power_state");
 
         obj = QueryValueObjectSafe(vmware, "/rest/vcenter/vm/" + VM);
-        if (obj == null)
-        {
-            return;
-        }
+        if (obj == null) return;
 
         GuestOS = obj.ToString("guest_OS");
 
@@ -324,27 +321,17 @@ public class VMwareVM : VMwareObject
         GuestLocalFilesystems = localFilesystem.Select(o => new GuestLocalFilesystem(o)).ToList();
 
         if (obj == null && localFilesystem.Length == 0)
-        {
             IsVMwareToolsInstalled = false;
-        }
         else
-        {
             IsVMwareToolsInstalled = true;
-        }
 
         obj = QueryValueObjectSafe(vmware, $"/rest/vcenter/vm/{VM}/library-item");
-        if (obj != null)
-        {
-            LibraryItem = obj.ToString("check_out", "library_item");
-        }
+        if (obj != null) LibraryItem = obj.ToString("check_out", "library_item");
     }
 
     public static IEnumerable<VMwareVM> Query(VMwareClient vmware)
     {
-        foreach (var obj in vmware.GetValueArray("/rest/vcenter/vm").OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase))
-        {
-            yield return new VMwareVM(vmware, obj);
-        }
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/vm").OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase)) yield return new VMwareVM(vmware, obj);
     }
 
     private static VMwareVM QueryBy(VMwareClient vmware, string fieldName, string fieldValue)
@@ -354,21 +341,12 @@ public class VMwareVM : VMwareObject
             .OrderBy(o => o["name"]?.ToString(), StringComparer.OrdinalIgnoreCase)
             .FirstOrDefault(o => o[fieldName]?.ToString() != null && string.Equals(o[fieldName]?.ToString(), fieldValue, StringComparison.OrdinalIgnoreCase));
 
-        if (obj == null)
-        {
-            return null;
-        }
+        if (obj == null) return null;
 
         return new VMwareVM(vmware, obj);
     }
 
-    public static VMwareVM QueryByName(VMwareClient vmware, string name)
-    {
-        return QueryBy(vmware, "name", name);
-    }
+    public static VMwareVM QueryByName(VMwareClient vmware, string name) => QueryBy(vmware, "name", name);
 
-    public static VMwareVM QueryByVM(VMwareClient vmware, string vm)
-    {
-        return QueryBy(vmware, "vm", vm);
-    }
+    public static VMwareVM QueryByVM(VMwareClient vmware, string vm) => QueryBy(vmware, "vm", vm);
 }

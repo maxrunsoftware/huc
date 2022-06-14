@@ -28,10 +28,7 @@ public class WebServerUtilitySql : WebServerUtilityBase
     public override string HandleJson()
     {
         var result = Handle();
-        if (!result.success)
-        {
-            return string.Empty;
-        }
+        if (!result.success) return string.Empty;
 
 
         var objs = new List<List<string[]>>();
@@ -39,10 +36,7 @@ public class WebServerUtilitySql : WebServerUtilityBase
         {
             var l = new List<string[]>();
             l.Add(table.Columns.Select(o => o.Name).ToArray());
-            foreach (var row in table)
-            {
-                l.Add(row.ToArray());
-            }
+            foreach (var row in table) l.Add(row.ToArray());
 
             objs.Add(l);
         }
@@ -73,17 +67,11 @@ public class WebServerUtilitySql : WebServerUtilityBase
             uriBuilder.Query = paramValues.ToString();
         */
 
-        if (connectionString == null || serverType == null || sqlStatement == null)
-        {
-            return (false, "0", null);
-        }
+        if (connectionString == null || serverType == null || sqlStatement == null) return (false, "0", null);
 
         var d = new Dictionary<string, string>();
         d[nameof(connectionString)] = connectionString;
-        if (commandTimeout != null)
-        {
-            d[nameof(commandTimeout)] = commandTimeout.Value.ToString();
-        }
+        if (commandTimeout != null) d[nameof(commandTimeout)] = commandTimeout.Value.ToString();
 
         d[nameof(serverType)] = serverType;
         d[nameof(sqlStatement)] = sqlStatement;
@@ -109,12 +97,8 @@ public class WebServerUtilitySql : WebServerUtilityBase
 
         var tables2 = new List<Utilities.Table>();
         foreach (var table in tables)
-        {
             if (!table.Columns.IsEmpty())
-            {
                 tables2.Add(table);
-            }
-        }
 
         return (true, stopwatchTime, tables2.ToArray());
     }
@@ -154,10 +138,7 @@ public class WebServerUtilitySql : WebServerUtilityBase
                 }
             }
         }
-        catch (Exception e)
-        {
-            html.Exception(e);
-        }
+        catch (Exception e) { html.Exception(e); }
 
         return html.ToString();
     }

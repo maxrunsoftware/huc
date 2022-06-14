@@ -64,9 +64,8 @@ public class WebBrowser : IDisposable
 
     public WebDriver Browser { get; private set; }
 
-    private IDriverConfig CreateDriverConfig(WebBrowserType type)
-    {
-        return type switch
+    private IDriverConfig CreateDriverConfig(WebBrowserType type) =>
+        type switch
         {
             WebBrowserType.Chrome => new ChromeConfig(),
             WebBrowserType.Edge => new EdgeConfig(),
@@ -75,7 +74,6 @@ public class WebBrowser : IDisposable
             WebBrowserType.Opera => new OperaConfig(),
             _ => throw new NotImplementedException("Unknown [BrowserType] " + type)
         };
-    }
 
     private void SetupDriverManager()
     {
@@ -85,27 +83,14 @@ public class WebBrowser : IDisposable
 
         var browserVersion = Version;
         if (browserVersion == null)
-        {
-            try
-            {
-                browserVersion = driverConfig.GetMatchingBrowserVersion();
-            }
+            try { browserVersion = driverConfig.GetMatchingBrowserVersion(); }
             catch (Exception) { }
-        }
 
         if (browserVersion == null)
-        {
-            try
-            {
-                browserVersion = driverConfig.GetLatestVersion();
-            }
+            try { browserVersion = driverConfig.GetLatestVersion(); }
             catch (Exception) { }
-        }
 
-        if (browserVersion == null)
-        {
-            throw new Exception("Unable to determine browser version for automatic driver download");
-        }
+        if (browserVersion == null) throw new Exception("Unable to determine browser version for automatic driver download");
 
         var browserArchitecture = Location.IsBrowser64Bit ? Architecture.X64 : Architecture.X32;
 
@@ -130,28 +115,16 @@ public class WebBrowser : IDisposable
 
     public void Start()
     {
-        if (Browser != null)
-        {
-            throw new Exception("Already Started");
-        }
+        if (Browser != null) throw new Exception("Already Started");
 
         log.Debug("Starting Browser");
 
-        if (Location == null)
-        {
-            throw new Exception($"Property [{nameof(Location)}] is not defined");
-        }
+        if (Location == null) throw new Exception($"Property [{nameof(Location)}] is not defined");
 
         log.Debug($"{nameof(Location)}: {Location}");
-        if (!Location.IsExist)
-        {
-            throw new Exception($"Browser executable does not exist {Location.BrowserExecutable}");
-        }
+        if (!Location.IsExist) throw new Exception($"Browser executable does not exist {Location.BrowserExecutable}");
 
-        if (DriverDirectory == null)
-        {
-            SetupDriverManager();
-        }
+        if (DriverDirectory == null) SetupDriverManager();
 
         var optionArguments = OptionArguments.ToList();
         optionArguments.AddRange(optionArguments.Where(o => !o.StartsWith("-")).Select(o => "--" + o).ToList());
@@ -163,15 +136,9 @@ public class WebBrowser : IDisposable
         {
             var options = new ChromeOptions();
             options.BinaryLocation = Location.BrowserExecutable;
-            foreach (var a in optionArguments)
-            {
-                options.AddArgument(a);
-            }
+            foreach (var a in optionArguments) options.AddArgument(a);
 
-            foreach (var a in optionArgumentsExcluded)
-            {
-                options.AddExcludedArgument(a);
-            }
+            foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
             var driverService = ChromeDriverService.CreateDefaultService(DriverDirectory);
             driverService.HideCommandPromptWindow = true;
@@ -184,15 +151,9 @@ public class WebBrowser : IDisposable
         {
             var options = new EdgeOptions();
             options.BinaryLocation = Location.BrowserExecutable;
-            foreach (var a in optionArguments)
-            {
-                options.AddArgument(a);
-            }
+            foreach (var a in optionArguments) options.AddArgument(a);
 
-            foreach (var a in optionArgumentsExcluded)
-            {
-                options.AddExcludedArgument(a);
-            }
+            foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
             var driverService = EdgeDriverService.CreateDefaultService(DriverDirectory);
             driverService.HideCommandPromptWindow = true;
@@ -205,10 +166,7 @@ public class WebBrowser : IDisposable
         {
             var options = new FirefoxOptions();
             options.BrowserExecutableLocation = Location.BrowserExecutable;
-            foreach (var a in optionArguments)
-            {
-                options.AddArgument(a);
-            }
+            foreach (var a in optionArguments) options.AddArgument(a);
             //foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
             var driverService = FirefoxDriverService.CreateDefaultService(DriverDirectory);
@@ -238,15 +196,9 @@ public class WebBrowser : IDisposable
             //var options = new OperaOptions();
             var options = new ChromeOptions();
             options.BinaryLocation = Location.BrowserExecutable;
-            foreach (var a in optionArguments)
-            {
-                options.AddArgument(a);
-            }
+            foreach (var a in optionArguments) options.AddArgument(a);
 
-            foreach (var a in optionArgumentsExcluded)
-            {
-                options.AddExcludedArgument(a);
-            }
+            foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
             //var driverService = OperaDriverService.CreateDefaultService(DriverDirectory);
             var driverService = ChromeDriverService.CreateDefaultService(DriverDirectory);
@@ -258,63 +210,36 @@ public class WebBrowser : IDisposable
             Browser = new ChromeDriver(driverService, options);
 
             options.BinaryLocation = Location.BrowserExecutable;
-            foreach (var a in optionArguments)
-            {
-                options.AddArgument(a);
-            }
+            foreach (var a in optionArguments) options.AddArgument(a);
 
-            foreach (var a in optionArgumentsExcluded)
-            {
-                options.AddExcludedArgument(a);
-            }
+            foreach (var a in optionArgumentsExcluded) options.AddExcludedArgument(a);
 
             driverService.HideCommandPromptWindow = true;
             driverService.SuppressInitialDiagnosticInformation = true;
             driverService.EnableVerboseLogging = false;
         }
-        else
-        {
-            throw new NotImplementedException("Unknown [BrowserType] " + bt);
-        }
+        else { throw new NotImplementedException("Unknown [BrowserType] " + bt); }
 
         Browser.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(60);
         Browser.Manage().Timeouts().AsynchronousJavaScript = TimeSpan.FromSeconds(60);
     }
 
-    public void GoTo(string url)
-    {
-        Browser.Navigate().GoToUrl(url);
-    }
+    public void GoTo(string url) => Browser.Navigate().GoToUrl(url);
 
-    public void SendKeys(WebBrowserElementSearch search, string text)
-    {
-        SearchRequiredOne(search).SendKeys(text);
-    }
+    public void SendKeys(WebBrowserElementSearch search, string text) => SearchRequiredOne(search).SendKeys(text);
 
-    public void Click(WebBrowserElementSearch search)
-    {
-        SearchRequiredOne(search).Click();
-    }
+    public void Click(WebBrowserElementSearch search) => SearchRequiredOne(search).Click();
 
     public void Select(WebBrowserElementSearch search, params string[] names)
     {
         var element = SearchRequiredOne(search);
         var se = new SelectElement(element);
-        if (names.Length > 1 && !se.IsMultiple)
-        {
-            throw new Exception("Select element does not allow multiple selections but trying to select multiple values: " + names.ToStringDelimited(", "));
-        }
+        if (names.Length > 1 && !se.IsMultiple) throw new Exception("Select element does not allow multiple selections but trying to select multiple values: " + names.ToStringDelimited(", "));
 
         foreach (var name in names)
         {
-            try
-            {
-                se.SelectByValue(name);
-            }
-            catch (NoSuchElementException)
-            {
-                se.SelectByText(name);
-            }
+            try { se.SelectByValue(name); }
+            catch (NoSuchElementException) { se.SelectByText(name); }
         }
     }
 
@@ -336,15 +261,9 @@ public class WebBrowser : IDisposable
     private IWebElement SearchRequiredOne(WebBrowserElementSearch search)
     {
         var elements = search.FindElements(Browser);
-        if (elements.IsEmpty())
-        {
-            throw new Exception("No element found matching " + search);
-        }
+        if (elements.IsEmpty()) throw new Exception("No element found matching " + search);
 
-        if (elements.Count > 1)
-        {
-            throw new Exception($"Multiple elements ({elements.Count}) found matching " + search);
-        }
+        if (elements.Count > 1) throw new Exception($"Multiple elements ({elements.Count}) found matching " + search);
 
         return elements[0];
     }
@@ -352,27 +271,15 @@ public class WebBrowser : IDisposable
 
     public void Dispose()
     {
-        if (!isDisposed.TryUse())
-        {
-            return;
-        }
+        if (!isDisposed.TryUse()) return;
 
         var b = Browser;
         Browser = null;
 
-        if (b == null)
-        {
-            return;
-        }
+        if (b == null) return;
 
-        try
-        {
-            b.Quit();
-        }
-        catch (Exception e)
-        {
-            log.Warn($"Error calling {b.GetType().Name}.{nameof(WebDriver.Quit)}()", e);
-        }
+        try { b.Quit(); }
+        catch (Exception e) { log.Warn($"Error calling {b.GetType().Name}.{nameof(WebDriver.Quit)}()", e); }
 
         b.DisposeSafely(log.Warn);
     }

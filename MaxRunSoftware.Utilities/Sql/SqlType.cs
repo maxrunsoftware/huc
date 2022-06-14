@@ -48,15 +48,9 @@ public class SqlType
             DotNetType = attribute.DotNetType;
 
             var names = attribute.SqlTypeNames.TrimOrNull();
-            if (names != null)
-            {
-                sqlTypeNames.AddRange(names.Split(',', ';', '|').TrimOrNull().WhereNotNull());
-            }
+            if (names != null) sqlTypeNames.AddRange(names.Split(',', ';', '|').TrimOrNull().WhereNotNull());
 
-            if (attribute.ActualSqlType != null)
-            {
-                actualItemName = attribute.ActualSqlType.ToString();
-            }
+            if (attribute.ActualSqlType != null) actualItemName = attribute.ActualSqlType.ToString();
         }
 
         sqlTypeNames.Add(enumName);
@@ -64,12 +58,8 @@ public class SqlType
         var sqlTypeNames2 = new List<string>();
         var sqlTypeNames2Set = new HashSet<string>();
         foreach (var n in sqlTypeNames)
-        {
             if (sqlTypeNames2Set.Add(n))
-            {
                 sqlTypeNames2.Add(n);
-            }
-        }
 
         SqlTypeNames = sqlTypeNames2.AsReadOnly();
     }
@@ -83,10 +73,7 @@ public class SqlType
         enumType.CheckIsEnum(nameof(enumType));
         lock (locker)
         {
-            if (cacheL.TryGetValue(enumType, out var list))
-            {
-                return list;
-            }
+            if (cacheL.TryGetValue(enumType, out var list)) return list;
 
             var l = Scan(enumType).AsReadOnly();
             cacheL.Add(enumType, l);
@@ -106,12 +93,8 @@ public class SqlType
                 dic = new Dictionary<string, SqlType>(StringComparer.OrdinalIgnoreCase);
                 var list = GetEnumItems(enumType);
                 foreach (var enumItem in list)
-                {
-                    foreach (var sqlTypeName in enumItem.SqlTypeNames)
-                    {
-                        dic.Add(sqlTypeName, enumItem);
-                    }
-                }
+                foreach (var sqlTypeName in enumItem.SqlTypeNames)
+                    dic.Add(sqlTypeName, enumItem);
 
                 cacheD.Add(enumType, dic);
             }
@@ -125,53 +108,33 @@ public class SqlType
         enumType.CheckIsEnum(nameof(enumType));
 
         var list = new List<SqlType>();
-        foreach (var name in enumType.GetEnumNames().OrEmpty())
-        {
-            list.Add(new SqlType(enumType, name));
-        }
+        foreach (var name in enumType.GetEnumNames().OrEmpty()) list.Add(new SqlType(enumType, name));
 
         // Duplicate Sql Type name check
         var sqlTypeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in list)
         {
             foreach (var sqlTypeName in item.SqlTypeNames)
-            {
                 if (!sqlTypeNames.Add(sqlTypeName))
-                {
                     throw new InvalidOperationException(enumType.FullNameFormatted() + $" defines multiple SqlType names of '{sqlTypeName}'");
-                }
-            }
         }
 
         // Update ActualItem references
         var d = new Dictionary<string, SqlType>();
-        foreach (var item in list)
-        {
-            d[item.EnumName] = item;
-        }
+        foreach (var item in list) d[item.EnumName] = item;
 
         foreach (var item in list)
         {
-            if (item.actualItemName == null)
-            {
-                continue;
-            }
+            if (item.actualItemName == null) continue;
 
             if (d.TryGetValue(item.actualItemName, out var actualItem))
-            {
                 item.ActualItem = actualItem;
-            }
             else
-            {
                 throw new InvalidOperationException(enumType.FullNameFormatted() + "." + item.EnumName + " references non-existent item " + item.actualItemName);
-            }
         }
 
         // Update SqlTypeName for base objects
-        foreach (var item in list.Where(o => o.ActualItem == null))
-        {
-            item.SqlTypeName = item.SqlTypeNames.First();
-        }
+        foreach (var item in list.Where(o => o.ActualItem == null)) item.SqlTypeName = item.SqlTypeNames.First();
 
         // Update SqlTypeName for other objects
         foreach (var item in list.Where(o => o.ActualItem == null))
@@ -180,10 +143,7 @@ public class SqlType
             var current = item;
             while (current.ActualItem != null)
             {
-                if (!alreadyCheckedItemNames.Add(current.EnumName))
-                {
-                    throw new InvalidOperationException($"Circular [{nameof(SqlTypeAttribute.ActualSqlType)}] reference detected in {item.EnumType.FullNameFormatted()} with items " + alreadyCheckedItemNames.OrderBy(o => o.ToUpper().ToStringDelimited(", ")));
-                }
+                if (!alreadyCheckedItemNames.Add(current.EnumName)) throw new InvalidOperationException($"Circular [{nameof(SqlTypeAttribute.ActualSqlType)}] reference detected in {item.EnumType.FullNameFormatted()} with items " + alreadyCheckedItemNames.OrderBy(o => o.ToUpper().ToStringDelimited(", ")));
 
                 current = current.ActualItem;
             }

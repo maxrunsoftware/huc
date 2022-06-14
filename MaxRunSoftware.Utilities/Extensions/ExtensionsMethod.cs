@@ -37,10 +37,7 @@ public static class ExtensionsMethod
         signatureBuilder.Append(method.Name);
 
         // Add method generics
-        if (method.IsGenericMethod)
-        {
-            signatureBuilder.Append(GetGenericSignature(method));
-        }
+        if (method.IsGenericMethod) signatureBuilder.Append(GetGenericSignature(method));
 
         // Add method parameters
         signatureBuilder.Append(GetMethodArgumentsSignature(method, invokable));
@@ -56,48 +53,24 @@ public static class ExtensionsMethod
         {
             signature = "internal ";
 
-            if (method.IsFamily)
-            {
-                signature += "protected ";
-            }
+            if (method.IsFamily) signature += "protected ";
         }
-        else if (method.IsPublic)
-        {
-            signature = "public ";
-        }
-        else if (method.IsPrivate)
-        {
-            signature = "private ";
-        }
-        else if (method.IsFamily)
-        {
-            signature = "protected ";
-        }
+        else if (method.IsPublic) { signature = "public "; }
+        else if (method.IsPrivate) { signature = "private "; }
+        else if (method.IsFamily) { signature = "protected "; }
 
-        if (method.IsStatic)
-        {
-            signature += "static ";
-        }
+        if (method.IsStatic) signature += "static ";
 
-        if (method is MethodInfo methodInfo)
-        {
-            signature += GetSignature(methodInfo.ReturnType);
-        }
+        if (method is MethodInfo methodInfo) signature += GetSignature(methodInfo.ReturnType);
 
         return signature;
     }
 
     public static string GetGenericSignature(this MethodBase method)
     {
-        if (method == null)
-        {
-            throw new ArgumentNullException(nameof(method));
-        }
+        if (method == null) throw new ArgumentNullException(nameof(method));
 
-        if (!method.IsGenericMethod)
-        {
-            throw new ArgumentException($"{method.Name} is not generic.");
-        }
+        if (!method.IsGenericMethod) throw new ArgumentException($"{method.Name} is not generic.");
 
         return BuildGenericSignature(method.GetGenericArguments());
     }
@@ -109,32 +82,20 @@ public static class ExtensionsMethod
 
         // If this signature is designed to be invoked and it's an extension method
         if (isExtensionMethod && invokable)
-        {
             // Skip the first argument
             methodParameters = methodParameters.Skip(1);
-        }
 
         var methodParameterSignatures = methodParameters.Select(param =>
         {
             var signature = string.Empty;
 
             if (param.ParameterType.IsByRef)
-            {
                 signature = "ref ";
-            }
             else if (param.IsOut)
-            {
                 signature = "out ";
-            }
-            else if (isExtensionMethod && param.Position == 0)
-            {
-                signature = "this ";
-            }
+            else if (isExtensionMethod && param.Position == 0) signature = "this ";
 
-            if (!invokable)
-            {
-                signature += GetSignature(param.ParameterType) + " ";
-            }
+            if (!invokable) signature += GetSignature(param.ParameterType) + " ";
 
             signature += param.Name;
 
@@ -162,15 +123,10 @@ public static class ExtensionsMethod
         var signature = GetQualifiedTypeName(signatureType);
 
         if (isGenericType)
-        {
             // Add the generic arguments
             signature += BuildGenericSignature(signatureType.GetGenericArguments());
-        }
 
-        if (isNullableType)
-        {
-            signature += "?";
-        }
+        if (isNullableType) signature += "?";
 
         return signature;
     }
@@ -277,10 +233,7 @@ public static class ExtensionsMethod
 
         var signature = type.FullName.TrimOrNull() ?? type.Name;
 
-        if (type.IsGeneric())
-        {
-            signature = RemoveGenericTypeNameArgumentCount(signature);
-        }
+        if (type.IsGeneric()) signature = RemoveGenericTypeNameArgumentCount(signature);
 
         return signature;
     }
@@ -288,8 +241,5 @@ public static class ExtensionsMethod
     /// <summary>This removes the `{argumentCount} from a the signature of a generic type</summary>
     /// <param name="genericTypeSignature">Signature of a generic type</param>
     /// <returns><paramref name="genericTypeSignature" /> without any argument count</returns>
-    public static string RemoveGenericTypeNameArgumentCount(string genericTypeSignature)
-    {
-        return genericTypeSignature.Substring(0, genericTypeSignature.IndexOf('`'));
-    }
+    public static string RemoveGenericTypeNameArgumentCount(string genericTypeSignature) => genericTypeSignature.Substring(0, genericTypeSignature.IndexOf('`'));
 }

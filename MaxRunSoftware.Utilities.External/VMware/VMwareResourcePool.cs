@@ -31,9 +31,6 @@ public class VMwareResourcePool : VMwareObject
 
     public static IEnumerable<VMwareResourcePool> Query(VMwareClient vmware)
     {
-        foreach (var obj in vmware.GetValueArray("/rest/vcenter/resource-pool"))
-        {
-            yield return new VMwareResourcePool(vmware, obj);
-        }
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/resource-pool")) yield return new VMwareResourcePool(vmware, obj);
     }
 }

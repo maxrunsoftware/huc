@@ -34,10 +34,7 @@ public class ActiveDirectoryRemoveUserFromGroup : ActiveDirectoryBase
 
         var groups = values.otherValues;
         log.Debug(groups, nameof(groups));
-        if (groups.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(groups));
-        }
+        if (groups.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(groups));
 
         log.Debug("Removing user " + samAccountName + " from groups " + groups.ToStringDelimited(", "));
         foreach (var group in groups)

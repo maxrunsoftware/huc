@@ -46,15 +46,9 @@ public class Colors : Command
 
         public static string[] ColorNames => Colors.Select(o => o.ColorName).ToArray();
 
-        public static Color GetColor(string colorName)
-        {
-            return Colors.FirstOrDefault(o => string.Equals(o.ColorName, colorName, StringComparison.OrdinalIgnoreCase));
-        }
+        public static Color GetColor(string colorName) => Colors.FirstOrDefault(o => string.Equals(o.ColorName, colorName, StringComparison.OrdinalIgnoreCase));
 
-        public static string ToPercent(byte colorByte)
-        {
-            return (colorByte / 255.0F * 100.0F).ToString(MidpointRounding.AwayFromZero, 0);
-        }
+        public static string ToPercent(byte colorByte) => (colorByte / 255.0F * 100.0F).ToString(MidpointRounding.AwayFromZero, 0);
     }
 
 
@@ -65,27 +59,19 @@ public class Colors : Command
         if (colorRequested == null)
         {
             var lines = Color.ColorNames.ToStringsColumns(4);
-            foreach (var line in lines)
-            {
-                log.Info(line);
-            }
+            foreach (var line in lines) log.Info(line);
         }
         else
         {
             var color = Color.GetColor(colorRequested);
-            if (color == null)
-            {
-                log.Info("Color not found: " + colorRequested);
-            }
+            if (color == null) { log.Info("Color not found: " + colorRequested); }
             else
             {
-                string FormatColor(byte colorValue)
-                {
-                    return colorValue.ToString().PadRight(3)
-                           + "  "
-                           + Color.ToPercent(colorValue).PadLeft(3)
-                           + " %";
-                }
+                string FormatColor(byte colorValue) =>
+                    colorValue.ToString().PadRight(3)
+                    + "  "
+                    + Color.ToPercent(colorValue).PadLeft(3)
+                    + " %";
 
                 log.Info("Color: " + color.ColorName);
                 log.Info("    R: " + FormatColor(color.ColorValue.R));

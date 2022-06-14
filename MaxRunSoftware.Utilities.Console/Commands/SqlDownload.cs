@@ -33,15 +33,9 @@ public class SqlDownload : SqlQueryBase
 
     protected void DownloadFile(string fileName, string fileUrl, Dictionary<string, string> cookies, int rowNum)
     {
-        if (fileName == null)
-        {
-            throw new Exception("[FileName] is NULL");
-        }
+        if (fileName == null) throw new Exception("[FileName] is NULL");
 
-        if (fileUrl == null)
-        {
-            throw new Exception("[FileURL] is NULL");
-        }
+        if (fileUrl == null) throw new Exception("[FileURL] is NULL");
 
         log.Debug("[" + rowNum + "] Downloading [" + fileName + "] from " + fileUrl + "  (cookies: " + cookies.Count + ")");
 
@@ -50,13 +44,9 @@ public class SqlDownload : SqlQueryBase
         var response = Util.WebDownload(fileUrl, fileName, cookies: cookies);
         var msg = "[" + rowNum + "] Successfully downloaded file " + fileName + "  (" + Util.FileGetSize(fileName) + ")";
         if (showSuccess)
-        {
             log.Info(msg);
-        }
         else
-        {
             log.Debug(msg);
-        }
 
         log.Debug(response.ToString());
         log.Trace(response.ToStringDetail());
@@ -94,24 +84,14 @@ public class SqlDownload : SqlQueryBase
             var cookieColumns = new List<TableColumn>();
             foreach (var c in table.Columns)
             {
-                if (c.Name.In(StringComparer.OrdinalIgnoreCase, "FileName", "FileURL"))
-                {
-                    continue;
-                }
+                if (c.Name.In(StringComparer.OrdinalIgnoreCase, "FileName", "FileURL")) continue;
 
                 if (c.Name.StartsWith("Cookie_", StringComparison.OrdinalIgnoreCase) || c.Name.StartsWith("Cookie.", StringComparison.OrdinalIgnoreCase))
-                {
                     if (c.Name.Length > 7)
-                    {
                         cookieColumns.Add(c);
-                    }
-                }
             }
 
-            foreach (var c in cookieColumns)
-            {
-                log.Debug("Found cookie column [" + c.Name + "]");
-            }
+            foreach (var c in cookieColumns) log.Debug("Found cookie column [" + c.Name + "]");
 
             var rowNum = 0;
             foreach (var row in table)
@@ -121,10 +101,7 @@ public class SqlDownload : SqlQueryBase
                 var fileUrl = row[columnFileUrl];
 
                 var cookies = new Dictionary<string, string>();
-                foreach (var c in cookieColumns)
-                {
-                    cookies[c.Name.Substring(7)] = row[c];
-                }
+                foreach (var c in cookieColumns) cookies[c.Name.Substring(7)] = row[c];
 
                 try
                 {

@@ -67,38 +67,26 @@ public class FileRemoveOlderThenDays : FileRemoveOlderThenBase
 {
     protected override string AmountType => "days";
 
-    protected override DateTime CalcThreshold(DateTime now, int numberOf)
-    {
-        return now.AddDays(numberOf * -1);
-    }
+    protected override DateTime CalcThreshold(DateTime now, int numberOf) => now.AddDays(numberOf * -1);
 }
 
 public class FileRemoveOlderThenWeeks : FileRemoveOlderThenBase
 {
     protected override string AmountType => "weeks";
 
-    protected override DateTime CalcThreshold(DateTime now, int numberOf)
-    {
-        return now.AddDays(numberOf * 7 * -1);
-    }
+    protected override DateTime CalcThreshold(DateTime now, int numberOf) => now.AddDays(numberOf * 7 * -1);
 }
 
 public class FileRemoveOlderThenMonths : FileRemoveOlderThenBase
 {
     protected override string AmountType => "months";
 
-    protected override DateTime CalcThreshold(DateTime now, int numberOf)
-    {
-        return now.AddMonths(numberOf * -1);
-    }
+    protected override DateTime CalcThreshold(DateTime now, int numberOf) => now.AddMonths(numberOf * -1);
 }
 
 public class FileRemoveOlderThenYears : FileRemoveOlderThenBase
 {
     protected override string AmountType => "years";
 
-    protected override DateTime CalcThreshold(DateTime now, int numberOf)
-    {
-        return now.AddYears(numberOf * -1);
-    }
+    protected override DateTime CalcThreshold(DateTime now, int numberOf) => now.AddYears(numberOf * -1);
 }

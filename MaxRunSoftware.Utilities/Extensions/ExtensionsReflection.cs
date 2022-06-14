@@ -18,13 +18,7 @@ namespace MaxRunSoftware.Utilities;
 
 public static class ExtensionsReflection
 {
-    public static string GetFileVersion(this Assembly assembly)
-    {
-        return FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
-    }
+    public static string GetFileVersion(this Assembly assembly) => FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
 
-    public static string GetVersion(this Assembly assembly)
-    {
-        return assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version;
-    }
+    public static string GetVersion(this Assembly assembly) => assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version;
 }

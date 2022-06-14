@@ -22,113 +22,53 @@ public static class ExtensionsToString
 {
     #region ToStringPadded
 
-    public static string ToStringPadded(this byte value)
-    {
-        return value.ToString().PadLeft(byte.MaxValue.ToString().Length, '0');
-    }
+    public static string ToStringPadded(this byte value) => value.ToString().PadLeft(byte.MaxValue.ToString().Length, '0');
 
-    public static string ToStringPadded(this sbyte value)
-    {
-        return value.ToString().PadLeft(sbyte.MaxValue.ToString().Length, '0');
-    }
+    public static string ToStringPadded(this sbyte value) => value.ToString().PadLeft(sbyte.MaxValue.ToString().Length, '0');
 
-    public static string ToStringPadded(this decimal value)
-    {
-        return value.ToString(CultureInfo.InvariantCulture).PadLeft(decimal.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
-    }
+    public static string ToStringPadded(this decimal value) => value.ToString(CultureInfo.InvariantCulture).PadLeft(decimal.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
 
-    public static string ToStringPadded(this double value)
-    {
-        return value.ToString(CultureInfo.InvariantCulture).PadLeft(double.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
-    }
+    public static string ToStringPadded(this double value) => value.ToString(CultureInfo.InvariantCulture).PadLeft(double.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
 
-    public static string ToStringPadded(this float value)
-    {
-        return value.ToString(CultureInfo.InvariantCulture).PadLeft(float.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
-    }
+    public static string ToStringPadded(this float value) => value.ToString(CultureInfo.InvariantCulture).PadLeft(float.MaxValue.ToString(CultureInfo.InvariantCulture).Length, '0');
 
-    public static string ToStringPadded(this int value)
-    {
-        return value.ToString().PadLeft(int.MaxValue.ToString().Length, '0');
-    }
+    public static string ToStringPadded(this int value) => value.ToString().PadLeft(int.MaxValue.ToString().Length, '0');
 
-    public static string ToStringPadded(this uint value)
-    {
-        return value.ToString().PadLeft(uint.MaxValue.ToString().Length, '0');
-    }
+    public static string ToStringPadded(this uint value) => value.ToString().PadLeft(uint.MaxValue.ToString().Length, '0');
 
-    public static string ToStringPadded(this long value)
-    {
-        return value.ToString().PadLeft(long.MaxValue.ToString().Length, '0');
-    }
+    public static string ToStringPadded(this long value) => value.ToString().PadLeft(long.MaxValue.ToString().Length, '0');
 
-    public static string ToStringPadded(this ulong value)
-    {
-        return value.ToString().PadLeft(ulong.MaxValue.ToString().Length, '0');
-    }
+    public static string ToStringPadded(this ulong value) => value.ToString().PadLeft(ulong.MaxValue.ToString().Length, '0');
 
-    public static string ToStringPadded(this short value)
-    {
-        return value.ToString().PadLeft(short.MaxValue.ToString().Length, '0');
-    }
+    public static string ToStringPadded(this short value) => value.ToString().PadLeft(short.MaxValue.ToString().Length, '0');
 
-    public static string ToStringPadded(this ushort value)
-    {
-        return value.ToString().PadLeft(ushort.MaxValue.ToString().Length, '0');
-    }
+    public static string ToStringPadded(this ushort value) => value.ToString().PadLeft(ushort.MaxValue.ToString().Length, '0');
 
     #endregion ToStringPadded
 
     #region ToStringCommas
 
-    public static string ToStringCommas(this int value)
-    {
-        return $"{value:n0}";
-    }
+    public static string ToStringCommas(this int value) => $"{value:n0}";
 
-    public static string ToStringCommas(this uint value)
-    {
-        return $"{value:n0}";
-    }
+    public static string ToStringCommas(this uint value) => $"{value:n0}";
 
-    public static string ToStringCommas(this long value)
-    {
-        return $"{value:n0}";
-    }
+    public static string ToStringCommas(this long value) => $"{value:n0}";
 
-    public static string ToStringCommas(this ulong value)
-    {
-        return $"{value:n0}";
-    }
+    public static string ToStringCommas(this ulong value) => $"{value:n0}";
 
-    public static string ToStringCommas(this short value)
-    {
-        return $"{value:n0}";
-    }
+    public static string ToStringCommas(this short value) => $"{value:n0}";
 
-    public static string ToStringCommas(this ushort value)
-    {
-        return $"{value:n0}";
-    }
+    public static string ToStringCommas(this ushort value) => $"{value:n0}";
 
     #endregion ToStringCommas
 
     #region ToStringRoundAwayFromZero
 
-    public static string ToString(this double value, MidpointRounding rounding, int decimalPlaces)
-    {
-        return value.Round(rounding, decimalPlaces).ToString("N" + decimalPlaces).Replace(",", "");
-    }
+    public static string ToString(this double value, MidpointRounding rounding, int decimalPlaces) => value.Round(rounding, decimalPlaces).ToString("N" + decimalPlaces).Replace(",", "");
 
-    public static string ToString(this float value, MidpointRounding rounding, int decimalPlaces)
-    {
-        return value.Round(rounding, decimalPlaces).ToString("N" + decimalPlaces).Replace(",", "");
-    }
+    public static string ToString(this float value, MidpointRounding rounding, int decimalPlaces) => value.Round(rounding, decimalPlaces).ToString("N" + decimalPlaces).Replace(",", "");
 
-    public static string ToString(this decimal value, MidpointRounding rounding, int decimalPlaces)
-    {
-        return value.Round(rounding, decimalPlaces).ToString("N" + decimalPlaces).Replace(",", "");
-    }
+    public static string ToString(this decimal value, MidpointRounding rounding, int decimalPlaces) => value.Round(rounding, decimalPlaces).ToString("N" + decimalPlaces).Replace(",", "");
 
     #endregion ToStringRoundAwayFromZero
 
@@ -137,87 +77,45 @@ public static class ExtensionsToString
     {
         var list = new List<string>();
 
-        foreach (var item in enumerable)
-        {
-            list.Add(item.ToStringGuessFormat());
-        }
+        foreach (var item in enumerable) list.Add(item.ToStringGuessFormat());
 
         return "[" + string.Join(",", list) + "]";
     }
 
-    public static string ToStringISO8601(this DateTime dateTime)
-    {
-        return dateTime.ToString("o");
-        // ISO 8601
-    }
+    public static string ToStringISO8601(this DateTime dateTime) => dateTime.ToString("o");
 
-    public static string ToStringYYYYMMDD(this DateTime dateTime)
-    {
-        return dateTime.ToString("yyyy-MM-dd");
-    }
+    // ISO 8601
+    public static string ToStringYYYYMMDD(this DateTime dateTime) => dateTime.ToString("yyyy-MM-dd");
 
-    public static string ToStringYYYYMMDDHHMMSS(this DateTime dateTime)
-    {
-        return dateTime.ToString("yyyy-MM-dd HH:mm:ss");
-    }
+    public static string ToStringYYYYMMDDHHMMSS(this DateTime dateTime) => dateTime.ToString("yyyy-MM-dd HH:mm:ss");
 
     public static string ToStringGuessFormat(this object obj)
     {
-        if (obj == null)
-        {
-            return null;
-        }
+        if (obj == null) return null;
 
-        if (obj == DBNull.Value)
-        {
-            return null;
-        }
+        if (obj == DBNull.Value) return null;
 
-        if (obj is string objString)
-        {
-            return objString;
-        }
+        if (obj is string objString) return objString;
 
-        if (obj is DateTime objDateTime)
-        {
-            return objDateTime.ToStringYYYYMMDDHHMMSS();
-        }
+        if (obj is DateTime objDateTime) return objDateTime.ToStringYYYYMMDDHHMMSS();
 
-        if (obj is byte[] objBytes)
-        {
-            return "0x" + Util.Base16(objBytes);
-        }
+        if (obj is byte[] objBytes) return "0x" + Util.Base16(objBytes);
 
-        if (obj is Type objType)
-        {
-            return objType.FullNameFormatted();
-        }
+        if (obj is Type objType) return objType.FullNameFormatted();
 
         var t = obj.GetType();
-        if (t.IsNullable(out var underlyingType))
-        {
-            t = underlyingType;
-        }
+        if (t.IsNullable(out var underlyingType)) t = underlyingType;
 
-        if (t == typeof(DateTime?))
-        {
-            return ((DateTime?)obj).Value.ToStringYYYYMMDDHHMMSS();
-        }
+        if (t == typeof(DateTime?)) return ((DateTime?)obj).Value.ToStringYYYYMMDDHHMMSS();
 
-        if (obj is IEnumerable enumerable)
-        {
-            return enumerable.ToStringItems();
-        }
+        if (obj is IEnumerable enumerable) return enumerable.ToStringItems();
 
         return obj.ToString();
     }
 
     public static IEnumerable<string> ToStringsGuessFormat(this IEnumerable<object> enumerable)
     {
-        foreach (var obj in enumerable.OrEmpty())
-        {
-            yield return obj.ToStringGuessFormat();
-        }
+        foreach (var obj in enumerable.OrEmpty()) yield return obj.ToStringGuessFormat();
     }
 
     public static string ToStringGenerated(this object obj, BindingFlags flags = BindingFlags.Instance | BindingFlags.Public)
@@ -231,10 +129,7 @@ public static class ExtensionsToString
         var list = new List<string>();
         foreach (var prop in t.GetProperties(flags))
         {
-            if (!prop.CanRead)
-            {
-                continue;
-            }
+            if (!prop.CanRead) continue;
 
             var name = prop.Name;
             var val = prop.GetValue(obj).ToStringGuessFormat() ?? "null";
@@ -251,37 +146,19 @@ public static class ExtensionsToString
         return sb.ToString();
     }
 
-    public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter)
-    {
-        return string.Join(delimiter, enumerable);
-    }
+    public static string ToStringDelimited<T>(this IEnumerable<T> enumerable, string delimiter) => string.Join(delimiter, enumerable);
 
-    public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter)
-    {
-        return enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);
-    }
+    public static string ToStringDelimited(this IEnumerable<object> enumerable, string delimiter) => enumerable.Select(o => o.ToStringGuessFormat()).ToStringDelimited(delimiter);
 
-    public static string ToStringInsecure(this SecureString secureString)
-    {
-        return new NetworkCredential("", secureString).Password;
-    }
+    public static string ToStringInsecure(this SecureString secureString) => new NetworkCredential("", secureString).Password;
 
-    public static string ToStringTotalSeconds(this TimeSpan timeSpan, int numberOfDecimalDigits = 0)
-    {
-        return timeSpan.TotalSeconds.ToString(MidpointRounding.AwayFromZero, Math.Max(0, numberOfDecimalDigits));
-    }
+    public static string ToStringTotalSeconds(this TimeSpan timeSpan, int numberOfDecimalDigits = 0) => timeSpan.TotalSeconds.ToString(MidpointRounding.AwayFromZero, Math.Max(0, numberOfDecimalDigits));
 
     private static readonly string[] toStringBase16Cache = Enumerable.Range(0, 256).Select(o => BitConverter.ToString(new[] { (byte)o })).ToArray();
 
-    public static string ToStringBase16(this byte b)
-    {
-        return toStringBase16Cache[b];
-    }
+    public static string ToStringBase16(this byte b) => toStringBase16Cache[b];
 
     private static readonly string[] toStringBase64Cache = Enumerable.Range(0, 256).Select(o => Convert.ToBase64String(new[] { (byte)o }).Substring(0, 2)).ToArray();
 
-    public static string ToStringBase64(this byte b)
-    {
-        return toStringBase64Cache[b];
-    }
+    public static string ToStringBase64(this byte b) => toStringBase64Cache[b];
 }

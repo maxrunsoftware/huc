@@ -22,108 +22,68 @@ public static class VMwareExtensions
 {
     public static string ToString(this JToken token, params string[] keys)
     {
-        if (token == null)
-        {
-            return null;
-        }
+        if (token == null) return null;
 
         foreach (var key in keys)
         {
             token = token[key];
-            if (token == null)
-            {
-                return null;
-            }
+            if (token == null) return null;
         }
 
         return token.ToString().TrimOrNull();
     }
 
-    public static bool ToBool(this JToken token, bool ifNull, params string[] keys)
-    {
-        return ToBool(token, keys) ?? ifNull;
-    }
+    public static bool ToBool(this JToken token, bool ifNull, params string[] keys) => ToBool(token, keys) ?? ifNull;
 
     public static bool? ToBool(this JToken token, params string[] keys)
     {
         var val = ToString(token, keys);
-        if (val == null)
-        {
-            return null;
-        }
+        if (val == null) return null;
 
         return val.ToBool();
     }
 
-    public static uint ToUInt(this JToken token, uint ifNull, params string[] keys)
-    {
-        return ToUInt(token, keys) ?? ifNull;
-    }
+    public static uint ToUInt(this JToken token, uint ifNull, params string[] keys) => ToUInt(token, keys) ?? ifNull;
 
     public static uint? ToUInt(this JToken token, params string[] keys)
     {
         var val = ToString(token, keys);
-        if (val == null)
-        {
-            return null;
-        }
+        if (val == null) return null;
 
         return val.ToUInt();
     }
 
-    public static int ToInt(this JToken token, int ifNull, params string[] keys)
-    {
-        return ToInt(token, keys) ?? ifNull;
-    }
+    public static int ToInt(this JToken token, int ifNull, params string[] keys) => ToInt(token, keys) ?? ifNull;
 
     public static int? ToInt(this JToken token, params string[] keys)
     {
         var val = ToString(token, keys);
-        if (val == null)
-        {
-            return null;
-        }
+        if (val == null) return null;
 
         return val.ToInt();
     }
 
-    public static Guid ToGuid(this JToken token, Guid ifNull, params string[] keys)
-    {
-        return ToGuid(token, keys) ?? ifNull;
-    }
+    public static Guid ToGuid(this JToken token, Guid ifNull, params string[] keys) => ToGuid(token, keys) ?? ifNull;
 
     public static Guid? ToGuid(this JToken token, params string[] keys)
     {
         var val = ToString(token, keys);
-        if (val == null)
-        {
-            return null;
-        }
+        if (val == null) return null;
 
         var sb = new StringBuilder();
         for (var i = 0; i < val.Length; i++)
-        {
             if (val[i].In("0123456789abcdef".ToCharArray()))
-            {
                 sb.Append(val[i]);
-            }
-        }
 
         return sb.ToString().ToGuid();
     }
 
-    public static long ToLong(this JToken token, long ifNull, params string[] keys)
-    {
-        return ToLong(token, keys) ?? ifNull;
-    }
+    public static long ToLong(this JToken token, long ifNull, params string[] keys) => ToLong(token, keys) ?? ifNull;
 
     public static long? ToLong(this JToken token, params string[] keys)
     {
         var val = ToString(token, keys);
-        if (val == null)
-        {
-            return null;
-        }
+        if (val == null) return null;
 
         return val.ToLong();
     }
@@ -131,35 +91,17 @@ public static class VMwareExtensions
     public static VMwareVM.VmHardwareConnectionState ToConnectionState(this JToken token, params string[] keys)
     {
         var s = token.ToString(keys);
-        if (s == null)
-        {
-            return VMwareVM.VmHardwareConnectionState.Unknown;
-        }
+        if (s == null) return VMwareVM.VmHardwareConnectionState.Unknown;
 
-        if (s.EqualsCaseInsensitive("CONNECTED"))
-        {
-            return VMwareVM.VmHardwareConnectionState.Connected;
-        }
+        if (s.EqualsCaseInsensitive("CONNECTED")) return VMwareVM.VmHardwareConnectionState.Connected;
 
-        if (s.EqualsCaseInsensitive("RECOVERABLE_ERROR"))
-        {
-            return VMwareVM.VmHardwareConnectionState.RecoverableError;
-        }
+        if (s.EqualsCaseInsensitive("RECOVERABLE_ERROR")) return VMwareVM.VmHardwareConnectionState.RecoverableError;
 
-        if (s.EqualsCaseInsensitive("UNRECOVERABLE_ERROR"))
-        {
-            return VMwareVM.VmHardwareConnectionState.UnrecoverableError;
-        }
+        if (s.EqualsCaseInsensitive("UNRECOVERABLE_ERROR")) return VMwareVM.VmHardwareConnectionState.UnrecoverableError;
 
-        if (s.EqualsCaseInsensitive("NOT_CONNECTED"))
-        {
-            return VMwareVM.VmHardwareConnectionState.NotConnected;
-        }
+        if (s.EqualsCaseInsensitive("NOT_CONNECTED")) return VMwareVM.VmHardwareConnectionState.NotConnected;
 
-        if (s.EqualsCaseInsensitive("UNKNOWN"))
-        {
-            return VMwareVM.VmHardwareConnectionState.Unknown;
-        }
+        if (s.EqualsCaseInsensitive("UNKNOWN")) return VMwareVM.VmHardwareConnectionState.Unknown;
 
         return VMwareVM.VmHardwareConnectionState.Unknown;
     }
@@ -167,25 +109,13 @@ public static class VMwareExtensions
     public static VMwareVM.VMPowerState ToPowerState(this JToken token, params string[] keys)
     {
         var s = token.ToString(keys);
-        if (s == null)
-        {
-            return VMwareVM.VMPowerState.Unknown;
-        }
+        if (s == null) return VMwareVM.VMPowerState.Unknown;
 
-        if (s.EqualsCaseInsensitive("POWERED_OFF"))
-        {
-            return VMwareVM.VMPowerState.PoweredOff;
-        }
+        if (s.EqualsCaseInsensitive("POWERED_OFF")) return VMwareVM.VMPowerState.PoweredOff;
 
-        if (s.EqualsCaseInsensitive("POWERED_ON"))
-        {
-            return VMwareVM.VMPowerState.PoweredOn;
-        }
+        if (s.EqualsCaseInsensitive("POWERED_ON")) return VMwareVM.VMPowerState.PoweredOn;
 
-        if (s.EqualsCaseInsensitive("SUSPENDED"))
-        {
-            return VMwareVM.VMPowerState.Suspended;
-        }
+        if (s.EqualsCaseInsensitive("SUSPENDED")) return VMwareVM.VMPowerState.Suspended;
 
         return VMwareVM.VMPowerState.Unknown;
     }

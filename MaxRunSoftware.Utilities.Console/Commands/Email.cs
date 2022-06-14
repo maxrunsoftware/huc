@@ -99,33 +99,20 @@ public class Email : Command
         replyto = GetArgParameterOrConfig(nameof(replyto), "r", from);
         subject = GetArgParameterOrConfigRequired(nameof(subject), "s");
         body = GetArgParameterOrConfig(nameof(body), "b");
-        if (body != null)
-        {
-            body = body.TrimEnd();
-        }
+        if (body != null) body = body.TrimEnd();
 
-        if (body.TrimOrNull() == null)
-        {
-            body = null;
-        }
+        if (body.TrimOrNull() == null) body = null;
 
-        if (body != null)
-        {
-            body = body.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
-        }
+        if (body != null) body = body.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
 
         bodyTemplate = GetArgParameterOrConfig(nameof(bodyTemplate), "bt").TrimOrNull();
         if (bodyTemplate != null)
         {
             var bodyTemplateFile = ReadFile(bodyTemplate);
             if (body != null)
-            {
                 body = body + Constant.NEWLINE_WINDOWS + bodyTemplateFile;
-            }
             else
-            {
                 body = bodyTemplateFile;
-            }
         }
 
         template1 = GetArgParameterOrConfig(nameof(template1), "t1");
@@ -142,26 +129,14 @@ public class Email : Command
         for (var i = 1; i <= 9; i++)
         {
             var replacement = templates[i - 1];
-            if (replacement.TrimOrNull() == null)
-            {
-                replacement = null;
-            }
+            if (replacement.TrimOrNull() == null) replacement = null;
 
-            if (replacement == null)
-            {
-                continue;
-            }
+            if (replacement == null) continue;
 
             var t2 = "{t" + i + "}";
-            if (subject != null)
-            {
-                subject = subject.Replace(t2, replacement, StringComparison.OrdinalIgnoreCase);
-            }
+            if (subject != null) subject = subject.Replace(t2, replacement, StringComparison.OrdinalIgnoreCase);
 
-            if (body != null)
-            {
-                body = body.Replace(t2, replacement, StringComparison.OrdinalIgnoreCase);
-            }
+            if (body != null) body = body.Replace(t2, replacement, StringComparison.OrdinalIgnoreCase);
         }
 
         var attachmentFiles = ParseInputFiles(GetArgValuesTrimmed()).ToArray();
@@ -176,38 +151,23 @@ public class Email : Command
             client.Timeout = timeout * 1000;
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.UseDefaultCredentials = username == null;
-            if (username != null)
-            {
-                client.Credentials = new NetworkCredential(username, password);
-            }
+            if (username != null) client.Credentials = new NetworkCredential(username, password);
 
             using (var mail = new MailMessage())
             {
                 mail.From = new MailAddress(from);
-                foreach (var item in to)
-                {
-                    mail.To.Add(item);
-                }
+                foreach (var item in to) mail.To.Add(item);
 
-                foreach (var item in cc)
-                {
-                    mail.CC.Add(item);
-                }
+                foreach (var item in cc) mail.CC.Add(item);
 
-                foreach (var item in bcc)
-                {
-                    mail.Bcc.Add(item);
-                }
+                foreach (var item in bcc) mail.Bcc.Add(item);
 
                 mail.SubjectEncoding = encoding;
                 mail.Subject = subject;
 
                 mail.BodyEncoding = encoding;
                 mail.IsBodyHtml = false;
-                if (body != null)
-                {
-                    mail.Body = body;
-                }
+                if (body != null) mail.Body = body;
 
                 mail.ReplyToList.Clear();
                 mail.ReplyToList.Add(new MailAddress(replyto ?? from));
@@ -218,10 +178,7 @@ public class Email : Command
 
                 client.Send(mail);
 
-                foreach (var a in attachments.ToListReversed())
-                {
-                    a.Dispose();
-                }
+                foreach (var a in attachments.ToListReversed()) a.Dispose();
             }
         }
     }
@@ -230,10 +187,7 @@ public class Email : Command
     {
         var list = new List<MailAddress>();
         emailAddresses = emailAddresses.TrimOrNull();
-        if (emailAddresses == null)
-        {
-            return list;
-        }
+        if (emailAddresses == null) return list;
 
         foreach (var ea in emailAddresses.Split(';', ',', '|').TrimOrNull().WhereNotNull())
         {
@@ -251,10 +205,7 @@ public class Email : Command
         var to2 = GetArgParameterConfig(key);
         var to22 = ParseEmailAddresses(to2);
         var emailAddresses = to11.Concat(to22).ToArray();
-        for (var i = 0; i < emailAddresses.Length; i++)
-        {
-            log.Debug($"{key}[{i}]: {emailAddresses[i]}");
-        }
+        for (var i = 0; i < emailAddresses.Length; i++) log.Debug($"{key}[{i}]: {emailAddresses[i]}");
 
         return emailAddresses;
     }

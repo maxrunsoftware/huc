@@ -33,9 +33,6 @@ public class VMwareFolder : VMwareObject
 
     public static IEnumerable<VMwareFolder> Query(VMwareClient vmware)
     {
-        foreach (var obj in vmware.GetValueArray("/rest/vcenter/folder"))
-        {
-            yield return new VMwareFolder(vmware, obj);
-        }
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/folder")) yield return new VMwareFolder(vmware, obj);
     }
 }

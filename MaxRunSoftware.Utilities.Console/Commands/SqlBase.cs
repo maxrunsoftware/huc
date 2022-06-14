@@ -67,28 +67,17 @@ public abstract class SqlBase : Command
 
     protected Utilities.Sql GetSqlHelper()
     {
-        if (connectionString == null)
-        {
-            throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-        }
+        if (connectionString == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
 
         Utilities.Sql sql;
         if (serverType == SqlServerType.MsSql)
-        {
             sql = new SqlMsSql { ConnectionFactory = CreateConnectionMsSql };
-        }
         else if (serverType == SqlServerType.MySql)
-        {
             sql = new SqlMySql { ConnectionFactory = CreateConnectionMySql };
-        }
         else if (serverType == SqlServerType.Oracle)
-        {
             sql = new SqlOracle { ConnectionFactory = CreateConnectionOracle };
-        }
         else
-        {
             throw new NotImplementedException($"sqlServerType {serverType} has not been implemented yet");
-        }
 
         sql.CommandTimeout = commandTimeout;
         sql.ExceptionShowFullSql = showSqlInExceptions;
@@ -104,25 +93,16 @@ public abstract class SqlBase : Command
         conn.InfoMessage += delegate(object _, SqlInfoMessageEventArgs e)
         {
             if (e.Errors != null)
-            {
                 foreach (SqlError info in e.Errors)
                 {
                     var msg = info.Message.TrimOrNull();
-                    if (msg == null)
-                    {
-                        continue;
-                    }
+                    if (msg == null) continue;
 
                     if (info.Class > 10)
-                    {
                         log.Warn(msg);
-                    }
                     else
-                    {
                         log.Info(msg);
-                    }
                 }
-            }
         };
         return conn;
     }
@@ -134,25 +114,16 @@ public abstract class SqlBase : Command
         conn.InfoMessage += delegate(object _, MySqlInfoMessageEventArgs e)
         {
             if (e.errors != null)
-            {
                 foreach (var info in e.errors.OrEmpty())
                 {
                     var msg = info?.Message.TrimOrNull();
-                    if (msg == null)
-                    {
-                        continue;
-                    }
+                    if (msg == null) continue;
 
                     if (info.Code > 10)
-                    {
                         log.Warn(msg);
-                    }
                     else
-                    {
                         log.Info(msg);
-                    }
                 }
-            }
         };
         return conn;
     }
@@ -164,16 +135,11 @@ public abstract class SqlBase : Command
         conn.InfoMessage += delegate(object _, OracleInfoMessageEventArgs e)
         {
             if (e.Errors != null)
-            {
                 foreach (var info in e.Errors)
                 {
                     var msg = info?.ToString().TrimOrNull();
-                    if (msg != null)
-                    {
-                        log.Info(msg);
-                    }
+                    if (msg != null) log.Info(msg);
                 }
-            }
         };
         return conn;
     }

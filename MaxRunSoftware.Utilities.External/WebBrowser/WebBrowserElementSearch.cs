@@ -50,10 +50,7 @@ public class WebBrowserElementSearch
         var searchedValueContains = false;
 
         var list = new List<IWebElement>();
-        if (XPath != null)
-        {
-            list.AddRange(driver.FindElements(By.XPath(XPath)));
-        }
+        if (XPath != null) { list.AddRange(driver.FindElements(By.XPath(XPath))); }
         else if (Id != null)
         {
             searchedId = true;
@@ -62,10 +59,7 @@ public class WebBrowserElementSearch
         else if (ClassName != null)
         {
             searchedClassName = true;
-            if (ClassName.IndexOf(" ", StringComparison.Ordinal) < 0)
-            {
-                list.AddRange(driver.FindElements(By.ClassName(ClassName)));
-            }
+            if (ClassName.IndexOf(" ", StringComparison.Ordinal) < 0) { list.AddRange(driver.FindElements(By.ClassName(ClassName))); }
             else
             {
                 var query = ClassName
@@ -113,15 +107,9 @@ public class WebBrowserElementSearch
             foreach (var element in list)
             {
                 var val = element.GetId();
-                if (val == null)
-                {
-                    continue; // we are filtering on ID and this element doesn't have an ID so skip
-                }
+                if (val == null) continue; // we are filtering on ID and this element doesn't have an ID so skip
 
-                if (string.Equals(Id, val, StringComparison.OrdinalIgnoreCase))
-                {
-                    list2.Add(element);
-                }
+                if (string.Equals(Id, val, StringComparison.OrdinalIgnoreCase)) list2.Add(element);
             }
 
             list = list2;
@@ -133,10 +121,7 @@ public class WebBrowserElementSearch
             foreach (var element in list)
             {
                 var val = element.GetClassNames();
-                if (val == null || val.Length == 0)
-                {
-                    continue; // we are filtering on ClassName and this element doesn't have a ClassName so skip
-                }
+                if (val == null || val.Length == 0) continue; // we are filtering on ClassName and this element doesn't have a ClassName so skip
 
                 var elementClassItems = new HashSet<string>(val.Select(o => o.ToLower()));
 
@@ -150,10 +135,7 @@ public class WebBrowserElementSearch
                     }
                 }
 
-                if (foundAll)
-                {
-                    list2.Add(element);
-                }
+                if (foundAll) list2.Add(element);
             }
 
             list = list2;
@@ -165,15 +147,9 @@ public class WebBrowserElementSearch
             foreach (var element in list)
             {
                 var val = element.GetName();
-                if (val == null)
-                {
-                    continue; // we are filtering on Name and this element doesn't have an Name so skip
-                }
+                if (val == null) continue; // we are filtering on Name and this element doesn't have an Name so skip
 
-                if (string.Equals(Name, val, StringComparison.OrdinalIgnoreCase))
-                {
-                    list2.Add(element);
-                }
+                if (string.Equals(Name, val, StringComparison.OrdinalIgnoreCase)) list2.Add(element);
             }
 
             list = list2;
@@ -185,15 +161,9 @@ public class WebBrowserElementSearch
             foreach (var element in list)
             {
                 var val = element.TagName;
-                if (val == null)
-                {
-                    continue; // we are filtering on TagName and this element doesn't have an TagName so skip
-                }
+                if (val == null) continue; // we are filtering on TagName and this element doesn't have an TagName so skip
 
-                if (string.Equals(TagName, val, StringComparison.OrdinalIgnoreCase))
-                {
-                    list2.Add(element);
-                }
+                if (string.Equals(TagName, val, StringComparison.OrdinalIgnoreCase)) list2.Add(element);
             }
 
             list = list2;
@@ -205,15 +175,9 @@ public class WebBrowserElementSearch
             foreach (var element in list)
             {
                 var val = element.Text.TrimOrNull();
-                if (val == null)
-                {
-                    continue; // we are filtering on Value and this element doesn't have a Value so skip
-                }
+                if (val == null) continue; // we are filtering on Value and this element doesn't have a Value so skip
 
-                if (string.Equals(ValueEquals, val, StringComparison.OrdinalIgnoreCase))
-                {
-                    list2.Add(element);
-                }
+                if (string.Equals(ValueEquals, val, StringComparison.OrdinalIgnoreCase)) list2.Add(element);
             }
 
             list = list2;
@@ -225,15 +189,9 @@ public class WebBrowserElementSearch
             foreach (var element in list)
             {
                 var val = element.Text.TrimOrNull();
-                if (val == null)
-                {
-                    continue; // we are filtering on Value and this element doesn't have a Value so skip
-                }
+                if (val == null) continue; // we are filtering on Value and this element doesn't have a Value so skip
 
-                if (val.ToLower().Contains(ValueContains.ToLower()))
-                {
-                    list2.Add(element);
-                }
+                if (val.ToLower().Contains(ValueContains.ToLower())) list2.Add(element);
             }
 
             list = list2;
@@ -245,30 +203,15 @@ public class WebBrowserElementSearch
     public override string ToString()
     {
         var items = new List<string>();
-        if (Id != null)
-        {
-            items.Add(nameof(Id) + "=" + Id);
-        }
+        if (Id != null) items.Add(nameof(Id) + "=" + Id);
 
-        if (ClassName != null)
-        {
-            items.Add(nameof(ClassName) + "=" + ClassName);
-        }
+        if (ClassName != null) items.Add(nameof(ClassName) + "=" + ClassName);
 
-        if (Name != null)
-        {
-            items.Add(nameof(Name) + "=" + Name);
-        }
+        if (Name != null) items.Add(nameof(Name) + "=" + Name);
 
-        if (TagName != null)
-        {
-            items.Add(nameof(TagName) + "=" + TagName);
-        }
+        if (TagName != null) items.Add(nameof(TagName) + "=" + TagName);
 
-        if (XPath != null)
-        {
-            items.Add(nameof(XPath) + "=" + XPath);
-        }
+        if (XPath != null) items.Add(nameof(XPath) + "=" + XPath);
 
         return GetType().Name + "(" + items.ToStringDelimited(", ") + ")";
     }
@@ -294,10 +237,7 @@ public class WebBrowserElementSearch
         /// Initializes a new instance of the <see cref="ByChained" /> class with one or more <see cref="By" /> objects.
         /// </summary>
         /// <param name="bys">One or more <see cref="By" /> references</param>
-        public ByChained(params By[] bys)
-        {
-            this.bys = bys;
-        }
+        public ByChained(params By[] bys) { this.bys = bys; }
 
         /// <summary>
         /// Find a single element.
@@ -307,10 +247,7 @@ public class WebBrowserElementSearch
         public override IWebElement FindElement(ISearchContext context)
         {
             var elements = FindElements(context);
-            if (elements.Count == 0)
-            {
-                throw new NoSuchElementException("Cannot locate an element using " + ToString());
-            }
+            if (elements.Count == 0) throw new NoSuchElementException("Cannot locate an element using " + ToString());
 
             return elements[0];
         }
@@ -322,10 +259,7 @@ public class WebBrowserElementSearch
         /// <returns>A readonly collection of elements that match.</returns>
         public override ReadOnlyCollection<IWebElement> FindElements(ISearchContext context)
         {
-            if (bys.Length == 0)
-            {
-                return new List<IWebElement>().AsReadOnly();
-            }
+            if (bys.Length == 0) return new List<IWebElement>().AsReadOnly();
 
             List<IWebElement> elems = null;
             foreach (var by in bys)
@@ -333,16 +267,10 @@ public class WebBrowserElementSearch
                 var newElems = new List<IWebElement>();
 
                 if (elems == null)
-                {
                     newElems.AddRange(by.FindElements(context));
-                }
                 else
-                {
                     foreach (var elem in elems)
-                    {
                         newElems.AddRange(elem.FindElements(by));
-                    }
-                }
 
                 elems = newElems;
             }
@@ -359,10 +287,7 @@ public class WebBrowserElementSearch
             var stringBuilder = new StringBuilder();
             foreach (var by in bys)
             {
-                if (stringBuilder.Length > 0)
-                {
-                    stringBuilder.Append(",");
-                }
+                if (stringBuilder.Length > 0) stringBuilder.Append(",");
 
                 stringBuilder.Append(by);
             }

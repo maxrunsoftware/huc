@@ -38,15 +38,9 @@ public class WebServerUtility : WebServerBase
         public string HelpDescription => $"Disables the {URL} utility";
         private Type HandlerType { get; }
 
-        private static string Upper(string str)
-        {
-            return str.First().ToString().ToUpper() + str.Substring(1);
-        }
+        private static string Upper(string str) => str.First().ToString().ToUpper() + str.Substring(1);
 
-        private static string Lower(string str)
-        {
-            return str.First().ToString().ToLower() + str.Substring(1);
-        }
+        private static string Lower(string str) => str.First().ToString().ToLower() + str.Substring(1);
 
         public Handler(Type type)
         {
@@ -71,10 +65,7 @@ public class WebServerUtility : WebServerBase
         base.CreateHelp(help);
 
         help.AddSummary("Creates a web server that provides various utilities");
-        foreach (var handler in Handler.Handlers)
-        {
-            help.AddParameter(handler.HelpP1, handler.HelpP2, handler.HelpDescription);
-        }
+        foreach (var handler in Handler.Handlers) help.AddParameter(handler.HelpP1, handler.HelpP2, handler.HelpDescription);
 
         help.AddExample("");
     }
@@ -86,25 +77,15 @@ public class WebServerUtility : WebServerBase
         base.ExecuteInternal();
         var config = GetConfig();
 
-        foreach (var handlerType in Handler.HandlerTypes)
-        {
-            log.Debug("Found Handler: " + handlerType.FullNameFormatted());
-        }
+        foreach (var handlerType in Handler.HandlerTypes) log.Debug("Found Handler: " + handlerType.FullNameFormatted());
 
         handlers = Handler.Handlers;
 
-        foreach (var handler in handlers)
-        {
-            handler.IsEnabled = !GetArgParameterOrConfigBool(handler.HelpP1, handler.HelpP2, false);
-        }
+        foreach (var handler in handlers) handler.IsEnabled = !GetArgParameterOrConfigBool(handler.HelpP1, handler.HelpP2, false);
 
         foreach (var handler in handlers)
-        {
             if (handler.IsEnabled)
-            {
                 config.AddPathHandler(handler.URL, handler.HttpVerbs, handler.HandlerMethod);
-            }
-        }
 
         config.AddPathHandler("/", HttpVerbs.Get, Index);
 
@@ -116,12 +97,8 @@ public class WebServerUtility : WebServerBase
         var sb = new StringBuilder();
         sb.AppendLine("<br />");
         foreach (var handler in handlers)
-        {
             if (handler.IsEnabled)
-            {
                 sb.AppendLine("<p><a href=\"" + handler.URL + "\">" + handler.NameWithSpaces + "</a></p>");
-            }
-        }
 
         return External.WebServer.HtmlMessage("Utilities", sb.ToString());
     }

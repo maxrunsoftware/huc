@@ -39,55 +39,33 @@ public class Versions : Command
 
         var github = new GitHub("maxrunsoftware", "huc");
         var releases = github.Releases;
-        foreach (var release in releases)
-        {
-            log.Info(FormatRelease(release));
-        }
+        foreach (var release in releases) log.Info(FormatRelease(release));
 
-        if (download && releases.Count > 0)
-        {
-            DownloadLatestRelease(releases[0]);
-        }
+        if (download && releases.Count > 0) DownloadLatestRelease(releases[0]);
     }
 
     private void DownloadLatestRelease(Release release)
     {
         var hucFileName = "huc-";
         if (Constant.OS_MAC)
-        {
             hucFileName += "osx";
-        }
         else if (Constant.OS_UNIX)
-        {
             hucFileName += "linux";
-        }
-        else if (Constant.OS_WINDOWS)
-        {
-            hucFileName += "win";
-        }
+        else if (Constant.OS_WINDOWS) hucFileName += "win";
 
         hucFileName += ".zip";
 
         string url = null;
         foreach (var asset in release.Assets)
         {
-            if (asset.Name == null)
-            {
-                continue;
-            }
+            if (asset.Name == null) continue;
 
-            if (!asset.Name.EqualsCaseInsensitive(hucFileName))
-            {
-                continue;
-            }
+            if (!asset.Name.EqualsCaseInsensitive(hucFileName)) continue;
 
             url = asset.BrowserDownloadUrl;
         }
 
-        if (url == null)
-        {
-            throw new Exception("Could not find asset " + hucFileName + " for release " + release.TagName);
-        }
+        if (url == null) throw new Exception("Could not find asset " + hucFileName + " for release " + release.TagName);
 
         var sourceUrl = url;
         sourceUrl.CheckValueNotNull(nameof(sourceUrl), log);
@@ -111,10 +89,7 @@ public class Versions : Command
         sb.Append(release.TagName.PadRight(10));
         var publishedAt = release.PublishedAt;
         var dtFormat = "yyyy-MM-dd HH:mm:ss";
-        if (publishedAt == null)
-        {
-            sb.Append("".PadRight(dtFormat.Length));
-        }
+        if (publishedAt == null) { sb.Append("".PadRight(dtFormat.Length)); }
         else
         {
             var localDateTime = publishedAt.Value.LocalDateTime;
@@ -126,22 +101,13 @@ public class Versions : Command
         var body = release.Body.TrimOrNull();
         if (body != null)
         {
-            if (body.StartsWith(release.TagName))
-            {
-                body = body.Substring(release.TagName.Length).TrimOrNull();
-            }
+            if (body.StartsWith(release.TagName)) body = body.Substring(release.TagName.Length).TrimOrNull();
 
             if (body != null)
             {
-                if (body.StartsWith("-"))
-                {
-                    body = body.Substring("-".Length).TrimOrNull();
-                }
+                if (body.StartsWith("-")) body = body.Substring("-".Length).TrimOrNull();
 
-                if (body != null)
-                {
-                    sb.Append(body);
-                }
+                if (body != null) sb.Append(body);
             }
         }
 

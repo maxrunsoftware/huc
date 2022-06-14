@@ -34,15 +34,9 @@ public class SqlMsSql : Sql
         ReservedWords.AddRange(SqlMsSqlReservedWords.WORDS.SplitOnWhiteSpace().TrimOrNull().WhereNotNull());
     }
 
-    public override string GetCurrentDatabaseName()
-    {
-        return ExecuteScalarString("SELECT DB_NAME();").TrimOrNull();
-    }
+    public override string GetCurrentDatabaseName() => ExecuteScalarString("SELECT DB_NAME();").TrimOrNull();
 
-    public override string GetCurrentSchemaName()
-    {
-        return ExecuteScalarString("SELECT SCHEMA_NAME();").TrimOrNull();
-    }
+    public override string GetCurrentSchemaName() => ExecuteScalarString("SELECT SCHEMA_NAME();").TrimOrNull();
 
     public override IEnumerable<SqlObjectDatabase> GetDatabases()
     {
@@ -51,10 +45,7 @@ public class SqlMsSql : Sql
         foreach (var r in t)
         {
             var so = new SqlObjectDatabase(r[0]);
-            if (ExcludedDatabases.Contains(so.DatabaseName))
-            {
-                continue;
-            }
+            if (ExcludedDatabases.Contains(so.DatabaseName)) continue;
 
             yield return so;
         }
@@ -69,10 +60,7 @@ public class SqlMsSql : Sql
             var sql = new StringBuilder();
             sql.Append("SELECT DISTINCT [CATALOG_NAME],[SCHEMA_NAME]");
             sql.Append($" FROM {Escape(d)}.INFORMATION_SCHEMA.SCHEMATA");
-            if (database != null)
-            {
-                sql.Append($" WHERE CATALOG_NAME='{Unescape(database)}'");
-            }
+            if (database != null) sql.Append($" WHERE CATALOG_NAME='{Unescape(database)}'");
 
             sql.Append(';');
             sqlStatements.Add(sql.ToString());
@@ -83,28 +71,19 @@ public class SqlMsSql : Sql
         foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
-            if (t == null)
-            {
-                continue;
-            }
+            if (t == null) continue;
 
             querySuccess = true;
             foreach (var r in t)
             {
                 var so = new SqlObjectSchema(r[0], r[1]);
-                if (ExcludedSchemas.Contains(so.SchemaName))
-                {
-                    continue;
-                }
+                if (ExcludedSchemas.Contains(so.SchemaName)) continue;
 
                 yield return so;
             }
         }
 
-        if (!querySuccess && exceptions.IsNotEmpty())
-        {
-            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
-        }
+        if (!querySuccess && exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
     }
 
     public override IEnumerable<SqlObjectTable> GetTables(string database = null, string schema = null)
@@ -117,15 +96,9 @@ public class SqlMsSql : Sql
             sql.Append("SELECT DISTINCT [TABLE_CATALOG],[TABLE_SCHEMA],[TABLE_NAME]");
             sql.Append($" FROM {Escape(d)}.INFORMATION_SCHEMA.TABLES");
             sql.Append(" WHERE TABLE_TYPE='BASE TABLE'");
-            if (database != null)
-            {
-                sql.Append($" AND TABLE_CATALOG='{Unescape(database)}'");
-            }
+            if (database != null) sql.Append($" AND TABLE_CATALOG='{Unescape(database)}'");
 
-            if (schema != null)
-            {
-                sql.Append($" AND TABLE_SCHEMA='{Unescape(schema)}'");
-            }
+            if (schema != null) sql.Append($" AND TABLE_SCHEMA='{Unescape(schema)}'");
 
             sql.Append(';');
             sqlStatements.Add(sql.ToString());
@@ -136,34 +109,22 @@ public class SqlMsSql : Sql
         foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
-            if (t == null)
-            {
-                continue;
-            }
+            if (t == null) continue;
 
             querySuccess = true;
             foreach (var r in t)
             {
                 var so = new SqlObjectTable(r[0], r[1], r[2]);
 
-                if (schema == null && ExcludedSchemas.Contains(so.SchemaName))
-                {
-                    continue;
-                }
+                if (schema == null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
-                if (schema != null && !schema.EqualsCaseInsensitive(so.SchemaName))
-                {
-                    continue;
-                }
+                if (schema != null && !schema.EqualsCaseInsensitive(so.SchemaName)) continue;
 
                 yield return so;
             }
         }
 
-        if (!querySuccess && exceptions.IsNotEmpty())
-        {
-            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
-        }
+        if (!querySuccess && exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
     }
 
     public override IEnumerable<SqlObjectTableColumn> GetTableColumns(string database = null, string schema = null, string table = null)
@@ -192,20 +153,11 @@ public class SqlMsSql : Sql
             sql.Append($" FROM {Escape(d)}.INFORMATION_SCHEMA.COLUMNS c");
             sql.Append($" INNER JOIN {Escape(d)}.INFORMATION_SCHEMA.TABLES t ON t.TABLE_CATALOG=c.TABLE_CATALOG AND t.TABLE_SCHEMA=c.TABLE_SCHEMA AND t.TABLE_NAME=c.TABLE_NAME");
             sql.Append(" WHERE t.TABLE_TYPE='BASE TABLE'");
-            if (database != null)
-            {
-                sql.Append($" AND c.TABLE_CATALOG='{Unescape(database)}'");
-            }
+            if (database != null) sql.Append($" AND c.TABLE_CATALOG='{Unescape(database)}'");
 
-            if (schema != null)
-            {
-                sql.Append($" AND c.TABLE_SCHEMA='{Unescape(schema)}'");
-            }
+            if (schema != null) sql.Append($" AND c.TABLE_SCHEMA='{Unescape(schema)}'");
 
-            if (table != null)
-            {
-                sql.Append($" AND c.TABLE_NAME='{Unescape(table)}'");
-            }
+            if (table != null) sql.Append($" AND c.TABLE_NAME='{Unescape(table)}'");
 
             sql.Append(';');
             sqlStatements.Add(sql.ToString());
@@ -216,10 +168,7 @@ public class SqlMsSql : Sql
         foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
-            if (t == null)
-            {
-                continue;
-            }
+            if (t == null) continue;
 
             querySuccess = true;
             foreach (var r in t)
@@ -241,44 +190,26 @@ public class SqlMsSql : Sql
                     r[10]
                 );
 
-                if (schema == null && ExcludedSchemas.Contains(so.SchemaName))
-                {
-                    continue;
-                }
+                if (schema == null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
-                if (schema != null && !schema.EqualsCaseInsensitive(so.SchemaName))
-                {
-                    continue;
-                }
+                if (schema != null && !schema.EqualsCaseInsensitive(so.SchemaName)) continue;
 
-                if (table != null && !table.EqualsCaseInsensitive(so.TableName))
-                {
-                    continue;
-                }
+                if (table != null && !table.EqualsCaseInsensitive(so.TableName)) continue;
 
                 yield return so;
             }
         }
 
-        if (!querySuccess && exceptions.IsNotEmpty())
-        {
-            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
-        }
+        if (!querySuccess && exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
     }
 
     public override bool GetTableExists(string database, string schema, string table)
     {
         database = database.TrimOrNull() ?? GetCurrentDatabaseName();
-        if (database == null)
-        {
-            throw new Exception("Could not determine current SQL database name");
-        }
+        if (database == null) throw new Exception("Could not determine current SQL database name");
 
         schema = schema.TrimOrNull() ?? GetCurrentSchemaName();
-        if (schema == null)
-        {
-            throw new Exception("Could not determine current SQL schema name");
-        }
+        if (schema == null) throw new Exception("Could not determine current SQL schema name");
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
@@ -288,23 +219,14 @@ public class SqlMsSql : Sql
     public override bool DropTable(string database, string schema, string table)
     {
         database = database.TrimOrNull() ?? GetCurrentDatabaseName();
-        if (database == null)
-        {
-            throw new Exception("Could not determine current SQL database name");
-        }
+        if (database == null) throw new Exception("Could not determine current SQL database name");
 
         schema = schema.TrimOrNull() ?? GetCurrentSchemaName();
-        if (schema == null)
-        {
-            throw new Exception("Could not determine current SQL schema name");
-        }
+        if (schema == null) throw new Exception("Could not determine current SQL schema name");
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
-        if (!GetTableExists(database, schema, table))
-        {
-            return false;
-        }
+        if (!GetTableExists(database, schema, table)) return false;
 
         var dst = Escape(database) + "." + Escape(schema) + "." + Escape(table);
         ExecuteNonQuery($"DROP TABLE {dst};");
@@ -320,46 +242,25 @@ public class SqlMsSql : Sql
         sql.Append(' ');
 
         var len = column.MaxLength;
-        if (len < 1)
-        {
-            len = 1;
-        }
+        if (len < 1) len = 1;
 
         var dbType = column.DbType.ToSqlMsSqlType();
 
-        if (dbType.In(SqlMsSqlType.NChar) && len > 4000)
-        {
-            dbType = SqlMsSqlType.NVarChar; // NChar doesn't support more then 4000
-        }
+        if (dbType.In(SqlMsSqlType.NChar) && len > 4000) dbType = SqlMsSqlType.NVarChar; // NChar doesn't support more then 4000
 
-        if (dbType.In(SqlMsSqlType.Char) && len > 8000)
-        {
-            dbType = SqlMsSqlType.VarChar; // Char doesn't support more then 8000
-        }
+        if (dbType.In(SqlMsSqlType.Char) && len > 8000) dbType = SqlMsSqlType.VarChar; // Char doesn't support more then 8000
 
         sql.Append(dbType);
 
         if (dbType.In(SqlMsSqlType.NChar, SqlMsSqlType.Char))
-        {
             sql.Append("(" + len + ")");
-        }
         else if (dbType.In(SqlMsSqlType.NVarChar))
-        {
             sql.Append("(" + (len <= 4000 ? len : "MAX") + ")");
-        }
         else if (dbType.In(SqlMsSqlType.VarChar))
-        {
             sql.Append("(" + (len <= 8000 ? len : "MAX") + ")");
-        }
-        else if (dbType.In(SqlMsSqlType.Float, SqlMsSqlType.Real, SqlMsSqlType.Decimal))
-        {
-            sql.Append("(" + column.NumericPrecision + "," + column.NumericScale + ")");
-        }
+        else if (dbType.In(SqlMsSqlType.Float, SqlMsSqlType.Real, SqlMsSqlType.Decimal)) sql.Append("(" + column.NumericPrecision + "," + column.NumericScale + ")");
 
-        if (!column.IsNullable)
-        {
-            sql.Append(" NOT");
-        }
+        if (!column.IsNullable) sql.Append(" NOT");
 
         sql.Append(" NULL");
 
@@ -369,10 +270,7 @@ public class SqlMsSql : Sql
     private List<string> GetDatabaseNames(string database)
     {
         database = database.TrimOrNull();
-        if (database != null)
-        {
-            return new List<string> { database };
-        }
+        if (database != null) return new List<string> { database };
 
         return GetDatabases().Select(o => o.DatabaseName).ToList();
     }
@@ -381,18 +279,12 @@ public class SqlMsSql : Sql
     {
         var sb = new StringBuilder();
         database = database.TrimOrNull();
-        if (database != null)
-        {
-            sb.Append(Escape(database));
-        }
+        if (database != null) sb.Append(Escape(database));
 
         schema = schema.TrimOrNull();
         if (schema != null)
         {
-            if (sb.Length > 0)
-            {
-                sb.Append('.');
-            }
+            if (sb.Length > 0) sb.Append('.');
 
             sb.Append(Escape(schema));
         }
@@ -400,10 +292,7 @@ public class SqlMsSql : Sql
         table = table.TrimOrNull();
         if (table != null)
         {
-            if (sb.Length > 0)
-            {
-                sb.Append('.');
-            }
+            if (sb.Length > 0) sb.Append('.');
 
             sb.Append(Escape(table));
         }

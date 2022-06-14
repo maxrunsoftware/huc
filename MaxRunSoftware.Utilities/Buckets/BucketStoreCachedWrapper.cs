@@ -25,19 +25,13 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
     private readonly Dictionary<string, CacheEntry> cache = new(StringComparer.OrdinalIgnoreCase);
     private readonly object locker = new();
 
-    public BucketStoreCachedWrapper(IBucketStore<TKey, TValue> bucketStore)
-    {
-        this.bucketStore = bucketStore.CheckNotNull(nameof(bucketStore));
-    }
+    public BucketStoreCachedWrapper(IBucketStore<TKey, TValue> bucketStore) { this.bucketStore = bucketStore.CheckNotNull(nameof(bucketStore)); }
 
     public TimeSpan CacheTime { get; set; } = TimeSpan.Zero;
 
     private CacheEntry GetCacheEntry(string bucketName)
     {
-        if (!cache.TryGetValue(bucketName, out var ce))
-        {
-            cache.Add(bucketName, ce = new CacheEntry());
-        }
+        if (!cache.TryGetValue(bucketName, out var ce)) cache.Add(bucketName, ce = new CacheEntry());
 
         return ce;
     }
@@ -47,10 +41,7 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
         lock (locker)
         {
             var ce = GetCacheEntry(bucketName);
-            if (DateTime.Now - ce.LastRefresh <= CacheTime)
-            {
-                return ce.Keys;
-            }
+            if (DateTime.Now - ce.LastRefresh <= CacheTime) return ce.Keys;
 
             ce.Keys = bucketStore[bucketName].Keys.ToList();
             ce.LastRefresh = DateTime.Now;
@@ -64,10 +55,7 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
         lock (locker)
         {
             var bucketValue = GetCacheEntry(bucketName).GetBucketValue(bucketKey);
-            if (DateTime.Now - bucketValue.LastRefresh <= CacheTime)
-            {
-                return bucketValue.Value;
-            }
+            if (DateTime.Now - bucketValue.LastRefresh <= CacheTime) return bucketValue.Value;
 
             bucketValue.Value = bucketStore[bucketName][bucketKey];
             bucketValue.LastRefresh = DateTime.Now;
@@ -101,10 +89,7 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
 
         public CacheEntryBucketValue GetBucketValue(TKey key)
         {
-            if (Bucket.TryGetValue(key, out var bucketValue))
-            {
-                return bucketValue;
-            }
+            if (Bucket.TryGetValue(key, out var bucketValue)) return bucketValue;
 
             bucketValue = new CacheEntryBucketValue();
             Bucket.Add(key, bucketValue);

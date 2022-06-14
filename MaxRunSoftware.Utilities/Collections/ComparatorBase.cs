@@ -26,61 +26,32 @@ public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IC
 
     public int Compare(object x, object y)
     {
-        if (x == y)
-        {
-            return 0;
-        }
+        if (x == y) return 0;
 
-        if (x == null)
-        {
-            return -1;
-        }
+        if (x == null) return -1;
 
-        if (y == null)
-        {
-            return 1;
-        }
+        if (y == null) return 1;
 
         if (x is T sa)
-        {
             if (y is T sb)
-            {
                 return Compare(sa, sb);
-            }
-        }
 
-        if (x is IComparable ia)
-        {
-            return ia.CompareTo(y);
-        }
+        if (x is IComparable ia) return ia.CompareTo(y);
 
         throw new ArgumentException("Argument_ImplementIComparable"); // TODO: Better error
     }
 
-    public virtual bool Equals(T x, T y)
-    {
-        return Compare(x, y) == 0;
-    }
+    public virtual bool Equals(T x, T y) => Compare(x, y) == 0;
 
     public new bool Equals(object x, object y)
     {
-        if (x == y)
-        {
-            return true;
-        }
+        if (x == y) return true;
 
-        if (x == null || y == null)
-        {
-            return false;
-        }
+        if (x == null || y == null) return false;
 
         if (x is T sa)
-        {
             if (y is T sb)
-            {
                 return Equals(sa, sb);
-            }
-        }
 
         return x.Equals(y);
     }
@@ -89,10 +60,7 @@ public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IC
     {
         obj.CheckNotNull(nameof(obj));
 
-        if (obj is T s)
-        {
-            return GetHashCode(s);
-        }
+        if (obj is T s) return GetHashCode(s);
 
         return obj.GetHashCode();
     }

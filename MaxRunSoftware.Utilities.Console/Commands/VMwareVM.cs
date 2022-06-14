@@ -30,10 +30,7 @@ public class VMwareVM : VMwareBase
         help.AddDetail("Use CAUTION when enabling wildcard mode. Best to test with Action=None to see which VMs will be affected");
         help.AddDetail("Actions:");
         var maxLength = Util.GetEnumItems<Action>().Select(o => o.ToString().Length).Max();
-        foreach (var action in Util.GetEnumItems<Action>())
-        {
-            help.AddDetail("  " + action.ToString().PadRight(maxLength) + "  " + DescriptionAttribute.Get(action).Description);
-        }
+        foreach (var action in Util.GetEnumItems<Action>()) help.AddDetail("  " + action.ToString().PadRight(maxLength) + "  " + DescriptionAttribute.Get(action).Description);
 
         help.AddExample(HelpExamplePrefix + " MyVM1 " + Action.Reboot);
         help.AddExample(HelpExamplePrefix + " vm-1394 Suspend" + Action.Shutdown);
@@ -52,10 +49,7 @@ public class VMwareVM : VMwareBase
         actionString.CheckValueNotNull(nameof(actionString), log);
 
         var actionN = Util.GetEnumItemNullable<Action>(actionString);
-        if (actionN == null)
-        {
-            throw new ArgsException("action", "Invalid action [" + actionString + "] specified");
-        }
+        if (actionN == null) throw new ArgsException("action", "Invalid action [" + actionString + "] specified");
 
         var action = actionN.Value;
 
@@ -68,20 +62,13 @@ public class VMwareVM : VMwareBase
         {
             log.Debug("Wildcard matching on " + vm);
             foreach (var v in vms)
-            {
                 if (v.Name.EqualsWildcard(vm))
-                {
                     vmsAction.Add(v);
-                }
-            }
         }
         else
         {
             var foundVM = vms.FirstOrDefault(o => vm.EqualsCaseInsensitive(o.VM)) ?? vms.FirstOrDefault(o => vm.EqualsCaseInsensitive(o.Name));
-            if (foundVM == null)
-            {
-                throw new ArgsException(nameof(vm), "VM not found: " + vm);
-            }
+            if (foundVM == null) throw new ArgsException(nameof(vm), "VM not found: " + vm);
 
             vmsAction.Add(foundVM);
         }
@@ -90,45 +77,25 @@ public class VMwareVM : VMwareBase
         {
             log.Info(DescriptionAttribute.Get(action).Message + v.Name);
             if (action == Action.None)
-            {
                 log.Debug("Doing nothing");
-            }
             else if (action == Action.Shutdown)
-            {
                 v.Shutdown(vmware);
-            }
             else if (action == Action.Reboot)
-            {
                 v.Reboot(vmware);
-            }
             else if (action == Action.Standby)
-            {
                 v.Standby(vmware);
-            }
             else if (action == Action.Reset)
-            {
                 v.Reset(vmware);
-            }
             else if (action == Action.Start)
-            {
                 v.Start(vmware);
-            }
             else if (action == Action.Stop)
-            {
                 v.Stop(vmware);
-            }
             else if (action == Action.Suspend)
-            {
                 v.Suspend(vmware);
-            }
             else if (action == Action.DetachISOs)
-            {
                 v.DetachISOs(vmware);
-            }
             else
-            {
                 throw new NotImplementedException(nameof(Action) + " [" + action + "] has not been implemented yet");
-            }
         }
     }
 
@@ -150,10 +117,7 @@ public class VMwareVM : VMwareBase
             var enumType = typeof(Action);
             var memberInfos = enumType.GetMember(action.ToString());
             var enumValueMemberInfo = memberInfos.FirstOrDefault(m => m.DeclaringType == enumType);
-            if (enumValueMemberInfo == null)
-            {
-                throw new NotImplementedException("Could not find " + enumType);
-            }
+            if (enumValueMemberInfo == null) throw new NotImplementedException("Could not find " + enumType);
 
             var valueAttributes = enumValueMemberInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
             var attr = (DescriptionAttribute)valueAttributes[0];

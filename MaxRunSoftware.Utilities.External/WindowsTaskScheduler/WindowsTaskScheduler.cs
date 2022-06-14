@@ -36,10 +36,7 @@ public class WindowsTaskScheduler : IDisposable
         {
             lock (locker)
             {
-                if (taskService != null)
-                {
-                    return taskService;
-                }
+                if (taskService != null) return taskService;
 
                 throw new ObjectDisposedException(GetType().FullNameFormatted());
             }
@@ -94,15 +91,9 @@ public class WindowsTaskScheduler : IDisposable
         td.Principal.LogonType = tlt;
         td.Principal.UserId = username;
         td.Settings.Hidden = false;
-        foreach (var trigger in triggers)
-        {
-            td.Triggers.Add(trigger);
-        }
+        foreach (var trigger in triggers) td.Triggers.Add(trigger);
 
-        foreach (var filePath in filePaths)
-        {
-            td.Actions.Add(new ExecAction(filePath, arguments, workingDirectory));
-        }
+        foreach (var filePath in filePaths) td.Actions.Add(new ExecAction(filePath, arguments, workingDirectory));
 
         var task = dir.RegisterTaskDefinition(taskName, td, TaskCreation.CreateOrUpdate, username, password, tlt);
 
@@ -113,30 +104,20 @@ public class WindowsTaskScheduler : IDisposable
     {
         var taskName = task.Name;
         if (task.State.In(TaskState.Queued, TaskState.Running, TaskState.Unknown))
-        {
             try
             {
                 log.Debug($"Stopping task {taskName} in state {task.State}");
                 task.Stop();
             }
-            catch (Exception e)
-            {
-                log.Warn($"Error stopping task {taskName}. {e.Message}", e);
-            }
-        }
+            catch (Exception e) { log.Warn($"Error stopping task {taskName}. {e.Message}", e); }
 
         if (task.Enabled)
-        {
             try
             {
                 log.Debug($"Disabling task {taskName}");
                 task.Enabled = false;
             }
-            catch (Exception e)
-            {
-                log.Warn($"Error disabling task {taskName}. {e.Message}", e);
-            }
-        }
+            catch (Exception e) { log.Warn($"Error disabling task {taskName}. {e.Message}", e); }
 
         var result = false;
         log.Debug($"Deleting task [{taskName}]");
@@ -145,10 +126,7 @@ public class WindowsTaskScheduler : IDisposable
             task.Folder.DeleteTask(taskName);
             result = true;
         }
-        catch (Exception e)
-        {
-            log.Warn($"Error deleting task {taskName}. {e.Message}", e);
-        }
+        catch (Exception e) { log.Warn($"Error deleting task {taskName}. {e.Message}", e); }
 
         return result;
     }
@@ -156,10 +134,7 @@ public class WindowsTaskScheduler : IDisposable
     public bool TaskDelete(WindowsTaskSchedulerPath path)
     {
         var t = GetTask(path);
-        if (t == null)
-        {
-            return false;
-        }
+        if (t == null) return false;
 
         return TaskDelete(t);
     }
@@ -179,10 +154,7 @@ public class WindowsTaskScheduler : IDisposable
     public Dictionary<WindowsTaskSchedulerPath, List<Task>> GetTasksByFolder()
     {
         var d = new Dictionary<WindowsTaskSchedulerPath, List<Task>>();
-        foreach (var tf in GetTaskFolders())
-        {
-            d.AddToList(tf.GetPath(), tf.Tasks.ToArray());
-        }
+        foreach (var tf in GetTaskFolders()) d.AddToList(tf.GetPath(), tf.Tasks.ToArray());
 
         return d;
     }
@@ -196,15 +168,9 @@ public class WindowsTaskScheduler : IDisposable
         while (queue.Count > 0)
         {
             var currentFolder = queue.Dequeue();
-            if (!h.Add(currentFolder.GetPath()))
-            {
-                continue;
-            }
+            if (!h.Add(currentFolder.GetPath())) continue;
 
-            foreach (var subfolder in currentFolder.SubFolders)
-            {
-                queue.Enqueue(subfolder);
-            }
+            foreach (var subfolder in currentFolder.SubFolders) queue.Enqueue(subfolder);
 
             log.Trace("Found TaskFolder: " + currentFolder.GetPath());
             yield return currentFolder;
@@ -215,47 +181,30 @@ public class WindowsTaskScheduler : IDisposable
     {
         log.Debug("Getting Task: " + path);
         foreach (var task in GetTasks())
-        {
             if (path.Equals(task.GetPath()))
-            {
                 return task;
-            }
-        }
 
         return null;
     }
 
-    public Task GetTask(string path)
-    {
-        return GetTask(new WindowsTaskSchedulerPath(path));
-    }
+    public Task GetTask(string path) => GetTask(new WindowsTaskSchedulerPath(path));
 
     public TaskFolder GetTaskFolder(WindowsTaskSchedulerPath path)
     {
         log.Debug("Getting TaskFolder: " + path);
         foreach (var folder in GetTaskFolders())
-        {
             if (path.Equals(folder.GetPath()))
-            {
                 return folder;
-            }
-        }
 
         return null;
     }
 
-    public TaskFolder GetTaskFolder(string path)
-    {
-        return GetTaskFolder(new WindowsTaskSchedulerPath(path));
-    }
+    public TaskFolder GetTaskFolder(string path) => GetTaskFolder(new WindowsTaskSchedulerPath(path));
 
     public TaskFolder CreateTaskFolder(WindowsTaskSchedulerPath path)
     {
         var existingFolder = GetTaskFolder(path);
-        if (existingFolder != null)
-        {
-            return existingFolder;
-        }
+        if (existingFolder != null) return existingFolder;
 
         var parent = path.Parent;
         var parentFolder = GetTaskFolder(parent) ?? CreateTaskFolder(parent);

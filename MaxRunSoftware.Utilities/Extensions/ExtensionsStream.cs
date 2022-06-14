@@ -31,10 +31,7 @@ public static class ExtensionsStream
                 Array.Copy(buffer, 0, buffer2, 0, read);
                 action(buffer2);
             }
-            else
-            {
-                action(buffer);
-            }
+            else { action(buffer); }
 
             totalRead += read;
         }
@@ -55,10 +52,7 @@ public static class ExtensionsStream
                 Array.Copy(buffer, 0, buffer2, 0, read);
                 action(buffer2);
             }
-            else
-            {
-                action(buffer);
-            }
+            else { action(buffer); }
 
             totalRead += read;
         }
@@ -94,10 +88,7 @@ public static class ExtensionsStream
     public static void WriteToFile(this Stream stream, string path, int bufferSize = Constant.BUFFER_SIZE_OPTIMAL)
     {
         var directoryName = Path.GetDirectoryName(path);
-        if (directoryName != null)
-        {
-            Directory.CreateDirectory(directoryName);
-        }
+        if (directoryName != null) Directory.CreateDirectory(directoryName);
 
         //if (File.Exists(path)) File.Delete(path);
 
@@ -108,109 +99,73 @@ public static class ExtensionsStream
 
     public static bool FlushSafe(this Stream stream)
     {
-        if (stream == null)
-        {
-            return false;
-        }
+        if (stream == null) return false;
 
         try
         {
             stream.Flush();
             return true;
         }
-        catch (Exception)
-        {
-            return false;
-        }
+        catch (Exception) { return false; }
     }
 
     public static bool CloseSafe(this Stream stream)
     {
-        if (stream == null)
-        {
-            return false;
-        }
+        if (stream == null) return false;
 
         try
         {
             stream.Close();
             return true;
         }
-        catch (Exception)
-        {
-            return false;
-        }
+        catch (Exception) { return false; }
     }
 
     public static bool FlushSafe(this StreamWriter writer)
     {
-        if (writer == null)
-        {
-            return false;
-        }
+        if (writer == null) return false;
 
         try
         {
             writer.Flush();
             return true;
         }
-        catch (Exception)
-        {
-            return false;
-        }
+        catch (Exception) { return false; }
     }
 
     public static bool CloseSafe(this StreamWriter writer)
     {
-        if (writer == null)
-        {
-            return false;
-        }
+        if (writer == null) return false;
 
         try
         {
             writer.Close();
             return true;
         }
-        catch (Exception)
-        {
-            return false;
-        }
+        catch (Exception) { return false; }
     }
 
     public static bool FlushSafe(this BinaryWriter writer)
     {
-        if (writer == null)
-        {
-            return false;
-        }
+        if (writer == null) return false;
 
         try
         {
             writer.Flush();
             return true;
         }
-        catch (Exception)
-        {
-            return false;
-        }
+        catch (Exception) { return false; }
     }
 
     public static bool CloseSafe(this BinaryWriter writer)
     {
-        if (writer == null)
-        {
-            return false;
-        }
+        if (writer == null) return false;
 
         try
         {
             writer.Close();
             return true;
         }
-        catch (Exception)
-        {
-            return false;
-        }
+        catch (Exception) { return false; }
     }
 }

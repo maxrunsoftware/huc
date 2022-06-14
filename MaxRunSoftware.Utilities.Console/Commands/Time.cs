@@ -42,10 +42,7 @@ public class Time : Command
         localTime = DateTime.ParseExact(localTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
 
-        if (!drift)
-        {
-            log.Info(internetTime.ToString("yyyy-MM-dd HH:mm:ss"));
-        }
+        if (!drift) { log.Info(internetTime.ToString("yyyy-MM-dd HH:mm:ss")); }
         else
         {
             log.Info("Remote: " + internetTime.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -53,13 +50,8 @@ public class Time : Command
             var dr = internetTime - localTime;
             var msg = "Drift: ";
             if (dr.Ticks < 0)
-            {
                 msg = msg + "+";
-            }
-            else if (dr.Ticks > 0)
-            {
-                msg = msg + "-";
-            }
+            else if (dr.Ticks > 0) msg = msg + "-";
 
             msg = msg + dr.Duration().TotalSeconds.Round(MidpointRounding.AwayFromZero, 0);
             msg = msg + " seconds";

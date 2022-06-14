@@ -47,10 +47,7 @@ public abstract class GoogleSheetsBase : Command
 
     protected GoogleSheets CreateConnection()
     {
-        if (spreadsheetId == null)
-        {
-            throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-        }
+        if (spreadsheetId == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
 
         log.Debug("Opening Google Sheets connection");
         return new GoogleSheets(securityKeyFileData, applicationName, spreadsheetId);

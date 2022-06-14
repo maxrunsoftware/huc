@@ -64,33 +64,18 @@ public class FtpList : FtpBase
                     {
                         if (recursive && f.Type == FtpClientFileType.Directory)
                         {
-                            if (f.FullName.EndsWith("/.."))
-                            {
-                                continue;
-                            }
+                            if (f.FullName.EndsWith("/..")) continue;
 
-                            if (f.FullName.EndsWith("/."))
-                            {
-                                continue;
-                            }
+                            if (f.FullName.EndsWith("/.")) continue;
 
                             dirs.Enqueue(f.FullName);
                         }
 
-                        if (f.Type == FtpClientFileType.File)
-                        {
-                            log.Info("  " + f.FullName);
-                        }
+                        if (f.Type == FtpClientFileType.File) log.Info("  " + f.FullName);
                     }
                 }
-                catch (SftpPermissionDeniedException permissionDeniedException)
-                {
-                    log.Warn(msg + " - " + permissionDeniedException.Message);
-                }
-                catch (SftpPathNotFoundException pathNotFoundException)
-                {
-                    log.Warn(msg + " - " + pathNotFoundException.Message);
-                }
+                catch (SftpPermissionDeniedException permissionDeniedException) { log.Warn(msg + " - " + permissionDeniedException.Message); }
+                catch (SftpPathNotFoundException pathNotFoundException) { log.Warn(msg + " - " + pathNotFoundException.Message); }
             }
         }
     }

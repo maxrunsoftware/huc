@@ -56,17 +56,11 @@ public class SystemInfo : Command
         showOS = GetArgParameterOrConfigBool(nameof(showOS), "os", false);
 
         // ReSharper disable once ConvertIfToOrExpression
-        if (!showOS)
-        {
-            showOS = true;
-        }
+        if (!showOS) showOS = true;
 
         var d = new DictionaryIndexed<InfoType, IDictionary<string, object>>();
 
-        if (showOS)
-        {
-            AddOS(d[InfoType.OperatingSystem] = new DictionaryIndexed<string, object>());
-        }
+        if (showOS) AddOS(d[InfoType.OperatingSystem] = new DictionaryIndexed<string, object>());
 
         var sb = new StringBuilder();
         foreach (var kvp in d)

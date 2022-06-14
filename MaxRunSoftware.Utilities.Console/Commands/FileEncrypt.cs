@@ -37,15 +37,9 @@ public class FileEncrypt : Command
     {
         password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
         publicKey = GetArgParameterOrConfig(nameof(publicKey), "pk").TrimOrNull();
-        if (password == null && publicKey == null)
-        {
-            throw new ArgsException(nameof(password), "Either password or publicKey must be specified");
-        }
+        if (password == null && publicKey == null) throw new ArgsException(nameof(password), "Either password or publicKey must be specified");
 
-        if (password != null && publicKey != null)
-        {
-            throw new ArgsException(nameof(password), "Both password and publicKey can not be specified at the same time");
-        }
+        if (password != null && publicKey != null) throw new ArgsException(nameof(password), "Both password and publicKey can not be specified at the same time");
 
         var fileToEncrypt = GetArgValueTrimmed(0);
         fileToEncrypt.CheckValueNotNull(nameof(fileToEncrypt), log);

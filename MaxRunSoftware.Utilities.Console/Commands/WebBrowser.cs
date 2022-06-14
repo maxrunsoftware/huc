@@ -132,15 +132,9 @@ public class WebBrowser : Command
         {
             var itemName = "{t" + (i + 1) + "}";
             var itemValue = templates[i];
-            if (itemValue.TrimOrNull() == null)
-            {
-                itemValue = null;
-            }
+            if (itemValue.TrimOrNull() == null) itemValue = null;
 
-            if (itemValue != null)
-            {
-                templatesD[itemName] = itemValue;
-            }
+            if (itemValue != null) templatesD[itemName] = itemValue;
         }
 
         browserDriverDirectory = GetArgParameterOrConfig(nameof(browserDriverDirectory), "d");
@@ -154,34 +148,19 @@ public class WebBrowser : Command
         if (browserExecutableFile == null && browserType == null)
         {
             browserLocation = WebBrowserLocation.FindBrowser();
-            if (browserLocation == null)
-            {
-                throw new CommandException($"Arguments [{nameof(browserType)}] and [{nameof(browserExecutableFile)}] cannot both be empty, specify one or the other");
-            }
+            if (browserLocation == null) throw new CommandException($"Arguments [{nameof(browserType)}] and [{nameof(browserExecutableFile)}] cannot both be empty, specify one or the other");
         }
         else if (browserExecutableFile == null && browserType != null)
         {
             browserLocation = WebBrowserLocation.FindBrowser(browserType);
-            if (browserLocation == null)
-            {
-                throw new CommandException($"Could not locate browser executable for {browserType.Value}, please specify the {nameof(browserExecutableFile)} argument");
-            }
+            if (browserLocation == null) throw new CommandException($"Could not locate browser executable for {browserType.Value}, please specify the {nameof(browserExecutableFile)} argument");
         }
-        else if (browserExecutableFile != null && browserType == null)
-        {
-            browserLocation = new WebBrowserLocation(browserExecutableFile, browserType, Constant.OS, null);
-        }
-        else if (browserExecutableFile != null && browserType != null)
-        {
-            browserLocation = new WebBrowserLocation(browserExecutableFile, browserType, Constant.OS, null);
-        }
+        else if (browserExecutableFile != null && browserType == null) { browserLocation = new WebBrowserLocation(browserExecutableFile, browserType, Constant.OS, null); }
+        else if (browserExecutableFile != null && browserType != null) { browserLocation = new WebBrowserLocation(browserExecutableFile, browserType, Constant.OS, null); }
 
         log.Debug(browserLocation.ToString());
 
-        if (browserArchitecture != null)
-        {
-            browserLocation = browserLocation.ChangeArchitecture(browserArchitecture.Value == WebBrowserArchitecture.X64);
-        }
+        if (browserArchitecture != null) browserLocation = browserLocation.ChangeArchitecture(browserArchitecture.Value == WebBrowserArchitecture.X64);
 
         browserType ??= browserLocation.BrowserType;
         browserExecutableFile ??= browserLocation.BrowserExecutable;
@@ -190,10 +169,7 @@ public class WebBrowser : Command
         var scriptFileData = ReadFile(scriptFile);
 
         var root = XmlReader.Read(scriptFileData);
-        if (!root.Name.EqualsCaseInsensitive("browser"))
-        {
-            throw new Exception("No <browser> root element is defined");
-        }
+        if (!root.Name.EqualsCaseInsensitive("browser")) throw new Exception("No <browser> root element is defined");
 
         var allNodes = new List<XmlElement> { root };
         allNodes.AddRange(root.ChildrenAll);
@@ -205,25 +181,15 @@ public class WebBrowser : Command
                 var templateVal = template.Value;
 
                 foreach (var attributeKey in node.Attributes.Keys.ToArray())
-                {
                     if (node.Attributes[attributeKey].TrimOrNull() != null && node.Attributes[attributeKey].Contains(templateKey))
-                    {
                         node.Attributes[attributeKey] = node.Attributes[attributeKey].Replace(templateKey, templateVal);
-                    }
-                }
 
-                if (node.Value.TrimOrNull() != null && node.Value.Contains(templateKey))
-                {
-                    node.Value = node.Value.Replace(templateKey, templateVal);
-                }
+                if (node.Value.TrimOrNull() != null && node.Value.Contains(templateKey)) node.Value = node.Value.Replace(templateKey, templateVal);
             }
         }
 
         var children = root.Children;
-        if (children.IsEmpty())
-        {
-            throw new Exception("No action elements defined");
-        }
+        if (children.IsEmpty()) throw new Exception("No action elements defined");
 
         using (browser = new External.WebBrowser())
         {
@@ -242,33 +208,19 @@ public class WebBrowser : Command
                 log.Debug($"Executing action {actionNum} {element.Name}");
 
                 if (element.Name.EqualsCaseInsensitive("sleep"))
-                {
                     ActionSleep(element);
-                }
                 else if (element.Name.EqualsCaseInsensitive("text"))
-                {
                     ActionText(element);
-                }
                 else if (element.Name.EqualsCaseInsensitive("click"))
-                {
                     ActionClick(element);
-                }
                 else if (element.Name.EqualsCaseInsensitive("select"))
-                {
                     ActionSelect(element);
-                }
                 else if (element.Name.EqualsCaseInsensitive("goto"))
-                {
                     ActionGoTo(element);
-                }
                 else if (element.Name.EqualsCaseInsensitive("cookieSave"))
-                {
                     ActionCookieSave(element);
-                }
                 else
-                {
                     log.Warn($"Unknown action <{element.Name}>");
-                }
             }
         }
     }
@@ -277,10 +229,7 @@ public class WebBrowser : Command
     private void ActionSleep(XmlElement element)
     {
         var seconds = element["seconds"].TrimOrNull();
-        if (seconds == null)
-        {
-            throw ExceptionMissingAttribute(element, nameof(seconds));
-        }
+        if (seconds == null) throw ExceptionMissingAttribute(element, nameof(seconds));
 
         decimal msd = 1000;
         msd = msd * seconds.ToDecimal();
@@ -312,10 +261,7 @@ public class WebBrowser : Command
     private void ActionGoTo(XmlElement element)
     {
         var url = element.Value.TrimOrNull() ?? element["url"].TrimOrNull();
-        if (url == null)
-        {
-            throw new CommandException($"Action <{element.Name}> does not define attribute [{nameof(url)}] or have a Value defined");
-        }
+        if (url == null) throw new CommandException($"Action <{element.Name}> does not define attribute [{nameof(url)}] or have a Value defined");
 
         browser.GoTo(url);
     }
@@ -325,59 +271,37 @@ public class WebBrowser : Command
         var name = element["name"].TrimOrNull();
         // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
         if (name == null)
-        {
             log.Debug($"Action <{element.Name}> does not define attribute [{nameof(name)}] so returning all cookies");
-        }
         else
-        {
             log.Debug($"Action <{element.Name}> defines attribute [{nameof(name)}] so looking for cookie named {name}");
-        }
 
         var file = element["file"].TrimOrNull();
         // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
         if (file == null)
-        {
             log.Debug($"Action <{element.Name}> does not define attribute [{nameof(file)}] so returning results to console");
-        }
         else
-        {
             log.Debug($"Action <{element.Name}> defines attribute [{nameof(file)}] so writing results to {file}");
-        }
 
         var cookies = browser.GetCookies();
         if (name == null)
         {
             var sb = new StringBuilder();
-            foreach (var kvp in cookies.OrderBy(o => o.Key.ToLower()))
-            {
-                sb.AppendLine(kvp.Key + "=" + kvp.Value);
-            }
+            foreach (var kvp in cookies.OrderBy(o => o.Key.ToLower())) sb.AppendLine(kvp.Key + "=" + kvp.Value);
 
             if (file == null)
-            {
                 log.Info(sb.ToString());
-            }
             else
-            {
                 WriteFile(file, sb.ToString());
-            }
         }
         else
         {
             var val = cookies.GetValueCaseInsensitive(name);
-            if (val == null)
-            {
-                throw new CommandException($"Could not find cookie named [{name}]");
-            }
+            if (val == null) throw new CommandException($"Could not find cookie named [{name}]");
 
             if (file == null)
-            {
                 log.Info(val);
-            }
             else
-            {
                 WriteFile(file, val);
-            }
         }
     }
 
@@ -413,8 +337,5 @@ public class WebBrowser : Command
         return s;
     }
 
-    private CommandException ExceptionMissingAttribute(XmlElement element, string attributeName)
-    {
-        return new CommandException($"Action <{element.Name}> does not define required attribute [{attributeName}]");
-    }
+    private CommandException ExceptionMissingAttribute(XmlElement element, string attributeName) => new($"Action <{element.Name}> does not define required attribute [{attributeName}]");
 }

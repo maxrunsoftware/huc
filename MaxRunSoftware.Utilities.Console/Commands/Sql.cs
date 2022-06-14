@@ -36,19 +36,13 @@ public class Sql : SqlQueryBase
         var resultFiles = GetArgValuesTrimmed();
         for (var i = 0; i < resultFiles.Count; i++)
         {
-            if (resultFiles[i] == null)
-            {
-                continue;
-            }
+            if (resultFiles[i] == null) continue;
 
             resultFiles[i] = Path.GetFullPath(resultFiles[i]);
             DeleteExistingFile(resultFiles[i]);
         }
 
-        for (var i = 0; i < resultFiles.Count; i++)
-        {
-            log.Debug($"resultFiles[{i}]: {resultFiles[i]}");
-        }
+        for (var i = 0; i < resultFiles.Count; i++) log.Debug($"resultFiles[{i}]: {resultFiles[i]}");
 
         var tables = ExecuteTables();
 
@@ -57,10 +51,7 @@ public class Sql : SqlQueryBase
             var table = tables[i];
             var rf = resultFiles.ElementAtOrDefault(i);
 
-            if (rf != null)
-            {
-                WriteTableTab(rf, table);
-            }
+            if (rf != null) WriteTableTab(rf, table);
         }
 
         log.Debug("SQL completed");

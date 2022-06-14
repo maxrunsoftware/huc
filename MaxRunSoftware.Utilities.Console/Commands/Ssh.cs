@@ -66,49 +66,31 @@ public class Ssh : Command
         if (privateKey1File != null)
         {
             privateKey1File = Path.GetFullPath(privateKey1File);
-            if (!File.Exists(privateKey1File))
-            {
-                throw new FileNotFoundException(nameof(privateKey1File) + " not found", privateKey1File);
-            }
+            if (!File.Exists(privateKey1File)) throw new FileNotFoundException(nameof(privateKey1File) + " not found", privateKey1File);
         }
 
         privateKey1Password = GetArgParameterOrConfig(nameof(privateKey1Password), "pk1pass").TrimOrNull();
-        if (privateKey1File != null)
-        {
-            sshKeys.Add(new SshKeyFile(privateKey1File, privateKey1Password));
-        }
+        if (privateKey1File != null) sshKeys.Add(new SshKeyFile(privateKey1File, privateKey1Password));
 
         privateKey2File = GetArgParameterOrConfig(nameof(privateKey2File), "pk2").TrimOrNull();
         if (privateKey2File != null)
         {
             privateKey2File = Path.GetFullPath(privateKey2File);
-            if (!File.Exists(privateKey2File))
-            {
-                throw new FileNotFoundException(nameof(privateKey2File) + " not found", privateKey2File);
-            }
+            if (!File.Exists(privateKey2File)) throw new FileNotFoundException(nameof(privateKey2File) + " not found", privateKey2File);
         }
 
         privateKey2Password = GetArgParameterOrConfig(nameof(privateKey2Password), "pk2pass").TrimOrNull();
-        if (privateKey2File != null)
-        {
-            sshKeys.Add(new SshKeyFile(privateKey2File, privateKey2Password));
-        }
+        if (privateKey2File != null) sshKeys.Add(new SshKeyFile(privateKey2File, privateKey2Password));
 
         privateKey3File = GetArgParameterOrConfig(nameof(privateKey3File), "pk3").TrimOrNull();
         if (privateKey3File != null)
         {
             privateKey3File = Path.GetFullPath(privateKey3File);
-            if (!File.Exists(privateKey3File))
-            {
-                throw new FileNotFoundException(nameof(privateKey3File) + " not found", privateKey3File);
-            }
+            if (!File.Exists(privateKey3File)) throw new FileNotFoundException(nameof(privateKey3File) + " not found", privateKey3File);
         }
 
         privateKey3Password = GetArgParameterOrConfig(nameof(privateKey3Password), "pk3pass").TrimOrNull();
-        if (privateKey3File != null)
-        {
-            sshKeys.Add(new SshKeyFile(privateKey3File, privateKey3Password));
-        }
+        if (privateKey3File != null) sshKeys.Add(new SshKeyFile(privateKey3File, privateKey3Password));
 
 
         var command = GetArgValueTrimmed(0);
@@ -116,27 +98,15 @@ public class Ssh : Command
 
         sshScriptFile = GetArgParameterOrConfig(nameof(sshScriptFile), "f").TrimOrNull();
         string sshScriptFileData = null;
-        if (sshScriptFile != null)
-        {
-            sshScriptFileData = ReadFile(sshScriptFile);
-        }
+        if (sshScriptFile != null) sshScriptFileData = ReadFile(sshScriptFile);
 
-        if (sshScriptFileData.TrimOrNull() != null)
-        {
-            log.DebugParameter(nameof(sshScriptFileData), sshScriptFileData?.Length ?? -1);
-        }
+        if (sshScriptFileData.TrimOrNull() != null) log.DebugParameter(nameof(sshScriptFileData), sshScriptFileData?.Length ?? -1);
 
-        if (command.TrimOrNull() == null && sshScriptFileData.TrimOrNull() == null)
-        {
-            throw new ArgsException(nameof(command), "No SSH command(s) to execute");
-        }
+        if (command.TrimOrNull() == null && sshScriptFileData.TrimOrNull() == null) throw new ArgsException(nameof(command), "No SSH command(s) to execute");
 
         var commands = (command ?? string.Empty) + Constant.NEWLINE_WINDOWS + (sshScriptFileData ?? string.Empty);
         commands = commands.TrimOrNull();
-        if (commands == null)
-        {
-            throw new ArgsException(nameof(command), "No SSH command(s) to execute");
-        }
+        if (commands == null) throw new ArgsException(nameof(command), "No SSH command(s) to execute");
 
         log.DebugParameter(nameof(commands), commands);
 
@@ -151,16 +121,10 @@ public class Ssh : Command
                 cmd.Execute();
 
                 var result = cmd.Result.TrimOrNull();
-                if (result != null)
-                {
-                    log.Info(result);
-                }
+                if (result != null) log.Info(result);
 
                 result = new StreamReader(cmd.ExtendedOutputStream).ReadToEnd().TrimOrNull();
-                if (result != null)
-                {
-                    log.Warn(result);
-                }
+                if (result != null) log.Warn(result);
             }
         }
 

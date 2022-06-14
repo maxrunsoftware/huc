@@ -25,24 +25,14 @@ public static class TableExtensions
             using (w.Element("table"))
             {
                 foreach (var c in table.Columns)
-                {
-                    using (w.Element("column", ("index", c.Index)))
-                    {
-                        w.Value(c.Name);
-                    }
-                }
+                    using (w.Element("column", ("index", c.Index))) { w.Value(c.Name); }
 
                 foreach (var r in table)
                 {
                     using (w.Element("row", ("index", r.RowIndex)))
                     {
                         for (var j = 0; j < r.Count; j++)
-                        {
-                            using (w.Element("cell", ("index", j)))
-                            {
-                                w.Value(r[j] ?? string.Empty);
-                            }
-                        }
+                            using (w.Element("cell", ("index", j))) { w.Value(r[j] ?? string.Empty); }
                     }
                 }
             }
@@ -59,10 +49,7 @@ public static class TableExtensions
             {
                 using (w.Array("columns"))
                 {
-                    foreach (var c in table.Columns)
-                    {
-                        w.Value(c.Name);
-                    }
+                    foreach (var c in table.Columns) w.Value(c.Name);
                 }
 
                 using (w.Array("rows"))
@@ -71,10 +58,7 @@ public static class TableExtensions
                     {
                         using (w.Array())
                         {
-                            foreach (var cell in r)
-                            {
-                                w.Value(cell ?? string.Empty);
-                            }
+                            foreach (var cell in r) w.Value(cell ?? string.Empty);
                         }
                     }
                 }
@@ -93,19 +77,12 @@ public static class TableExtensions
     public static Table SetColumnsListTo(this Table table, params string[] columnNames)
     {
         var columnsToKeep = new HashSet<TableColumn>();
-        foreach (var columnName in columnNames)
-        {
-            columnsToKeep.Add(table.Columns[columnName]);
-        }
+        foreach (var columnName in columnNames) columnsToKeep.Add(table.Columns[columnName]);
 
         var columnsToRemove = new HashSet<TableColumn>();
         foreach (var column in table.Columns)
-        {
             if (!columnsToKeep.Contains(column))
-            {
                 columnsToRemove.Add(column);
-            }
-        }
 
         return table.RemoveColumns(columnsToRemove.ToArray());
     }
@@ -135,10 +112,7 @@ public static class TableExtensions
             currentSize += row.GetNumberOfCharacters(lengthOfNull);
         }
 
-        if (list.Count > 0)
-        {
-            yield return list.ToArray();
-        }
+        if (list.Count > 0) yield return list.ToArray();
     }
 
     /// <summary>
@@ -153,14 +127,8 @@ public static class TableExtensions
         foreach (var row in table)
         {
             var currentSize = list.Count;
-            if (list.Count == 0)
-            {
-                list.Add(row);
-            }
-            else if (1 + currentSize < numberOfRows)
-            {
-                list.Add(row);
-            }
+            if (list.Count == 0) { list.Add(row); }
+            else if (1 + currentSize < numberOfRows) { list.Add(row); }
             else
             {
                 yield return list.ToArray();
@@ -169,10 +137,7 @@ public static class TableExtensions
             }
         }
 
-        if (list.Count > 0)
-        {
-            yield return list.ToArray();
-        }
+        if (list.Count > 0) yield return list.ToArray();
     }
 
     /// <summary>
@@ -180,10 +145,7 @@ public static class TableExtensions
     /// </summary>
     /// <param name="table">Table</param>
     /// <returns>The number of cells</returns>
-    public static int GetNumberOfCells(this Table table)
-    {
-        return table.Count * table.Columns.Count + table.Columns.Count;
-    }
+    public static int GetNumberOfCells(this Table table) => table.Count * table.Columns.Count + table.Columns.Count;
 
     /// <summary>
     /// The number of characters in this table including the header row
@@ -194,33 +156,21 @@ public static class TableExtensions
     public static int GetNumberOfCharacters(this Table table, int lengthOfNull)
     {
         var size = 0;
-        foreach (var column in table.Columns)
-        {
-            size += column.Name.Length;
-        }
+        foreach (var column in table.Columns) size += column.Name.Length;
 
-        foreach (var row in table)
-        {
-            size += row.GetNumberOfCharacters(lengthOfNull);
-        }
+        foreach (var row in table) size += row.GetNumberOfCharacters(lengthOfNull);
 
         return size;
     }
 
     private static string ToDelimitedReplacements(string str, string delimiter, string replacement)
     {
-        if (str == null)
-        {
-            return null;
-        }
+        if (str == null) return null;
 
         str = str.Replace(Constant.NEWLINE_WINDOWS, " ");
         str = str.Replace(Constant.NEWLINE_MAC, " ");
         str = str.Replace(Constant.NEWLINE_UNIX, " ");
-        if (replacement != null)
-        {
-            str = str.Replace(delimiter, replacement);
-        }
+        if (replacement != null) str = str.Replace(delimiter, replacement);
 
         return str;
     }
@@ -252,13 +202,9 @@ public static class TableExtensions
             foreach (var col in table.Columns.ColumnNames)
             {
                 if (first)
-                {
                     first = false;
-                }
                 else
-                {
                     sb.Append(headerDelimiter);
-                }
 
                 sb.Append(headerQuoting);
                 var colText = ToDelimitedReplacements(col, headerDelimiter, headerDelimiterReplacement);
@@ -270,7 +216,6 @@ public static class TableExtensions
         }
 
         if (includeRows)
-        {
             foreach (var row in table)
             {
                 var sb = new StringBuilder();
@@ -278,13 +223,9 @@ public static class TableExtensions
                 foreach (var cell in row)
                 {
                     if (first)
-                    {
                         first = false;
-                    }
                     else
-                    {
                         sb.Append(dataDelimiter);
-                    }
 
                     sb.Append(dataQuoting);
                     var cellText = ToDelimitedReplacements(cell, dataDelimiter, dataDelimiterReplacement);
@@ -294,6 +235,5 @@ public static class TableExtensions
 
                 writer(sb + newLine);
             }
-        }
     }
 }

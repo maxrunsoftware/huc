@@ -23,33 +23,21 @@ public static class ExtensionsIO
 
         var msgInvalidParent = $"{nameof(baseToRemove)} of {baseToRemove.FullName} is not a parent directory of {info.FullName}";
 
-        if (baseParts.Length > sourceParts.Length)
-        {
-            throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
-        }
+        if (baseParts.Length > sourceParts.Length) throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
 
         var list = new List<string>();
         for (var i = 0; i < sourceParts.Length; i++)
         {
-            if (i >= baseParts.Length)
-            {
-                list.Add(sourceParts[i]);
-            }
+            if (i >= baseParts.Length) { list.Add(sourceParts[i]); }
             else
             {
                 if (caseSensitive)
                 {
-                    if (!string.Equals(sourceParts[i], baseParts[i]))
-                    {
-                        throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
-                    }
+                    if (!string.Equals(sourceParts[i], baseParts[i])) throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
                 }
                 else
                 {
-                    if (!string.Equals(sourceParts[i], baseParts[i], StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
-                    }
+                    if (!string.Equals(sourceParts[i], baseParts[i], StringComparison.OrdinalIgnoreCase)) throw new ArgumentException(msgInvalidParent, nameof(baseToRemove));
                 }
             }
         }
@@ -59,20 +47,12 @@ public static class ExtensionsIO
 
     public static long GetLength(this FileInfo file)
     {
-        if (file == null)
-        {
-            return -1;
-        }
+        if (file == null) return -1;
 
         // https://stackoverflow.com/a/26473940
         if (file.Attributes.HasFlag(FileAttributes.ReparsePoint)) // probably symbolic link
-        {
             // https://stackoverflow.com/a/57454136
-            using (Stream fs = Util.FileOpenRead(file.FullName))
-            {
-                return fs.Length;
-            }
-        }
+            using (Stream fs = Util.FileOpenRead(file.FullName)) { return fs.Length; }
 
         return file.Length;
     }

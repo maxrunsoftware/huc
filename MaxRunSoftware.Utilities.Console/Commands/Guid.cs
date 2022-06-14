@@ -30,9 +30,6 @@ public class Guid : Command
         var numberOfGuidsString = GetArgValueTrimmed(0) ?? "1";
         var numberOfGuids = numberOfGuidsString.ToInt();
 
-        for (var i = 0; i < numberOfGuids; i++)
-        {
-            log.Info(System.Guid.NewGuid().ToString());
-        }
+        for (var i = 0; i < numberOfGuids; i++) log.Info(System.Guid.NewGuid().ToString());
     }
 }

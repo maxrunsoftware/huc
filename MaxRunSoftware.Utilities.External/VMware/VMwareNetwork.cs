@@ -33,9 +33,6 @@ public class VMwareNetwork : VMwareObject
 
     public static IEnumerable<VMwareNetwork> Query(VMwareClient vmware)
     {
-        foreach (var obj in vmware.GetValueArray("/rest/vcenter/network"))
-        {
-            yield return new VMwareNetwork(vmware, obj);
-        }
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/network")) yield return new VMwareNetwork(vmware, obj);
     }
 }

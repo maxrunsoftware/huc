@@ -53,9 +53,6 @@ public class VMwareDatastore : VMwareObject
 
     public static IEnumerable<VMwareDatastore> Query(VMwareClient vmware)
     {
-        foreach (var obj in vmware.GetValueArray("/rest/vcenter/datastore"))
-        {
-            yield return new VMwareDatastore(vmware, obj);
-        }
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/datastore")) yield return new VMwareDatastore(vmware, obj);
     }
 }

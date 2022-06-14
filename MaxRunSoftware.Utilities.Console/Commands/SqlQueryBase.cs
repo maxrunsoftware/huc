@@ -37,27 +37,15 @@ public abstract class SqlQueryBase : SqlBase
         sqlScriptFile = GetArgParameterOrConfig(nameof(sqlScriptFile), "f").TrimOrNull();
 
         string sqlScriptFileData = null;
-        if (sqlScriptFile != null)
-        {
-            sqlScriptFileData = ReadFile(sqlScriptFile);
-        }
+        if (sqlScriptFile != null) sqlScriptFileData = ReadFile(sqlScriptFile);
 
-        if (sqlScriptFileData.TrimOrNull() != null)
-        {
-            log.DebugParameter(nameof(sqlScriptFileData), sqlScriptFileData?.Length ?? -1);
-        }
+        if (sqlScriptFileData.TrimOrNull() != null) log.DebugParameter(nameof(sqlScriptFileData), sqlScriptFileData?.Length ?? -1);
 
-        if (sqlStatement.TrimOrNull() == null && sqlScriptFileData.TrimOrNull() == null)
-        {
-            throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
-        }
+        if (sqlStatement.TrimOrNull() == null && sqlScriptFileData.TrimOrNull() == null) throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
 
         var sql = (sqlStatement ?? string.Empty) + Constant.NEWLINE_WINDOWS + (sqlScriptFileData ?? string.Empty);
         sql = sql.TrimOrNull();
-        if (sql == null)
-        {
-            throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
-        }
+        if (sql == null) throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
 
         log.DebugParameter(nameof(sql), sql);
 

@@ -164,30 +164,15 @@ public static class Constant
     {
         try
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return OSPlatform.Windows;
-            }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return OSPlatform.Windows;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return OSPlatform.OSX;
-            }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) return OSPlatform.OSX;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return OSPlatform.Linux;
-            }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return OSPlatform.Linux;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
-            {
-                return OSPlatform.FreeBSD;
-            }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)) return OSPlatform.FreeBSD;
         }
-        catch (Exception e)
-        {
-            LogError(e);
-        }
+        catch (Exception e) { LogError(e); }
 
         // Unknown OS
         return OSPlatform.Windows;
@@ -465,32 +450,20 @@ public static class Constant
             foreach (var propInfo in propInfos)
             {
                 var colorGetMethod = propInfo.GetGetMethod();
-                if (colorGetMethod == null)
-                {
-                    continue;
-                }
+                if (colorGetMethod == null) continue;
 
                 var colorObject = colorGetMethod.Invoke(null, null);
-                if (colorObject == null)
-                {
-                    continue;
-                }
+                if (colorObject == null) continue;
 
                 var colorObjectType = colorObject.GetType();
-                if (colorObjectType != typeof(Color))
-                {
-                    continue;
-                }
+                if (colorObjectType != typeof(Color)) continue;
 
                 var color = (Color)colorObject;
                 var colorName = propInfo.Name;
                 d[colorName] = color;
             }
         }
-        catch (Exception e)
-        {
-            LogError(e);
-        }
+        catch (Exception e) { LogError(e); }
 
         return d;
     }
@@ -533,15 +506,9 @@ public static class Constant
     private static IReadOnlyDictionary<string, bool> String_Bool_get()
     {
         var d = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-        foreach (var item in boolTrue.Split(' '))
-        {
-            d.Add(item, true);
-        }
+        foreach (var item in boolTrue.Split(' ')) d.Add(item, true);
 
-        foreach (var item in boolFalse.Split(' '))
-        {
-            d.Add(item, false);
-        }
+        foreach (var item in boolFalse.Split(' ')) d.Add(item, false);
 
         return new Dictionary<string, bool>(d, StringComparer.OrdinalIgnoreCase);
     }
@@ -583,10 +550,7 @@ public static class Constant
             {
                 if (Directory.Exists(location))
                 {
-                    if (set.Add(location))
-                    {
-                        list.Add(location);
-                    }
+                    if (set.Add(location)) list.Add(location);
                 }
                 else if (File.Exists(location))
                 {
@@ -595,12 +559,8 @@ public static class Constant
                     {
                         location2 = Path.GetFullPath(location2);
                         if (Directory.Exists(location2))
-                        {
                             if (set.Add(location2))
-                            {
                                 list.Add(location2);
-                            }
-                        }
                     }
                 }
             }
@@ -620,12 +580,8 @@ public static class Constant
             try
             {
                 if (File.Exists(location))
-                {
                     if (set.Add(location))
-                    {
                         list.Add(location);
-                    }
-                }
             }
             catch { }
         }
@@ -638,40 +594,22 @@ public static class Constant
         // https://stackoverflow.com/questions/616584/how-do-i-get-the-name-of-the-current-executable-in-c
 
         var list = new List<string>();
-        try
-        {
-            list.Add(Process.GetCurrentProcess().MainModule?.FileName);
-        }
+        try { list.Add(Process.GetCurrentProcess().MainModule?.FileName); }
         catch { }
 
-        try
-        {
-            list.Add(AppDomain.CurrentDomain.FriendlyName);
-        }
+        try { list.Add(AppDomain.CurrentDomain.FriendlyName); }
         catch { }
 
-        try
-        {
-            list.Add(Process.GetCurrentProcess().ProcessName);
-        }
+        try { list.Add(Process.GetCurrentProcess().ProcessName); }
         catch { }
 
-        try
-        {
-            list.Add(typeof(Constant).Assembly.Location);
-        }
+        try { list.Add(typeof(Constant).Assembly.Location); }
         catch { }
 
-        try
-        {
-            list.Add(Path.GetFullPath("."));
-        }
+        try { list.Add(Path.GetFullPath(".")); }
         catch { }
 
-        try
-        {
-            list.Add(Environment.CurrentDirectory);
-        }
+        try { list.Add(Environment.CurrentDirectory); }
         catch { }
 
         var set = new HashSet<string>(PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
@@ -680,15 +618,9 @@ public static class Constant
         foreach (var item in list)
         {
             var item2 = TrimOrNull(item);
-            if (item2 == null)
-            {
-                continue;
-            }
+            if (item2 == null) continue;
 
-            try
-            {
-                item2 = Path.GetFullPath(item2);
-            }
+            try { item2 = Path.GetFullPath(item2); }
             catch { }
 
             try
@@ -696,21 +628,14 @@ public static class Constant
                 if (!File.Exists(item2) && !Directory.Exists(item2))
                 {
                     if (File.Exists(item2 + ".exe"))
-                    {
                         item2 += ".exe";
-                    }
                     else
-                    {
                         continue;
-                    }
                 }
             }
             catch { }
 
-            if (!set.Add(item2))
-            {
-                continue;
-            }
+            if (!set.Add(item2)) continue;
 
             list2.Add(item2);
         }
@@ -730,27 +655,15 @@ public static class Constant
         {
             // http://stackoverflow.com/questions/3453220/how-to-detect-if-console-in-stdin-has-been-redirected?lq=1
             //return (0 == (System.Console.WindowHeight + System.Console.WindowWidth)) && System.Console.KeyAvailable;
-            if (Console.WindowHeight != 0)
-            {
-                return false;
-            }
+            if (Console.WindowHeight != 0) return false;
 
-            if (Console.WindowWidth != 0)
-            {
-                return false;
-            }
+            if (Console.WindowWidth != 0) return false;
 
-            if (!Console.KeyAvailable)
-            {
-                return false;
-            }
+            if (!Console.KeyAvailable) return false;
 
             return true;
         }
-        catch (Exception e)
-        {
-            LogError(e);
-        }
+        catch (Exception e) { LogError(e); }
 
         return false;
     }
@@ -763,7 +676,6 @@ public static class Constant
     {
         var msg = nameof(Constant) + "." + memberName + "() failed.";
         if (exception != null)
-        {
             try
             {
                 var err = exception.ToString();
@@ -786,24 +698,14 @@ public static class Constant
                     catch (Exception) { }
                 }
             }
-        }
 
-        try
-        {
-            Debug.WriteLine(msg);
-        }
+        try { Debug.WriteLine(msg); }
         catch (Exception)
         {
-            try
-            {
-                Console.Error.WriteLine(msg);
-            }
+            try { Console.Error.WriteLine(msg); }
             catch (Exception)
             {
-                try
-                {
-                    Console.WriteLine(msg);
-                }
+                try { Console.WriteLine(msg); }
                 catch { }
             }
         }
@@ -811,10 +713,7 @@ public static class Constant
 
     private static string TrimOrNull(string str)
     {
-        if (str == null)
-        {
-            return null;
-        }
+        if (str == null) return null;
 
         str = str.Trim();
         return str.Length == 0 ? null : str;

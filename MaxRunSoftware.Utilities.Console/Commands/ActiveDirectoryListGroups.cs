@@ -29,15 +29,9 @@ public class ActiveDirectoryListGroups : ActiveDirectoryListBase
 
     protected override bool IsValidObject(ActiveDirectoryObject obj)
     {
-        if (!obj.IsGroup)
-        {
-            return false;
-        }
+        if (!obj.IsGroup) return false;
 
-        if (groupPattern == null)
-        {
-            return true;
-        }
+        if (groupPattern == null) return true;
 
         return obj.ObjectName.EqualsWildcard(groupPattern, true);
     }

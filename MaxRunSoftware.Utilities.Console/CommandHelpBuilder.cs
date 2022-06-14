@@ -19,10 +19,7 @@ namespace MaxRunSoftware.Utilities.Console;
 
 public class CommandHelpBuilder
 {
-    public CommandHelpBuilder(string name)
-    {
-        Name = name;
-    }
+    public CommandHelpBuilder(string name) { Name = name; }
 
     public string Name { get; }
 
@@ -41,28 +38,13 @@ public class CommandHelpBuilder
     private readonly List<string> examples = new();
     public IReadOnlyList<string> Examples => examples;
 
-    public void AddSummary(string msg)
-    {
-        summary.Add(msg);
-    }
+    public void AddSummary(string msg) => summary.Add(msg);
 
-    public void AddValue(string msg)
-    {
-        values.Add(msg);
-    }
+    public void AddValue(string msg) => values.Add(msg);
 
-    public void AddDetail(string msg)
-    {
-        details.Add(msg);
-    }
+    public void AddDetail(string msg) => details.Add(msg);
 
-    public void AddParameter(string p1, string p2, string description)
-    {
-        parameters.Add((p1, p2, description));
-    }
+    public void AddParameter(string p1, string p2, string description) => parameters.Add((p1, p2, description));
 
-    public void AddExample(string example)
-    {
-        examples.Add(example.Replace("`", "\""));
-    }
+    public void AddExample(string example) => examples.Add(example.Replace("`", "\""));
 }

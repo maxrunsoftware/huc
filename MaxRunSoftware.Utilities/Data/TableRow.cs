@@ -27,10 +27,7 @@ public sealed class TableRow : IReadOnlyList<string>, IBucketReadOnly<string, st
         RowIndex = rowIndex;
     }
 
-    public int GetNumberOfCharacters(int lengthOfNull)
-    {
-        return data.GetNumberOfCharacters(lengthOfNull);
-    }
+    public int GetNumberOfCharacters(int lengthOfNull) => data.GetNumberOfCharacters(lengthOfNull);
 
     #region IBucketReadOnly<string, string>
 
@@ -53,20 +50,11 @@ public sealed class TableRow : IReadOnlyList<string>, IBucketReadOnly<string, st
     public int Count => Table.Columns.Count;
     public string this[int columnIndex] => data[columnIndex];
 
-    public IEnumerator<string> GetEnumerator()
-    {
-        return ((IEnumerable<string>)data).GetEnumerator();
-    }
+    public IEnumerator<string> GetEnumerator() => ((IEnumerable<string>)data).GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion IReadOnlyList<string>
 
-    public string[] ToArray()
-    {
-        return data.Copy();
-    }
+    public string[] ToArray() => data.Copy();
 }

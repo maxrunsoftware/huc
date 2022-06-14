@@ -42,12 +42,8 @@ public class GoogleSheetsAddRow : GoogleSheetsBase
         log.Debug(values, nameof(values));
 
         for (var i = 0; i < values.Count; i++)
-        {
             if (string.Equals(values[i], "null", StringComparison.OrdinalIgnoreCase))
-            {
                 values[i] = null;
-            }
-        }
 
         using (var c = CreateConnection())
         {

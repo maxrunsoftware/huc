@@ -24,10 +24,7 @@ public static class JavaPropertiesExtensions
         while (enumerator.MoveNext())
         {
             var s = enumerator.Current?.ToString();
-            if (s.TrimOrNull() != null)
-            {
-                yield return s;
-            }
+            if (s.TrimOrNull() != null) yield return s;
         }
     }
 
@@ -49,24 +46,15 @@ public static class JavaPropertiesExtensions
 
     public static void LoadFile(this JavaProperties properties, string filename, Encoding encoding = null)
     {
-        if (encoding == null)
-        {
-            encoding = Constant.ENCODING_UTF8;
-        }
+        if (encoding == null) encoding = Constant.ENCODING_UTF8;
 
-        using (var fs = Util.FileOpenRead(filename))
-        {
-            properties.Load(fs, encoding);
-        }
+        using (var fs = Util.FileOpenRead(filename)) { properties.Load(fs, encoding); }
     }
 
     public static void LoadFromString(this JavaProperties properties, string data)
     {
         var byteArray = Constant.ENCODING_UTF8.GetBytes(data);
-        using (var stream = new MemoryStream(byteArray))
-        {
-            properties.Load(stream, Constant.ENCODING_UTF8);
-        }
+        using (var stream = new MemoryStream(byteArray)) { properties.Load(stream, Constant.ENCODING_UTF8); }
     }
 }
 
@@ -103,10 +91,7 @@ public class JavaProperties : Hashtable
     /// A Hashtable that holds a set of defafult key value pairs to
     /// return when the requested key has not been set.
     /// </param>
-    public JavaProperties(Hashtable defaults)
-    {
-        this.defaults = defaults;
-    }
+    public JavaProperties(Hashtable defaults) { this.defaults = defaults; }
 
     /// <summary>
     /// Load Java Properties from a stream expecting the format as described in <see cref="JavaPropertyReader" />.
@@ -156,15 +141,9 @@ public class JavaProperties : Hashtable
     public string GetProperty(string key)
     {
         var objectValue = this[key];
-        if (objectValue != null)
-        {
-            return objectValue.ToString();
-        }
+        if (objectValue != null) return objectValue.ToString();
 
-        if (defaults != null)
-        {
-            return defaults[key]?.ToString();
-        }
+        if (defaults != null) return defaults[key]?.ToString();
 
         return null;
     }
@@ -176,10 +155,7 @@ public class JavaProperties : Hashtable
     /// <param name="key">The key whose value should be returned.</param>
     /// <param name="defaultValue">The default value if the key is not found.</param>
     /// <returns>The value corresponding to the key - or null if not found.</returns>
-    public string GetProperty(string key, string defaultValue)
-    {
-        return GetProperty(key) ?? defaultValue;
-    }
+    public string GetProperty(string key, string defaultValue) => GetProperty(key) ?? defaultValue;
 
     /// <summary>
     /// Set the value for a property key.  The old value is returned - if any.
@@ -208,16 +184,10 @@ public class JavaProperties : Hashtable
             for (var e = Keys.GetEnumerator(); e.MoveNext();)
             {
                 var key = e.Current?.ToString();
-                if (key != null)
-                {
-                    combined.Add(key, this[key]);
-                }
+                if (key != null) combined.Add(key, this[key]);
             }
         }
-        else
-        {
-            combined = new Hashtable(this);
-        }
+        else { combined = new Hashtable(this); }
 
         return combined.Keys.GetEnumerator();
     }
@@ -383,10 +353,7 @@ public class JavaPropertyReader
     /// where the keys are to be stored.
     /// </summary>
     /// <param name="hashtable">A reference to a hashtable where the key-value pairs can be stored.</param>
-    public JavaPropertyReader(Hashtable hashtable)
-    {
-        this.hashtable = hashtable;
-    }
+    public JavaPropertyReader(Hashtable hashtable) { this.hashtable = hashtable; }
 
     private bool Matches(int match, int ch)
     {
@@ -398,18 +365,12 @@ public class JavaPropertyReader
             case MATCH_terminator:
                 if (ch == '\r')
                 {
-                    if (PeekChar() == '\n')
-                    {
-                        saved = false;
-                    }
+                    if (PeekChar() == '\n') saved = false;
 
                     return true;
                 }
 
-                if (ch == '\n')
-                {
-                    return true;
-                }
+                if (ch == '\n') return true;
 
                 return false;
 
@@ -461,7 +422,6 @@ public class JavaPropertyReader
     private char EscapedChar(int ch)
     {
         if (escaped)
-        {
             switch (ch)
             {
                 case 't':
@@ -482,26 +442,17 @@ public class JavaPropertyReader
                     {
                         ch = NextChar();
                         if (ch >= '0' && ch <= '9')
-                        {
                             uch = (uch << 4) + ch - '0';
-                        }
                         else if (ch >= 'a' && ch <= 'z')
-                        {
                             uch = (uch << 4) + ch - 'a' + 10;
-                        }
                         else if (ch >= 'A' && ch <= 'Z')
-                        {
                             uch = (uch << 4) + ch - 'A' + 10;
-                        }
                         else
-                        {
                             throw new JavaPropertyParseException("Invalid Unicode character.");
-                        }
                     }
 
                     return (char)uch;
             }
-        }
 
         return (char)ch;
     }
@@ -519,10 +470,7 @@ public class JavaPropertyReader
 
     private int PeekChar()
     {
-        if (saved)
-        {
-            return savedChar;
-        }
+        if (saved) return savedChar;
 
         saved = true;
         return savedChar = ReadCharSafe();
@@ -541,11 +489,9 @@ public class JavaPropertyReader
     private int ReadCharSafe()
     {
         if (reader.BaseStream.Position == reader.BaseStream.Length)
-        {
             // We have reached the end of the stream. The reder will throw exception if we call Read any further.
             // We just return -1 now;
             return -1;
-        }
 
         // reader.ReadChar() will take into account the encoding.
         return reader.ReadChar();
@@ -622,10 +568,7 @@ public class JavaPropertyReader
     /// <para>An example of a long line split into two.</para>
     /// </summary>
     /// <param name="stream">The input stream that the properties are read from.</param>
-    public void Parse(Stream stream)
-    {
-        Parse(stream, null);
-    }
+    public void Parse(Stream stream) => Parse(stream, null);
 
     /// <summary>
     /// <para>
@@ -729,10 +672,7 @@ public class JavaPropertyReader
                 }
             }
 
-            if (!matched)
-            {
-                throw new JavaPropertyParseException("Unexpected character at " + 1 + ": <<<" + ch + ">>>");
-            }
+            if (!matched) throw new JavaPropertyParseException("Unexpected character at " + 1 + ": <<<" + ch + ">>>");
         } while (state != STATE_finish);
     }
 }
@@ -754,10 +694,7 @@ public class JavaPropertyWriter
     /// The Hashtable (or JavaProperties) instance
     /// whose values are to be written.
     /// </param>
-    public JavaPropertyWriter(Hashtable hashtable)
-    {
-        this.hashtable = hashtable;
-    }
+    public JavaPropertyWriter(Hashtable hashtable) { this.hashtable = hashtable; }
 
     /// <summary>
     /// Escape the string as a Key with character set ISO-8859-1 -
@@ -777,10 +714,7 @@ public class JavaPropertyWriter
             if (first)
             {
                 first = false;
-                if (c == '!' || c == '#')
-                {
-                    buf.Append('\\');
-                }
+                if (c == '!' || c == '#') buf.Append('\\');
             }
 
             switch (c)
@@ -809,10 +743,7 @@ public class JavaPropertyWriter
                     break;
 
                 default:
-                    if (c > 31 && c < 127)
-                    {
-                        buf.Append(c);
-                    }
+                    if (c > 31 && c < 127) { buf.Append(c); }
                     else
                     {
                         buf.Append('\\').Append('u');
@@ -876,10 +807,7 @@ public class JavaPropertyWriter
                     break;
 
                 default:
-                    if (c > 31 && c < 127)
-                    {
-                        buf.Append(c);
-                    }
+                    if (c > 31 && c < 127) { buf.Append(c); }
                     else
                     {
                         buf.Append('\\').Append('u');
@@ -912,20 +840,14 @@ public class JavaPropertyWriter
         //  28591              iso-8859-1                   Western European (ISO)
         //  from http://msdn.microsoft.com/en-us/library/system.text.encodinginfo.getencoding.aspx
 
-        if (comments != null)
-        {
-            writer.WriteLine("# " + comments);
-        }
+        if (comments != null) writer.WriteLine("# " + comments);
 
         writer.WriteLine("# " + DateTime.Now);
 
         for (var e = hashtable.Keys.GetEnumerator(); e.MoveNext();)
         {
             var key = e.Current?.ToString();
-            if (key == null)
-            {
-                continue;
-            }
+            if (key == null) continue;
 
             var val = hashtable[key]?.ToString();
             writer.WriteLine(EscapeKey(key) + "=" + EscapeValue(val));

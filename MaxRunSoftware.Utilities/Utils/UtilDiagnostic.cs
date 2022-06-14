@@ -50,13 +50,8 @@ public static partial class Util
             MemberName = memberName.TrimOrNull();
             SourceFilePath = sourceFilePath.TrimOrNull();
             if (SourceFilePath != null)
-            {
-                try
-                {
-                    SourceFileName = Path.GetFileName(SourceFilePath).TrimOrNull();
-                }
+                try { SourceFileName = Path.GetFileName(SourceFilePath).TrimOrNull(); }
                 catch (Exception) { }
-            }
 
             SourceLineNumber = sourceLineNumber;
             MemoryStart = Environment.WorkingSet;
@@ -68,10 +63,7 @@ public static partial class Util
 
         public void Dispose()
         {
-            if (!isDisposed.TryUse())
-            {
-                return;
-            }
+            if (!isDisposed.TryUse()) return;
 
             MemoryEnd = Environment.WorkingSet;
             stopwatch.Stop();
@@ -96,8 +88,5 @@ public static partial class Util
     /// <param name="sourceFilePath">No not provide this argument</param>
     /// <param name="sourceLineNumber">No not provide this argument</param>
     /// <returns>Disposable token when logging should end</returns>
-    public static IDisposable Diagnostic(Action<string> log, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
-    {
-        return new DiagnosticToken(log, memberName, sourceFilePath, sourceLineNumber);
-    }
+    public static IDisposable Diagnostic(Action<string> log, [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0) => new DiagnosticToken(log, memberName, sourceFilePath, sourceLineNumber);
 }

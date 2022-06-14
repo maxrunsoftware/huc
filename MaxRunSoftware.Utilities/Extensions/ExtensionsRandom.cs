@@ -20,15 +20,9 @@ public static class ExtensionsRandom
 {
     #region System.Random
 
-    public static T Pick<T>(this Random random, IList<T> items)
-    {
-        return items[random.Next(items.Count)];
-    }
+    public static T Pick<T>(this Random random, IList<T> items) => items[random.Next(items.Count)];
 
-    public static T Pick<T>(this Random random, params T[] items)
-    {
-        return items[random.Next(items.Length)];
-    }
+    public static T Pick<T>(this Random random, params T[] items) => items[random.Next(items.Length)];
 
     public static void Shuffle<T>(this Random random, T[] items)
     {
@@ -63,10 +57,7 @@ public static class ExtensionsRandom
         var array = new T[1 + 1 + items.Length];
         array[0] = item1;
         array[1] = item2;
-        for (var i = 0; i < items.Length; i++)
-        {
-            array[i + 2] = items[i];
-        }
+        for (var i = 0; i < items.Length; i++) array[i + 2] = items[i];
 
         Shuffle(random, array);
         return array;
@@ -85,10 +76,7 @@ public static class ExtensionsRandom
 
     public static int Next(this RandomNumberGenerator random, int fromInclusive, int toExclusive)
     {
-        if (fromInclusive >= toExclusive)
-        {
-            throw new ArgumentException($"Invalid range {nameof(fromInclusive)}:{fromInclusive} {nameof(toExclusive)}:{toExclusive}", nameof(fromInclusive));
-        }
+        if (fromInclusive >= toExclusive) throw new ArgumentException($"Invalid range {nameof(fromInclusive)}:{fromInclusive} {nameof(toExclusive)}:{toExclusive}", nameof(fromInclusive));
 
         // The total possible range is [0, 4,294,967,295). Subtract one to account for zero
         // being an actual possibility.
@@ -96,10 +84,7 @@ public static class ExtensionsRandom
 
         // If there is only one possible choice, nothing random will actually happen, so return
         // the only possibility.
-        if (range == 0)
-        {
-            return fromInclusive;
-        }
+        if (range == 0) return fromInclusive;
 
         // Create a mask for the bits that we care about for the range. The other bits will be
         // masked away.
@@ -122,31 +107,17 @@ public static class ExtensionsRandom
         return (int)result + fromInclusive;
     }
 
-    public static int Next(this RandomNumberGenerator random)
-    {
+    public static int Next(this RandomNumberGenerator random) =>
         // ReSharper disable once IntroduceOptionalParameters.Global
-        return Next(random, 0, int.MaxValue);
-    }
+        Next(random, 0, int.MaxValue);
 
-    public static int Next(this RandomNumberGenerator random, int maxValueExclusive)
-    {
-        return Next(random, 0, maxValueExclusive);
-    }
+    public static int Next(this RandomNumberGenerator random, int maxValueExclusive) => Next(random, 0, maxValueExclusive);
 
-    public static Guid NextGuid(this RandomNumberGenerator random)
-    {
-        return new Guid(random.GetBytes(16));
-    }
+    public static Guid NextGuid(this RandomNumberGenerator random) => new(random.GetBytes(16));
 
-    public static T Pick<T>(this RandomNumberGenerator random, IList<T> items)
-    {
-        return items[random.Next(items.Count)];
-    }
+    public static T Pick<T>(this RandomNumberGenerator random, IList<T> items) => items[random.Next(items.Count)];
 
-    public static T Pick<T>(this RandomNumberGenerator random, params T[] items)
-    {
-        return items[random.Next(items.Length)];
-    }
+    public static T Pick<T>(this RandomNumberGenerator random, params T[] items) => items[random.Next(items.Length)];
 
     public static void Shuffle<T>(this RandomNumberGenerator random, T[] items)
     {

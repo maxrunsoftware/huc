@@ -31,10 +31,7 @@ public class Zip
             DateTime = file.LastWriteTime,
             Size = file.GetLength()
         };
-        if (encrypt)
-        {
-            newEntry.AESKeySize = 256;
-        }
+        if (encrypt) newEntry.AESKeySize = 256;
 
         zos.PutNextEntry(newEntry);
         //var buffer = new byte[bufferSize];
@@ -57,10 +54,7 @@ public class Zip
         {
             DateTime = directory.LastWriteTime
         };
-        if (encrypt)
-        {
-            newEntry.AESKeySize = 256;
-        }
+        if (encrypt) newEntry.AESKeySize = 256;
 
         zos.PutNextEntry(newEntry);
         zos.CloseEntry();
@@ -71,10 +65,7 @@ public class Zip
     {
         var pathParts = item.RemoveBase(baseDirectoryToRemove);
         var newPath = pathParts.ToStringDelimited("/");
-        if (isDirectory)
-        {
-            newPath = newPath + "/";
-        }
+        if (isDirectory) newPath = newPath + "/";
 
         newPath = ZipEntry.CleanName(newPath);
         return newPath;

@@ -31,21 +31,12 @@ public class SqlException : Exception
     private static string ParseMessage(IDbCommand command, bool showFullSql)
     {
         var defaultMsg = "Error Executing SQL";
-        if (!showFullSql)
-        {
-            return defaultMsg;
-        }
+        if (!showFullSql) return defaultMsg;
 
-        if (command == null)
-        {
-            return defaultMsg;
-        }
+        if (command == null) return defaultMsg;
 
         var commandText = command.CommandText.TrimOrNull();
-        if (commandText == null)
-        {
-            return defaultMsg;
-        }
+        if (commandText == null) return defaultMsg;
 
         try
         {
@@ -54,30 +45,19 @@ public class SqlException : Exception
             sql = sql.Replace(";", ";" + Environment.NewLine);
 
             var parameters = new List<IDbDataParameter>();
-            foreach (IDbDataParameter p in command.Parameters)
-            {
-                parameters.Add(p);
-            }
+            foreach (IDbDataParameter p in command.Parameters) parameters.Add(p);
 
             foreach (var p in parameters.OrderByDescending(p => p.ParameterName.Length).ThenByDescending(p => p.ParameterName))
             {
                 string val;
                 if (p.Value == null || p.Value.Equals(DBNull.Value))
-                {
                     val = "NULL";
-                }
                 else if (p.DbType == DbType.Binary && p.Value is byte[] bytes)
-                {
                     val = "byte[" + bytes.Length + "]";
-                }
                 else if (Constant.DBTYPES_NUMERIC.Contains(p.DbType))
-                {
                     val = p.Value.ToString();
-                }
                 else
-                {
                     val = "'" + p.Value + "'";
-                }
 
                 sql = sql.Replace(p.ParameterName, val);
             }

@@ -35,17 +35,11 @@ public class GenerateKeyPair : Command
 
         var publicKeyFile = GetArgValueTrimmed(0);
         log.Debug(nameof(publicKeyFile), publicKeyFile);
-        if (publicKeyFile == null)
-        {
-            throw new ArgsException(nameof(publicKeyFile), $"No {nameof(publicKeyFile)} specified to save to");
-        }
+        if (publicKeyFile == null) throw new ArgsException(nameof(publicKeyFile), $"No {nameof(publicKeyFile)} specified to save to");
 
         var privateKeyFile = GetArgValueTrimmed(1);
         log.Debug(nameof(privateKeyFile), privateKeyFile);
-        if (privateKeyFile == null)
-        {
-            throw new ArgsException(nameof(privateKeyFile), $"No {nameof(privateKeyFile)} specified to save to");
-        }
+        if (privateKeyFile == null) throw new ArgsException(nameof(privateKeyFile), $"No {nameof(privateKeyFile)} specified to save to");
 
         var keyPair = Encryption.GenerateKeyPair(length);
 

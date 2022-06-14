@@ -29,15 +29,9 @@ public class ActiveDirectoryListComputers : ActiveDirectoryListBase
 
     protected override bool IsValidObject(ActiveDirectoryObject obj)
     {
-        if (!obj.IsComputer)
-        {
-            return false;
-        }
+        if (!obj.IsComputer) return false;
 
-        if (computerPattern == null)
-        {
-            return true;
-        }
+        if (computerPattern == null) return true;
 
         return obj.ObjectName.EqualsWildcard(computerPattern, true);
     }

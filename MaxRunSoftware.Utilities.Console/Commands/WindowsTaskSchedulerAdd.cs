@@ -73,10 +73,7 @@ public class WindowsTaskSchedulerAdd : WindowsTaskSchedulerBase
 
         taskUsername = GetArgParameterOrConfigRequired(nameof(taskUsername), "tu").TrimOrNull();
         taskPassword = GetArgParameterOrConfig(nameof(taskPassword), "tp").TrimOrNull();
-        if (RemapUsername(ref taskUsername))
-        {
-            taskPassword = null;
-        }
+        if (RemapUsername(ref taskUsername)) taskPassword = null;
 
         log.DebugParameter(nameof(taskUsername), taskUsername);
         log.DebugParameter(nameof(taskPassword), taskPassword);
@@ -102,15 +99,9 @@ public class WindowsTaskSchedulerAdd : WindowsTaskSchedulerBase
         log.Debug(triggerStrings, nameof(triggerStrings));
 
         var triggers = new List<Trigger>();
-        foreach (var triggerString in triggerStrings)
-        {
-            triggers.AddRange(WindowsTaskSchedulerTrigger.CreateTriggers(triggerString));
-        }
+        foreach (var triggerString in triggerStrings) triggers.AddRange(WindowsTaskSchedulerTrigger.CreateTriggers(triggerString));
 
-        for (var i = 0; i < triggers.Count; i++)
-        {
-            log.Debug($"Parsed trigger[{i}]: {triggers[i]}");
-        }
+        for (var i = 0; i < triggers.Count; i++) log.Debug($"Parsed trigger[{i}]: {triggers[i]}");
 
         var executeFiles = GetArgValuesTrimmed();
         for (var i = 0; i < executeFiles.Count; i++)
@@ -123,10 +114,7 @@ public class WindowsTaskSchedulerAdd : WindowsTaskSchedulerBase
         using (var scheduler = GetTaskScheduler())
         {
             var existingTask = scheduler.GetTask(taskName);
-            if (existingTask != null)
-            {
-                throw new ArgsException(nameof(taskName), $"Task already exists {taskName}");
-            }
+            if (existingTask != null) throw new ArgsException(nameof(taskName), $"Task already exists {taskName}");
 
             var taskPath = new WindowsTaskSchedulerPath(taskName);
             log.Debug("Creating task: " + taskPath);

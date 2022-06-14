@@ -53,31 +53,17 @@ public class FileReplaceString : Command
 
     private string ParseOption(string input)
     {
-        if (input == null)
-        {
-            return string.Empty;
-        }
+        if (input == null) return string.Empty;
 
-        if (input.Length == 0)
-        {
-            return string.Empty;
-        }
+        if (input.Length == 0) return string.Empty;
 
         foreach (var kw in optionKeywordMap)
-        {
             if (string.Equals(kw.Key, input, StringComparison.OrdinalIgnoreCase))
-            {
                 return kw.Value;
-            }
-        }
 
         foreach (var kw in optionKeywordMap)
-        {
             if (kw.Key.StartsWith("\\"))
-            {
                 input = input.Replace(kw.Key, kw.Value);
-            }
-        }
 
         return input;
     }
@@ -90,10 +76,7 @@ public class FileReplaceString : Command
         help.AddValue("<old string> <new string> <file to replace in>");
         help.AddExample("`Person` `Steve` mydoc.txt");
         help.AddDetail("Keywords...");
-        foreach (var kw in optionKeywordMap.Keys.OrderBy(o => o.ToLower()))
-        {
-            help.AddDetail("  " + kw);
-        }
+        foreach (var kw in optionKeywordMap.Keys.OrderBy(o => o.ToLower())) help.AddDetail("  " + kw);
     }
 
     private Encoding encoding;
@@ -118,15 +101,9 @@ public class FileReplaceString : Command
         var file = values.GetAtIndexOrDefault(2);
         file.CheckValueNotNull(nameof(file), log);
         var actualFile = ParseInputFile(file);
-        if (actualFile == null)
-        {
-            throw new FileNotFoundException($"Could not find file {file}", file);
-        }
+        if (actualFile == null) throw new FileNotFoundException($"Could not find file {file}", file);
 
-        if (!File.Exists(actualFile))
-        {
-            throw new FileNotFoundException($"Could not find file {file}", file);
-        }
+        if (!File.Exists(actualFile)) throw new FileNotFoundException($"Could not find file {file}", file);
 
         file = actualFile;
 

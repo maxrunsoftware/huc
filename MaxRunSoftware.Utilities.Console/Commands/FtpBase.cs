@@ -66,17 +66,11 @@ public abstract class FtpBase : Command
         }
 */
 
-    protected static string ParseFileNameFromPath(string path)
-    {
-        return PathSplit(path).LastOrDefault();
-    }
+    protected static string ParseFileNameFromPath(string path) => PathSplit(path).LastOrDefault();
 
     protected static string[] PathSplit(string path)
     {
-        if (path.TrimOrNull() == null)
-        {
-            return Array.Empty<string>();
-        }
+        if (path.TrimOrNull() == null) return Array.Empty<string>();
 
         return path.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries).Where(o => o.TrimOrNull() != null).ToArray();
     }
@@ -84,26 +78,17 @@ public abstract class FtpBase : Command
     protected static string[] ParsePathWithoutFileName(string path)
     {
         var p = PathSplit(path).ToList();
-        if (p.Count > 0)
-        {
-            p.PopTail();
-        }
+        if (p.Count > 0) p.PopTail();
 
         return p.ToArray();
     }
 
     protected static string DetermineLocalFileName(string localFile, string remoteFile)
     {
-        if (localFile != null)
-        {
-            return localFile;
-        }
+        if (localFile != null) return localFile;
 
         var fileName = ParseFileNameFromPath(remoteFile);
-        if (fileName == null)
-        {
-            throw new ArgumentException($"Could not determine LocalFile from RemoteFile {remoteFile}", nameof(remoteFile));
-        }
+        if (fileName == null) throw new ArgumentException($"Could not determine LocalFile from RemoteFile {remoteFile}", nameof(remoteFile));
 
         localFile = Path.Combine(Environment.CurrentDirectory, fileName);
         return localFile;
@@ -150,21 +135,12 @@ public abstract class FtpBase : Command
 
         var defaultPort = 21;
         if (encryptionMode == FtpEncryptionMode.None)
-        {
             defaultPort = 21;
-        }
         else if (encryptionMode == FtpEncryptionMode.SSH)
-        {
             defaultPort = 22;
-        }
         else if (encryptionMode == FtpEncryptionMode.Implicit)
-        {
             defaultPort = 990;
-        }
-        else if (encryptionMode == FtpEncryptionMode.Explicit)
-        {
-            defaultPort = 21;
-        }
+        else if (encryptionMode == FtpEncryptionMode.Explicit) defaultPort = 21;
 
         port = GetArgParameterOrConfigInt(nameof(port), "o", defaultPort).ToString().ToUShort();
 
@@ -229,20 +205,11 @@ public abstract class FtpBase : Command
     private IFtpClient OpenClientSFtp()
     {
         var keyFiles = new List<SshKeyFile>();
-        if (privateKey1File.TrimOrNull() != null)
-        {
-            keyFiles.Add(new SshKeyFile(privateKey1File, privateKey1Password));
-        }
+        if (privateKey1File.TrimOrNull() != null) keyFiles.Add(new SshKeyFile(privateKey1File, privateKey1Password));
 
-        if (privateKey2File.TrimOrNull() != null)
-        {
-            keyFiles.Add(new SshKeyFile(privateKey2File, privateKey2Password));
-        }
+        if (privateKey2File.TrimOrNull() != null) keyFiles.Add(new SshKeyFile(privateKey2File, privateKey2Password));
 
-        if (privateKey3File.TrimOrNull() != null)
-        {
-            keyFiles.Add(new SshKeyFile(privateKey3File, privateKey3Password));
-        }
+        if (privateKey3File.TrimOrNull() != null) keyFiles.Add(new SshKeyFile(privateKey3File, privateKey3Password));
 
         FtpClientSFtp c;
         if (keyFiles.Count == 0)
@@ -265,10 +232,7 @@ public abstract class FtpBase : Command
 
     protected IFtpClient OpenClient()
     {
-        if (host == null)
-        {
-            throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-        }
+        if (host == null) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
 
         for (var i = 0; i <= retryCount; i++)
         {
@@ -285,10 +249,7 @@ public abstract class FtpBase : Command
             }
             catch (Exception e)
             {
-                if (i == retryCount)
-                {
-                    throw;
-                }
+                if (i == retryCount) throw;
 
                 log.Warn("Error connecting to server", e);
             }

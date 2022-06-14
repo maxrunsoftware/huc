@@ -136,10 +136,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         get
         {
             var o = Attributes.GetInt("groupType");
-            if (o == null)
-            {
-                return null;
-            }
+            if (o == null) return null;
 
             return (ActiveDirectoryGroupType)o.Value;
         }
@@ -179,20 +176,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         get
         {
             var ll = Attributes.GetDateTimeUTC("lastLogon");
-            if (ll == null)
-            {
-                return null;
-            }
+            if (ll == null) return null;
 
-            if (ll.Value == DateTime.MinValue)
-            {
-                return null;
-            }
+            if (ll.Value == DateTime.MinValue) return null;
 
-            if (ll.Value == DateTime.MinValue.ToUniversalTime())
-            {
-                return null;
-            }
+            if (ll.Value == DateTime.MinValue.ToUniversalTime()) return null;
 
             return ll.Value;
         }
@@ -203,20 +191,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         get
         {
             var ll = Attributes.GetDateTimeUTC("lastLogonTimestamp");
-            if (ll == null)
-            {
-                return null;
-            }
+            if (ll == null) return null;
 
-            if (ll.Value == DateTime.MinValue)
-            {
-                return null;
-            }
+            if (ll.Value == DateTime.MinValue) return null;
 
-            if (ll.Value == DateTime.MinValue.ToUniversalTime())
-            {
-                return null;
-            }
+            if (ll.Value == DateTime.MinValue.ToUniversalTime()) return null;
 
             return ll.Value;
         }
@@ -388,22 +367,13 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         {
             foreach (var o in DirectoryEntry.Children)
             {
-                if (o is not DirectoryEntry de)
-                {
-                    continue; // TODO: Could we get other object types?
-                }
+                if (o is not DirectoryEntry de) continue; // TODO: Could we get other object types?
 
                 var dn = de.DistinguishedName();
-                if (dn == null)
-                {
-                    continue;
-                }
+                if (dn == null) continue;
 
                 var ado = activeDirectory.GetObjectByDistinguishedName(dn);
-                if (ado == null)
-                {
-                    continue; // should not happen
-                }
+                if (ado == null) continue; // should not happen
 
                 yield return ado;
             }
@@ -416,25 +386,13 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         get
         {
             DirectoryEntry de = null;
-            try
-            {
-                de = DirectoryEntry.Parent;
-            }
-            catch (Exception e)
-            {
-                log.Debug("Error retrieving parent of " + DistinguishedName, e);
-            }
+            try { de = DirectoryEntry.Parent; }
+            catch (Exception e) { log.Debug("Error retrieving parent of " + DistinguishedName, e); }
 
-            if (de == null)
-            {
-                return null;
-            }
+            if (de == null) return null;
 
             var dn = de.DistinguishedName();
-            if (dn == null)
-            {
-                return null;
-            }
+            if (dn == null) return null;
 
             var ado = activeDirectory.GetObjectByDistinguishedName(dn);
             return ado;
@@ -449,25 +407,16 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     {
         get
         {
-            if (SAMAccountName != null)
-            {
-                return SAMAccountName;
-            }
+            if (SAMAccountName != null) return SAMAccountName;
 
             if (LogonName != null)
             {
                 if (LogonName.Contains("@"))
                 {
                     var name = LogonName.Split("@").FirstOrDefault().TrimOrNull();
-                    if (name != null)
-                    {
-                        return name;
-                    }
+                    if (name != null) return name;
                 }
-                else
-                {
-                    return LogonName;
-                }
+                else { return LogonName; }
             }
 
             if (LogonNamePreWindows2000 != null)
@@ -475,26 +424,14 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                 if (LogonNamePreWindows2000.Contains("\\"))
                 {
                     var name = LogonNamePreWindows2000.Split("\\").LastOrDefault().TrimOrNull();
-                    if (name != null)
-                    {
-                        return name;
-                    }
+                    if (name != null) return name;
                 }
-                else
-                {
-                    return LogonNamePreWindows2000;
-                }
+                else { return LogonNamePreWindows2000; }
             }
 
-            if (Name != null)
-            {
-                return Name;
-            }
+            if (Name != null) return Name;
 
-            if (DisplayName != null)
-            {
-                return DisplayName;
-            }
+            if (DisplayName != null) return DisplayName;
 
             if (DistinguishedName != null)
             {
@@ -504,10 +441,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                     if (dnPart.Contains("="))
                     {
                         var dnPartPart = dnPart.Split("=", 2).GetAtIndexOrDefault(1).TrimOrNull();
-                        if (dnPartPart != null)
-                        {
-                            return dnPartPart;
-                        }
+                        if (dnPartPart != null) return dnPartPart;
 
                         return DistinguishedName; // just in case something goes wacky
                     }
@@ -570,10 +504,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         get
         {
             var ou = DistinguishedName;
-            if (ou == null)
-            {
-                return null;
-            }
+            if (ou == null) return null;
 
             var ouComponents = ou.Split(',');
             return ou.Substring(ouComponents[0].Length + 1);
@@ -601,10 +532,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
             {
                 var userAccountControlComputedValue = userAccountControlComputed.Value;
                 var pe = (int)ActiveDirectoryUserAccountControl.PasswordExpired;
-                if ((userAccountControlComputedValue & pe) == pe)
-                {
-                    return true;
-                }
+                if ((userAccountControlComputedValue & pe) == pe) return true;
             }
 
             var userAccountControl = UserAccountControl;
@@ -612,20 +540,14 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
             {
                 var uac = userAccountControl.Value;
                 var pe = (int)ActiveDirectoryUserAccountControl.DoNotExpirePassword;
-                if ((uac & pe) == pe)
-                {
-                    return false;
-                }
+                if ((uac & pe) == pe) return false;
             }
 
             var pwdLastSet = PwdLastSet;
             if (pwdLastSet != null)
             {
                 var pwdLastSetValue = pwdLastSet.Value;
-                if (pwdLastSetValue < JAN_01_1800)
-                {
-                    return true;
-                }
+                if (pwdLastSetValue < JAN_01_1800) return true;
             }
 
             return false;
@@ -642,10 +564,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                     user.Save();
                 }
             }
-            else
-            {
-                AttributeSave("pwdLastSet", "-1");
-            }
+            else { AttributeSave("pwdLastSet", "-1"); }
         }
     }
 
@@ -653,16 +572,10 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     {
         get
         {
-            if (IsUserAccountControl(ActiveDirectoryUserAccountControl.AccountDisable))
-            {
-                return true;
-            }
+            if (IsUserAccountControl(ActiveDirectoryUserAccountControl.AccountDisable)) return true;
 
             var r = DirectoryEntryGetBool("IsAccountLocked");
-            if (r == null)
-            {
-                return false;
-            }
+            if (r == null) return false;
 
             return r.Value;
         }
@@ -723,20 +636,14 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         get
         {
             var user = UserPrincipal;
-            if (user == null)
-            {
-                return false;
-            }
+            if (user == null) return false;
 
             return user.UserCannotChangePassword;
         }
         set
         {
             var user = UserPrincipal;
-            if (user == null)
-            {
-                return;
-            }
+            if (user == null) return;
 
             user.UserCannotChangePassword = value;
             user.Save();
@@ -751,10 +658,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
             if (itemPart.ToLower().StartsWith("cn="))
             {
                 var itemPart2 = itemPart.Substring(3).TrimOrNull();
-                if (itemPart2 != null)
-                {
-                    return itemPart2;
-                }
+                if (itemPart2 != null) return itemPart2;
             }
         }
 
@@ -791,10 +695,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         var i = 0;
         foreach (var attribute in attributes.OrEmpty())
         {
-            if (attribute == null)
-            {
-                continue;
-            }
+            if (attribute == null) continue;
 
             var o = Create(activeDirectory, attribute);
             i++;
@@ -819,19 +720,12 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
             {
                 set = new HashSet<ActiveDirectoryUserAccountControl>();
                 var uacNullable = UserAccountControl;
-                if (uacNullable == null)
-                {
-                    return set;
-                }
+                if (uacNullable == null) return set;
 
                 var uac = uacNullable.Value;
                 foreach (var item in Util.GetEnumItems<ActiveDirectoryUserAccountControl>())
-                {
                     if ((uac & (int)item) == (int)item)
-                    {
                         set.Add(item);
-                    }
-                }
 
                 userAccountControls = set;
             }
@@ -847,20 +741,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     /// <returns>True if set, false otherwise.</returns>
     public bool UserAccountControlFlagAdd(ActiveDirectoryUserAccountControl flag)
     {
-        if (UserAccountControl == null)
-        {
-            return false;
-        }
+        if (UserAccountControl == null) return false;
 
-        if (IsUserAccountControl(flag))
-        {
-            return false;
-        }
+        if (IsUserAccountControl(flag)) return false;
 
-        if (!UserAccountControl.HasValue)
-        {
-            return false;
-        }
+        if (!UserAccountControl.HasValue) return false;
 
         var newUserAccountControl = UserAccountControl.Value | (int)flag;
         return AttributeSave("userAccountControl", newUserAccountControl.ToString());
@@ -873,20 +758,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     /// <returns>True if removed, false otherwise.</returns>
     public bool UserAccountControlFlagRemove(ActiveDirectoryUserAccountControl flag)
     {
-        if (UserAccountControl == null)
-        {
-            return false;
-        }
+        if (UserAccountControl == null) return false;
 
-        if (!IsUserAccountControl(flag))
-        {
-            return false;
-        }
+        if (!IsUserAccountControl(flag)) return false;
 
-        if (!UserAccountControl.HasValue)
-        {
-            return false;
-        }
+        if (!UserAccountControl.HasValue) return false;
 
         var newUserAccountControl = UserAccountControl.Value & ~(int)flag;
         return AttributeSave("userAccountControl", newUserAccountControl.ToString());
@@ -900,19 +776,10 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     {
         object o = null;
         var de = DirectoryEntry;
-        if (de == null)
-        {
-            return null;
-        }
+        if (de == null) return null;
 
-        try
-        {
-            o = de.InvokeGet(propertyName);
-        }
-        catch (Exception e)
-        {
-            log.Debug("Error retrieving property [" + propertyName + "] from object: " + ToString(), e);
-        }
+        try { o = de.InvokeGet(propertyName); }
+        catch (Exception e) { log.Debug("Error retrieving property [" + propertyName + "] from object: " + ToString(), e); }
 
         return o;
     }
@@ -920,20 +787,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     private bool? DirectoryEntryGetBool(string propertyName)
     {
         var o = DirectoryEntryGet(propertyName);
-        if (o == null)
-        {
-            return null;
-        }
+        if (o == null) return null;
 
         bool? b = null;
-        try
-        {
-            b = Convert.ToBoolean(o);
-        }
-        catch (Exception e)
-        {
-            log.Debug("Error converting property [" + propertyName + "] of value [" + o + "] to bool from object: " + ToString(), e);
-        }
+        try { b = Convert.ToBoolean(o); }
+        catch (Exception e) { log.Debug("Error converting property [" + propertyName + "] of value [" + o + "] to bool from object: " + ToString(), e); }
 
         return b;
     }
@@ -941,20 +799,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     private DateTime? DirectoryEntryGetDateTime(string propertyName)
     {
         var o = DirectoryEntryGet(propertyName);
-        if (o == null)
-        {
-            return null;
-        }
+        if (o == null) return null;
 
         DateTime? b = null;
-        try
-        {
-            b = (DateTime)o;
-        }
-        catch (Exception e)
-        {
-            log.Debug("Error converting property [" + propertyName + "] of value [" + o + "] to DateTime from object: " + ToString(), e);
-        }
+        try { b = (DateTime)o; }
+        catch (Exception e) { log.Debug("Error converting property [" + propertyName + "] of value [" + o + "] to DateTime from object: " + ToString(), e); }
 
         return b;
     }
@@ -966,10 +815,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         return result;
     }
 
-    private bool AttributeSave(string attributeName, string attributeValue)
-    {
-        return AttributeSave(attributeName, new object[] { attributeValue });
-    }
+    private bool AttributeSave(string attributeName, string attributeValue) => AttributeSave(attributeName, new object[] { attributeValue });
 
     private IEnumerable<ActiveDirectoryObject> GetMemberOf(bool recursive = true)
     {
@@ -984,16 +830,10 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
             foreach (var m in current.MemberOf)
             {
                 var o = activeDirectory.GetObjectByDistinguishedName(m);
-                if (o == null)
-                {
-                    continue;
-                }
+                if (o == null) continue;
 
                 var setAdd = set.Add(o);
-                if (recursive && setAdd)
-                {
-                    queue.Enqueue(o);
-                }
+                if (recursive && setAdd) queue.Enqueue(o);
             }
         }
 
@@ -1013,16 +853,10 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
             foreach (var m in current.Member)
             {
                 var o = activeDirectory.GetObjectByDistinguishedName(m);
-                if (o == null)
-                {
-                    continue;
-                }
+                if (o == null) continue;
 
                 var setAdd = set.Add(o);
-                if (recursive && setAdd)
-                {
-                    queue.Enqueue(o);
-                }
+                if (recursive && setAdd) queue.Enqueue(o);
             }
         }
 
@@ -1040,10 +874,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
 
     public bool RemoveMember(ActiveDirectoryObject activeDirectoryObject)
     {
-        if (activeDirectoryObject == null)
-        {
-            return false;
-        }
+        if (activeDirectoryObject == null) return false;
 
         var result = RemoveMember(activeDirectoryObject.DistinguishedName);
         activeDirectoryObject.Refresh();
@@ -1057,19 +888,12 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         foreach (var member in Member)
         {
             if (string.Equals(distinguishedName, member, StringComparison.OrdinalIgnoreCase))
-            {
                 found = true;
-            }
             else
-            {
                 list.Add(member);
-            }
         }
 
-        if (!found)
-        {
-            return false;
-        }
+        if (!found) return false;
 
         var result = activeDirectory.Ldap.AttributeSave(DistinguishedName, "member", list.ToArray());
         Refresh();
@@ -1078,10 +902,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
 
     public bool AddMember(ActiveDirectoryObject activeDirectoryObject)
     {
-        if (activeDirectoryObject == null)
-        {
-            return false;
-        }
+        if (activeDirectoryObject == null) return false;
 
         var result = AddMember(activeDirectoryObject.DistinguishedName);
         activeDirectoryObject.Refresh();
@@ -1094,10 +915,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
 
         foreach (var member in Member)
         {
-            if (string.Equals(distinguishedName, member, StringComparison.OrdinalIgnoreCase))
-            {
-                return false; // Already contains member
-            }
+            if (string.Equals(distinguishedName, member, StringComparison.OrdinalIgnoreCase)) return false; // Already contains member
 
             list.Add(member);
         }
@@ -1108,20 +926,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         return result;
     }
 
-    public bool IsUserAccountControl(ActiveDirectoryUserAccountControl userAccountControl)
-    {
-        return UserAccountControls.Contains(userAccountControl);
-    }
+    public bool IsUserAccountControl(ActiveDirectoryUserAccountControl userAccountControl) => UserAccountControls.Contains(userAccountControl);
 
-    public bool IsObjectClass(string objectClass)
-    {
-        return ObjectClass.Any(o => string.Equals(o, objectClass, StringComparison.OrdinalIgnoreCase));
-    }
+    public bool IsObjectClass(string objectClass) => ObjectClass.Any(o => string.Equals(o, objectClass, StringComparison.OrdinalIgnoreCase));
 
-    public bool IsObjectCategory(string objectCategory)
-    {
-        return ObjectCategory != null && ObjectCategory.ParseDistinguishedName().Any(o => string.Equals(o.Item2, objectCategory, StringComparison.OrdinalIgnoreCase));
-    }
+    public bool IsObjectCategory(string objectCategory) => ObjectCategory != null && ObjectCategory.ParseDistinguishedName().Any(o => string.Equals(o.Item2, objectCategory, StringComparison.OrdinalIgnoreCase));
 
     public IDictionary<string, object> GetProperties(bool includeExpensiveObjects = false)
     {
@@ -1142,10 +951,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                 continue;
             }
 
-            try
-            {
-                d[prop.Name] = crw.Properties[prop.Name].GetValue(this);
-            }
+            try { d[prop.Name] = crw.Properties[prop.Name].GetValue(this); }
             catch (Exception e)
             {
                 log.Warn("Error getting property [" + prop.Name + "] for object " + DistinguishedName);
@@ -1166,30 +972,18 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
             var propValue = kvp.Value;
 
             var val = propValue.ToStringGuessFormat().TrimOrNull();
-            if (val == null)
-            {
-                continue;
-            }
+            if (val == null) continue;
 
-            if (val == "[]")
-            {
-                continue;
-            }
+            if (val == "[]") continue;
 
             // ReSharper disable once SuspiciousTypeConversion.Global  // TODO: Review
             if (propValue.GetType() is IEnumerable<ActiveDirectoryObject> enumerableObjects)
             {
                 var list = enumerableObjects.ToList();
-                if (list.Count == 0)
-                {
-                    continue;
-                }
+                if (list.Count == 0) continue;
 
                 var multipleValues = list.Select(o => o.ObjectName).ToStringDelimited(",").TrimOrNull();
-                if (multipleValues == null)
-                {
-                    continue;
-                }
+                if (multipleValues == null) continue;
 
                 val = "[" + multipleValues + "]";
             }
@@ -1203,18 +997,12 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     public void AddChildOU(string samAccountName, string description)
     {
         var childOU = DirectoryEntry.Children.Add("OU=" + samAccountName, "OrganizationalUnit");
-        if (description != null)
-        {
-            childOU.Properties["description"].Add(description);
-        }
+        if (description != null) childOU.Properties["description"].Add(description);
 
         childOU.CommitChanges();
     }
 
-    public void RemoveChildOU(ActiveDirectoryObject obj)
-    {
-        DirectoryEntry.Children.Remove(obj.DirectoryEntry);
-    }
+    public void RemoveChildOU(ActiveDirectoryObject obj) => DirectoryEntry.Children.Remove(obj.DirectoryEntry);
 
     #endregion Methods Instance
 
@@ -1234,39 +1022,24 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                 var v = new List<(int attributeIndex, string attributeValue)>();
                 if (attributeValue != null)
                 {
-                    if (attributeValue is string str)
-                    {
-                        v.Add((0, str));
-                    }
-                    else if (attributeValue is byte[] bytes)
-                    {
-                        v.Add((0, "0x" + Util.Base16(bytes)));
-                    }
+                    if (attributeValue is string str) { v.Add((0, str)); }
+                    else if (attributeValue is byte[] bytes) { v.Add((0, "0x" + Util.Base16(bytes))); }
                     else if (attributeValue is IEnumerable enumerable)
                     {
                         var index = 0;
                         foreach (var attributeValueObject in enumerable)
                         {
                             if (attributeValueObject is string str2)
-                            {
                                 v.Add((index, str2));
-                            }
                             else if (attributeValueObject is byte[] bytes2)
-                            {
                                 v.Add((index, "0x" + Util.Base16(bytes2)));
-                            }
                             else
-                            {
                                 v.Add((index, attributeValueObject.ToStringGuessFormat()));
-                            }
 
                             index++;
                         }
                     }
-                    else
-                    {
-                        v.Add((0, attributeValue.ToStringGuessFormat()));
-                    }
+                    else { v.Add((0, attributeValue.ToStringGuessFormat())); }
                 }
 
                 foreach (var item in v)
@@ -1293,20 +1066,11 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         var list = new List<PropertyInfo>();
         foreach (var prop in typeof(ActiveDirectoryObject).GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (!prop.CanRead)
-            {
-                continue;
-            }
+            if (!prop.CanRead) continue;
 
-            if (!includeExpensiveObjects && ExpensiveProperties.Contains(prop.Name))
-            {
-                continue;
-            }
+            if (!includeExpensiveObjects && ExpensiveProperties.Contains(prop.Name)) continue;
 
-            if (string.Equals(prop.Name, nameof(Attributes), StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
+            if (string.Equals(prop.Name, nameof(Attributes), StringComparison.OrdinalIgnoreCase)) continue;
 
             list.Add(prop);
         }
@@ -1314,24 +1078,15 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         return list.ToArray();
     }
 
-    public static string[] GetPropertyNames(bool includeExpensiveObjects = false)
-    {
-        return GetPropertyInfos(includeExpensiveObjects).Select(o => o.Name).ToArray();
-    }
+    public static string[] GetPropertyNames(bool includeExpensiveObjects = false) => GetPropertyInfos(includeExpensiveObjects).Select(o => o.Name).ToArray();
 
     #endregion Methods Static
 
     #region Object
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as ActiveDirectoryObject);
-    }
+    public override bool Equals(object obj) => Equals(obj as ActiveDirectoryObject);
 
-    public override int GetHashCode()
-    {
-        return Util.GenerateHashCode(DistinguishedName?.ToUpper(), ObjectGUID);
-    }
+    public override int GetHashCode() => Util.GenerateHashCode(DistinguishedName?.ToUpper(), ObjectGUID);
 
     public override string ToString()
     {
@@ -1339,15 +1094,9 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         sb.Append(GetType().NameFormatted());
         sb.Append("[");
         var list = new List<string>();
-        if (ObjectName != null)
-        {
-            list.Add(ObjectName);
-        }
+        if (ObjectName != null) list.Add(ObjectName);
 
-        if (DistinguishedName != null)
-        {
-            list.Add(DistinguishedName);
-        }
+        if (DistinguishedName != null) list.Add(DistinguishedName);
 
         list.Add(ObjectGUID.ToString());
         sb.Append(list.ToStringDelimited(" "));
@@ -1359,10 +1108,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
 
     #region IEquatable
 
-    public bool Equals(ActiveDirectoryObject other)
-    {
-        return CompareTo(other) == 0;
-    }
+    public bool Equals(ActiveDirectoryObject other) => CompareTo(other) == 0;
 
     #endregion IEquatable
 
@@ -1370,22 +1116,13 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
 
     public int CompareTo(ActiveDirectoryObject other)
     {
-        if (other == null)
-        {
-            return 1;
-        }
+        if (other == null) return 1;
 
         var c = StringComparer.OrdinalIgnoreCase.Compare(DistinguishedName, other.DistinguishedName);
-        if (c != 0)
-        {
-            return c;
-        }
+        if (c != 0) return c;
 
         c = ObjectGUID.CompareTo(other.ObjectGUID);
-        if (c != 0)
-        {
-            return c;
-        }
+        if (c != 0) return c;
 
         return 0;
     }

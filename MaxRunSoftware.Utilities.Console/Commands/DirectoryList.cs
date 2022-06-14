@@ -89,94 +89,46 @@ public class DirectoryList : Command
 
         var targetDirectory = GetArgValueTrimmed(0);
         log.DebugParameter(nameof(targetDirectory), targetDirectory);
-        if (targetDirectory == null)
-        {
-            throw ArgsException.ValueNotSpecified(nameof(targetDirectory));
-        }
+        if (targetDirectory == null) throw ArgsException.ValueNotSpecified(nameof(targetDirectory));
 
         targetDirectory = Path.GetFullPath(targetDirectory);
         log.DebugParameter(nameof(targetDirectory), targetDirectory);
 
         var targetTabFile = GetArgValueTrimmed(1);
         log.DebugParameter(nameof(targetTabFile), targetTabFile);
-        if (targetTabFile == null)
-        {
-            throw ArgsException.ValueNotSpecified(nameof(targetTabFile));
-        }
+        if (targetTabFile == null) throw ArgsException.ValueNotSpecified(nameof(targetTabFile));
 
         targetTabFile = Path.GetFullPath(targetTabFile);
         log.DebugParameter(nameof(targetTabFile), targetTabFile);
 
         var header = new List<string>();
-        if (creationTime)
-        {
-            header.Add(nameof(creationTime));
-        }
+        if (creationTime) header.Add(nameof(creationTime));
 
-        if (creationTimeUtc)
-        {
-            header.Add(nameof(creationTimeUtc));
-        }
+        if (creationTimeUtc) header.Add(nameof(creationTimeUtc));
 
-        if (lastAccessTime)
-        {
-            header.Add(nameof(lastAccessTime));
-        }
+        if (lastAccessTime) header.Add(nameof(lastAccessTime));
 
-        if (lastAccessTimeUtc)
-        {
-            header.Add(nameof(lastAccessTimeUtc));
-        }
+        if (lastAccessTimeUtc) header.Add(nameof(lastAccessTimeUtc));
 
-        if (lastWriteTime)
-        {
-            header.Add(nameof(lastWriteTime));
-        }
+        if (lastWriteTime) header.Add(nameof(lastWriteTime));
 
-        if (lastWriteTimeUtc)
-        {
-            header.Add(nameof(lastWriteTimeUtc));
-        }
+        if (lastWriteTimeUtc) header.Add(nameof(lastWriteTimeUtc));
 
-        if (name)
-        {
-            header.Add(nameof(name));
-        }
+        if (name) header.Add(nameof(name));
 
-        if (nameFull)
-        {
-            header.Add(nameof(nameFull));
-        }
+        if (nameFull) header.Add(nameof(nameFull));
 
-        if (nameRelative)
-        {
-            header.Add(nameof(nameRelative));
-        }
+        if (nameRelative) header.Add(nameof(nameRelative));
 
-        if (path)
-        {
-            header.Add(nameof(path));
-        }
+        if (path) header.Add(nameof(path));
 
-        if (pathRelative)
-        {
-            header.Add(nameof(pathRelative));
-        }
+        if (pathRelative) header.Add(nameof(pathRelative));
 
-        if (parentName)
-        {
-            header.Add(nameof(parentName));
-        }
+        if (parentName) header.Add(nameof(parentName));
 
-        if (type)
-        {
-            header.Add(nameof(type));
-        }
+        if (type) header.Add(nameof(type));
 
-        if (size)
-        {
-            header.Add(nameof(size));
-        }
+        if (size) header.Add(nameof(size));
 
         var tableList = new List<List<string>>();
         tableList.Add(header);
@@ -188,96 +140,48 @@ public class DirectoryList : Command
 
             var fullPath = listingEntry.Path;
             var basePath = targetDirectory;
-            if (fullPath.Length == basePath.Length)
-            {
-                continue; // same path, exclude target dir
-            }
+            if (fullPath.Length == basePath.Length) continue; // same path, exclude target dir
 
             var typeString = Util.IsFile(fullPath) ? "File" : Util.IsDirectory(fullPath) ? "Directory" : "Unknown";
             // ReSharper disable ConvertIfToOrExpression
             // ReSharper disable ReplaceWithSingleAssignment.False
             var include = false;
-            if (typeString == "File" && includeFiles)
-            {
-                include = true;
-            }
+            if (typeString == "File" && includeFiles) include = true;
 
-            if (typeString == "Directory" && includeDirectories)
-            {
-                include = true;
-            }
+            if (typeString == "Directory" && includeDirectories) include = true;
             // ReSharper restore ReplaceWithSingleAssignment.False
             // ReSharper restore ConvertIfToOrExpression
 
-            if (!include)
-            {
-                continue;
-            }
+            if (!include) continue;
 
             var depth = Util.PathParse(fullPath).Length - Util.PathParse(basePath).Length - 1;
-            if (depth > recursiveDepth)
-            {
-                continue;
-            }
+            if (depth > recursiveDepth) continue;
 
             if (pattern != null && pattern != "*")
             {
                 var fileName = Path.GetFileName(fullPath);
-                if (!fileName.EqualsWildcard(pattern))
-                {
-                    continue;
-                }
+                if (!fileName.EqualsWildcard(pattern)) continue;
             }
 
-            if (creationTime)
-            {
-                row.Add(File.GetCreationTime(fullPath).ToStringYYYYMMDDHHMMSS());
-            }
+            if (creationTime) row.Add(File.GetCreationTime(fullPath).ToStringYYYYMMDDHHMMSS());
 
-            if (creationTimeUtc)
-            {
-                row.Add(File.GetCreationTimeUtc(fullPath).ToStringYYYYMMDDHHMMSS());
-            }
+            if (creationTimeUtc) row.Add(File.GetCreationTimeUtc(fullPath).ToStringYYYYMMDDHHMMSS());
 
-            if (lastAccessTime)
-            {
-                row.Add(File.GetLastAccessTime(fullPath).ToStringYYYYMMDDHHMMSS());
-            }
+            if (lastAccessTime) row.Add(File.GetLastAccessTime(fullPath).ToStringYYYYMMDDHHMMSS());
 
-            if (lastAccessTimeUtc)
-            {
-                row.Add(File.GetLastAccessTimeUtc(fullPath).ToStringYYYYMMDDHHMMSS());
-            }
+            if (lastAccessTimeUtc) row.Add(File.GetLastAccessTimeUtc(fullPath).ToStringYYYYMMDDHHMMSS());
 
-            if (lastWriteTime)
-            {
-                row.Add(File.GetLastWriteTime(fullPath).ToStringYYYYMMDDHHMMSS());
-            }
+            if (lastWriteTime) row.Add(File.GetLastWriteTime(fullPath).ToStringYYYYMMDDHHMMSS());
 
-            if (lastWriteTimeUtc)
-            {
-                row.Add(File.GetLastWriteTimeUtc(fullPath).ToStringYYYYMMDDHHMMSS());
-            }
+            if (lastWriteTimeUtc) row.Add(File.GetLastWriteTimeUtc(fullPath).ToStringYYYYMMDDHHMMSS());
 
-            if (name)
-            {
-                row.Add(Path.GetFileName(fullPath));
-            }
+            if (name) row.Add(Path.GetFileName(fullPath));
 
-            if (nameFull)
-            {
-                row.Add(fullPath);
-            }
+            if (nameFull) row.Add(fullPath);
 
-            if (nameRelative)
-            {
-                row.Add(Path.GetRelativePath(basePath, fullPath));
-            }
+            if (nameRelative) row.Add(Path.GetRelativePath(basePath, fullPath));
 
-            if (path)
-            {
-                row.Add(Directory.GetParent(fullPath)?.FullName);
-            }
+            if (path) row.Add(Directory.GetParent(fullPath)?.FullName);
 
             if (pathRelative)
             {
@@ -285,20 +189,11 @@ public class DirectoryList : Command
                 row.Add(parentFullName == null ? null : Path.GetRelativePath(basePath, parentFullName));
             }
 
-            if (parentName)
-            {
-                row.Add(Directory.GetParent(fullPath)?.Name);
-            }
+            if (parentName) row.Add(Directory.GetParent(fullPath)?.Name);
 
-            if (type)
-            {
-                row.Add(typeString);
-            }
+            if (type) row.Add(typeString);
 
-            if (size)
-            {
-                row.Add(Util.FileGetSize(fullPath).ToString());
-            }
+            if (size) row.Add(Util.FileGetSize(fullPath).ToString());
 
             tableList.Add(row);
         }

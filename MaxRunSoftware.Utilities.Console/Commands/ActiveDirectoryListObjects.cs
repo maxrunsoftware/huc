@@ -31,10 +31,7 @@ public class ActiveDirectoryListObjects : ActiveDirectoryListBase
 
     protected override bool IsValidObject(ActiveDirectoryObject obj)
     {
-        if (objectPattern == null)
-        {
-            return true;
-        }
+        if (objectPattern == null) return true;
 
         return obj.ObjectName.EqualsWildcard(objectPattern, true);
     }

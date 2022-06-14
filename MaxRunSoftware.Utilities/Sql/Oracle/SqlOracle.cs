@@ -39,10 +39,7 @@ public class SqlOracle : Sql
 
     public override string GetCurrentDatabaseName()
     {
-        if (currentDatabaseName != null)
-        {
-            return currentDatabaseName;
-        }
+        if (currentDatabaseName != null) return currentDatabaseName;
 
         var sqlStatements = new[]
         {
@@ -57,28 +54,19 @@ public class SqlOracle : Sql
         foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
-            if (t == null)
-            {
-                continue;
-            }
+            if (t == null) continue;
 
             foreach (var r in t)
             {
                 var v = r[0].TrimOrNull();
-                if (v == null)
-                {
-                    continue;
-                }
+                if (v == null) continue;
 
                 currentDatabaseName = v;
                 return v;
             }
         }
 
-        if (exceptions.IsNotEmpty())
-        {
-            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
-        }
+        if (exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
 
         return null;
     }
@@ -96,25 +84,16 @@ public class SqlOracle : Sql
         foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
-            if (t == null)
-            {
-                continue;
-            }
+            if (t == null) continue;
 
             foreach (var r in t)
             {
                 var v = r[0].TrimOrNull();
-                if (v != null)
-                {
-                    return v;
-                }
+                if (v != null) return v;
             }
         }
 
-        if (exceptions.IsNotEmpty())
-        {
-            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
-        }
+        if (exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
 
         return null;
     }
@@ -123,15 +102,9 @@ public class SqlOracle : Sql
     {
         var empty = Enumerable.Empty<SqlObjectDatabase>();
         var dbName = GetCurrentDatabaseName();
-        if (dbName == null)
-        {
-            return empty;
-        }
+        if (dbName == null) return empty;
 
-        if (ExcludedDatabases.Contains(dbName))
-        {
-            return empty;
-        }
+        if (ExcludedDatabases.Contains(dbName)) return empty;
 
         return new SqlObjectDatabase(dbName).Yield();
     }
@@ -139,10 +112,7 @@ public class SqlOracle : Sql
 
     public override IEnumerable<SqlObjectSchema> GetSchemas(string database = null)
     {
-        if (ShouldStop(database, out var dbName))
-        {
-            yield break;
-        }
+        if (ShouldStop(database, out var dbName)) yield break;
 
         // TODO: Expensive operation
         var sqlStatements = new[]
@@ -160,46 +130,28 @@ public class SqlOracle : Sql
         foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
-            if (t == null)
-            {
-                continue;
-            }
+            if (t == null) continue;
 
             foreach (var r in t)
             {
                 var valSchema = r[0].TrimOrNull();
-                if (valSchema == null)
-                {
-                    continue;
-                }
+                if (valSchema == null) continue;
 
                 var so = new SqlObjectSchema(dbName, valSchema);
-                if (!alreadyUsed.Add(so))
-                {
-                    continue;
-                }
+                if (!alreadyUsed.Add(so)) continue;
 
-                if (so.SchemaName != null && ExcludedSchemas.Contains(so.SchemaName))
-                {
-                    continue;
-                }
+                if (so.SchemaName != null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
                 yield return so;
             }
         }
 
-        if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty())
-        {
-            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
-        }
+        if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
     }
 
     public override IEnumerable<SqlObjectTable> GetTables(string database = null, string schema = null)
     {
-        if (ShouldStop(database, out var dbName))
-        {
-            yield break;
-        }
+        if (ShouldStop(database, out var dbName)) yield break;
 
         var currentSchema = GetCurrentSchemaName();
 
@@ -216,48 +168,30 @@ public class SqlOracle : Sql
         foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
-            if (t == null)
-            {
-                continue;
-            }
+            if (t == null) continue;
 
             foreach (var r in t)
             {
                 var valSchema = r[0].TrimOrNull() ?? currentSchema;
                 var valTable = r[1].TrimOrNull();
-                if (valTable == null)
-                {
-                    continue;
-                }
+                if (valTable == null) continue;
 
                 var so = new SqlObjectTable(dbName, valSchema, valTable);
 
-                if (!alreadyUsed.Add(so))
-                {
-                    continue;
-                }
+                if (!alreadyUsed.Add(so)) continue;
 
-                if (so.SchemaName != null && ExcludedSchemas.Contains(so.SchemaName))
-                {
-                    continue;
-                }
+                if (so.SchemaName != null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
                 yield return so;
             }
         }
 
-        if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty())
-        {
-            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
-        }
+        if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
     }
 
     public override IEnumerable<SqlObjectTableColumn> GetTableColumns(string database = null, string schema = null, string table = null)
     {
-        if (ShouldStop(database, out var dbName))
-        {
-            yield break;
-        }
+        if (ShouldStop(database, out var dbName)) yield break;
 
         var currentSchema = GetCurrentSchemaName();
 
@@ -287,37 +221,22 @@ public class SqlOracle : Sql
         foreach (var sql in sqlStatements)
         {
             var t = Query(sql, exceptions);
-            if (t == null)
-            {
-                continue;
-            }
+            if (t == null) continue;
 
             foreach (var r in t)
             {
                 var valSchema = r["OWNER"].TrimOrNull() ?? currentSchema;
                 var valTable = r["TABLE_NAME"].TrimOrNull();
-                if (valTable == null)
-                {
-                    continue;
-                }
+                if (valTable == null) continue;
 
                 var valColumn = r["COLUMN_NAME"].TrimOrNull();
-                if (valColumn == null)
-                {
-                    continue;
-                }
+                if (valColumn == null) continue;
 
                 var valCharacterLengthMax = (r["CHAR_LENGTH"] ?? "0").ToInt();
-                if (valCharacterLengthMax < 1)
-                {
-                    valCharacterLengthMax = (r["DATA_LENGTH"] ?? "0").ToInt();
-                }
+                if (valCharacterLengthMax < 1) valCharacterLengthMax = (r["DATA_LENGTH"] ?? "0").ToInt();
 
                 var valColumnDefault = r["DATA_DEFAULT"].TrimOrNull();
-                if (valColumnDefault != null && valColumnDefault.EqualsCaseInsensitive("null"))
-                {
-                    valColumnDefault = null;
-                }
+                if (valColumnDefault != null && valColumnDefault.EqualsCaseInsensitive("null")) valColumnDefault = null;
 
                 var dbTypeItem = GetSqlDbType(r["DATA_TYPE"]);
                 var dbType = dbTypeItem?.DbType ?? DbType.String;
@@ -337,71 +256,43 @@ public class SqlOracle : Sql
                     valColumnDefault
                 );
 
-                if (!alreadyUsed.Add(so))
-                {
-                    continue;
-                }
+                if (!alreadyUsed.Add(so)) continue;
 
-                if (so.SchemaName != null && ExcludedSchemas.Contains(so.SchemaName))
-                {
-                    continue;
-                }
+                if (so.SchemaName != null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
                 yield return so;
             }
         }
 
-        if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty())
-        {
-            throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
-        }
+        if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
     }
 
     public override bool GetTableExists(string database, string schema, string table)
     {
         schema = schema.TrimOrNull() ?? GetCurrentSchemaName();
-        if (schema == null)
-        {
-            throw new Exception("Could not determine current SQL schema name");
-        }
+        if (schema == null) throw new Exception("Could not determine current SQL schema name");
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
         foreach (var t in GetTables(database, schema))
-        {
             if (string.Equals(t.TableName, table, StringComparison.OrdinalIgnoreCase))
-            {
                 return true;
-            }
-        }
 
         return false;
     }
 
     public override bool DropTable(string database, string schema, string table)
     {
-        if (!GetTableExists(database, schema, table))
-        {
-            return false;
-        }
+        if (!GetTableExists(database, schema, table)) return false;
 
         var sql = new StringBuilder();
         sql.Append("DROP TABLE ");
-        if (schema != null)
-        {
-            sql.Append(" " + schema + ".");
-        }
+        if (schema != null) sql.Append(" " + schema + ".");
 
         sql.Append(table);
-        if (DropTableCascadeConstraints)
-        {
-            sql.Append(" CASCADE CONSTRAINTS");
-        }
+        if (DropTableCascadeConstraints) sql.Append(" CASCADE CONSTRAINTS");
 
-        if (DropTablePurge)
-        {
-            sql.Append(" PURGE");
-        }
+        if (DropTablePurge) sql.Append(" PURGE");
 
         sql.Append(';');
 
@@ -409,10 +300,7 @@ public class SqlOracle : Sql
         return true;
     }
 
-    public override string TextCreateTableColumn(TableColumn column)
-    {
-        throw new NotImplementedException();
-    }
+    public override string TextCreateTableColumn(TableColumn column) => throw new NotImplementedException();
 
     private bool ShouldStop(string database, out string dbName)
     {
@@ -434,13 +322,11 @@ public class SqlOracle : Sql
         }
 
         if (dbName != null)
-        {
             if (ExcludedDatabases.Contains(dbName))
             {
                 log.Debug($"Requested database name '{database}' is in our list of {nameof(ExcludedDatabases)} so we are not continuing request");
                 return true;
             }
-        }
 
         return false;
     }
@@ -450,18 +336,12 @@ public class SqlOracle : Sql
         var sb = new StringBuilder();
 
         schema = schema.TrimOrNull();
-        if (schema != null)
-        {
-            sb.Append(schema.ToUpper());
-        }
+        if (schema != null) sb.Append(schema.ToUpper());
 
         table = table.TrimOrNull();
         if (table != null)
         {
-            if (sb.Length > 0)
-            {
-                sb.Append('.');
-            }
+            if (sb.Length > 0) sb.Append('.');
 
             sb.Append(table.ToUpper());
         }

@@ -30,40 +30,30 @@ public static partial class Util
 
             var foregroundSwitch = false;
             if (foreground != null)
-            {
                 if (this.foreground != foreground.Value)
                 {
                     foregroundSwitch = true;
                     Console.ForegroundColor = foreground.Value;
                 }
-            }
 
             foregroundSwitched = foregroundSwitch;
 
             var backgroundSwitch = false;
             if (background != null)
-            {
                 if (this.background != background.Value)
                 {
                     backgroundSwitch = true;
                     Console.BackgroundColor = background.Value;
                 }
-            }
 
             backgroundSwitched = backgroundSwitch;
         }
 
         public void Dispose()
         {
-            if (foregroundSwitched)
-            {
-                Console.ForegroundColor = foreground;
-            }
+            if (foregroundSwitched) Console.ForegroundColor = foreground;
 
-            if (backgroundSwitched)
-            {
-                Console.BackgroundColor = background;
-            }
+            if (backgroundSwitched) Console.BackgroundColor = background;
         }
     }
 
@@ -73,8 +63,5 @@ public static partial class Util
     /// <param name="foreground">The foreground color</param>
     /// <param name="background">The background color</param>
     /// <returns>A disposable that will change the colors back once disposed</returns>
-    public static IDisposable ChangeConsoleColor(ConsoleColor? foreground = null, ConsoleColor? background = null)
-    {
-        return new ConsoleColorChanger(foreground, background);
-    }
+    public static IDisposable ChangeConsoleColor(ConsoleColor? foreground = null, ConsoleColor? background = null) => new ConsoleColorChanger(foreground, background);
 }

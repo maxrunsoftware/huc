@@ -51,10 +51,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
 
         foreach (var dataArray in data)
         {
-            if (dataArray == null)
-            {
-                continue;
-            }
+            if (dataArray == null) continue;
 
             var ss = dataArray.TrimOrNull();
             columnsCount = Math.Max(columnsCount, ss.Length);
@@ -81,10 +78,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         rows = tableRows.AsReadOnly();
 
         var columns = new List<TableColumn>(columnsCount);
-        for (var i = 0; i < columnsCount; i++)
-        {
-            columns.Add(new TableColumn(this, i, columnNames.GetAtIndexOrDefault(i)));
-        }
+        for (var i = 0; i < columnsCount; i++) columns.Add(new TableColumn(this, i, columnNames.GetAtIndexOrDefault(i)));
 
         Columns = new TableColumnCollection(columns);
     }
@@ -119,15 +113,9 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
     /// <returns>The row</returns>
     public TableRow this[int rowIndex] => rows[rowIndex];
 
-    public IEnumerator<TableRow> GetEnumerator()
-    {
-        return rows.GetEnumerator();
-    }
+    public IEnumerator<TableRow> GetEnumerator() => rows.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion IReadOnlyList<TableRow>
 
@@ -140,10 +128,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         foreach (var row in data)
         {
             var rowList = new List<string>();
-            foreach (var cell in row.OrEmpty())
-            {
-                rowList.Add(cell);
-            }
+            foreach (var cell in row.OrEmpty()) rowList.Add(cell);
 
             list.Add(rowList.ToArray());
         }
@@ -158,20 +143,14 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
 
         var list = new List<string[]>();
         var headerList = new List<string>();
-        foreach (var item in header)
-        {
-            headerList.Add(item);
-        }
+        foreach (var item in header) headerList.Add(item);
 
         list.Add(headerList.ToArray());
 
         foreach (var row in data)
         {
             var rowList = new List<string>();
-            foreach (var cell in row)
-            {
-                rowList.Add(cell);
-            }
+            foreach (var cell in row) rowList.Add(cell);
 
             list.Add(rowList.ToArray());
         }
@@ -185,10 +164,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         return Create(dataReader, o => (string)converter(o, typeof(string)));
     }
 
-    public static Table[] Create(IDataReader dataReader)
-    {
-        return Create(dataReader, Util.ChangeType<string>);
-    }
+    public static Table[] Create(IDataReader dataReader) => Create(dataReader, Util.ChangeType<string>);
 
     public static Table[] Create(IDataReader dataReader, Converter<object, string> converter)
     {
@@ -217,10 +193,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         var columnIndexesToRemove = new HashSet<int>();
         foreach (var column in columns)
         {
-            if (!Columns.ContainsColumn(column))
-            {
-                throw new Exception("Column [" + column.Index + ":" + column.Name + "] does not exist on table");
-            }
+            if (!Columns.ContainsColumn(column)) throw new Exception("Column [" + column.Index + ":" + column.Name + "] does not exist on table");
 
             columnIndexesToRemove.Add(column.Index);
         }
@@ -228,12 +201,8 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         // All of the columns exist, let's build up our new table...
         var header = new List<string>();
         foreach (var column in Columns)
-        {
             if (!columnIndexesToRemove.Contains(column.Index))
-            {
                 header.Add(column.Name);
-            }
-        }
 
         var dataRows = new List<string[]>();
         var newWidth = Columns.Count - columnIndexesToRemove.Count + 1;
@@ -241,12 +210,8 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         {
             var rowData = new List<string>(newWidth);
             for (var i = 0; i < Columns.Count; i++)
-            {
                 if (!columnIndexesToRemove.Contains(i))
-                {
                     rowData.Add(row[i]);
-                }
-            }
 
             dataRows.Add(rowData.ToArray());
         }
@@ -284,10 +249,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
 
     public Table RenameColumn(TableColumn column, string newColumnName)
     {
-        if (!Columns.ContainsColumn(column.CheckNotNull(nameof(column))))
-        {
-            throw new Exception($"No column [{column.Index}:{column.Name}] is attached to this table {Id}");
-        }
+        if (!Columns.ContainsColumn(column.CheckNotNull(nameof(column)))) throw new Exception($"No column [{column.Index}:{column.Name}] is attached to this table {Id}");
 
         var columnIndex = column.Index;
 
@@ -295,23 +257,14 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
 
         var len = Columns.Count;
         var h = new List<string>(len);
-        for (var i = 0; i < len; i++)
-        {
-            h.Add(i == columnIndex ? newColumnName : Columns.ColumnNames[i]);
-        }
+        for (var i = 0; i < len; i++) h.Add(i == columnIndex ? newColumnName : Columns.ColumnNames[i]);
 
         return Create(this, h);
     }
 
-    public Table RenameColumn(string columnName, string newColumnName)
-    {
-        return RenameColumn(Columns[columnName.CheckNotNullTrimmed(nameof(columnName))], newColumnName);
-    }
+    public Table RenameColumn(string columnName, string newColumnName) => RenameColumn(Columns[columnName.CheckNotNullTrimmed(nameof(columnName))], newColumnName);
 
-    public Table RenameColumn(int columnIndex, string newColumnName)
-    {
-        return RenameColumn(Columns[columnIndex], newColumnName);
-    }
+    public Table RenameColumn(int columnIndex, string newColumnName) => RenameColumn(Columns[columnIndex], newColumnName);
 
     #endregion RenameColumn
 
@@ -320,38 +273,23 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
     public Table AddColumn(string newColumnName, Func<TableRow, string> newColumnDataGenerator, int newColumnIndex = int.MaxValue)
     {
         var newData = new string[Count];
-        foreach (var row in this)
-        {
-            newData[row.RowIndex] = newColumnDataGenerator(row);
-        }
+        foreach (var row in this) newData[row.RowIndex] = newColumnDataGenerator(row);
 
         return AddColumn(newColumnName, newData, newColumnIndex);
     }
 
-    public Table AddColumn(string newColumnName, params string[] newColumnDataValues)
-    {
-        return AddColumn(newColumnName, (IEnumerable<string>)newColumnDataValues);
-    }
+    public Table AddColumn(string newColumnName, params string[] newColumnDataValues) => AddColumn(newColumnName, (IEnumerable<string>)newColumnDataValues);
 
     public Table AddColumn(string newColumnName, IEnumerable<string> newColumnData, int newColumnIndex = int.MaxValue)
     {
         newColumnName = newColumnName.CheckNotNullTrimmed(nameof(newColumnName));
-        if (!(newColumnData is string[] newColumnDataArray))
-        {
-            newColumnDataArray = (newColumnData ?? Enumerable.Empty<string>()).ToArray();
-        }
+        if (!(newColumnData is string[] newColumnDataArray)) newColumnDataArray = (newColumnData ?? Enumerable.Empty<string>()).ToArray();
 
         var oldLength = Columns.Count;
         var newLength = oldLength + 1;
-        if (newColumnIndex > oldLength)
-        {
-            newColumnIndex = oldLength;
-        }
+        if (newColumnIndex > oldLength) newColumnIndex = oldLength;
 
-        if (newColumnIndex < 0)
-        {
-            newColumnIndex = 0;
-        }
+        if (newColumnIndex < 0) newColumnIndex = 0;
 
         var h = new List<string>(newLength);
         h.AddRange(Columns.ColumnNames);
@@ -395,12 +333,8 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         var list = new List<IEnumerable<string>>(Count);
 
         foreach (var row in this)
-        {
             if (predicate(row))
-            {
                 list.Add(row);
-            }
-        }
 
         return Create(list, Columns.ColumnNames);
     }
@@ -412,10 +346,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         var cols = Columns.ToArray();
         var newTable = new List<string[]>();
         var newColumns = new string[width];
-        for (var i = 0; i < width; i++)
-        {
-            newColumns[i] = Columns[i].Name;
-        }
+        for (var i = 0; i < width; i++) newColumns[i] = Columns[i].Name;
 
         newTable.Add(newColumns);
 
@@ -445,29 +376,16 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         var colsNewCount = Count + 1;
 
         var list = new List<string[]>(rowsNewCount + 1);
-        for (var i = 0; i < rowsNewCount; i++)
-        {
-            list.Add(new string[colsNewCount]);
-        }
+        for (var i = 0; i < rowsNewCount; i++) list.Add(new string[colsNewCount]);
 
-        for (var i = 0; i < colsOldCount; i++)
-        {
-            list[i][0] = Columns.ColumnNames[i];
-        }
+        for (var i = 0; i < colsOldCount; i++) list[i][0] = Columns.ColumnNames[i];
 
         for (var newRowIndex = 0; newRowIndex < rowsNewCount; newRowIndex++)
-        {
-            for (var newColIndex = 1; newColIndex < colsNewCount; newColIndex++)
-            {
-                list[newRowIndex][newColIndex] = this[newColIndex - 1][newRowIndex];
-            }
-        }
+        for (var newColIndex = 1; newColIndex < colsNewCount; newColIndex++)
+            list[newRowIndex][newColIndex] = this[newColIndex - 1][newRowIndex];
 
         return Create(list, true);
     }
 
-    public override string ToString()
-    {
-        return "Table[columns:" + Columns.Count + "][rows:" + Count + "]";
-    }
+    public override string ToString() => "Table[columns:" + Columns.Count + "][rows:" + Count + "]";
 }

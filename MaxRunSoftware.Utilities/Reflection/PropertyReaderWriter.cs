@@ -38,13 +38,9 @@ public sealed class PropertyReaderWriter
         var pt = propertyInfo.PropertyType;
 
         if (pt.IsPrimitive || pt.IsValueType || pt.IsEnum)
-        {
             DefaultNullValue = Activator.CreateInstance(pt);
-        }
         else
-        {
             DefaultNullValue = null;
-        }
 
         propertyGetter = CreatePropertyGetter(propertyInfo);
         propertySetter = CreatePropertySetter(propertyInfo);
@@ -52,17 +48,11 @@ public sealed class PropertyReaderWriter
 
     private static Func<object, object> CreatePropertyGetter(PropertyInfo propertyInfo)
     {
-        if (!propertyInfo.CanRead)
-        {
-            return null;
-        }
+        if (!propertyInfo.CanRead) return null;
 
         // https://stackoverflow.com/questions/16436323/reading-properties-of-an-object-with-expression-trees
         var mi = propertyInfo.GetGetMethod();
-        if (mi == null)
-        {
-            return null;
-        }
+        if (mi == null) return null;
 
         //IsStatic = mi.IsStatic;
         var instance = Expression.Parameter(typeof(object), "instance");
@@ -77,17 +67,11 @@ public sealed class PropertyReaderWriter
 
     private static Action<object, object> CreatePropertySetter(PropertyInfo propertyInfo)
     {
-        if (!propertyInfo.CanWrite)
-        {
-            return null;
-        }
+        if (!propertyInfo.CanWrite) return null;
 
         // https://stackoverflow.com/questions/16436323/reading-properties-of-an-object-with-expression-trees
         var mi = propertyInfo.GetSetMethod();
-        if (mi == null)
-        {
-            return null;
-        }
+        if (mi == null) return null;
 
         //IsStatic = mi.IsStatic;
         var instance = Expression.Parameter(typeof(object), "instance");
@@ -103,19 +87,13 @@ public sealed class PropertyReaderWriter
 
     public void SetValue(object instance, object propertyValue, TypeConverter converter = null)
     {
-        if (!CanSet)
-        {
-            throw new InvalidOperationException("Cannot SET property " + ToString());
-        }
+        if (!CanSet) throw new InvalidOperationException("Cannot SET property " + ToString());
 
         if (converter != null && propertyValue != null)
         {
             var tSource = propertyValue.GetType();
             var tTarget = PropertyInfo.PropertyType;
-            if (tSource != tTarget && !tTarget.IsAssignableFrom(tSource))
-            {
-                propertyValue = converter(propertyValue, tTarget);
-            }
+            if (tSource != tTarget && !tTarget.IsAssignableFrom(tSource)) propertyValue = converter(propertyValue, tTarget);
         }
 
         propertySetter(instance, propertyValue ?? DefaultNullValue);
@@ -123,10 +101,7 @@ public sealed class PropertyReaderWriter
 
     public object GetValue(object instance)
     {
-        if (!CanGet)
-        {
-            throw new InvalidOperationException("Cannot GET property " + ToString());
-        }
+        if (!CanGet) throw new InvalidOperationException("Cannot GET property " + ToString());
 
         var o = propertyGetter(instance);
 
@@ -140,8 +115,5 @@ public sealed class PropertyReaderWriter
         return o;
     }
 
-    public override string ToString()
-    {
-        return PropertyInfo.DeclaringType.FullNameFormatted() + "." + PropertyInfo.Name + "{ " + (CanGet ? "get; " : "") + (CanSet ? "set; " : "") + "}";
-    }
+    public override string ToString() => PropertyInfo.DeclaringType.FullNameFormatted() + "." + PropertyInfo.Name + "{ " + (CanGet ? "get; " : "") + (CanSet ? "set; " : "") + "}";
 }

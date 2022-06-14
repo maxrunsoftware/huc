@@ -65,16 +65,10 @@ public static partial class Util
     public static T Clone<T>(T obj)
     {
         // http://stackoverflow.com/a/78612
-        if (!typeof(T).IsSerializable)
-        {
-            throw new ArgumentException("The type must be serializable.", nameof(obj));
-        }
+        if (!typeof(T).IsSerializable) throw new ArgumentException("The type must be serializable.", nameof(obj));
 
         // Don't serialize a null object, simply return the default for that object
-        if (ReferenceEquals(obj, null))
-        {
-            return default;
-        }
+        if (ReferenceEquals(obj, null)) return default;
 
         IFormatter formatter = new BinaryFormatter();
         using (Stream stream = new MemoryStream())

@@ -28,10 +28,7 @@ public class FtpClientSFtp : FtpClientBase
         get
         {
             var c = client;
-            if (c == null)
-            {
-                throw new ObjectDisposedException(GetType().FullNameFormatted());
-            }
+            if (c == null) throw new ObjectDisposedException(GetType().FullNameFormatted());
 
             return c;
         }
@@ -39,25 +36,13 @@ public class FtpClientSFtp : FtpClientBase
 
     public override string WorkingDirectory => Client.WorkingDirectory;
 
-    public FtpClientSFtp(string host, ushort port, string username, string password)
-    {
-        client = Ssh.CreateSFtpClient(host, port, username, password, null);
-    }
+    public FtpClientSFtp(string host, ushort port, string username, string password) { client = Ssh.CreateSFtpClient(host, port, username, password, null); }
 
-    public FtpClientSFtp(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys)
-    {
-        client = Ssh.CreateSFtpClient(host, port, username, null, privateKeys);
-    }
+    public FtpClientSFtp(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys) { client = Ssh.CreateSFtpClient(host, port, username, null, privateKeys); }
 
-    protected override void GetFile(string remoteFile, Stream localStream)
-    {
-        Client.DownloadFile(remoteFile, localStream);
-    }
+    protected override void GetFile(string remoteFile, Stream localStream) => Client.DownloadFile(remoteFile, localStream);
 
-    protected override void PutFile(string remoteFile, Stream localStream)
-    {
-        Client.UploadFile(localStream, remoteFile, true);
-    }
+    protected override void PutFile(string remoteFile, Stream localStream) => Client.UploadFile(localStream, remoteFile, true);
 
     protected override void ListFiles(string remotePath, List<FtpClientFile> fileList)
     {
@@ -66,33 +51,20 @@ public class FtpClientSFtp : FtpClientBase
         {
             var name = file.Name;
             var fullName = file.FullName;
-            if (!fullName.StartsWith("/"))
-            {
-                fullName = "/" + fullName;
-            }
+            if (!fullName.StartsWith("/")) fullName = "/" + fullName;
 
             var type = FtpClientFileType.Unknown;
             if (file.IsDirectory)
-            {
                 type = FtpClientFileType.Directory;
-            }
             else if (file.IsRegularFile)
-            {
                 type = FtpClientFileType.File;
-            }
-            else if (file.IsSymbolicLink)
-            {
-                type = FtpClientFileType.Link;
-            }
+            else if (file.IsSymbolicLink) type = FtpClientFileType.Link;
 
             fileList.Add(new FtpClientFile(name, fullName, type));
         }
     }
 
-    protected override string GetServerInfo()
-    {
-        return Client.ConnectionInfo.ClientVersion;
-    }
+    protected override string GetServerInfo() => Client.ConnectionInfo.ClientVersion;
 
     protected override void DeleteFileSingle(string remoteFile)
     {
@@ -114,37 +86,16 @@ public class FtpClientSFtp : FtpClientBase
         var c = client;
         client = null;
 
-        if (c == null)
-        {
-            return;
-        }
+        if (c == null) return;
 
-        try
-        {
-            c.Disconnect();
-        }
-        catch (Exception e)
-        {
-            log.Warn("Error disconnecting from server", e);
-        }
+        try { c.Disconnect(); }
+        catch (Exception e) { log.Warn("Error disconnecting from server", e); }
 
-        try
-        {
-            c.Dispose();
-        }
-        catch (Exception e)
-        {
-            log.Warn($"Error disposing of {c.GetType().FullNameFormatted()}", e);
-        }
+        try { c.Dispose(); }
+        catch (Exception e) { log.Warn($"Error disposing of {c.GetType().FullNameFormatted()}", e); }
     }
 
-    protected override bool ExistsFile(string remoteFile)
-    {
-        return Client.Exists(remoteFile);
-    }
+    protected override bool ExistsFile(string remoteFile) => Client.Exists(remoteFile);
 
-    protected override bool ExistsDirectory(string remoteDirectory)
-    {
-        return Client.Exists(remoteDirectory);
-    }
+    protected override bool ExistsDirectory(string remoteDirectory) => Client.Exists(remoteDirectory);
 }

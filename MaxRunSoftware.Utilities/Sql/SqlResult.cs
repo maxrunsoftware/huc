@@ -22,10 +22,7 @@ public abstract class SqlResultBase
 
     protected SqlResultBase() : this(true) { }
 
-    protected SqlResultBase(bool createLogger)
-    {
-        log = createLogger ? LogFactory.LogFactoryImpl.GetLogger(GetType()) : LoggerBase.NULL_LOGGER;
-    }
+    protected SqlResultBase(bool createLogger) { log = createLogger ? LogFactory.LogFactoryImpl.GetLogger(GetType()) : LoggerBase.NULL_LOGGER; }
 }
 
 public class SqlResultCollection : SqlResultBase, IReadOnlyList<SqlResult>
@@ -46,15 +43,9 @@ public class SqlResultCollection : SqlResultBase, IReadOnlyList<SqlResult>
         results = list.AsReadOnly();
     }
 
-    public IEnumerator<SqlResult> GetEnumerator()
-    {
-        return results.GetEnumerator();
-    }
+    public IEnumerator<SqlResult> GetEnumerator() => results.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public int Count => results.Count;
 
@@ -78,10 +69,7 @@ public class SqlResult : SqlResultBase
 
 public static class SqlResultExtensions
 {
-    public static SqlResultCollection ReadSqlResults(this IDataReader reader)
-    {
-        return new SqlResultCollection(reader);
-    }
+    public static SqlResultCollection ReadSqlResults(this IDataReader reader) => new(reader);
 }
 
 public class SqlResultColumnCollection : SqlResultBase, IReadOnlyList<SqlResultColumn>, IBucketReadOnly<string, SqlResultColumn>, IBucketReadOnly<int, SqlResultColumn>
@@ -103,35 +91,20 @@ public class SqlResultColumnCollection : SqlResultBase, IReadOnlyList<SqlResultC
     public SqlResultColumn this[string name] => columnsByName[name];
     public IReadOnlyList<string> ColumnNames { get; }
 
-    public bool Contains(int index)
-    {
-        return index >= 0 && index < Count;
-    }
+    public bool Contains(int index) => index >= 0 && index < Count;
 
-    public bool Contains(string name)
-    {
-        return columnsByName.ContainsKey(name);
-    }
+    public bool Contains(string name) => columnsByName.ContainsKey(name);
 
-    public bool Contains(SqlResultColumn column)
-    {
-        return columns.Contains(column);
-    }
+    public bool Contains(SqlResultColumn column) => columns.Contains(column);
 
     public int Count => columns.Count;
 
-    public IEnumerator<SqlResultColumn> GetEnumerator()
-    {
-        return columns.GetEnumerator();
-    }
+    public IEnumerator<SqlResultColumn> GetEnumerator() => columns.GetEnumerator();
 
     IEnumerable<string> IBucketReadOnly<string, SqlResultColumn>.Keys => ColumnNames;
     IEnumerable<int> IBucketReadOnly<int, SqlResultColumn>.Keys => columnIndexes;
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 public class SqlResultColumn : SqlResultBase
@@ -147,10 +120,7 @@ public class SqlResultColumn : SqlResultBase
     public string DataTypeName => SchemaColumn.DataTypeName;
     public bool? IsNullable => SchemaColumn.IsNullable;
 
-    public SqlResultColumn(SqlDataReaderSchemaColumn schemaColumn)
-    {
-        SchemaColumn = schemaColumn.CheckNotNull(nameof(schemaColumn));
-    }
+    public SqlResultColumn(SqlDataReaderSchemaColumn schemaColumn) { SchemaColumn = schemaColumn.CheckNotNull(nameof(schemaColumn)); }
 }
 
 public class SqlResultRowCollection : SqlResultBase, IReadOnlyList<SqlResultRow>
@@ -159,15 +129,9 @@ public class SqlResultRowCollection : SqlResultBase, IReadOnlyList<SqlResultRow>
 
     private readonly IReadOnlyList<SqlResultRow> rows;
 
-    public IEnumerator<SqlResultRow> GetEnumerator()
-    {
-        return rows.GetEnumerator();
-    }
+    public IEnumerator<SqlResultRow> GetEnumerator() => rows.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public int Count => rows.Count;
 
@@ -181,12 +145,8 @@ public class SqlResultRowCollection : SqlResultBase, IReadOnlyList<SqlResultRow>
         foreach (var valueRow in valueRows)
         {
             for (var i = 0; i < valueRow.Length; i++)
-            {
                 if (valueRow[i] == DBNull.Value)
-                {
                     valueRow[i] = null;
-                }
-            }
 
             var row = new SqlResultRow(valueRow, this);
             list.Add(row);
@@ -207,15 +167,9 @@ public class SqlResultRow : SqlResultBase, IReadOnlyList<object>
         this.rowCollection = rowCollection;
     }
 
-    public IEnumerator<object> GetEnumerator()
-    {
-        return ((IEnumerable<object>)objs).GetEnumerator();
-    }
+    public IEnumerator<object> GetEnumerator() => ((IEnumerable<object>)objs).GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public int Count => objs.Length;
 
@@ -223,50 +177,23 @@ public class SqlResultRow : SqlResultBase, IReadOnlyList<object>
     public object this[string name] => rowCollection.Result.Columns[name].Index;
     public object this[SqlResultColumn column] => this[column.Index];
 
-    public object GetObject(int index)
-    {
-        return this[index];
-    }
+    public object GetObject(int index) => this[index];
 
-    public object GetObject(string name)
-    {
-        return this[name];
-    }
+    public object GetObject(string name) => this[name];
 
-    public object GetObject(SqlResultColumn column)
-    {
-        return this[column];
-    }
+    public object GetObject(SqlResultColumn column) => this[column];
 
-    public string GetString(int index)
-    {
-        return GetObject(index).ToStringGuessFormat();
-    }
+    public string GetString(int index) => GetObject(index).ToStringGuessFormat();
 
-    public string GetString(string name)
-    {
-        return GetObject(name).ToStringGuessFormat();
-    }
+    public string GetString(string name) => GetObject(name).ToStringGuessFormat();
 
-    public string GetString(SqlResultColumn column)
-    {
-        return GetObject(column).ToStringGuessFormat();
-    }
+    public string GetString(SqlResultColumn column) => GetObject(column).ToStringGuessFormat();
 
-    public T Get<T>(int index)
-    {
-        return GetConvert<T>(GetObject(index));
-    }
+    public T Get<T>(int index) => GetConvert<T>(GetObject(index));
 
-    public T Get<T>(string name)
-    {
-        return GetConvert<T>(GetObject(name));
-    }
+    public T Get<T>(string name) => GetConvert<T>(GetObject(name));
 
-    public T Get<T>(SqlResultColumn column)
-    {
-        return GetConvert<T>(GetObject(column));
-    }
+    public T Get<T>(SqlResultColumn column) => GetConvert<T>(GetObject(column));
 
     private static readonly Dictionary<Type, Func<string, object>> converters = CreateConverters();
 
@@ -303,43 +230,22 @@ public class SqlResultRow : SqlResultBase, IReadOnlyList<object>
 
     private static T GetConvert<T>(object o)
     {
-        if (o == null)
-        {
-            return default;
-        }
+        if (o == null) return default;
 
         var returnType = typeof(T);
 
-        if (returnType == typeof(object))
-        {
-            return (T)o;
-        }
+        if (returnType == typeof(object)) return (T)o;
 
-        if (returnType == typeof(byte[]))
-        {
-            return (T)o;
-        }
+        if (returnType == typeof(byte[])) return (T)o;
 
-        if (returnType == typeof(string))
-        {
-            return (T)(object)o.ToStringGuessFormat();
-        }
+        if (returnType == typeof(string)) return (T)(object)o.ToStringGuessFormat();
 
-        if (returnType == typeof(char[]))
-        {
-            return (T)(object)o.ToStringGuessFormat();
-        }
+        if (returnType == typeof(char[])) return (T)(object)o.ToStringGuessFormat();
 
         var os = o.ToString().TrimOrNull();
-        if (os == null)
-        {
-            return default;
-        }
+        if (os == null) return default;
 
-        if (converters.TryGetValue(returnType, out var converter))
-        {
-            return (T)converter(os);
-        }
+        if (converters.TryGetValue(returnType, out var converter)) return (T)converter(os);
 
         return (T)o;
     }

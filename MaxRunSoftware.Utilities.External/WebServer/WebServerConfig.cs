@@ -33,104 +33,56 @@ public class WebServerConfig
 
     public WebServerConfig()
     {
-        foreach (var ip in Util.NetGetIPAddresses().Where(o => o.AddressFamily == AddressFamily.InterNetwork))
-        {
-            Hostnames.Add(ip.ToString());
-        }
+        foreach (var ip in Util.NetGetIPAddresses().Where(o => o.AddressFamily == AddressFamily.InterNetwork)) Hostnames.Add(ip.ToString());
 
-        if (!Hostnames.Contains("localhost"))
-        {
-            Hostnames.Add("localhost");
-        }
+        if (!Hostnames.Contains("localhost")) Hostnames.Add("localhost");
 
-        if (!Hostnames.Contains("127.0.0.1"))
-        {
-            Hostnames.Add("127.0.0.1");
-        }
+        if (!Hostnames.Contains("127.0.0.1")) Hostnames.Add("127.0.0.1");
     }
 
     private WebServerConfig(WebServerConfig config)
     {
-        foreach (var hostname in config.Hostnames)
-        {
-            Hostnames.Add(hostname);
-        }
+        foreach (var hostname in config.Hostnames) Hostnames.Add(hostname);
 
         Port = config.Port;
         DirectoryToServe = config.DirectoryToServe;
         DirectoryToServeUrlPath = config.DirectoryToServeUrlPath;
-        foreach (var kvp in config.PathHandlers)
-        {
-            PathHandlers.Add(kvp.Key, (kvp.Value.verbs, kvp.Value.handler));
-        }
+        foreach (var kvp in config.PathHandlers) PathHandlers.Add(kvp.Key, (kvp.Value.verbs, kvp.Value.handler));
 
-        foreach (var item in config.Users)
-        {
-            Users.Add((item.username, item.password));
-        }
+        foreach (var item in config.Users) Users.Add((item.username, item.password));
     }
 
-    public WebServerConfig Copy()
-    {
-        return new WebServerConfig(this);
-    }
+    public WebServerConfig Copy() => new(this);
 
-    public void AddPathHandler(string path, HttpVerbs httpVerbs, Func<IHttpContext, object> handler)
-    {
-        PathHandlers.Add(path, (httpVerbs, handler));
-    }
+    public void AddPathHandler(string path, HttpVerbs httpVerbs, Func<IHttpContext, object> handler) => PathHandlers.Add(path, (httpVerbs, handler));
 
     public override string ToString()
     {
         var sb = new StringBuilder();
         sb.AppendLine(GetType().NameFormatted());
 
-        if (Hostnames.IsEmpty())
-        {
-            sb.AppendLine("  " + nameof(Hostnames) + ": <empty>");
-        }
+        if (Hostnames.IsEmpty()) sb.AppendLine("  " + nameof(Hostnames) + ": <empty>");
 
-        for (var i = 0; i < Hostnames.Count; i++)
-        {
-            sb.AppendLine("  " + nameof(Hostnames) + "[" + i + "]: " + Hostnames[i]);
-        }
+        for (var i = 0; i < Hostnames.Count; i++) sb.AppendLine("  " + nameof(Hostnames) + "[" + i + "]: " + Hostnames[i]);
 
         sb.AppendLine("  " + nameof(Port) + ": " + Port);
         sb.AppendLine("  " + nameof(DirectoryToServe) + ": " + DirectoryToServe);
         sb.AppendLine("  " + nameof(DirectoryToServeUrlPath) + ": " + DirectoryToServeUrlPath);
 
         var pathHandlers = PathHandlers.ToList();
-        if (pathHandlers.IsEmpty())
-        {
-            sb.AppendLine("  " + nameof(PathHandlers) + ": <empty>");
-        }
+        if (pathHandlers.IsEmpty()) sb.AppendLine("  " + nameof(PathHandlers) + ": <empty>");
 
-        for (var i = 0; i < pathHandlers.Count; i++)
-        {
-            sb.AppendLine("  " + nameof(PathHandlers) + "[" + i + "]: " + pathHandlers[i].Key + "  (" + pathHandlers[i].Value.verbs + ")");
-        }
+        for (var i = 0; i < pathHandlers.Count; i++) sb.AppendLine("  " + nameof(PathHandlers) + "[" + i + "]: " + pathHandlers[i].Key + "  (" + pathHandlers[i].Value.verbs + ")");
 
         var users = Users.OrderBy(o => o.username, StringComparer.OrdinalIgnoreCase).ToList();
-        if (users.IsEmpty())
-        {
-            sb.AppendLine("  " + nameof(Users) + ": <empty>");
-        }
+        if (users.IsEmpty()) sb.AppendLine("  " + nameof(Users) + ": <empty>");
 
-        for (var i = 0; i < users.Count; i++)
-        {
-            sb.AppendLine("  " + nameof(Users) + "[" + users[i].username + "]: " + users[i].password);
-        }
+        for (var i = 0; i < users.Count; i++) sb.AppendLine("  " + nameof(Users) + "[" + users[i].username + "]: " + users[i].password);
 
         var urlPrefixes = UrlPrefixes.ToList();
-        if (urlPrefixes.IsEmpty())
-        {
-            sb.AppendLine("  " + nameof(UrlPrefixes) + ": <empty>");
-        }
+        if (urlPrefixes.IsEmpty()) sb.AppendLine("  " + nameof(UrlPrefixes) + ": <empty>");
 
-        for (var i = 0; i < urlPrefixes.Count; i++)
-        {
-            sb.AppendLine("  " + nameof(UrlPrefixes) + "[" + i + "]: " + urlPrefixes[i]);
-        }
+        for (var i = 0; i < urlPrefixes.Count; i++) sb.AppendLine("  " + nameof(UrlPrefixes) + "[" + i + "]: " + urlPrefixes[i]);
 
         return sb.ToString();
     }

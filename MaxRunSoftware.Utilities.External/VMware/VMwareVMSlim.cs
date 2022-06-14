@@ -24,45 +24,21 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class VMwareVMSlim : VMwareObject
 {
-    public void Shutdown(VMwareClient vmware)
-    {
-        vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "shutdown");
-    }
+    public void Shutdown(VMwareClient vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "shutdown");
 
-    public void Reboot(VMwareClient vmware)
-    {
-        vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "reboot");
-    }
+    public void Reboot(VMwareClient vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "reboot");
 
-    public void Standby(VMwareClient vmware)
-    {
-        vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "standby");
-    }
+    public void Standby(VMwareClient vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/guest/power", "action", "standby");
 
-    public void Reset(VMwareClient vmware)
-    {
-        vmware.Post($"/rest/vcenter/vm/{VM}/power/reset");
-    }
+    public void Reset(VMwareClient vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/reset");
 
-    public void Start(VMwareClient vmware)
-    {
-        vmware.Post($"/rest/vcenter/vm/{VM}/power/start");
-    }
+    public void Start(VMwareClient vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/start");
 
-    public void Stop(VMwareClient vmware)
-    {
-        vmware.Post($"/rest/vcenter/vm/{VM}/power/stop");
-    }
+    public void Stop(VMwareClient vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/stop");
 
-    public void Suspend(VMwareClient vmware)
-    {
-        vmware.Post($"/rest/vcenter/vm/{VM}/power/suspend");
-    }
+    public void Suspend(VMwareClient vmware) => vmware.Post($"/rest/vcenter/vm/{VM}/power/suspend");
 
-    public void CDRomDisconnect(VMwareClient vmware, string key)
-    {
-        vmware.Post($"/rest/vcenter/vm/{VM}/hardware/cdrom/{key}/disconnect");
-    }
+    public void CDRomDisconnect(VMwareClient vmware, string key) => vmware.Post($"/rest/vcenter/vm/{VM}/hardware/cdrom/{key}/disconnect");
 
     public void CDRomDelete(VMwareClient vmware, string key)
     {
@@ -72,10 +48,7 @@ public class VMwareVMSlim : VMwareObject
         string json;
         using (var w = new JsonWriter())
         {
-            using (w.Object())
-            {
-                w.Property("cdrom", key);
-            }
+            using (w.Object()) { w.Property("cdrom", key); }
 
             json = w.ToString();
         }
@@ -126,22 +99,13 @@ public class VMwareVMSlim : VMwareObject
     {
         // ReSharper disable once IdentifierTypo
         var vmfull = VMwareVM.QueryByVM(vmware, VM);
-        if (vmfull == null)
-        {
-            throw new Exception("Could not find VM: " + VM + "  " + Name); // should not happen
-        }
+        if (vmfull == null) throw new Exception("Could not find VM: " + VM + "  " + Name); // should not happen
 
         foreach (var cdrom in vmfull.CDRoms)
         {
-            if (!cdrom.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
+            if (!cdrom.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase)) continue;
 
-            if (cdrom.State == VMwareVM.VmHardwareConnectionState.Connected)
-            {
-                CDRomDisconnect(vmware, cdrom.Key);
-            }
+            if (cdrom.State == VMwareVM.VmHardwareConnectionState.Connected) CDRomDisconnect(vmware, cdrom.Key);
 
             CDRomUpdate_ClientDevice(vmware, cdrom.Key);
         }
@@ -163,29 +127,20 @@ public class VMwareVMSlim : VMwareObject
         PowerState = obj.ToPowerState("power_state");
     }
 
-    public static IEnumerable<VMwareVMSlim> Query(VMwareClient vmware)
-    {
-        return vmware.GetValueArray("/rest/vcenter/vm")
+    public static IEnumerable<VMwareVMSlim> Query(VMwareClient vmware) =>
+        vmware.GetValueArray("/rest/vcenter/vm")
             .Select(o => new VMwareVMSlim(vmware, o))
             .OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase);
-    }
 
     public static IEnumerable<VMwareVMSlim> QueryWithoutToolsInstalled(VMwareClient vmware)
     {
         var slims = Query(vmware);
         var d = new Dictionary<string, VMwareVMSlim>(StringComparer.OrdinalIgnoreCase);
-        foreach (var slim in slims)
-        {
-            d[slim.VM] = slim;
-        }
+        foreach (var slim in slims) d[slim.VM] = slim;
 
         foreach (var full in VMwareVM.Query(vmware))
-        {
             if (!full.IsVMwareToolsInstalled)
-            {
                 yield return d[full.VM];
-            }
-        }
     }
 
     private class SlimDiskSpace : VMwareVMSlim
@@ -195,21 +150,12 @@ public class VMwareVMSlim : VMwareObject
         public SlimDiskSpace(VMwareClient vmware, JToken obj) : base(vmware, obj) { }
         public IEnumerable<VMwareVM.GuestLocalFilesystem> FileSystemsCrossingThreshold => Filesystems.Where(o => o.PercentFree != null && o.PercentFree.Value <= PercentFreeThreshhold).OrderBy(o => o.Key);
 
-        public override string ToString()
-        {
-            return base.ToString() + "  " + FileSystemsCrossingThreshold.Select(o => "(" + (o.PercentFree ?? 0) + "% free) " + o.Key).ToStringDelimited("    ");
-        }
+        public override string ToString() => base.ToString() + "  " + FileSystemsCrossingThreshold.Select(o => "(" + (o.PercentFree ?? 0) + "% free) " + o.Key).ToStringDelimited("    ");
     }
 
-    public static IEnumerable<VMwareVMSlim> QueryDiskspace10(VMwareClient vmware)
-    {
-        return QueryDiskspace(vmware, 10);
-    }
+    public static IEnumerable<VMwareVMSlim> QueryDiskspace10(VMwareClient vmware) => QueryDiskspace(vmware, 10);
 
-    public static IEnumerable<VMwareVMSlim> QueryDiskspace25(VMwareClient vmware)
-    {
-        return QueryDiskspace(vmware, 25);
-    }
+    public static IEnumerable<VMwareVMSlim> QueryDiskspace25(VMwareClient vmware) => QueryDiskspace(vmware, 25);
 
     public static IEnumerable<VMwareVMSlim> QueryDiskspace(VMwareClient vmware, int percentFreeThreshold)
     {
@@ -217,10 +163,7 @@ public class VMwareVMSlim : VMwareObject
             .Select(o => new SlimDiskSpace(vmware, o))
             .OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase);
         var d = new Dictionary<string, SlimDiskSpace>(StringComparer.OrdinalIgnoreCase);
-        foreach (var dsobj in dsobjs)
-        {
-            d[dsobj.VM] = dsobj;
-        }
+        foreach (var dsobj in dsobjs) d[dsobj.VM] = dsobj;
 
 
         var fullvms = VMwareVM.Query(vmware);
@@ -230,10 +173,7 @@ public class VMwareVMSlim : VMwareObject
             var dsobj = d[fullvm.VM];
             dsobj.Filesystems = fullvm.GuestLocalFilesystems;
             dsobj.PercentFreeThreshhold = percentFreeThreshold;
-            if (!dsobj.FileSystemsCrossingThreshold.IsEmpty())
-            {
-                yield return dsobj;
-            }
+            if (!dsobj.FileSystemsCrossingThreshold.IsEmpty()) yield return dsobj;
         }
     }
 
@@ -252,21 +192,12 @@ public class VMwareVMSlim : VMwareObject
 
                 foreach (var cdrom in CDRoms)
                 {
-                    if (!cdrom.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
+                    if (!cdrom.BackingType.StartsWith("ISO", StringComparison.OrdinalIgnoreCase)) continue;
 
                     var filename = cdrom.BackingIsoFileName;
-                    if (filename == null)
-                    {
-                        continue;
-                    }
+                    if (filename == null) continue;
 
-                    if (cdrom.State == VMwareVM.VmHardwareConnectionState.Connected)
-                    {
-                        filename = filename + " (" + cdrom.State + ")";
-                    }
+                    if (cdrom.State == VMwareVM.VmHardwareConnectionState.Connected) filename = filename + " (" + cdrom.State + ")";
 
                     list.Add(filename);
                 }
@@ -275,10 +206,7 @@ public class VMwareVMSlim : VMwareObject
             }
         }
 
-        public override string ToString()
-        {
-            return base.ToString() + "  " + IsosAttached.ToStringDelimited("    ");
-        }
+        public override string ToString() => base.ToString() + "  " + IsosAttached.ToStringDelimited("    ");
     }
 
     public static IEnumerable<VMwareVMSlim> QueryIsoAttached(VMwareClient vmware)
@@ -287,10 +215,7 @@ public class VMwareVMSlim : VMwareObject
             .Select(o => new SlimIsoFile(vmware, o))
             .OrderBy(o => o.Name, StringComparer.OrdinalIgnoreCase);
         var d = new Dictionary<string, SlimIsoFile>(StringComparer.OrdinalIgnoreCase);
-        foreach (var dsobj in dsobjs)
-        {
-            d[dsobj.VM] = dsobj;
-        }
+        foreach (var dsobj in dsobjs) d[dsobj.VM] = dsobj;
 
         var fullvms = VMwareVM.Query(vmware);
 
@@ -298,27 +223,15 @@ public class VMwareVMSlim : VMwareObject
         {
             var dsobj = d[fullvm.VM];
             dsobj.CDRoms = fullvm.CDRoms;
-            if (!dsobj.IsosAttached.IsEmpty())
-            {
-                yield return dsobj;
-            }
+            if (!dsobj.IsosAttached.IsEmpty()) yield return dsobj;
         }
     }
 
-    public static IEnumerable<VMwareVMSlim> QueryPoweredOff(VMwareClient vmware)
-    {
-        return Query(vmware).Where(o => o.PowerState != VMwareVM.VMPowerState.PoweredOn);
-    }
+    public static IEnumerable<VMwareVMSlim> QueryPoweredOff(VMwareClient vmware) => Query(vmware).Where(o => o.PowerState != VMwareVM.VMPowerState.PoweredOn);
 
-    public static IEnumerable<VMwareVMSlim> QueryPoweredOn(VMwareClient vmware)
-    {
-        return Query(vmware).Where(o => o.PowerState == VMwareVM.VMPowerState.PoweredOn);
-    }
+    public static IEnumerable<VMwareVMSlim> QueryPoweredOn(VMwareClient vmware) => Query(vmware).Where(o => o.PowerState == VMwareVM.VMPowerState.PoweredOn);
 
-    public static IEnumerable<VMwareVMSlim> QuerySuspended(VMwareClient vmware)
-    {
-        return Query(vmware).Where(o => o.PowerState == VMwareVM.VMPowerState.Suspended);
-    }
+    public static IEnumerable<VMwareVMSlim> QuerySuspended(VMwareClient vmware) => Query(vmware).Where(o => o.PowerState == VMwareVM.VMPowerState.Suspended);
 
 
     public override string ToString()
@@ -327,21 +240,13 @@ public class VMwareVMSlim : VMwareObject
         sb.Append(VM.PadRight(10));
         sb.Append(" ");
         if (PowerState == VMwareVM.VMPowerState.PoweredOn)
-        {
             sb.Append("         ");
-        }
         else if (PowerState == VMwareVM.VMPowerState.PoweredOff)
-        {
             sb.Append("   OFF   ");
-        }
         else if (PowerState == VMwareVM.VMPowerState.Suspended)
-        {
             sb.Append("SUSPENDED");
-        }
         else
-        {
             sb.Append(" UNKNOWN ");
-        }
 
         sb.Append("  " + Name);
         return sb.ToString();

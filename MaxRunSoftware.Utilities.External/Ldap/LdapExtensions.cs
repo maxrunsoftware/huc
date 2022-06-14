@@ -30,14 +30,8 @@ public static class LdapExtensions
         foreach (var prop in ClassReaderWriter.GetProperties(o.GetType(), true, isInstance: true))
         {
             object val = null;
-            try
-            {
-                val = prop.GetValue(o);
-            }
-            catch (Exception e)
-            {
-                log.Debug("Error retrieving property " + o.GetType().FullNameFormatted() + "." + prop.Name, e);
-            }
+            try { val = prop.GetValue(o); }
+            catch (Exception e) { log.Debug("Error retrieving property " + o.GetType().FullNameFormatted() + "." + prop.Name, e); }
 
             sb.AppendLine("    " + prop.Name + ": " + val.ToStringGuessFormat());
         }
@@ -45,18 +39,9 @@ public static class LdapExtensions
         return sb.ToString();
     }
 
-    public static string ToStringDebug(this DirectoryEntry entry)
-    {
-        return ToStringDebugOutput(entry);
-    }
+    public static string ToStringDebug(this DirectoryEntry entry) => ToStringDebugOutput(entry);
 
-    public static string ToStringDebug(this DirectorySearcher searcher)
-    {
-        return ToStringDebugOutput(searcher);
-    }
+    public static string ToStringDebug(this DirectorySearcher searcher) => ToStringDebugOutput(searcher);
 
-    public static string ToStringDebug(this PrincipalContext context)
-    {
-        return ToStringDebugOutput(context);
-    }
+    public static string ToStringDebug(this PrincipalContext context) => ToStringDebugOutput(context);
 }

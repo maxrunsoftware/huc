@@ -56,20 +56,12 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
             foreach (var task in tasksAll)
             {
                 var taskPath = task.GetPath();
-                if (folderPath == null)
-                {
-                    tasks.Add(task);
-                }
+                if (folderPath == null) { tasks.Add(task); }
                 else
                 {
                     if (folderPathPath.Equals(taskPath))
-                    {
                         tasks.Add(task);
-                    }
-                    else if (taskPath.Parent != null && taskPath.Parent.Equals(folderPathPath))
-                    {
-                        tasks.Add(task);
-                    }
+                    else if (taskPath.Parent != null && taskPath.Parent.Equals(folderPathPath)) tasks.Add(task);
                 }
             }
 
@@ -79,15 +71,9 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
                 var part1 = taskPath.PathFull.GetAtIndexOrDefault(0);
                 var part2 = taskPath.PathFull.GetAtIndexOrDefault(1);
                 if (part1 != null && part2 != null)
-                {
                     if (part1.EqualsCaseInsensitive("Microsoft") && part2.EqualsCaseInsensitive("Windows"))
-                    {
                         if (!all)
-                        {
                             continue;
-                        }
-                    }
-                }
 
                 log.Info(taskPath.ToString());
                 if (detail)
@@ -119,10 +105,7 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
                         log.Info("Definition.Principal.Id: " + task.Definition.Principal.Id);
                         log.Info("Definition.Principal.LogonType: " + task.Definition.Principal.LogonType);
                         log.Info("Definition.Principal.ProcessTokenSidType: " + task.Definition.Principal.ProcessTokenSidType);
-                        foreach (var p in task.Definition.Principal.RequiredPrivileges)
-                        {
-                            log.Info("Definition.Principal.RequiredPrivileges: " + p);
-                        }
+                        foreach (var p in task.Definition.Principal.RequiredPrivileges) log.Info("Definition.Principal.RequiredPrivileges: " + p);
 
                         log.Info("Definition.Principal.RunLevel: " + task.Definition.Principal.RunLevel);
                         log.Info("Definition.Principal.UserId: " + task.Definition.Principal.UserId);
@@ -136,10 +119,7 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
                         log.Info("Definition.RegistrationInfo.Source: " + task.Definition.RegistrationInfo.Source);
                         log.Info("Definition.RegistrationInfo.URI: " + task.Definition.RegistrationInfo.URI);
                         log.Info("Definition.RegistrationInfo.Version: " + task.Definition.RegistrationInfo.Version);
-                        if (xml)
-                        {
-                            log.Info("Definition.RegistrationInfo.XmlText: " + task.Definition.RegistrationInfo.XmlText);
-                        }
+                        if (xml) log.Info("Definition.RegistrationInfo.XmlText: " + task.Definition.RegistrationInfo.XmlText);
 
                         log.Info("Definition.Settings.AllowDemandStart: " + task.Definition.Settings.AllowDemandStart);
                         log.Info("Definition.Settings.AllowHardTerminate: " + task.Definition.Settings.AllowHardTerminate);
@@ -171,10 +151,7 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
                         log.Info("Definition.Settings.UseUnifiedSchedulingEngine: " + task.Definition.Settings.UseUnifiedSchedulingEngine);
                         log.Info("Definition.Settings.Volatile: " + task.Definition.Settings.Volatile);
                         log.Info("Definition.Settings.WakeToRun: " + task.Definition.Settings.WakeToRun);
-                        if (xml)
-                        {
-                            log.Info("Definition.Settings.XmlText: " + task.Definition.Settings.XmlText);
-                        }
+                        if (xml) log.Info("Definition.Settings.XmlText: " + task.Definition.Settings.XmlText);
 
                         var ti = 0;
                         foreach (var t in task.Definition.Triggers)
@@ -198,15 +175,9 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
                     log.Info("State: " + task.State);
                 }
 
-                if (xml)
-                {
-                    log.Info(Environment.NewLine + task.Xml);
-                }
+                if (xml) log.Info(Environment.NewLine + task.Xml);
 
-                if (detail || xml)
-                {
-                    log.Info("");
-                }
+                if (detail || xml) log.Info("");
             }
         }
     }

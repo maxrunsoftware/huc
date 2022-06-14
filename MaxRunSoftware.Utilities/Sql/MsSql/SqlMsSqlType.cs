@@ -204,9 +204,8 @@ public enum SqlMsSqlType
 
 public static class SqlMsSqlTypeExtensions
 {
-    public static SqlMsSqlType ToSqlMsSqlType(this DbType dbType)
-    {
-        return dbType switch
+    public static SqlMsSqlType ToSqlMsSqlType(this DbType dbType) =>
+        dbType switch
         {
             DbType.AnsiString => SqlMsSqlType.VarChar,
             DbType.Binary => SqlMsSqlType.Binary,
@@ -237,5 +236,4 @@ public static class SqlMsSqlTypeExtensions
             DbType.DateTimeOffset => SqlMsSqlType.DateTimeOffset,
             _ => throw new NotImplementedException()
         };
-    }
 }

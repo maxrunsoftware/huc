@@ -23,15 +23,9 @@ public class XmlWriter : IDisposable
     {
         private readonly XmlWriter writer;
 
-        public ElementToken(XmlWriter writer)
-        {
-            this.writer = writer;
-        }
+        public ElementToken(XmlWriter writer) { this.writer = writer; }
 
-        public void Dispose()
-        {
-            writer.EndElement();
-        }
+        public void Dispose() => writer.EndElement();
     }
 
     private readonly StringBuilder stream;
@@ -52,10 +46,7 @@ public class XmlWriter : IDisposable
 
     public void Dispose()
     {
-        if (!isDisposed.TryUse())
-        {
-            return;
-        }
+        if (!isDisposed.TryUse()) return;
 
         var _ = ToString();
         writer.Dispose();
@@ -72,41 +63,23 @@ public class XmlWriter : IDisposable
         return toString;
     }
 
-    public IDisposable Element(string elementName, params (string attributeName, object attributeValue)[] attributes)
-    {
-        return Element(elementName, null, attributes);
-    }
+    public IDisposable Element(string elementName, params (string attributeName, object attributeValue)[] attributes) => Element(elementName, null, attributes);
 
     public IDisposable Element(string elementName, string elementValue, params (string attributeName, object attributeValue)[] attributes)
     {
         writer.WriteStartElement(elementName);
-        foreach (var attr in attributes)
-        {
-            Attribute(attr.attributeName, attr.attributeValue);
-        }
+        foreach (var attr in attributes) Attribute(attr.attributeName, attr.attributeValue);
 
-        if (elementValue != null)
-        {
-            writer.WriteValue(elementValue);
-        }
+        if (elementValue != null) writer.WriteValue(elementValue);
 
         return new ElementToken(this);
     }
 
-    public void EndElement()
-    {
-        writer.WriteEndElement();
-    }
+    public void EndElement() => writer.WriteEndElement();
 
-    public void Attribute(string attributeName, object attributeValue)
-    {
-        writer.WriteAttributeString(attributeName, attributeValue.ToStringGuessFormat());
-    }
+    public void Attribute(string attributeName, object attributeValue) => writer.WriteAttributeString(attributeName, attributeValue.ToStringGuessFormat());
 
-    public void Value(string value)
-    {
-        writer.WriteString(value);
-    }
+    public void Value(string value) => writer.WriteString(value);
 
     public static string ApplyXslt(string xslt, string xml)
     {

@@ -18,20 +18,11 @@ public abstract class BucketStoreBase<TKey, TValue> : IBucketStore<TKey, TValue>
 {
     public IBucket<TKey, TValue> this[string name] => new Bucket<TKey, TValue>(this, name.CheckNotNullTrimmed(nameof(name)));
 
-    protected virtual string CleanName(string name)
-    {
-        return name.CheckNotNullTrimmed(nameof(name));
-    }
+    protected virtual string CleanName(string name) => name.CheckNotNullTrimmed(nameof(name));
 
-    protected virtual TKey CleanKey(TKey key)
-    {
-        return key;
-    }
+    protected virtual TKey CleanKey(TKey key) => key;
 
-    protected virtual TValue CleanValue(TValue value)
-    {
-        return value;
-    }
+    protected virtual TValue CleanValue(TValue value) => value;
 
     protected abstract TValue GetValue(string bucketName, TKey bucketKey);
 

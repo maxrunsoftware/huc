@@ -87,10 +87,7 @@ public class TableFixedWidth : Command
             {
                 for (var i = 0; i < colCount; i++)
                 {
-                    if (widths[i] == 0)
-                    {
-                        continue;
-                    }
+                    if (widths[i] == 0) continue;
 
                     var cell = FormatCell(table.Columns[i].Name, (int)widths[i]);
                     streamWriter.Write(cell);
@@ -103,10 +100,7 @@ public class TableFixedWidth : Command
             {
                 for (var i = 0; i < colCount; i++)
                 {
-                    if (widths[i] == 0)
-                    {
-                        continue;
-                    }
+                    if (widths[i] == 0) continue;
 
                     var cell = FormatCell(row[i], (int)widths[i]);
                     streamWriter.Write(cell);

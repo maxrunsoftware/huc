@@ -58,10 +58,7 @@ public class FileChecksum : Command
         recursive = GetArgParameterOrConfigBool(nameof(recursive), "r", false);
 
         var sourceFiles = ParseInputFiles(GetArgValuesTrimmed());
-        if (sourceFiles.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(sourceFiles));
-        }
+        if (sourceFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(sourceFiles));
 
         log.Debug(sourceFiles, nameof(sourceFiles));
 
@@ -71,13 +68,9 @@ public class FileChecksum : Command
             var checksum = checksumFunction(sourceFile);
 
             if (sourceFiles.Count == 1)
-            {
                 log.Info(checksum);
-            }
             else
-            {
                 log.Info(checksum + "  <--  " + sourceFile);
-            }
         }
     }
 }

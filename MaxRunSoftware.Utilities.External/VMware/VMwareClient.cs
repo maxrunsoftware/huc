@@ -59,20 +59,14 @@ public class VMwareClient : IDisposable
         Login();
     }
 
-    private Uri Uri(string path)
-    {
-        return new Uri("https://" + hostname + (path.StartsWith("/") ? path : "/" + path));
-    }
+    private Uri Uri(string path) => new("https://" + hostname + (path.StartsWith("/") ? path : "/" + path));
 
     private string Action(string path, HttpMethod method, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null)
     {
         var builder = new UriBuilder(Uri(path));
         builder.Port = -1;
         var query = HttpUtility.ParseQueryString(builder.Query);
-        foreach (var kvp in parameters.OrEmpty())
-        {
-            query[kvp.Key] = kvp.Value;
-        }
+        foreach (var kvp in parameters.OrEmpty()) query[kvp.Key] = kvp.Value;
 
         builder.Query = query.ToString() ?? string.Empty;
         var url = builder.ToString();
@@ -80,39 +74,21 @@ public class VMwareClient : IDisposable
         var message = new HttpRequestMessage(method, url);
         message.Headers.Add(HttpRequestHeader.Authorization.ToString(), "Bearer " + authToken);
         message.Headers.Add(HttpRequestHeader.Accept.ToString(), "application/json");
-        if (contentParameters != null && contentParameters.Count > 0)
-        {
-            message.Content = new FormUrlEncodedContent(contentParameters);
-        }
+        if (contentParameters != null && contentParameters.Count > 0) message.Content = new FormUrlEncodedContent(contentParameters);
 
-        if (contentJson != null)
-        {
-            message.Content = new StringContent(contentJson, Encoding.UTF8, "application/json");
-        }
+        if (contentJson != null) message.Content = new StringContent(contentJson, Encoding.UTF8, "application/json");
 
         var result = Send(message);
         return result;
     }
 
-    public string Patch(string path, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null)
-    {
-        return Action(path, HttpMethod.Patch, parameters, contentParameters, contentJson);
-    }
+    public string Patch(string path, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null) => Action(path, HttpMethod.Patch, parameters, contentParameters, contentJson);
 
-    public string Post(string path, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null)
-    {
-        return Action(path, HttpMethod.Post, parameters, contentParameters, contentJson);
-    }
+    public string Post(string path, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null) => Action(path, HttpMethod.Post, parameters, contentParameters, contentJson);
 
-    public string Post(string path, string parameterName, string parameterValue)
-    {
-        return Action(path, HttpMethod.Post, new Dictionary<string, string> { { parameterName, parameterValue } });
-    }
+    public string Post(string path, string parameterName, string parameterValue) => Action(path, HttpMethod.Post, new Dictionary<string, string> { { parameterName, parameterValue } });
 
-    public string Get(string path, IDictionary<string, string> parameters = null)
-    {
-        return Action(path, HttpMethod.Get, parameters);
-    }
+    public string Get(string path, IDictionary<string, string> parameters = null) => Action(path, HttpMethod.Get, parameters);
 
     public JToken GetValue(string path, IDictionary<string, string> parameters = null)
     {
@@ -120,7 +96,6 @@ public class VMwareClient : IDisposable
         var obj = JObject.Parse(json);
         var type = obj["type"]?.ToString();
         if (type != null)
-        {
             if (type.EndsWith("service_unavailable", StringComparison.OrdinalIgnoreCase))
             {
                 log.Debug("Service Unavailable: " + path);
@@ -129,44 +104,25 @@ public class VMwareClient : IDisposable
                 {
                     var tokenValue = obj["value"];
                     if (tokenValue != null)
-                    {
                         foreach (var message in tokenValue["messages"].OrEmpty())
                         {
-                            if (message == null)
-                            {
-                                continue;
-                            }
+                            if (message == null) continue;
 
                             var defaultMessage = message["default_message"]?.ToString().TrimOrNull();
                             var id = message["id"]?.ToString().TrimOrNull();
                             if (id != null && defaultMessage != null)
-                            {
                                 log.Debug(id + "  -->  " + defaultMessage);
-                            }
                             else if (id != null)
-                            {
                                 log.Debug(id);
-                            }
-                            else if (defaultMessage != null)
-                            {
-                                log.Debug(defaultMessage);
-                            }
+                            else if (defaultMessage != null) log.Debug(defaultMessage);
                         }
-                    }
                 }
-                catch (Exception e)
-                {
-                    log.Debug("Error trying to parse error message", e);
-                }
+                catch (Exception e) { log.Debug("Error trying to parse error message", e); }
 
                 return null;
             }
-        }
 
-        if (!obj.ContainsKey("value"))
-        {
-            return null;
-        }
+        if (!obj.ContainsKey("value")) return null;
 
         return obj["value"];
     }
@@ -174,10 +130,7 @@ public class VMwareClient : IDisposable
     public IEnumerable<JToken> GetValueArray(string path, IDictionary<string, string> parameters = null)
     {
         var obj = GetValue(path, parameters);
-        foreach (var o in obj.OrEmpty())
-        {
-            yield return o;
-        }
+        foreach (var o in obj.OrEmpty()) yield return o;
     }
 
     private void Login()
@@ -192,10 +145,7 @@ public class VMwareClient : IDisposable
         if (obj.ContainsKey("type"))
         {
             var type = obj["type"]?.ToString();
-            if (type != null && type.EndsWith("unauthenticated", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new Exception("Invalid host, username, or password");
-            }
+            if (type != null && type.EndsWith("unauthenticated", StringComparison.OrdinalIgnoreCase)) throw new Exception("Invalid host, username, or password");
         }
 
         authToken = obj["value"]?.ToString();
@@ -204,10 +154,7 @@ public class VMwareClient : IDisposable
 
     private void Logout()
     {
-        if (authToken == null)
-        {
-            return;
-        }
+        if (authToken == null) return;
 
         var message = new HttpRequestMessage(HttpMethod.Delete, Uri("rest/com/vmware/cis/session"));
         message.Headers.Add(HttpRequestHeader.Authorization.ToString(), "Bearer " + authToken);
@@ -218,20 +165,14 @@ public class VMwareClient : IDisposable
         authToken = null;
     }
 
-    public static string FormatJson(string json, bool formatted = true)
-    {
-        return JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), formatted ? Formatting.Indented : Formatting.None);
-    }
+    public static string FormatJson(string json, bool formatted = true) => JsonConvert.SerializeObject(JsonConvert.DeserializeObject(json), formatted ? Formatting.Indented : Formatting.None);
 
     private string Send(HttpRequestMessage message)
     {
         // ReSharper disable ConstantConditionalAccessQualifier
         var response = client.SendAsync(message)?.Result?.Content?.ReadAsStringAsync()?.Result.TrimOrNull();
         // ReSharper restore ConstantConditionalAccessQualifier
-        if (response == null)
-        {
-            return null;
-        }
+        if (response == null) return null;
 
         log.Debug(message.RequestUri?.ToString());
         log.Debug(FormatJson(response));
@@ -240,26 +181,12 @@ public class VMwareClient : IDisposable
 
     public void Dispose()
     {
-        try
-        {
-            Logout();
-        }
-        catch (Exception e)
-        {
-            log.Warn("Failed to logout", e);
-        }
+        try { Logout(); }
+        catch (Exception e) { log.Warn("Failed to logout", e); }
 
 
         if (client != null)
-        {
-            try
-            {
-                client.Dispose();
-            }
-            catch (Exception e)
-            {
-                log.Warn("Failed to dispose of " + client.GetType().FullNameFormatted(), e);
-            }
-        }
+            try { client.Dispose(); }
+            catch (Exception e) { log.Warn("Failed to dispose of " + client.GetType().FullNameFormatted(), e); }
     }
 }

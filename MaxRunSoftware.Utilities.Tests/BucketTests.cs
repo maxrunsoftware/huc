@@ -62,10 +62,7 @@ public class BucketReadOnlyTests
             val = bro[null];
             Assert.True(false, "Expecting exception to be thrown");
         }
-        catch (Exception)
-        {
-            Assert.True(true);
-        }
+        catch (Exception) { Assert.True(true); }
     }
 
     private class CacheGenFunc
@@ -75,10 +72,7 @@ public class BucketReadOnlyTests
         public string GenVal(string key)
         {
             TimesCalled++;
-            if (key == "n")
-            {
-                return null;
-            }
+            if (key == "n") return null;
 
             return "V" + key;
         }

@@ -18,13 +18,7 @@ public delegate object TypeConverter(object inputObject, Type outputType);
 
 public static class TypeConverterExtensions
 {
-    public static TypeConverter AsTypeConverter<TInput, TOutput>(this Converter<TInput, TOutput> converter)
-    {
-        return (inputObject, _) => converter((TInput)inputObject);
-    }
+    public static TypeConverter AsTypeConverter<TInput, TOutput>(this Converter<TInput, TOutput> converter) => (inputObject, _) => converter((TInput)inputObject);
 
-    public static Converter<TInput, TOutput> AsConverter<TInput, TOutput>(this TypeConverter typeConverter)
-    {
-        return inputObject => (TOutput)typeConverter(inputObject, typeof(TOutput));
-    }
+    public static Converter<TInput, TOutput> AsConverter<TInput, TOutput>(this TypeConverter typeConverter) => inputObject => (TOutput)typeConverter(inputObject, typeof(TOutput));
 }

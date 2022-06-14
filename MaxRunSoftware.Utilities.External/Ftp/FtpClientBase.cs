@@ -81,10 +81,7 @@ public abstract class FtpClientBase : IFtpClient
         if (!path.StartsWith("/"))
         {
             var wd = WorkingDirectory;
-            if (!wd.EndsWith("/"))
-            {
-                path = "/" + path;
-            }
+            if (!wd.EndsWith("/")) path = "/" + path;
 
             path = wd + path;
         }
@@ -96,15 +93,9 @@ public abstract class FtpClientBase : IFtpClient
             if (pathPart.TrimOrNull() == ".") { }
             else if (pathPart.TrimOrNull() == "..")
             {
-                if (stack.Count > 0)
-                {
-                    stack.Pop();
-                }
+                if (stack.Count > 0) stack.Pop();
             }
-            else
-            {
-                stack.Push(pathPart);
-            }
+            else { stack.Push(pathPart); }
         }
 
         path = "/" + string.Join("/", stack);
@@ -126,10 +117,7 @@ public abstract class FtpClientBase : IFtpClient
         }
 
         //remoteFile = ToAbsolutePath(remoteFile);
-        if (!ExistsFile(remoteFile))
-        {
-            throw new FileNotFoundException($"Remote file {remoteFile} does not exist", remoteFile);
-        }
+        if (!ExistsFile(remoteFile)) throw new FileNotFoundException($"Remote file {remoteFile} does not exist", remoteFile);
 
         log.Debug($"Downloading file {remoteFile} --> {localFile}");
 
@@ -206,10 +194,7 @@ public abstract class FtpClientBase : IFtpClient
             var pathParts = remoteFile.Split("/").TrimOrNull().WhereNotNull().ToList();
             var remoteFileName = pathParts.PopTail();
             var path = string.Empty;
-            if (pathParts.Count > 0)
-            {
-                path = "/" + string.Join("/", pathParts);
-            }
+            if (pathParts.Count > 0) path = "/" + string.Join("/", pathParts);
 
             foreach (var file in ListFiles(path))
             {

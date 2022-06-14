@@ -33,25 +33,13 @@ public abstract class WebServerUtilityBase
 
     protected IHttpContext Context { get; private set; }
 
-    protected string GetParameterString(string name)
-    {
-        return Context.GetParameterString(name);
-    }
+    protected string GetParameterString(string name) => Context.GetParameterString(name);
 
-    protected string GetParameterString(string name, string defaultValue)
-    {
-        return Context.GetParameterString(name, defaultValue);
-    }
+    protected string GetParameterString(string name, string defaultValue) => Context.GetParameterString(name, defaultValue);
 
-    protected int? GetParameterInt(string name)
-    {
-        return Context.GetParameterInt(name);
-    }
+    protected int? GetParameterInt(string name) => Context.GetParameterInt(name);
 
-    protected int GetParameterInt(string name, int defaultValue)
-    {
-        return Context.GetParameterInt(name, defaultValue);
-    }
+    protected int GetParameterInt(string name, int defaultValue) => Context.GetParameterInt(name, defaultValue);
 
     protected Format ResponseFormat { get; private set; }
 
@@ -60,10 +48,7 @@ public abstract class WebServerUtilityBase
         get
         {
             var context = Context;
-            if (context == null)
-            {
-                return null;
-            }
+            if (context == null) return null;
 
             var request = context.Request;
             //if (request == null) return null;
@@ -72,15 +57,9 @@ public abstract class WebServerUtilityBase
 
             try
             {
-                if (!inputStream.CanRead)
-                {
-                    return null;
-                }
+                if (!inputStream.CanRead) return null;
 
-                if (inputStream.Length < 1)
-                {
-                    return null;
-                }
+                if (inputStream.Length < 1) return null;
 
                 var parser = MultipartFormDataParser.Parse(inputStream);
                 return parser;
@@ -99,10 +78,7 @@ public abstract class WebServerUtilityBase
         {
             var d = new Dictionary<string, byte[]>();
             var parser = FormParser;
-            if (parser == null)
-            {
-                return d;
-            }
+            if (parser == null) return d;
 
             foreach (var file in parser.Files)
             {
@@ -123,15 +99,9 @@ public abstract class WebServerUtilityBase
         {
             var d = new Dictionary<string, string>();
             var parser = FormParser;
-            if (parser == null)
-            {
-                return d;
-            }
+            if (parser == null) return d;
 
-            foreach (var p in parser.Parameters)
-            {
-                d[p.Name] = p.Data;
-            }
+            foreach (var p in parser.Parameters) d[p.Name] = p.Data;
 
             return d;
         }
@@ -142,54 +112,30 @@ public abstract class WebServerUtilityBase
         Context = context;
         var responseFormat = GetParameterString("format", "html").TrimOrNull() ?? "html";
         if (responseFormat.EqualsCaseInsensitive(nameof(Format.Json)))
-        {
             ResponseFormat = Format.Json;
-        }
         else if (responseFormat.EqualsCaseInsensitive(nameof(Format.Xml)))
-        {
             ResponseFormat = Format.Xml;
-        }
         else
-        {
             ResponseFormat = Format.Html;
-        }
 
-        if (ResponseFormat == Format.Json)
-        {
-            return HandleJson();
-        }
+        if (ResponseFormat == Format.Json) return HandleJson();
 
-        if (ResponseFormat == Format.Xml)
-        {
-            return HandleXml();
-        }
+        if (ResponseFormat == Format.Xml) return HandleXml();
 
         return HandleHtml();
     }
 
     public abstract string HandleHtml();
 
-    public virtual string HandleJson()
-    {
-        throw new NotImplementedException("Format=JSON not implemented");
-    }
+    public virtual string HandleJson() => throw new NotImplementedException("Format=JSON not implemented");
 
-    public virtual string HandleXml()
-    {
-        throw new NotImplementedException("Format=XML not implemented");
-    }
+    public virtual string HandleXml() => throw new NotImplementedException("Format=XML not implemented");
 
     public virtual HttpVerbs Verbs => HttpVerbs.Get;
     protected readonly ILogger log;
 
-    protected WebServerUtilityBase()
-    {
-        log = Program.LogFactory.GetLogger(GetType());
-    }
+    protected WebServerUtilityBase() { log = Program.LogFactory.GetLogger(GetType()); }
 
 
-    public string ToJson(object o)
-    {
-        return Json.Serialize(o, true);
-    }
+    public string ToJson(object o) => Json.Serialize(o, true);
 }

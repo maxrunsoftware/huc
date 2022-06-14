@@ -33,10 +33,7 @@ public abstract class TableBase : Command
         encoding = GetArgParameterOrConfigEncoding(nameof(encoding), "en");
 
         var inputFiles = ParseInputFiles(GetArgValuesTrimmed());
-        if (inputFiles.Count < 1)
-        {
-            throw new ArgsException(nameof(inputFiles), $"No <{nameof(inputFiles)}> supplied");
-        }
+        if (inputFiles.Count < 1) throw new ArgsException(nameof(inputFiles), $"No <{nameof(inputFiles)}> supplied");
 
         log.Debug(inputFiles, nameof(inputFiles));
         CheckFileExists(inputFiles);

@@ -37,10 +37,7 @@ public class XmlReader
         newElement.Name = element.Name;
         newElement.Parent = parent;
         var attrs = element.Attributes;
-        foreach (XmlAttribute attr in attrs)
-        {
-            newElement.Attributes[attr.Name] = attr.Value;
-        }
+        foreach (XmlAttribute attr in attrs) newElement.Attributes[attr.Name] = attr.Value;
 
         var values = new List<string>();
         foreach (XmlNode child in element.ChildNodes)
@@ -54,17 +51,11 @@ public class XmlReader
             else if (child.NodeType.In(XmlNodeType.Text))
             {
                 var v = child.Value;
-                if (v != null)
-                {
-                    values.Add(v);
-                }
+                if (v != null) values.Add(v);
             }
         }
 
-        if (values.IsNotEmpty())
-        {
-            newElement.Value = values.ToStringDelimited("");
-        }
+        if (values.IsNotEmpty()) newElement.Value = values.ToStringDelimited("");
 
 
         return newElement;

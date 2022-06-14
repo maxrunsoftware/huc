@@ -31,15 +31,9 @@ public class ActiveDirectoryListUsers : ActiveDirectoryListBase
 
     protected override bool IsValidObject(ActiveDirectoryObject obj)
     {
-        if (!obj.IsUser)
-        {
-            return false;
-        }
+        if (!obj.IsUser) return false;
 
-        if (userPattern == null)
-        {
-            return true;
-        }
+        if (userPattern == null) return true;
 
         return obj.ObjectName.EqualsWildcard(userPattern, true);
     }

@@ -22,10 +22,7 @@ public class WebServerUtilityGenerateKeyPair : WebServerUtilityBase
     public (bool success, string publicKey, string privateKey) Handle()
     {
         var lengthN = GetParameterInt("length");
-        if (lengthN == null)
-        {
-            return (false, null, null);
-        }
+        if (lengthN == null) return (false, null, null);
 
         var length = lengthN.Value;
 
@@ -53,7 +50,6 @@ public class WebServerUtilityGenerateKeyPair : WebServerUtilityBase
 </form>
 ";
             if (result.success)
-            {
                 html += $@"
 <br><br>
 <h2>Public Key</h2>
@@ -63,13 +59,9 @@ public class WebServerUtilityGenerateKeyPair : WebServerUtilityBase
 <h2>Private Key</h2>
 <textarea id='privateKey' name='privateKey' rows='12' cols='80'>{result.privateKey}</textarea>
 ";
-            }
 
             return External.WebServer.HtmlMessage("Asymmetric Key Pair", html.Replace("'", "\""));
         }
-        catch (Exception e)
-        {
-            return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString());
-        }
+        catch (Exception e) { return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString()); }
     }
 }

@@ -41,10 +41,7 @@ public abstract class Command : ICommand
     private ConfigFile config;
     private ConfigFile Config => config ??= new ConfigFile();
 
-    protected string Encrypt(string data)
-    {
-        return Config.Encrypt(data);
-    }
+    protected string Encrypt(string data) => Config.Encrypt(data);
 
     protected readonly ILogger log;
 
@@ -62,10 +59,7 @@ public abstract class Command : ICommand
             var sb = new StringBuilder();
             sb.AppendLine(Name);
             sb.AppendLine(Help.Summary);
-            foreach (var s in Help.Details)
-            {
-                sb.AppendLine(s);
-            }
+            foreach (var s in Help.Details) sb.AppendLine(s);
 
             if (!Help.Parameters.IsEmpty())
             {
@@ -77,16 +71,10 @@ public abstract class Command : ICommand
             foreach (var s in Help.Parameters)
             {
                 var ss = "-" + s.p1;
-                if (s.p2 != null)
-                {
-                    ss += ", -" + s.p2;
-                }
+                if (s.p2 != null) ss += ", -" + s.p2;
 
                 var len = ss.Length;
-                if (len > padWidth)
-                {
-                    padWidth = len;
-                }
+                if (len > padWidth) padWidth = len;
             }
 
             padWidth += 3;
@@ -94,10 +82,7 @@ public abstract class Command : ICommand
             foreach (var s in Help.Parameters)
             {
                 var ss = "-" + s.p1;
-                if (s.p2 != null)
-                {
-                    ss += ", -" + s.p2;
-                }
+                if (s.p2 != null) ss += ", -" + s.p2;
 
                 ss = ss.PadRight(padWidth);
                 ss += s.description;
@@ -110,10 +95,7 @@ public abstract class Command : ICommand
                 sb.AppendLine("Arguments:");
             }
 
-            foreach (var s in Help.Values)
-            {
-                sb.AppendLine("  " + s);
-            }
+            foreach (var s in Help.Values) sb.AppendLine("  " + s);
 
             if (!Help.Examples.IsEmpty())
             {
@@ -121,10 +103,7 @@ public abstract class Command : ICommand
                 sb.AppendLine("Examples:");
             }
 
-            foreach (var example in Help.Examples)
-            {
-                sb.AppendLine("  huc " + Name + " " + example);
-            }
+            foreach (var example in Help.Examples) sb.AppendLine("  huc " + Name + " " + example);
 
             return sb.ToString();
         }
@@ -140,15 +119,9 @@ public abstract class Command : ICommand
 
     public void Execute()
     {
-        if (args == null)
-        {
-            throw new Exception("Args not set");
-        }
+        if (args == null) throw new Exception("Args not set");
 
-        using (Util.Diagnostic(log.Debug))
-        {
-            ExecuteInternal();
-        }
+        using (Util.Diagnostic(log.Debug)) { ExecuteInternal(); }
     }
 
     protected abstract void ExecuteInternal();
@@ -167,34 +140,22 @@ public abstract class Command : ICommand
 
     protected void CheckFileExists(string file)
     {
-        if (!File.Exists(file))
-        {
-            throw new FileNotFoundException("File " + file + " does not exist", file);
-        }
+        if (!File.Exists(file)) throw new FileNotFoundException("File " + file + " does not exist", file);
     }
 
     protected void CheckFileExists(IEnumerable<string> files)
     {
-        foreach (var file in files)
-        {
-            CheckFileExists(file);
-        }
+        foreach (var file in files) CheckFileExists(file);
     }
 
     protected void CheckDirectoryExists(string directory)
     {
-        if (!Directory.Exists(directory))
-        {
-            throw new DirectoryNotFoundException("Directory " + directory + " does not exist");
-        }
+        if (!Directory.Exists(directory)) throw new DirectoryNotFoundException("Directory " + directory + " does not exist");
     }
 
     protected void CheckDirectoryExists(IEnumerable<string> directories)
     {
-        foreach (var directory in directories)
-        {
-            CheckDirectoryExists(directory);
-        }
+        foreach (var directory in directories) CheckDirectoryExists(directory);
     }
 
     protected string ReadFile(string path, Encoding encoding = null)
@@ -259,10 +220,7 @@ public abstract class Command : ICommand
         log.Debug($"Read {data.Length} characters from file {path}");
 
         var lines = data.SplitOnNewline();
-        if (lines.Length > 0 && lines[^1] != null && lines[^1].Length == 0)
-        {
-            lines = lines.RemoveTail(); // Ignore if last line is just line feed
-        }
+        if (lines.Length > 0 && lines[^1] != null && lines[^1].Length == 0) lines = lines.RemoveTail(); // Ignore if last line is just line feed
 
         log.Debug($"Found {lines.Length} lines in file {path}");
 
@@ -322,37 +280,22 @@ public abstract class Command : ICommand
 
     private static bool ShouldLog(string parameterName)
     {
-        if (parameterName == null)
-        {
-            return true;
-        }
+        if (parameterName == null) return true;
 
         parameterName = parameterName.ToLower();
-        if (parameterName.Contains("password"))
-        {
-            return false;
-        }
+        if (parameterName.Contains("password")) return false;
 
         return true;
     }
 
-    public string GetArgParameter(string key1, string key2)
-    {
-        return args.GetParameter(key1, key2);
-    }
+    public string GetArgParameter(string key1, string key2) => args.GetParameter(key1, key2);
 
     public string GetArgParameterOrConfig(string key1, string key2)
     {
         var v = GetArgParameter(key1, key2);
-        if (v.TrimOrNull() == null)
-        {
-            v = GetArgParameterConfig(key1);
-        }
+        if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
 
-        if (ShouldLog(key1) && ShouldLog(key2))
-        {
-            log.Debug($"{key1}: {v}");
-        }
+        if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
 
         return v;
     }
@@ -360,20 +303,11 @@ public abstract class Command : ICommand
     public string GetArgParameterOrConfig(string key1, string key2, string defaultValue)
     {
         var v = GetArgParameter(key1, key2);
-        if (v.TrimOrNull() == null)
-        {
-            v = GetArgParameterConfig(key1);
-        }
+        if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
 
-        if (v.TrimOrNull() == null)
-        {
-            v = defaultValue;
-        }
+        if (v.TrimOrNull() == null) v = defaultValue;
 
-        if (ShouldLog(key1) && ShouldLog(key2))
-        {
-            log.Debug($"{key1}: {v}");
-        }
+        if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
 
         return v;
     }
@@ -382,17 +316,11 @@ public abstract class Command : ICommand
     {
         var v = GetArgParameter(key1, key2);
 
-        if (v.TrimOrNull() == null)
-        {
-            v = GetArgParameterConfig(key1);
-        }
+        if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
 
         if (v.TrimOrNull() != null)
         {
-            if (ShouldLog(key1) && ShouldLog(key2))
-            {
-                log.Debug($"{key1}: {v}");
-            }
+            if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
 
             return v;
         }
@@ -404,17 +332,11 @@ public abstract class Command : ICommand
     public Encoding GetArgParameterOrConfigEncoding(string key1, string key2)
     {
         var v = GetArgParameter(key1, key2);
-        if (v.TrimOrNull() == null)
-        {
-            v = GetArgParameterConfig(key1);
-        }
+        if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
 
         log.Debug($"{key1}String: {v}");
         var encoding = Constant.ENCODING_UTF8;
-        if (v.TrimOrNull() != null)
-        {
-            encoding = Util.ParseEncoding(v);
-        }
+        if (v.TrimOrNull() != null) encoding = Util.ParseEncoding(v);
 
         log.Debug($"{key1}: {encoding}");
         return encoding;
@@ -423,17 +345,11 @@ public abstract class Command : ICommand
     public int GetArgParameterOrConfigInt(string key1, string key2, int defaultValue)
     {
         var v = GetArgParameter(key1, key2);
-        if (v.TrimOrNull() == null)
-        {
-            v = GetArgParameterConfig(key1);
-        }
+        if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
 
         log.Debug($"{key1}String: {v}");
         var o = defaultValue;
-        if (v.TrimOrNull() != null)
-        {
-            o = v.ToInt();
-        }
+        if (v.TrimOrNull() != null) o = v.ToInt();
 
         log.Debug($"{key1}: {o}");
         return o;
@@ -442,17 +358,11 @@ public abstract class Command : ICommand
     public ushort GetArgParameterOrConfigUShort(string key1, string key2, ushort defaultValue)
     {
         var v = GetArgParameter(key1, key2);
-        if (v.TrimOrNull() == null)
-        {
-            v = GetArgParameterConfig(key1);
-        }
+        if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
 
         log.Debug($"{key1}String: {v}");
         var o = defaultValue;
-        if (v.TrimOrNull() != null)
-        {
-            o = v.ToUShort();
-        }
+        if (v.TrimOrNull() != null) o = v.ToUShort();
 
         log.Debug($"{key1}: {o}");
         return o;
@@ -461,17 +371,11 @@ public abstract class Command : ICommand
     public bool GetArgParameterOrConfigBool(string key1, string key2, bool defaultValue)
     {
         var v = GetArgParameter(key1, key2);
-        if (v.TrimOrNull() == null)
-        {
-            v = GetArgParameterConfig(key1);
-        }
+        if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
 
         log.Debug($"{key1}String: {v}");
         var o = defaultValue;
-        if (v.TrimOrNull() != null)
-        {
-            o = v.ToBool();
-        }
+        if (v.TrimOrNull() != null) o = v.ToBool();
 
         log.Debug($"{key1}: {o}");
         return o;
@@ -480,10 +384,7 @@ public abstract class Command : ICommand
     public T GetArgParameterOrConfigEnum<T>(string key1, string key2, T defaultValue) where T : struct, Enum
     {
         var v = GetArgParameterOrConfigEnum<T>(key1, key2);
-        if (v == null)
-        {
-            return defaultValue;
-        }
+        if (v == null) return defaultValue;
 
         return v.Value;
     }
@@ -501,10 +402,7 @@ public abstract class Command : ICommand
         }
 
         var objectNullable = Util.GetEnumItemNullable<T>(v);
-        if (objectNullable == null)
-        {
-            throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
-        }
+        if (objectNullable == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
 
         var o = objectNullable.Value;
         log.Debug($"{key1}: {o}");
@@ -512,33 +410,18 @@ public abstract class Command : ICommand
         return o;
     }
 
-    public string GetArgParameterConfig(string key)
-    {
-        return Config[Name + "." + key];
-    }
+    public string GetArgParameterConfig(string key) => Config[Name + "." + key];
 
-    public IReadOnlyList<string> GetArgValues()
-    {
-        return args.Values;
-    }
+    public IReadOnlyList<string> GetArgValues() => args.Values;
 
-    public List<string> GetArgValuesTrimmed()
-    {
-        return GetArgValues().TrimOrNull().WhereNotNull().ToList();
-    }
+    public List<string> GetArgValuesTrimmed() => GetArgValues().TrimOrNull().WhereNotNull().ToList();
 
-    public string GetArgValueTrimmed(int index)
-    {
-        return GetArgValuesTrimmed().GetAtIndexOrDefault(index);
-    }
+    public string GetArgValueTrimmed(int index) => GetArgValuesTrimmed().GetAtIndexOrDefault(index);
 
     public (string firstValue, List<string> otherValues) GetArgValuesTrimmed1N()
     {
         var list = GetArgValuesTrimmed();
-        if (list.Count < 1)
-        {
-            return (null, list);
-        }
+        if (list.Count < 1) return (null, list);
 
         var firstItem = list.PopHead();
         return (firstItem, list);
@@ -548,17 +431,11 @@ public abstract class Command : ICommand
     {
         var val = GetArgValueTrimmed(index);
         log.DebugParameter(valueName, val);
-        if (val == null && useCurrentDirectoryAsDefault)
-        {
-            val = Environment.CurrentDirectory;
-        }
+        if (val == null && useCurrentDirectoryAsDefault) val = Environment.CurrentDirectory;
 
         if (val == null)
         {
-            if (isRequired)
-            {
-                throw ArgsException.ValueNotSpecified(valueName);
-            }
+            if (isRequired) throw ArgsException.ValueNotSpecified(valueName);
 
             return null;
         }
@@ -566,12 +443,8 @@ public abstract class Command : ICommand
         val = Path.GetFullPath(val);
         log.DebugParameter(valueName, val);
         if (isExist)
-        {
             if (!Directory.Exists(val))
-            {
                 throw new DirectoryNotFoundException("Arg <" + valueName + "> directory " + val + " does not exist");
-            }
-        }
 
         return val;
     }
@@ -582,10 +455,7 @@ public abstract class Command : ICommand
         log.DebugParameter(valueName, val);
         if (val == null)
         {
-            if (isRequired)
-            {
-                throw ArgsException.ValueNotSpecified(valueName);
-            }
+            if (isRequired) throw ArgsException.ValueNotSpecified(valueName);
 
             return null;
         }
@@ -598,24 +468,14 @@ public abstract class Command : ICommand
 
     #endregion Parameters
 
-    public string DisplayEnumOptions<TEnum>() where TEnum : struct, Enum
-    {
-        return "[ " + Util.GetEnumItems<TEnum>().Select(o => o.ToString()).ToStringDelimited(" | ") + " ]";
-    }
+    public string DisplayEnumOptions<TEnum>() where TEnum : struct, Enum => "[ " + Util.GetEnumItems<TEnum>().Select(o => o.ToString()).ToStringDelimited(" | ") + " ]";
 
-    public string DisplayEnumOptions<TEnum>(TEnum defaultOption) where TEnum : struct, Enum
-    {
-        return "(" + defaultOption + ")  " + DisplayEnumOptions<TEnum>();
-    }
+    public string DisplayEnumOptions<TEnum>(TEnum defaultOption) where TEnum : struct, Enum => "(" + defaultOption + ")  " + DisplayEnumOptions<TEnum>();
 
-    public static string ParseInputFile(string inputFile)
-    {
-        return ParseInputFiles(inputFile.Yield()).FirstOrDefault();
-    }
+    public static string ParseInputFile(string inputFile) => ParseInputFiles(inputFile.Yield()).FirstOrDefault();
 
-    public static List<string> ParseInputFiles(IEnumerable<string> inputFiles, bool recursive = false)
-    {
-        return inputFiles.OrEmpty()
+    public static List<string> ParseInputFiles(IEnumerable<string> inputFiles, bool recursive = false) =>
+        inputFiles.OrEmpty()
             .TrimOrNull()
             .WhereNotNull()
             .SelectMany(o => ParseFileName(o, recursive))
@@ -623,16 +483,12 @@ public abstract class Command : ICommand
             .Distinct(Constant.PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)
             .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
             .ToList();
-    }
 
     public static List<string> ParseFileName(string fileName, bool recursive = false)
     {
         var l = new List<string>();
         fileName = fileName.TrimOrNull();
-        if (fileName == null)
-        {
-            return l;
-        }
+        if (fileName == null) return l;
 
         if (fileName.IndexOf('*') >= 0 || fileName.IndexOf('?') >= 0) // wildcard
         {
@@ -658,23 +514,15 @@ public abstract class Command : ICommand
             foreach (var f in Util.FileListFiles(workingDirectory, recursive))
             {
                 var n = Path.GetFileName(f);
-                if (n.EqualsWildcard(filePattern, true))
-                {
-                    l.Add(f);
-                }
+                if (n.EqualsWildcard(filePattern, true)) l.Add(f);
             }
         }
         else
         {
             fileName = Path.GetFullPath(fileName);
             if (Util.IsDirectory(fileName))
-            {
                 l.AddRange(Util.FileListFiles(fileName, recursive));
-            }
-            else if (Util.IsFile(fileName))
-            {
-                l.Add(fileName);
-            }
+            else if (Util.IsFile(fileName)) l.Add(fileName);
         }
 
         return l;
@@ -683,10 +531,7 @@ public abstract class Command : ICommand
     public static List<string> ParseFileNames(IEnumerable<string> fileNames)
     {
         var l = new List<string>();
-        foreach (var fileName in fileNames.OrEmpty())
-        {
-            l.AddRange(ParseFileName(fileName));
-        }
+        foreach (var fileName in fileNames.OrEmpty()) l.AddRange(ParseFileName(fileName));
 
         return l.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }

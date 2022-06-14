@@ -22,30 +22,18 @@ public class JsonWriter : IDisposable
     {
         private readonly JsonWriter writer;
 
-        public ObjectToken(JsonWriter writer)
-        {
-            this.writer = writer;
-        }
+        public ObjectToken(JsonWriter writer) { this.writer = writer; }
 
-        public void Dispose()
-        {
-            writer.EndObject();
-        }
+        public void Dispose() => writer.EndObject();
     }
 
     private class ArrayToken : IDisposable
     {
         private readonly JsonWriter writer;
 
-        public ArrayToken(JsonWriter writer)
-        {
-            this.writer = writer;
-        }
+        public ArrayToken(JsonWriter writer) { this.writer = writer; }
 
-        public void Dispose()
-        {
-            writer.EndArray();
-        }
+        public void Dispose() => writer.EndArray();
     }
 
     private readonly MemoryStream stream;
@@ -61,10 +49,7 @@ public class JsonWriter : IDisposable
 
     public void Dispose()
     {
-        if (!isDisposed.TryUse())
-        {
-            return;
-        }
+        if (!isDisposed.TryUse()) return;
 
         var _ = ToString();
         writer.Dispose();
@@ -85,13 +70,9 @@ public class JsonWriter : IDisposable
     public IDisposable Object(string objectName = null)
     {
         if (objectName == null)
-        {
             writer.WriteStartObject();
-        }
         else
-        {
             writer.WriteStartObject(objectName);
-        }
 
         return new ObjectToken(this);
     }
@@ -99,13 +80,9 @@ public class JsonWriter : IDisposable
     public IDisposable Array(string arrayPropertyName = null)
     {
         if (arrayPropertyName == null)
-        {
             writer.WriteStartArray();
-        }
         else
-        {
             writer.WriteStartArray(arrayPropertyName);
-        }
 
         return new ArrayToken(this);
     }
@@ -114,36 +91,18 @@ public class JsonWriter : IDisposable
     {
         using (Array(arrayPropertyName))
         {
-            foreach (var o in enumerable)
-            {
-                Value(o);
-            }
+            foreach (var o in enumerable) Value(o);
         }
     }
 
 
-    public void EndObject()
-    {
-        writer.WriteEndObject();
-    }
+    public void EndObject() => writer.WriteEndObject();
 
-    public void EndArray()
-    {
-        writer.WriteEndArray();
-    }
+    public void EndArray() => writer.WriteEndArray();
 
-    public void Property(string propertyName, object propertyValue)
-    {
-        writer.WriteString(propertyName, propertyValue.ToStringGuessFormat());
-    }
+    public void Property(string propertyName, object propertyValue) => writer.WriteString(propertyName, propertyValue.ToStringGuessFormat());
 
-    public void Property(string propertyName, bool propertyValue)
-    {
-        writer.WriteBoolean(propertyName, propertyValue);
-    }
+    public void Property(string propertyName, bool propertyValue) => writer.WriteBoolean(propertyName, propertyValue);
 
-    public void Value(object value)
-    {
-        writer.WriteStringValue(value.ToStringGuessFormat());
-    }
+    public void Value(object value) => writer.WriteStringValue(value.ToStringGuessFormat());
 }

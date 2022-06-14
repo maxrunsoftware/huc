@@ -39,10 +39,7 @@ public class FileSplit : Command
         CheckFileExists(sourceFile);
 
         var targetFiles = values.otherValues.Select(Path.GetFullPath).ToList();
-        if (targetFiles.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(targetFiles));
-        }
+        if (targetFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(targetFiles));
 
         log.Debug(targetFiles, nameof(targetFiles));
 

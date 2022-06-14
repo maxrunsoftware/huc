@@ -37,15 +37,9 @@ public class FileDecrypt : Command
     {
         password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
         privateKey = GetArgParameterOrConfig(nameof(privateKey), "pk");
-        if (password == null && privateKey == null)
-        {
-            throw new ArgsException(nameof(password), "Either password or privateKey must be specified");
-        }
+        if (password == null && privateKey == null) throw new ArgsException(nameof(password), "Either password or privateKey must be specified");
 
-        if (password != null && privateKey != null)
-        {
-            throw new ArgsException(nameof(password), "Both password and privateKey can not be specified at the same time");
-        }
+        if (password != null && privateKey != null) throw new ArgsException(nameof(password), "Both password and privateKey can not be specified at the same time");
 
         var fileToDecrypt = GetArgValueTrimmed(0);
         fileToDecrypt.CheckValueNotNull(nameof(fileToDecrypt), log);

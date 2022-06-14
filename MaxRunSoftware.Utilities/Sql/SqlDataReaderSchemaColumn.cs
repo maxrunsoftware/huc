@@ -50,10 +50,7 @@ public class SqlDataReaderSchemaColumn
         public readonly WrapperBasic basic;
         public WrapperExtended extended;
 
-        public Pair(WrapperBasic b)
-        {
-            basic = b;
-        }
+        public Pair(WrapperBasic b) { basic = b; }
     }
 
     private class WrapperBasic
@@ -92,24 +89,15 @@ public class SqlDataReaderSchemaColumn
     {
         var pairs = SqlDataReaderSchemaColumnBasic.Create(reader).Select(o => new Pair(new WrapperBasic(o))).ToList();
         var wrapperItems = new List<WrapperExtended>();
-        if (fullSchemaDetails)
-        {
-            wrapperItems = SqlDataReaderSchemaColumnExtended.Create(reader).Select(o => new WrapperExtended(o)).ToList();
-        }
+        if (fullSchemaDetails) wrapperItems = SqlDataReaderSchemaColumnExtended.Create(reader).Select(o => new WrapperExtended(o)).ToList();
 
         // Short circuit if no items
-        if (wrapperItems.IsEmpty())
-        {
-            return pairs.Select(o => new SqlDataReaderSchemaColumn(o)).ToList();
-        }
+        if (wrapperItems.IsEmpty()) return pairs.Select(o => new SqlDataReaderSchemaColumn(o)).ToList();
 
 
         // Fix for MySql adding +1 to column ordinal in schema
         var columnOrdinalOffset = wrapperItems.Select(o => o.index).Min();
-        foreach (var e in wrapperItems)
-        {
-            e.index -= columnOrdinalOffset;
-        }
+        foreach (var e in wrapperItems) e.index -= columnOrdinalOffset;
 
 
         // Try to match every basic with an extended
@@ -129,38 +117,20 @@ public class SqlDataReaderSchemaColumn
             {
                 foreach (var e in wrapperItems)
                 {
-                    if (matcher(pair.basic, e))
-                    {
-                        pair.extended = e;
-                    }
+                    if (matcher(pair.basic, e)) pair.extended = e;
 
-                    if (pair.extended != null)
-                    {
-                        break;
-                    }
+                    if (pair.extended != null) break;
                 }
 
-                if (pair.extended != null)
-                {
-                    wrapperItems.Remove(pair.extended);
-                }
+                if (pair.extended != null) wrapperItems.Remove(pair.extended);
 
-                if (wrapperItems.IsEmpty())
-                {
-                    break;
-                }
+                if (wrapperItems.IsEmpty()) break;
             }
 
-            if (wrapperItems.IsEmpty())
-            {
-                break;
-            }
+            if (wrapperItems.IsEmpty()) break;
         }
 
-        if (wrapperItems.IsNotEmpty())
-        {
-            throw new SqlException($"Had extra {nameof(SqlDataReaderSchemaColumnExtended)} values that we could not match: " + wrapperItems.Select(o => o.name).ToStringDelimited(", "));
-        }
+        if (wrapperItems.IsNotEmpty()) throw new SqlException($"Had extra {nameof(SqlDataReaderSchemaColumnExtended)} values that we could not match: " + wrapperItems.Select(o => o.name).ToStringDelimited(", "));
 
         return pairs.Select(o => new SqlDataReaderSchemaColumn(o)).ToList();
     }
@@ -239,10 +209,7 @@ public class SqlDataReaderSchemaColumnExtended
 
         var dataTable = reader.GetSchemaTable();
 
-        if (dataTable == null)
-        {
-            return columns.AsReadOnly();
-        }
+        if (dataTable == null) return columns.AsReadOnly();
 
         var d = dataTable.Columns.Cast<DataColumn>().ToDictionary(col => col.ColumnName);
 
@@ -254,10 +221,7 @@ public class SqlDataReaderSchemaColumnExtended
             var columnExtended = new SqlDataReaderSchemaColumnExtended();
             foreach (var prop in props)
             {
-                if (!cols.TryGetValue(prop.Name, out var dataColumn))
-                {
-                    continue; // DataTable does not contain column
-                }
+                if (!cols.TryGetValue(prop.Name, out var dataColumn)) continue; // DataTable does not contain column
 
                 var dataValue = dataRow[dataColumn];
                 prop.SetValue(columnExtended, dataValue, Util.ChangeType);
@@ -279,10 +243,7 @@ public class SqlDataReaderSchemaColumnExtended
 
         var sb = new StringBuilder();
         sb.AppendLine(GetType().FullNameFormatted() + " {");
-        foreach (var p in props)
-        {
-            sb.AppendLine("  " + (p.Key + ":").PadRight(maxColumnLen) + p.Value);
-        }
+        foreach (var p in props) sb.AppendLine("  " + (p.Key + ":").PadRight(maxColumnLen) + p.Value);
 
         sb.AppendLine("} ");
 

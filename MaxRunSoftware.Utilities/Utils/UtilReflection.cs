@@ -33,20 +33,11 @@ public static partial class Util
                 try
                 {
                     var n = asm.FullName;
-                    if (n == null)
-                    {
-                        continue;
-                    }
+                    if (n == null) continue;
 
-                    if (!d.TryGetValue(n, out var set))
-                    {
-                        d.Add(n, set = new HashSet<Type>());
-                    }
+                    if (!d.TryGetValue(n, out var set)) d.Add(n, set = new HashSet<Type>());
 
-                    foreach (var t in asm.GetTypes())
-                    {
-                        set.Add(t);
-                    }
+                    foreach (var t in asm.GetTypes()) set.Add(t);
                 }
                 catch (Exception) { }
             }
@@ -61,28 +52,16 @@ public static partial class Util
     public static Assembly[] GetAssemblies()
     {
         var items = new Stack<Assembly>();
-        try
-        {
-            items.Push(Assembly.GetEntryAssembly());
-        }
+        try { items.Push(Assembly.GetEntryAssembly()); }
         catch (Exception) { }
 
-        try
-        {
-            items.Push(Assembly.GetCallingAssembly());
-        }
+        try { items.Push(Assembly.GetCallingAssembly()); }
         catch (Exception) { }
 
-        try
-        {
-            items.Push(Assembly.GetExecutingAssembly());
-        }
+        try { items.Push(Assembly.GetExecutingAssembly()); }
         catch (Exception) { }
 
-        try
-        {
-            items.Push(MethodBase.GetCurrentMethod()!.DeclaringType?.Assembly);
-        }
+        try { items.Push(MethodBase.GetCurrentMethod()!.DeclaringType?.Assembly); }
         catch (Exception) { }
 
         try
@@ -91,10 +70,7 @@ public static partial class Util
             var stackFrames = stackTrace.GetFrames(); // get method calls (frames)
             foreach (var stackFrame in stackFrames)
             {
-                try
-                {
-                    items.Push(stackFrame.GetMethod()?.GetType().Assembly);
-                }
+                try { items.Push(stackFrame.GetMethod()?.GetType().Assembly); }
                 catch (Exception) { }
             }
         }
@@ -104,38 +80,20 @@ public static partial class Util
         while (items.Count > 0)
         {
             var a = items.Pop();
-            if (a == null)
-            {
-                continue;
-            }
+            if (a == null) continue;
 
             try
             {
                 var name = a.FullName;
-                if (name == null)
-                {
-                    continue;
-                }
+                if (name == null) continue;
 
-                if (name.StartsWith("System.", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
+                if (name.StartsWith("System.", StringComparison.OrdinalIgnoreCase)) continue;
 
-                if (name.StartsWith("System,", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
+                if (name.StartsWith("System,", StringComparison.OrdinalIgnoreCase)) continue;
 
-                if (name.StartsWith("mscorlib,", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
+                if (name.StartsWith("mscorlib,", StringComparison.OrdinalIgnoreCase)) continue;
 
-                if (assemblyDictionary.ContainsKey(name))
-                {
-                    continue;
-                }
+                if (assemblyDictionary.ContainsKey(name)) continue;
 
                 assemblyDictionary.Add(name, a);
                 var assemblyNames = a.GetReferencedAssemblies();
@@ -146,10 +104,7 @@ public static partial class Util
                         var aa = Assembly.Load(assemblyName);
 
                         var aaName = aa.FullName;
-                        if (aaName != null && !assemblyDictionary.ContainsKey(aaName))
-                        {
-                            items.Push(aa);
-                        }
+                        if (aaName != null && !assemblyDictionary.ContainsKey(aaName)) items.Push(aa);
                     }
                     catch (Exception) { }
                 }
@@ -164,10 +119,7 @@ public static partial class Util
 
     #region Attributes
 
-    public static TAttribute GetAssemblyAttribute<TClassInAssembly, TAttribute>() where TClassInAssembly : class where TAttribute : class
-    {
-        return typeof(TClassInAssembly).GetTypeInfo().Assembly.GetCustomAttributes(typeof(TAttribute)).SingleOrDefault() as TAttribute;
-    }
+    public static TAttribute GetAssemblyAttribute<TClassInAssembly, TAttribute>() where TClassInAssembly : class where TAttribute : class => typeof(TClassInAssembly).GetTypeInfo().Assembly.GetCustomAttributes(typeof(TAttribute)).SingleOrDefault() as TAttribute;
 
     #endregion Attributes
 
@@ -196,21 +148,14 @@ public static partial class Util
     /// </summary>
     /// <param name="type">The type of object to create</param>
     /// <returns>A new object</returns>
-    public static object CreateInstance(Type type)
-    {
-        return createInstanceCache[type]();
-    }
+    public static object CreateInstance(Type type) => createInstanceCache[type]();
 
     public static List<T> CreateList<T, TEnumerable>(params TEnumerable[] enumerables) where TEnumerable : IEnumerable<T>
     {
         var list = new List<T>();
         foreach (var enumerable in enumerables)
-        {
-            foreach (var item in enumerable)
-            {
-                list.Add(item);
-            }
-        }
+        foreach (var item in enumerable)
+            list.Add(item);
 
         return list;
     }
@@ -225,10 +170,7 @@ public static partial class Util
         method.CheckNotNull(nameof(method));
 
         // https://stackoverflow.com/a/2933227
-        if (method.GetParameters().Length > 0)
-        {
-            throw new Exception("Expecting method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " containing 0 parameters");
-        }
+        if (method.GetParameters().Length > 0) throw new Exception("Expecting method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " containing 0 parameters");
 
         var input = Expression.Parameter(typeof(object), "input");
         var compiledExp = Expression.Lambda<Action<object>>(
@@ -249,15 +191,9 @@ public static partial class Util
         method.CheckNotNull(nameof(method));
 
         // https://stackoverflow.com/a/2933227
-        if (method.ReturnType != typeof(T))
-        {
-            throw new Exception("Wrong return type specified for method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
-        }
+        if (method.ReturnType != typeof(T)) throw new Exception("Wrong return type specified for method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " expecting " + method.ReturnType.FullNameFormatted() + " but instead called with " + typeof(T).FullNameFormatted());
 
-        if (method.GetParameters().Length > 0)
-        {
-            throw new Exception("Expecting method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " containing 0 parameters");
-        }
+        if (method.GetParameters().Length > 0) throw new Exception("Expecting method " + method.DeclaringType.FullNameFormatted() + "." + method.Name + " containing 0 parameters");
 
         var input = Expression.Parameter(typeof(object), "input");
         var compiledExp = Expression.Lambda<Func<object, T>>(

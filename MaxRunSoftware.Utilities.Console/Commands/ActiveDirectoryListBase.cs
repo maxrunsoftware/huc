@@ -32,10 +32,7 @@ public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
         var lines = ActiveDirectoryObject.GetPropertyNames()
             .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
             .ToStringsColumns(4);
-        foreach (var line in lines)
-        {
-            help.AddDetail("  " + line);
-        }
+        foreach (var line in lines) help.AddDetail("  " + line);
     }
 
     private IList<string> propertiesToInclude;
@@ -46,21 +43,14 @@ public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
             .Split(',', ' ').TrimOrNull().WhereNotNull();
         log.Debug(propertiesToInclude, nameof(propertiesToInclude));
         var allPropertyNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var p in ActiveDirectoryObject.GetPropertyNames())
-        {
-            allPropertyNames[p] = p;
-        }
+        foreach (var p in ActiveDirectoryObject.GetPropertyNames()) allPropertyNames[p] = p;
 
         var properties = new List<string>();
         foreach (var allPropertyName in allPropertyNames.Keys)
         {
             foreach (var propertyToInclude in propertiesToInclude)
-            {
                 if (allPropertyName.EqualsWildcard(propertyToInclude, true))
-                {
                     properties.Add(allPropertyName);
-                }
-            }
         }
 
         properties = properties.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
@@ -76,18 +66,11 @@ public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
                 foreach (var property in properties)
                 {
                     if (first)
-                    {
                         first = false;
-                    }
                     else
-                    {
                         sb.Append("\t");
-                    }
 
-                    if (propValues.TryGetValue(property, out var val))
-                    {
-                        sb.Append(val ?? string.Empty);
-                    }
+                    if (propValues.TryGetValue(property, out var val)) sb.Append(val ?? string.Empty);
                 }
 
                 log.Info(sb.ToString());

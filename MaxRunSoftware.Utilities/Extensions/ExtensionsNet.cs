@@ -43,36 +43,24 @@ public static class ExtensionsNet
     public static uint ToUInt(this IPAddress ipAddress)
     {
         var ip = ipAddress.ToString().Split('.').Select(byte.Parse).ToArray();
-        if (BitConverter.IsLittleEndian)
-        {
-            Array.Reverse(ip);
-        }
+        if (BitConverter.IsLittleEndian) Array.Reverse(ip);
 
         var num = BitConverter.ToUInt32(ip, 0);
         return num;
     }
 
-    public static long ToLong(this IPAddress ipaddress)
-    {
-        return ToUInt(ipaddress);
-    }
+    public static long ToLong(this IPAddress ipaddress) => ToUInt(ipaddress);
 
     public static IPAddress ToIPAddress(this uint ipAddress)
     {
         var ipBytes = BitConverter.GetBytes(ipAddress);
-        if (BitConverter.IsLittleEndian)
-        {
-            Array.Reverse(ipBytes);
-        }
+        if (BitConverter.IsLittleEndian) Array.Reverse(ipBytes);
 
         var address = string.Join(".", ipBytes.Select(n => n.ToString()));
         return IPAddress.Parse(address);
     }
 
-    public static IPAddress ToIPAddress(this long ip)
-    {
-        return ToIPAddress((uint)ip);
-    }
+    public static IPAddress ToIPAddress(this long ip) => ToIPAddress((uint)ip);
 
     public static IEnumerable<IPAddress> Range(this IPAddress startAddressInclusive, IPAddress endAddressInclusive)
     {
@@ -80,18 +68,10 @@ public static class ExtensionsNet
         var ui2 = endAddressInclusive.ToUInt();
 
         if (ui2 >= ui1)
-        {
             for (var i = ui1; i <= ui2; i++)
-            {
                 yield return i.ToIPAddress();
-            }
-        }
         else
-        {
             for (var i = ui1; i >= ui2; i--)
-            {
                 yield return i.ToIPAddress();
-            }
-        }
     }
 }

@@ -43,9 +43,6 @@ public class VMwareDatacenter : VMwareObject
 
     public static IEnumerable<VMwareDatacenter> Query(VMwareClient vmware)
     {
-        foreach (var obj in vmware.GetValueArray("/rest/vcenter/datacenter"))
-        {
-            yield return new VMwareDatacenter(vmware, obj);
-        }
+        foreach (var obj in vmware.GetValueArray("/rest/vcenter/datacenter")) yield return new VMwareDatacenter(vmware, obj);
     }
 }

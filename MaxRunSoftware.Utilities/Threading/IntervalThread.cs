@@ -29,10 +29,7 @@ public abstract class IntervalThread : ThreadBase
     {
         while (true)
         {
-            if (IsDisposed)
-            {
-                return;
-            }
+            if (IsDisposed) return;
 
             if (DateTime.UtcNow - lastCheck > SleepInterval)
             {

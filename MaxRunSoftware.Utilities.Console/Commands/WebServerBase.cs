@@ -39,10 +39,7 @@ public abstract class WebServerBase : Command
     {
         ipaddress = GetArgParameterOrConfig(nameof(ipaddress), "ip").TrimOrNull();
         port = GetArgParameterOrConfigUShort(nameof(port), "o", 8080);
-        if (port == 0)
-        {
-            throw new ArgsException(nameof(port), "Invalid port 0 specified");
-        }
+        if (port == 0) throw new ArgsException(nameof(port), "Invalid port 0 specified");
 
         username = GetArgParameterOrConfig(nameof(username), "u", "user").TrimOrNull();
         password = GetArgParameterOrConfig(nameof(password), "p").TrimOrNull();
@@ -50,10 +47,7 @@ public abstract class WebServerBase : Command
 
     protected WebServerConfig GetConfig()
     {
-        if (port == 0)
-        {
-            throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-        }
+        if (port == 0) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
 
         var config = new WebServerConfig();
         if (ipaddress != null)
@@ -63,10 +57,7 @@ public abstract class WebServerBase : Command
         }
 
         config.Port = port;
-        if (username != null && password != null)
-        {
-            config.Users.Add((username, password));
-        }
+        if (username != null && password != null) config.Users.Add((username, password));
 
         return config;
     }
@@ -75,10 +66,7 @@ public abstract class WebServerBase : Command
     {
         using (GetWebServer(config))
         {
-            foreach (var ipa in config.UrlPrefixes)
-            {
-                log.Info("  " + ipa);
-            }
+            foreach (var ipa in config.UrlPrefixes) log.Info("  " + ipa);
 
             var consoleKeys = new[] { ConsoleKey.Escape, ConsoleKey.Q };
             log.Info("WebServer running, press " + consoleKeys.Select(o => o.ToString()).ToStringDelimited(" or ") + " to quit");
@@ -88,10 +76,7 @@ public abstract class WebServerBase : Command
                 Thread.Sleep(50);
                 var cki = System.Console.ReadKey(true);
 
-                if (cki.Key.In(consoleKeys))
-                {
-                    break;
-                }
+                if (cki.Key.In(consoleKeys)) break;
             }
         }
 
@@ -100,10 +85,7 @@ public abstract class WebServerBase : Command
 
     protected External.WebServer GetWebServer(WebServerConfig config)
     {
-        if (port == 0)
-        {
-            throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
-        }
+        if (port == 0) throw new Exception("base.Execute() never called for class " + GetType().FullNameFormatted());
 
         var server = new External.WebServer();
         log.Debug("Starting web server");

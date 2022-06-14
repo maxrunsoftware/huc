@@ -46,17 +46,11 @@ public class FileRemoveMacMeta : Command
         {
             var msg = Util.FileGetSize(file).ToString().PadLeft(Constant.BYTES_MEBI.ToString().Length, ' ') + "  " + file;
 
-            if (test)
-            {
-                log.Info(msg);
-            }
+            if (test) { log.Info(msg); }
             else
             {
                 log.Debug(msg);
-                try
-                {
-                    File.Delete(file);
-                }
+                try { File.Delete(file); }
                 catch (Exception e)
                 {
                     log.Warn("Failed to delete file: " + file);
@@ -68,28 +62,17 @@ public class FileRemoveMacMeta : Command
 
     private bool IsMacTrash(string file)
     {
-        if (file == null)
-        {
-            return false;
-        }
+        if (file == null) return false;
 
         var filename = Path.GetFileName(file);
 
         if (filename.EqualsCaseSensitive(".DS_Store"))
-        {
             if (Util.FileGetSize(file) <= Constant.BYTES_MEBI)
-            {
                 return true;
-            }
-        }
 
         if (filename.StartsWith("._"))
-        {
             if (Util.FileGetSize(file) == 4096L)
-            {
                 return true;
-            }
-        }
 
         return false;
     }

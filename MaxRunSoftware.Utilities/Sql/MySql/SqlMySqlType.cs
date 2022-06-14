@@ -236,9 +236,8 @@ public enum SqlMySqlType
 
 public static class SqlMySqlTypeExtensions
 {
-    public static SqlMySqlType ToSqlMySqlType(this DbType dbType)
-    {
-        return dbType switch
+    public static SqlMySqlType ToSqlMySqlType(this DbType dbType) =>
+        dbType switch
         {
             DbType.AnsiString => SqlMySqlType.LongText,
             DbType.Binary => SqlMySqlType.LongBlob,
@@ -269,5 +268,4 @@ public static class SqlMySqlTypeExtensions
             DbType.DateTimeOffset => SqlMySqlType.DateTime,
             _ => throw new NotImplementedException(dbType.GetType().FullNameFormatted() + "." + dbType)
         };
-    }
 }

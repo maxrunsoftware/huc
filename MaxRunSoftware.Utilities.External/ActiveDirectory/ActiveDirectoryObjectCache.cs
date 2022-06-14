@@ -63,46 +63,28 @@ public class ActiveDirectoryObjectCache
 
     private void Add(string cacheKey, List<ActiveDirectoryObject> objects)
     {
-        if (objects.Count == 0)
-        {
-            return;
-        }
+        if (objects.Count == 0) return;
 
         if (objects.Count == 1)
-        {
             log.Trace($"Cache[{cacheKey}]: " + objects.First());
-        }
         else
-        {
             for (var i = 0; i < objects.Count; i++)
-            {
                 log.Trace($"Cache[{cacheKey}][{i}]: " + objects[i]);
-            }
-        }
 
         cache[cacheKey] = objects;
     }
 
-    private void Add(string cacheKey, ActiveDirectoryObject obj)
-    {
-        Add(cacheKey, new List<ActiveDirectoryObject>(1) { obj });
-    }
+    private void Add(string cacheKey, ActiveDirectoryObject obj) => Add(cacheKey, new List<ActiveDirectoryObject>(1) { obj });
 
     public IEnumerable<ActiveDirectoryObject> Get(string filter, LdapQueryConfig queryConfig)
     {
         var hc = queryConfig.GetHashCode().ToString();
         var queryKey = (filter ?? string.Empty) + hc;
 
-        if (cache.TryGetValue(queryKey, out var l))
-        {
-            return l;
-        }
+        if (cache.TryGetValue(queryKey, out var l)) return l;
 
         return null;
     }
 
-    public void Clear()
-    {
-        cache.Clear();
-    }
+    public void Clear() => cache.Clear();
 }

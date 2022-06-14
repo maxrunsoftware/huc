@@ -37,34 +37,21 @@ public class LdapEntryAttributeValue
         get
         {
             var s = String;
-            if (s == null)
-            {
-                return null;
-            }
+            if (s == null) return null;
 
             if (s.EndsWith("Z") || s.EndsWith("z"))
-            {
                 // ReSharper disable once StringLiteralTypo
                 if (DateTime.TryParseExact(s, "yyyyMMddHHmmss.0Z", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
-                {
                     return dt.ToUniversalTime();
-                }
-            }
 
             if (Long != null)
             {
                 var l = Long.Value;
                 try
                 {
-                    if (l == long.MaxValue)
-                    {
-                        return DateTime.MaxValue.ToUniversalTime();
-                    }
+                    if (l == long.MaxValue) return DateTime.MaxValue.ToUniversalTime();
 
-                    if (Long.Value == 0)
-                    {
-                        return DateTime.MinValue.ToUniversalTime();
-                    }
+                    if (Long.Value == 0) return DateTime.MinValue.ToUniversalTime();
 
                     var ft = DateTime.FromFileTimeUtc(Long.Value);
                     return ft;
@@ -87,27 +74,18 @@ public class LdapEntryAttributeValue
         foreach (var obj in attribute)
         {
             var ldapEntryAttributeValue = Parse(obj);
-            if (ldapEntryAttributeValue != null)
-            {
-                yield return ldapEntryAttributeValue;
-            }
+            if (ldapEntryAttributeValue != null) yield return ldapEntryAttributeValue;
         }
     }
 
     public static LdapEntryAttributeValue Parse(object obj)
     {
-        if (obj == null)
-        {
-            return null;
-        }
+        if (obj == null) return null;
 
         if (obj is string str)
         {
             var s = str.TrimOrNull();
-            if (s == null)
-            {
-                return null; // Empty value string, don't return anything
-            }
+            if (s == null) return null; // Empty value string, don't return anything
 
             var bytes = Encoding.UTF8.GetBytes(s);
             return new LdapEntryAttributeValue(bytes, s);
@@ -116,10 +94,7 @@ public class LdapEntryAttributeValue
         if (obj is Uri uri)
         {
             var s = uri.ToString().TrimOrNull();
-            if (s == null)
-            {
-                return null; // Empty value URI, don't return anything
-            }
+            if (s == null) return null; // Empty value URI, don't return anything
 
             var bytes = Encoding.UTF8.GetBytes(s);
             return new LdapEntryAttributeValue(bytes, s);
@@ -129,10 +104,7 @@ public class LdapEntryAttributeValue
         {
             string s = null;
             //if (b == null) return null; // null byte[], don't return anything
-            if (b.IsValidUTF8())
-            {
-                s = Encoding.UTF8.GetString(b); // If it is a valid string convert it to a string
-            }
+            if (b.IsValidUTF8()) s = Encoding.UTF8.GetString(b); // If it is a valid string convert it to a string
 
             return new LdapEntryAttributeValue(b, s);
         }
@@ -142,30 +114,15 @@ public class LdapEntryAttributeValue
 
     public override string ToString()
     {
-        if (DateTimeUtc != null && DateTimeUtc != DateTime.MinValue.ToUniversalTime())
-        {
-            return DateTimeUtc.Value.ToStringISO8601();
-        }
+        if (DateTimeUtc != null && DateTimeUtc != DateTime.MinValue.ToUniversalTime()) return DateTimeUtc.Value.ToStringISO8601();
 
-        if (Int != null)
-        {
-            return Int.ToString();
-        }
+        if (Int != null) return Int.ToString();
 
-        if (UInt != null)
-        {
-            return UInt.ToString();
-        }
+        if (UInt != null) return UInt.ToString();
 
-        if (Long != null)
-        {
-            return Long.ToString();
-        }
+        if (Long != null) return Long.ToString();
 
-        if (String != null)
-        {
-            return String;
-        }
+        if (String != null) return String;
 
         return Bytes.ToStringGuessFormat();
     }

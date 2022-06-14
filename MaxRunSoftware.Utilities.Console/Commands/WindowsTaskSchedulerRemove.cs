@@ -31,18 +31,12 @@ public class WindowsTaskSchedulerRemove : WindowsTaskSchedulerBase
         base.ExecuteInternal();
 
         var taskPath = GetArgValueTrimmed(0);
-        if (taskPath == null)
-        {
-            throw ArgsException.ValueNotSpecified(nameof(taskPath));
-        }
+        if (taskPath == null) throw ArgsException.ValueNotSpecified(nameof(taskPath));
 
         using (var scheduler = GetTaskScheduler())
         {
             var t = scheduler.GetTask(taskPath);
-            if (t == null)
-            {
-                throw new ArgsException(nameof(taskPath), "Task does not exist " + taskPath);
-            }
+            if (t == null) throw new ArgsException(nameof(taskPath), "Task does not exist " + taskPath);
 
             log.Debug("Deleting task " + t.GetPath());
             scheduler.TaskDelete(t);

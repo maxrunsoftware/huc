@@ -76,62 +76,29 @@ public class LdapQueryConfig : IEquatable<LdapQueryConfig>
         hashCode = Util.GenerateHashCode(BaseDn?.ToLower(), Scope, QueryPageSize, ChaseReferrals, Util.GenerateHashCodeFromCollection(Attributes.WhereNotNull().Select(o => o.ToLower())));
     }
 
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as LdapQueryConfig);
-    }
+    public override bool Equals(object obj) => Equals(obj as LdapQueryConfig);
 
-    public override int GetHashCode()
-    {
-        return hashCode;
-    }
+    public override int GetHashCode() => hashCode;
 
     public bool Equals(LdapQueryConfig other)
     {
-        if (other == null)
-        {
-            return false;
-        }
+        if (other == null) return false;
 
-        if (ReferenceEquals(this, other))
-        {
-            return true;
-        }
+        if (ReferenceEquals(this, other)) return true;
 
-        if (GetHashCode() != other.GetHashCode())
-        {
-            return false;
-        }
+        if (GetHashCode() != other.GetHashCode()) return false;
 
-        if (!string.Equals(BaseDn, other.BaseDn, StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
+        if (!string.Equals(BaseDn, other.BaseDn, StringComparison.OrdinalIgnoreCase)) return false;
 
-        if (!Scope.Equals(other.Scope))
-        {
-            return false;
-        }
+        if (!Scope.Equals(other.Scope)) return false;
 
-        if (!QueryPageSize.Equals(other.QueryPageSize))
-        {
-            return false;
-        }
+        if (!QueryPageSize.Equals(other.QueryPageSize)) return false;
 
-        if (!ChaseReferrals.Equals(other.ChaseReferrals))
-        {
-            return false;
-        }
+        if (!ChaseReferrals.Equals(other.ChaseReferrals)) return false;
 
-        if (Attributes.Count != other.Attributes.Count)
-        {
-            return false;
-        }
+        if (Attributes.Count != other.Attributes.Count) return false;
 
-        if (!Attributes.SequenceEqual(other.Attributes, StringComparer.OrdinalIgnoreCase))
-        {
-            return false;
-        }
+        if (!Attributes.SequenceEqual(other.Attributes, StringComparer.OrdinalIgnoreCase)) return false;
 
         return true;
     }

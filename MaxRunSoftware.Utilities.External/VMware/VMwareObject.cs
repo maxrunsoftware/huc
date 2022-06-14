@@ -28,28 +28,16 @@ public abstract class VMwareObject
 
     public JToken QueryValueObjectSafe(VMwareClient vmware, string path)
     {
-        try
-        {
-            return vmware.GetValue(path);
-        }
-        catch (Exception e)
-        {
-            log.Warn("Error querying " + path, e);
-        }
+        try { return vmware.GetValue(path); }
+        catch (Exception e) { log.Warn("Error querying " + path, e); }
 
         return null;
     }
 
     public IEnumerable<JToken> QueryValueArraySafe(VMwareClient vmware, string path)
     {
-        try
-        {
-            return vmware.GetValueArray(path);
-        }
-        catch (Exception e)
-        {
-            log.Warn("Error querying " + path, e);
-        }
+        try { return vmware.GetValueArray(path); }
+        catch (Exception e) { log.Warn("Error querying " + path, e); }
 
         return Array.Empty<JObject>();
     }
@@ -59,10 +47,7 @@ public abstract class VMwareObject
         var list = new List<PropertyInfo>();
         foreach (var prop in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (!prop.CanRead)
-            {
-                continue;
-            }
+            if (!prop.CanRead) continue;
 
             list.Add(prop);
         }
@@ -78,14 +63,8 @@ public abstract class VMwareObject
         foreach (var property in ClassReaderWriter.GetProperties(GetType(), isInstance: true, canGet: true))
         {
             var val = property.GetValue(this);
-            if (val == null)
-            {
-                sb.AppendLine("  " + property.Name + ": ");
-            }
-            else if (val is string)
-            {
-                sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
-            }
+            if (val == null) { sb.AppendLine("  " + property.Name + ": "); }
+            else if (val is string) { sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat()); }
             else if (val is IEnumerable enumerable)
             {
                 var count = 0;
@@ -94,18 +73,12 @@ public abstract class VMwareObject
                     var itemVmware = (VMwareObject)item;
                     var vItemType = itemVmware.GetType();
                     sb.AppendLine("  " + vItemType.NameFormatted() + "[" + count + "]");
-                    foreach (var prop in ClassReaderWriter.GetProperties(vItemType, true, isInstance: true))
-                    {
-                        sb.AppendLine("    " + prop.Name + ": " + prop.GetValue(itemVmware).ToStringGuessFormat());
-                    }
+                    foreach (var prop in ClassReaderWriter.GetProperties(vItemType, true, isInstance: true)) sb.AppendLine("    " + prop.Name + ": " + prop.GetValue(itemVmware).ToStringGuessFormat());
 
                     count++;
                 }
             }
-            else
-            {
-                sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat());
-            }
+            else { sb.AppendLine("  " + property.Name + ": " + val.ToStringGuessFormat()); }
         }
 
         return sb.ToString();

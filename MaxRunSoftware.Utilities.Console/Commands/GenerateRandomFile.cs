@@ -46,20 +46,14 @@ public class GenerateRandomFile : Command
 
         length = GetArgParameterOrConfigInt(nameof(length), "l", 1000);
         width = GetArgParameterOrConfigInt(nameof(width), "w", 80);
-        if (width < 1)
-        {
-            width = int.MaxValue;
-        }
+        if (width < 1) width = int.MaxValue;
 
         secureRandom = GetArgParameterOrConfigBool(nameof(secureRandom), "s", false);
         characters = GetArgParameterOrConfig(nameof(characters), "c").TrimOrNull() ?? Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9;
 
         var outputFiles = GetArgValuesTrimmed();
         log.Debug(outputFiles, nameof(outputFiles));
-        if (outputFiles.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(outputFiles));
-        }
+        if (outputFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(outputFiles));
 
         var chars = characters.ToCharArray();
         var random = new Random();

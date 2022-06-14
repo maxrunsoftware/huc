@@ -34,26 +34,16 @@ public class GoogleSheets : IDisposable
     private static IReadOnlyList<string> CreateGoogleColumns()
     {
         var list = new List<string>();
-        foreach (var c in Constant.CHARS_A_Z_UPPER_ARRAY)
-        {
-            list.Add(c.ToString());
-        }
+        foreach (var c in Constant.CHARS_A_Z_UPPER_ARRAY) list.Add(c.ToString());
 
         foreach (var c1 in Constant.CHARS_A_Z_UPPER_ARRAY)
-        {
-            foreach (var c2 in Constant.CHARS_A_Z_UPPER_ARRAY)
-            {
-                list.Add(c1 + c2.ToString());
-            }
-        }
+        foreach (var c2 in Constant.CHARS_A_Z_UPPER_ARRAY)
+            list.Add(c1 + c2.ToString());
 
         return list.AsReadOnly();
     }
 
-    public static string GetGoogleColumnName(int index)
-    {
-        return googleColumns.GetAtIndexOrDefault(index);
-    }
+    public static string GetGoogleColumnName(int index) => googleColumns.GetAtIndexOrDefault(index);
 
     public static int DefaultSheetWidth => 26;
     public static int DefaultSheetHeight => 100;
@@ -66,10 +56,7 @@ public class GoogleSheets : IDisposable
         var credential = GoogleCredential.FromJson(jsonFileData).CreateScoped(SheetsService.Scope.Spreadsheets);
         var initializer = new BaseClientService.Initializer();
         initializer.HttpClientInitializer = credential;
-        if (applicationName != null)
-        {
-            initializer.ApplicationName = applicationName;
-        }
+        if (applicationName != null) initializer.ApplicationName = applicationName;
 
         service = new SheetsService(initializer);
         this.spreadsheetId = spreadsheetId;
@@ -86,10 +73,7 @@ public class GoogleSheets : IDisposable
             sheet = service.GetSpreadsheetSheet(spreadsheetId, sheetName);
         }
 
-        if (sheet == null)
-        {
-            throw new Exception("Sheet " + sheetName + " not found");
-        }
+        if (sheet == null) throw new Exception("Sheet " + sheetName + " not found");
 
         sheetName = sheet.Properties.Title;
         return (sheet, sheetName);
@@ -102,10 +86,7 @@ public class GoogleSheets : IDisposable
         var response = request.Execute();
         log.Debug("Received response: " + response.GetType().NameFormatted());
         log.Debug(nameof(response.ETag) + ": " + response.ETag);
-        if (logResponse)
-        {
-            log.Debug(Environment.NewLine + JsonConvert.SerializeObject(response, Formatting.Indented));
-        }
+        if (logResponse) log.Debug(Environment.NewLine + JsonConvert.SerializeObject(response, Formatting.Indented));
 
         log.Debug(afterMessage + " [" + sheetName + "]");
         return response;
@@ -182,41 +163,20 @@ public class GoogleSheets : IDisposable
         sheetName = sheetAndName.sheetName;
 
         var cellFormat = new CellFormat();
-        if (backgroundColor != null)
-        {
-            cellFormat.BackgroundColor = backgroundColor.Value.ToGoogleColor();
-        }
+        if (backgroundColor != null) cellFormat.BackgroundColor = backgroundColor.Value.ToGoogleColor();
 
         cellFormat.TextFormat ??= new TextFormat();
-        if (foregroundColor != null)
-        {
-            cellFormat.TextFormat.ForegroundColor = foregroundColor.Value.ToGoogleColor();
-        }
+        if (foregroundColor != null) cellFormat.TextFormat.ForegroundColor = foregroundColor.Value.ToGoogleColor();
 
-        if (bold != null)
-        {
-            cellFormat.TextFormat.Bold = bold.Value;
-        }
+        if (bold != null) cellFormat.TextFormat.Bold = bold.Value;
 
-        if (italic != null)
-        {
-            cellFormat.TextFormat.Italic = italic.Value;
-        }
+        if (italic != null) cellFormat.TextFormat.Italic = italic.Value;
 
-        if (underline != null)
-        {
-            cellFormat.TextFormat.Underline = underline.Value;
-        }
+        if (underline != null) cellFormat.TextFormat.Underline = underline.Value;
 
-        if (strikethrough != null)
-        {
-            cellFormat.TextFormat.Strikethrough = strikethrough.Value;
-        }
+        if (strikethrough != null) cellFormat.TextFormat.Strikethrough = strikethrough.Value;
 
-        if (fontFamily != null)
-        {
-            cellFormat.TextFormat.FontFamily = fontFamily;
-        }
+        if (fontFamily != null) cellFormat.TextFormat.FontFamily = fontFamily;
 
         var range = new GridRange
         {
@@ -230,8 +190,7 @@ public class GoogleSheets : IDisposable
         FormatCells(sheetName, cellFormat, range);
     }
 
-    public void FormatCellsDefault(string sheetName, int indexX, int indexY, int width = 1, int height = 1)
-    {
+    public void FormatCellsDefault(string sheetName, int indexX, int indexY, int width = 1, int height = 1) =>
         FormatCells(
             sheetName,
             indexX,
@@ -246,7 +205,6 @@ public class GoogleSheets : IDisposable
             false,
             "Arial"
         );
-    }
 
     public void SetData(string sheetName, List<string[]> data)
     {
@@ -256,10 +214,7 @@ public class GoogleSheets : IDisposable
         ResizeSheet(sheetName, data.MaxLength(), data.Count);
 
         var numberOfColumns = 0;
-        foreach (var row in data)
-        {
-            numberOfColumns = Math.Max(numberOfColumns, row.Length);
-        }
+        foreach (var row in data) numberOfColumns = Math.Max(numberOfColumns, row.Length);
 
         var range = sheetName + "!A1:" + GetGoogleColumnName(numberOfColumns - 1);
         log.Debug("Setting data in range: " + range);
@@ -288,10 +243,7 @@ public class GoogleSheets : IDisposable
 
     public void SetData(string sheetName, Table table, int characterThreshold)
     {
-        if (table.GetNumberOfCells() > 5000000)
-        {
-            throw new Exception("Cannot load table with " + table.GetNumberOfCells().ToStringCommas() + " cells, Google's limit is 5,000,000");
-        }
+        if (table.GetNumberOfCells() > 5000000) throw new Exception("Cannot load table with " + table.GetNumberOfCells().ToStringCommas() + " cells, Google's limit is 5,000,000");
 
         var nullSize = 6;
 
@@ -304,10 +256,7 @@ public class GoogleSheets : IDisposable
         foreach (var rowChunk in table.GetRowsChunkedByNumberOfCharacters(characterThreshold, nullSize))
         {
             list = new List<string[]>();
-            foreach (var row in rowChunk)
-            {
-                list.Add(row.ToArray());
-            }
+            foreach (var row in rowChunk) list.Add(row.ToArray());
 
             AddRows(sheetName, list);
             rowsCurrent += list.Count;
@@ -329,10 +278,7 @@ public class GoogleSheets : IDisposable
         var responseValues = response.Values;
 
         var list = new List<string[]>();
-        foreach (var sublist in responseValues.OrEmpty())
-        {
-            list.Add(sublist.OrEmpty().ToStringsGuessFormat().ToArray());
-        }
+        foreach (var sublist in responseValues.OrEmpty()) list.Add(sublist.OrEmpty().ToStringsGuessFormat().ToArray());
 
         list.ResizeAll(list.MaxLength());
 
@@ -341,10 +287,7 @@ public class GoogleSheets : IDisposable
         return list;
     }
 
-    public void AddRow(string sheetName, params string[] rowValues)
-    {
-        AddRows(sheetName, new List<string[]> { rowValues });
-    }
+    public void AddRow(string sheetName, params string[] rowValues) => AddRows(sheetName, new List<string[]> { rowValues });
 
     public void AddRows(string sheetName, IList<string[]> rows)
     {
@@ -356,10 +299,7 @@ public class GoogleSheets : IDisposable
         foreach (var array in rows)
         {
             var listInner = new List<object>();
-            foreach (var str in array)
-            {
-                listInner.Add(str);
-            }
+            foreach (var str in array) listInner.Add(str);
 
             listOuter.Add(listInner);
         }
@@ -397,25 +337,20 @@ public class GoogleSheets : IDisposable
 
     public void Dispose()
     {
-        if (service != null)
-        {
-            service.Dispose();
-        }
+        if (service != null) service.Dispose();
     }
 }
 
 public static class GoogleSheetsExtensions
 {
-    public static Google.Apis.Sheets.v4.Data.Color ToGoogleColor(this Color color)
-    {
-        return new Google.Apis.Sheets.v4.Data.Color
+    public static Google.Apis.Sheets.v4.Data.Color ToGoogleColor(this Color color) =>
+        new()
         {
             Red = color.R / 255.0F,
             Green = color.G / 255.0F,
             Blue = color.B / 255.0F,
             Alpha = color.A / 255.0F
         };
-    }
 
     public static Sheet GetSpreadsheetSheet(this SheetsService service, string spreadsheetId, int index)
     {
@@ -424,20 +359,14 @@ public static class GoogleSheetsExtensions
         foreach (var sheet in spreadsheet.Sheets)
         {
             var indexNullable = sheet.Properties.Index;
-            if (indexNullable == null)
-            {
-                continue;
-            }
+            if (indexNullable == null) continue;
 
             var indexNotNullable = indexNullable.Value;
             d[indexNotNullable] = sheet;
         }
 
         var list = new List<Sheet>();
-        foreach (var kvp in d)
-        {
-            list.Add(kvp.Value);
-        }
+        foreach (var kvp in d) list.Add(kvp.Value);
 
         return list.GetAtIndexOrDefault(index);
     }
@@ -446,37 +375,21 @@ public static class GoogleSheetsExtensions
     {
         var d = new SortedDictionary<string, Sheet>();
         var spreadsheet = service.GetSpreadsheet(spreadsheetId);
-        foreach (var sheet in spreadsheet.Sheets)
-        {
-            d[sheet.Properties.Title] = sheet;
-        }
+        foreach (var sheet in spreadsheet.Sheets) d[sheet.Properties.Title] = sheet;
 
         foreach (var comp in Constant.STRINGCOMPARISONS)
         {
             foreach (var kvp in d)
-            {
                 if (string.Equals(name, kvp.Key, comp))
-                {
                     return kvp.Value;
-                }
-            }
         }
 
         return null;
     }
 
-    public static Sheet GetSpreadsheetSheetFirst(this SheetsService service, string spreadsheetId)
-    {
-        return service.GetSpreadsheetSheet(spreadsheetId, 0);
-    }
+    public static Sheet GetSpreadsheetSheetFirst(this SheetsService service, string spreadsheetId) => service.GetSpreadsheetSheet(spreadsheetId, 0);
 
-    public static Spreadsheet GetSpreadsheet(this SheetsService service, string spreadsheetId)
-    {
-        return service.Spreadsheets.Get(spreadsheetId).Execute();
-    }
+    public static Spreadsheet GetSpreadsheet(this SheetsService service, string spreadsheetId) => service.Spreadsheets.Get(spreadsheetId).Execute();
 
-    public static int GetId(this Sheet sheet)
-    {
-        return sheet.Properties.SheetId ?? 0;
-    }
+    public static int GetId(this Sheet sheet) => sheet.Properties.SheetId ?? 0;
 }

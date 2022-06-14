@@ -23,12 +23,8 @@ public class GoogleSheetsFormatCells : GoogleSheetsBase
     private static Color? ParseColor(string colorName)
     {
         foreach (var kvp in Constant.COLORS)
-        {
             if (string.Equals(kvp.Key, colorName, StringComparison.OrdinalIgnoreCase))
-            {
                 return kvp.Value;
-            }
-        }
 
         return null;
     }
@@ -81,16 +77,10 @@ public class GoogleSheetsFormatCells : GoogleSheetsBase
         strikethrough = GetArgParameterOrConfigBool(nameof(strikethrough), "st", false);
 
         var fColor = ParseColor(foregroundColor);
-        if (fColor == null)
-        {
-            throw new ArgsException(nameof(foregroundColor), nameof(foregroundColor) + " " + foregroundColor + " does not exist");
-        }
+        if (fColor == null) throw new ArgsException(nameof(foregroundColor), nameof(foregroundColor) + " " + foregroundColor + " does not exist");
 
         var bColor = ParseColor(backgroundColor);
-        if (bColor == null)
-        {
-            throw new ArgsException(nameof(backgroundColor), nameof(backgroundColor) + " " + backgroundColor + " does not exist");
-        }
+        if (bColor == null) throw new ArgsException(nameof(backgroundColor), nameof(backgroundColor) + " " + backgroundColor + " does not exist");
 
         using (var c = CreateConnection())
         {

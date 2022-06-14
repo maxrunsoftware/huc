@@ -50,23 +50,14 @@ public class WebServerUtilityGenerateRandom : WebServerUtilityBase
     public string[] Handle()
     {
         var lengthN = GetParameterInt("length");
-        if (lengthN == null)
-        {
-            return null;
-        }
+        if (lengthN == null) return null;
 
         var length = lengthN.Value;
         var chars = GetParameterString("characters");
-        if (chars == null)
-        {
-            return null;
-        }
+        if (chars == null) return null;
 
         var countN = GetParameterInt("count");
-        if (countN == null)
-        {
-            return null;
-        }
+        if (countN == null) return null;
 
         var count = countN.Value;
 
@@ -94,10 +85,7 @@ public class WebServerUtilityGenerateRandom : WebServerUtilityBase
         try
         {
             var result = Handle();
-            if (result == null)
-            {
-                return External.WebServer.HtmlMessage("Generate Random", HtmlPage());
-            }
+            if (result == null) return External.WebServer.HtmlMessage("Generate Random", HtmlPage());
 
             var body = new StringBuilder();
             for (var i = 0; i < result.Length; i++)
@@ -109,9 +97,6 @@ public class WebServerUtilityGenerateRandom : WebServerUtilityBase
 
             return External.WebServer.HtmlMessage("Random Data", body.ToString());
         }
-        catch (Exception e)
-        {
-            return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString());
-        }
+        catch (Exception e) { return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString()); }
     }
 }

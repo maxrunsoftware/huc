@@ -53,15 +53,9 @@ public class Zip : Command
         mask = GetArgParameterOrConfig(nameof(mask), "m", "*");
 
         compressionLevel = GetArgParameterOrConfigInt(nameof(compressionLevel), "l", 9);
-        if (compressionLevel < 0)
-        {
-            compressionLevel = 0;
-        }
+        if (compressionLevel < 0) compressionLevel = 0;
 
-        if (compressionLevel > 9)
-        {
-            compressionLevel = 9;
-        }
+        if (compressionLevel > 9) compressionLevel = 9;
 
         log.DebugParameter(nameof(compressionLevel), compressionLevel);
 
@@ -79,29 +73,18 @@ public class Zip : Command
         foreach (var inputFile in values.otherValues)
         {
             if (inputFile.ContainsAny("*", "?"))
-            {
                 inputFiles.AddRange(ParseFileName(inputFile, recursive));
-            }
             else
-            {
                 inputFiles.Add(Path.GetFullPath(inputFile));
-            }
         }
 
         log.Debug(inputFiles, nameof(inputFiles));
-        if (inputFiles.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(inputFiles));
-        }
+        if (inputFiles.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(inputFiles));
 
         // check to be sure all of the files or directories exist
         foreach (var includedItem in inputFiles)
-        {
             if (!File.Exists(includedItem) && !Directory.Exists(includedItem))
-            {
                 throw new FileNotFoundException($"File or directory to compress not found {includedItem}", includedItem);
-            }
-        }
 
         DeleteExistingFile(outputFile);
         var isWindows = Constant.OS_WINDOWS;
@@ -129,39 +112,21 @@ public class Zip : Command
                     {
                         var basePath = new DirectoryInfo(includedItem);
                         var items = Util.FileList(includedItem, recursive);
-                        if (!recursive)
-                        {
-                            items = items.Where(o => !o.IsDirectory || string.Equals(o.Path, includedItem, isWindows ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
-                        }
+                        if (!recursive) items = items.Where(o => !o.IsDirectory || string.Equals(o.Path, includedItem, isWindows ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
 
-                        if (skipTopLevelDirectory)
-                        {
-                            items = items.Where(o => !string.Equals(o.Path, includedItem, isWindows ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
-                        }
+                        if (skipTopLevelDirectory) items = items.Where(o => !string.Equals(o.Path, includedItem, isWindows ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
 
-                        if (!skipTopLevelDirectory)
-                        {
-                            basePath = basePath.Parent;
-                        }
+                        if (!skipTopLevelDirectory) basePath = basePath.Parent;
 
                         items = items.OrderBy(_ => isWindows ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
                         foreach (var item in items)
                         {
-                            if (item.Exception != null)
-                            {
-                                log.Warn($"ERROR: {item.Path} --> {item.Exception.Message}", item.Exception);
-                            }
-                            else if (item.IsDirectory)
-                            {
-                                External.Zip.AddDirectoryToZip((DirectoryInfo)item.GetFileSystemInfo(), basePath, zos, Path.GetFileName(outputFile), password != null);
-                            }
+                            if (item.Exception != null) { log.Warn($"ERROR: {item.Path} --> {item.Exception.Message}", item.Exception); }
+                            else if (item.IsDirectory) { External.Zip.AddDirectoryToZip((DirectoryInfo)item.GetFileSystemInfo(), basePath, zos, Path.GetFileName(outputFile), password != null); }
                             else // IsFile
                             {
                                 var fi = (FileInfo)item.GetFileSystemInfo();
-                                if (fi.Name.EqualsWildcard(mask))
-                                {
-                                    External.Zip.AddFileToZip(fi, basePath, zos, Path.GetFileName(outputFile), password != null);
-                                }
+                                if (fi.Name.EqualsWildcard(mask)) External.Zip.AddFileToZip(fi, basePath, zos, Path.GetFileName(outputFile), password != null);
                             }
                         }
 

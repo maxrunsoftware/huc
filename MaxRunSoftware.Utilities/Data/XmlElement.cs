@@ -28,10 +28,7 @@ public class XmlElement
             foreach (var child in Children)
             {
                 yield return child;
-                foreach (var child2 in child.ChildrenAll)
-                {
-                    yield return child2;
-                }
+                foreach (var child2 in child.ChildrenAll) yield return child2;
             }
         }
     }

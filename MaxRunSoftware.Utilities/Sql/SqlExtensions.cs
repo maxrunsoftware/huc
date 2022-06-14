@@ -18,37 +18,19 @@ public static class SqlExtensions
 {
     public static IDataReader ExecuteReaderExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
     {
-        try
-        {
-            return command.ExecuteReader();
-        }
-        catch (Exception e)
-        {
-            throw new SqlException(e, command, exceptionShowFullSql);
-        }
+        try { return command.ExecuteReader(); }
+        catch (Exception e) { throw new SqlException(e, command, exceptionShowFullSql); }
     }
 
     public static object ExecuteScalarExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
     {
-        try
-        {
-            return command.ExecuteScalar();
-        }
-        catch (Exception e)
-        {
-            throw new SqlException(e, command, exceptionShowFullSql);
-        }
+        try { return command.ExecuteScalar(); }
+        catch (Exception e) { throw new SqlException(e, command, exceptionShowFullSql); }
     }
 
     public static int ExecuteNonQueryExceptionWrapped(this IDbCommand command, bool exceptionShowFullSql)
     {
-        try
-        {
-            return command.ExecuteNonQuery();
-        }
-        catch (Exception e)
-        {
-            throw new SqlException(e, command, exceptionShowFullSql);
-        }
+        try { return command.ExecuteNonQuery(); }
+        catch (Exception e) { throw new SqlException(e, command, exceptionShowFullSql); }
     }
 }

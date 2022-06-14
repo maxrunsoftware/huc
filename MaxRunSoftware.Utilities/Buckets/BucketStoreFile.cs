@@ -41,22 +41,13 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         {
             using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
             {
-                using (var fs = Util.FileOpenRead(File))
-                {
-                    jp.Load(fs, Constant.ENCODING_UTF8);
-                }
+                using (var fs = Util.FileOpenRead(File)) { jp.Load(fs, Constant.ENCODING_UTF8); }
             }
         }
-        catch (MutexLockTimeoutException mte)
-        {
-            throw new IOException("Could not access file " + File, mte);
-        }
+        catch (MutexLockTimeoutException mte) { throw new IOException("Could not access file " + File, mte); }
 
         var jpd = jp.ToDictionary();
-        foreach (var kl in jpd)
-        {
-            props[kl.Key.TrimOrNull()] = kl.Value.TrimOrNull().WhereNotNull().LastOrDefault();
-        }
+        foreach (var kl in jpd) props[kl.Key.TrimOrNull()] = kl.Value.TrimOrNull().WhereNotNull().LastOrDefault();
 
         var d = new Dictionary<string, IDictionary<string, string>>(Comparer);
         var bucketKeySplit = new[] { BucketNameDelimiter };
@@ -64,23 +55,14 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         {
             var key = kvp.Key;
             var bucketValue = kvp.Value;
-            if (key == null || bucketValue == null)
-            {
-                continue;
-            }
+            if (key == null || bucketValue == null) continue;
 
             var keyParts = key.Split(bucketKeySplit, 2, StringSplitOptions.None).TrimOrNull().WhereNotNull().ToArray();
-            if (keyParts.Length != 2)
-            {
-                continue;
-            }
+            if (keyParts.Length != 2) continue;
 
             var bucketName = keyParts.GetAtIndexOrDefault(0).TrimOrNull();
             var bucketKey = keyParts.GetAtIndexOrDefault(1).TrimOrNull();
-            if (bucketName == null || bucketKey == null)
-            {
-                continue;
-            }
+            if (bucketName == null || bucketKey == null) continue;
 
             if (!d.TryGetValue(bucketName, out var dd))
             {
@@ -101,12 +83,8 @@ public class BucketStoreFile : BucketStoreBase<string, string>
 
         var d = ReadFile();
         if (d.TryGetValue(bucketName, out var dd))
-        {
             if (dd.TryGetValue(bucketKey, out var v))
-            {
                 return v;
-            }
-        }
 
         return null;
     }
@@ -115,28 +93,16 @@ public class BucketStoreFile : BucketStoreBase<string, string>
     {
         bucketName = bucketName.CheckNotNullTrimmed(nameof(bucketName));
         var d = ReadFile();
-        if (d.TryGetValue(bucketName, out var dd))
-        {
-            return dd.Keys;
-        }
+        if (d.TryGetValue(bucketName, out var dd)) return dd.Keys;
 
         return null;
     }
 
-    protected override string CleanKey(string key)
-    {
-        return base.CleanKey(key.TrimOrNull());
-    }
+    protected override string CleanKey(string key) => base.CleanKey(key.TrimOrNull());
 
-    protected override string CleanName(string name)
-    {
-        return base.CleanName(name.TrimOrNull());
-    }
+    protected override string CleanName(string name) => base.CleanName(name.TrimOrNull());
 
-    protected override string CleanValue(string value)
-    {
-        return base.CleanValue(value.TrimOrNull());
-    }
+    protected override string CleanValue(string value) => base.CleanValue(value.TrimOrNull());
 
     protected override void SetValue(string bucketName, string bucketKey, string bucketValue)
     {
@@ -150,31 +116,19 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         {
             using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
             {
-                using (var fs = Util.FileOpenRead(File))
-                {
-                    jp.Load(fs, Constant.ENCODING_UTF8);
-                }
+                using (var fs = Util.FileOpenRead(File)) { jp.Load(fs, Constant.ENCODING_UTF8); }
             }
         }
-        catch (MutexLockTimeoutException mte)
-        {
-            throw new IOException("Could not access file " + File, mte);
-        }
+        catch (MutexLockTimeoutException mte) { throw new IOException("Could not access file " + File, mte); }
 
         string jpKey = null;
         string jpVal = null;
         foreach (var jpPropertyName in jp.GetPropertyNames())
         {
             var pn = jpPropertyName.TrimOrNull();
-            if (pn == null)
-            {
-                continue;
-            }
+            if (pn == null) continue;
 
-            if (!string.Equals(pn, bucketNameKey, Comparison))
-            {
-                continue;
-            }
+            if (!string.Equals(pn, bucketNameKey, Comparison)) continue;
 
             jpKey = jpPropertyName;
             jpVal = jp.GetProperty(jpKey);
@@ -183,38 +137,25 @@ public class BucketStoreFile : BucketStoreBase<string, string>
 
         if (jpKey == null) // new key
         {
-            if (bucketValue == null)
-            {
-                return;
-            }
+            if (bucketValue == null) return;
 
             jp.SetProperty(bucketNameKey, bucketValue);
         }
         else
         {
-            if (string.Equals(bucketValue, jpVal.TrimOrNull(), Comparison))
-            {
-                return;
-            }
+            if (string.Equals(bucketValue, jpVal.TrimOrNull(), Comparison)) return;
 
             if (bucketValue == null)
-            {
                 jp.Remove(jpKey);
-            }
             else
-            {
                 jp.SetProperty(bucketNameKey, bucketValue);
-            }
         }
 
         try
         {
             using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
             {
-                if (System.IO.File.Exists(File))
-                {
-                    System.IO.File.Delete(File);
-                }
+                if (System.IO.File.Exists(File)) System.IO.File.Delete(File);
 
                 using (var fs = Util.FileOpenWrite(File))
                 {
@@ -224,9 +165,6 @@ public class BucketStoreFile : BucketStoreBase<string, string>
                 }
             }
         }
-        catch (MutexLockTimeoutException mte)
-        {
-            throw new IOException("Could not access file " + File, mte);
-        }
+        catch (MutexLockTimeoutException mte) { throw new IOException("Could not access file " + File, mte); }
     }
 }

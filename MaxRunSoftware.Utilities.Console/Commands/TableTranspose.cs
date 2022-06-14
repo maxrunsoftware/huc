@@ -23,8 +23,5 @@ public class TableTranspose : TableBase
         help.AddExample("Orders.txt");
     }
 
-    protected override string Convert(Utilities.Table table)
-    {
-        return WriteTableTab(table.Transpose());
-    }
+    protected override string Convert(Utilities.Table table) => WriteTableTab(table.Transpose());
 }

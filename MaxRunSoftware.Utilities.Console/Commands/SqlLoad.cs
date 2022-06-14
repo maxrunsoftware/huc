@@ -77,10 +77,7 @@ public class SqlLoad : SqlBase
         CheckFileExists(inputFile);
 
         var t = ReadTableTab(inputFile, headerRow: !noHeader);
-        if (t.Columns.IsEmpty())
-        {
-            throw new Exception("No columns in import file");
-        }
+        if (t.Columns.IsEmpty()) throw new Exception("No columns in import file");
 
         var c = GetSqlHelper();
         log.Debug("Created SQL Helper of type " + c.GetType().NameFormatted());
@@ -109,20 +106,11 @@ public class SqlLoad : SqlBase
         if (!tableExists)
         {
             var columnList = new List<string>();
-            if (rowNumberColumnName != null)
-            {
-                columnList.Add(c.Escape(rowNumberColumnName) + " INTEGER NULL");
-            }
+            if (rowNumberColumnName != null) columnList.Add(c.Escape(rowNumberColumnName) + " INTEGER NULL");
 
-            if (currentUtcDateTimeColumnName != null)
-            {
-                columnList.Add(c.Escape(currentUtcDateTimeColumnName) + " DATETIME NULL");
-            }
+            if (currentUtcDateTimeColumnName != null) columnList.Add(c.Escape(currentUtcDateTimeColumnName) + " DATETIME NULL");
 
-            foreach (var col in t.Columns)
-            {
-                columnList.Add(detectColumnTypes ? c.TextCreateTableColumn(col) : c.TextCreateTableColumnText(col.Name, true));
-            }
+            foreach (var col in t.Columns) columnList.Add(detectColumnTypes ? c.TextCreateTableColumn(col) : c.TextCreateTableColumnText(col.Name, true));
 
             log.Debug("Executing Create Table...");
 
@@ -167,20 +155,14 @@ public class SqlLoad : SqlBase
         foreach (var tableColumn in t.Columns)
         {
             if (sqlColumns.Contains(tableColumn.Name))
-            {
                 // Found column in SQL table
                 columnsToInsert.Add(tableColumn);
-            }
             else if (!errorOnNonexistentColumns)
-            {
                 // Didn't find column in SQL table, but that is OK we'll just not import it
                 log.Info($"Ignoring column {tableColumn.Name} because it does not exist as a column in table {table}");
-            }
             else
-            {
                 // Didn't find column in SQL table, and it is required, so we should fail here
                 throw new Exception($"DataFile contains column {tableColumn.Name} but existing SQL table {table} does not contain this column.");
-            }
         }
 
         // Remove columns from file table that do not exist in SQL table

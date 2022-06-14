@@ -34,10 +34,7 @@ public class FtpDelete : FtpBase
         base.ExecuteInternal();
 
         var filesToDelete = GetArgValuesTrimmed();
-        if (filesToDelete.IsEmpty())
-        {
-            throw ArgsException.ValueNotSpecified(nameof(filesToDelete));
-        }
+        if (filesToDelete.IsEmpty()) throw ArgsException.ValueNotSpecified(nameof(filesToDelete));
 
         log.Debug(filesToDelete, nameof(filesToDelete));
 
@@ -50,10 +47,7 @@ public class FtpDelete : FtpBase
                     c.DeleteFile(fileToDelete);
                     log.Info("Successfully deleted remote file " + fileToDelete);
                 }
-                catch (Exception e)
-                {
-                    log.Error("Error attempting to delete remote file " + fileToDelete, e);
-                }
+                catch (Exception e) { log.Error("Error attempting to delete remote file " + fileToDelete, e); }
             }
         }
     }

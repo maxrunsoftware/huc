@@ -16,24 +16,15 @@ namespace MaxRunSoftware.Utilities;
 
 public static class BucketExtensions
 {
-    public static IBucket<TKey, TValue> AsBucket<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
-    {
-        return new BucketDictionaryWrapper<TKey, TValue>(dictionary);
-    }
+    public static IBucket<TKey, TValue> AsBucket<TKey, TValue>(this IDictionary<TKey, TValue> dictionary) => new BucketDictionaryWrapper<TKey, TValue>(dictionary);
 
-    public static IEnumerable<(TKey key, TValue value)> GetItems<TKey, TValue>(this IBucketReadOnly<TKey, TValue> bucket)
-    {
-        return bucket.Keys.Select(key => (key, bucket[key]));
-    }
+    public static IEnumerable<(TKey key, TValue value)> GetItems<TKey, TValue>(this IBucketReadOnly<TKey, TValue> bucket) => bucket.Keys.Select(key => (key, bucket[key]));
 
     private sealed class BucketDictionaryWrapper<TKey, TValue> : IBucket<TKey, TValue>
     {
         private readonly IDictionary<TKey, TValue> dictionary;
 
-        public BucketDictionaryWrapper(IDictionary<TKey, TValue> dictionary)
-        {
-            this.dictionary = dictionary;
-        }
+        public BucketDictionaryWrapper(IDictionary<TKey, TValue> dictionary) { this.dictionary = dictionary; }
 
         public TValue this[TKey key]
         {

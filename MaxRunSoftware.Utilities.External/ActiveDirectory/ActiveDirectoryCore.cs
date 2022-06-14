@@ -61,10 +61,7 @@ public class ActiveDirectoryCore : IDisposable
         get
         {
             var dn = DistinguishedName.TrimOrNull();
-            if (dn == null)
-            {
-                return null;
-            }
+            if (dn == null) return null;
 
             var dnParts = dn.Split(",");
             var sb = new StringBuilder();
@@ -74,24 +71,15 @@ public class ActiveDirectoryCore : IDisposable
                 {
                     var segmentParts = dnPart.Split('=', 2);
                     var namePart = segmentParts[1].TrimOrNull();
-                    if (namePart == null)
-                    {
-                        continue;
-                    }
+                    if (namePart == null) continue;
 
-                    if (sb.Length > 0)
-                    {
-                        sb.Append(".");
-                    }
+                    if (sb.Length > 0) sb.Append(".");
 
                     sb.Append(namePart);
                 }
                 else
                 {
-                    if (sb.Length > 0)
-                    {
-                        sb.Append(".");
-                    }
+                    if (sb.Length > 0) sb.Append(".");
 
                     sb.Append(dnPart);
                 }
@@ -195,12 +183,7 @@ public class ActiveDirectoryCore : IDisposable
     {
         server = server.TrimOrNull();
         if (server == null)
-        {
-            using (var domain = Domain.GetComputerDomain())
-            {
-                server = domain.Name.TrimOrNull();
-            }
-        }
+            using (var domain = Domain.GetComputerDomain()) { server = domain.Name.TrimOrNull(); }
 
         ipaddress = server.CheckNotNull(nameof(server));
         ouDn = ouDn.TrimOrNull();
@@ -210,15 +193,9 @@ public class ActiveDirectoryCore : IDisposable
         domainName = domainName.TrimOrNull();
 
         var domainControllers = new List<string>();
-        if (siteName != null)
-        {
-            domainControllers = GetSiteDomainControllers(server, siteName); // Get a list of domain controllers from a specific site, if one was supplied.
-        }
+        if (siteName != null) domainControllers = GetSiteDomainControllers(server, siteName); // Get a list of domain controllers from a specific site, if one was supplied.
 
-        if (domainControllers.Count == 0)
-        {
-            domainControllers.Add(server); // Create the connection to the domain controller serving the current computer.
-        }
+        if (domainControllers.Count == 0) domainControllers.Add(server); // Create the connection to the domain controller serving the current computer.
 
         var useLogonCredentials = userName == null;
 
@@ -265,17 +242,12 @@ public class ActiveDirectoryCore : IDisposable
     public string AppendDistinguishedName(string pathToRoot)
     {
         if (!string.IsNullOrWhiteSpace(pathToRoot))
-        {
             // The string is valid. Return the absolute path.
             return pathToRoot + "," + DistinguishedName;
-        }
 
         // The string is null or full of whitespace.
         // Check if the string is empty.
-        if (pathToRoot != null)
-        {
-            return DistinguishedName;
-        }
+        if (pathToRoot != null) return DistinguishedName;
 
         return null;
     }
@@ -289,15 +261,9 @@ public class ActiveDirectoryCore : IDisposable
     /// <param name="queryConfig">Configuration to use for the query</param>
     /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
     /// <returns>The SearchResultEntry object found, or null if not found.</returns>
-    public ActiveDirectoryObject GetObjectByDistinguishedName(string distinguishedName, LdapQueryConfig queryConfig = null, bool useCache = true)
-    {
-        return GetObjectsByAttribute("distinguishedName", distinguishedName, queryConfig, useCache).FirstOrDefault();
-    }
+    public ActiveDirectoryObject GetObjectByDistinguishedName(string distinguishedName, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjectsByAttribute("distinguishedName", distinguishedName, queryConfig, useCache).FirstOrDefault();
 
-    public ActiveDirectoryObject GetObjectBySAMAccountName(string samAccountName, LdapQueryConfig queryConfig = null, bool useCache = true)
-    {
-        return GetObjectsByAttribute("sAMAccountName", samAccountName, queryConfig, useCache).FirstOrDefault();
-    }
+    public ActiveDirectoryObject GetObjectBySAMAccountName(string samAccountName, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjectsByAttribute("sAMAccountName", samAccountName, queryConfig, useCache).FirstOrDefault();
 
     /// <summary>
     /// Gets an entry given its GUID.
@@ -306,10 +272,7 @@ public class ActiveDirectoryCore : IDisposable
     /// <param name="queryConfig">Configuration to use for the query</param>
     /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
     /// <returns>The SearchResultEntry object found, or null if not found.</returns>
-    public ActiveDirectoryObject GetObjectByObjectGuid(Guid objectGuid, LdapQueryConfig queryConfig = null, bool useCache = true)
-    {
-        return GetObjectsByAttribute("objectGUID", Ldap.Guid2String(objectGuid), queryConfig, useCache).FirstOrDefault();
-    }
+    public ActiveDirectoryObject GetObjectByObjectGuid(Guid objectGuid, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjectsByAttribute("objectGUID", Ldap.Guid2String(objectGuid), queryConfig, useCache).FirstOrDefault();
 
     /// <summary>
     /// Gets all entries in a search given an LDAP search filter.
@@ -349,10 +312,7 @@ public class ActiveDirectoryCore : IDisposable
     /// <param name="queryConfig">Configuration to use for the query</param>
     /// <param name="useCache">Whether to query the cached objects instead of live objects</param>
     /// <returns>The list of SearchResultEntry(s) found, or null if not found.</returns>
-    public List<ActiveDirectoryObject> GetObjectsByAttribute(string attributeName, string attributeValue, LdapQueryConfig queryConfig = null, bool useCache = true)
-    {
-        return GetObjects("(" + attributeName.CheckNotNullTrimmed(nameof(attributeName)) + "=" + attributeValue.CheckNotNullTrimmed(nameof(attributeValue)) + ")", queryConfig, useCache);
-    }
+    public List<ActiveDirectoryObject> GetObjectsByAttribute(string attributeName, string attributeValue, LdapQueryConfig queryConfig = null, bool useCache = true) => GetObjects("(" + attributeName.CheckNotNullTrimmed(nameof(attributeName)) + "=" + attributeValue.CheckNotNullTrimmed(nameof(attributeValue)) + ")", queryConfig, useCache);
 
     #endregion GetObjects
 
@@ -363,10 +323,7 @@ public class ActiveDirectoryCore : IDisposable
         samAccountName = samAccountName.CheckNotNullTrimmed(nameof(samAccountName));
         ouDistinguishedName = ouDistinguishedName.CheckNotNullTrimmed(nameof(ouDistinguishedName));
 
-        if (GetObjectByDistinguishedName(ouDistinguishedName) == null)
-        {
-            throw new ArgumentException("The OU provided does not exist in Active Directory.");
-        }
+        if (GetObjectByDistinguishedName(ouDistinguishedName) == null) throw new ArgumentException("The OU provided does not exist in Active Directory.");
 
         var objectDistinguishedName = "CN=" + samAccountName + "," + ouDistinguishedName;
 
@@ -398,10 +355,7 @@ public class ActiveDirectoryCore : IDisposable
         }
         else // group
         {
-            if (!IsGroupNameValid(samAccountName))
-            {
-                throw new ArgumentException("The SAM Account Name '" + samAccountName + "' is not a valid group name.");
-            }
+            if (!IsGroupNameValid(samAccountName)) throw new ArgumentException("The SAM Account Name '" + samAccountName + "' is not a valid group name.");
 
             attributes.AddToList("objectClass", "group");
             //attributes.Add(new DirectoryAttribute("groupType", BitConverter.GetBytes(groupType.Value)));
@@ -415,10 +369,7 @@ public class ActiveDirectoryCore : IDisposable
         return GetObjectByDistinguishedName(objectDistinguishedName);
     }
 
-    public bool DeleteObject(ActiveDirectoryObject activeDirectoryObject)
-    {
-        return activeDirectoryObject != null && Ldap.EntryDelete(activeDirectoryObject.DistinguishedName);
-    }
+    public bool DeleteObject(ActiveDirectoryObject activeDirectoryObject) => activeDirectoryObject != null && Ldap.EntryDelete(activeDirectoryObject.DistinguishedName);
 
     /// <summary>
     /// Creates a new group within Active Directory given it's proposed name, the distinguished name of the OU to place it in,
@@ -428,10 +379,7 @@ public class ActiveDirectoryCore : IDisposable
     /// <param name="ouDistinguishedName">The distinguished name for the OU to place the group within.</param>
     /// <param name="groupType">A uint from the ActiveDirectory.GroupType enum representing the type of group to create.</param>
     /// <returns>The newly created group object.</returns>
-    public ActiveDirectoryObject AddGroup(string samAccountName, string ouDistinguishedName, ActiveDirectoryGroupType groupType)
-    {
-        return AddObject(samAccountName, ouDistinguishedName, (int)groupType);
-    }
+    public ActiveDirectoryObject AddGroup(string samAccountName, string ouDistinguishedName, ActiveDirectoryGroupType groupType) => AddObject(samAccountName, ouDistinguishedName, (int)groupType);
 
     /// <summary>
     /// Moves and / or renames an object in Active Directory.
@@ -480,30 +428,17 @@ public class ActiveDirectoryCore : IDisposable
     {
         dn1 = dn1.TrimOrNull();
         dn2 = dn2.TrimOrNull();
-        if (dn1 == null || dn2 == null)
-        {
-            return false;
-        }
+        if (dn1 == null || dn2 == null) return false;
 
         var dn1Parts = dn1.Split(",").TrimOrNull().WhereNotNull().ToArray();
         var dn2Parts = dn2.Split(",").TrimOrNull().WhereNotNull().ToArray();
-        if (dn1Parts.Length != dn2Parts.Length)
-        {
-            return false;
-        }
+        if (dn1Parts.Length != dn2Parts.Length) return false;
 
-        if (dn1Parts.Length == 0)
-        {
-            return false; // No DN to match
-        }
+        if (dn1Parts.Length == 0) return false; // No DN to match
 
         for (var i = 0; i < dn1Parts.Length; i++)
-        {
             if (!string.Equals(dn1Parts[i], dn2Parts[i], StringComparison.OrdinalIgnoreCase))
-            {
                 return false;
-            }
-        }
 
         return true;
     }
@@ -522,10 +457,7 @@ public class ActiveDirectoryCore : IDisposable
     {
         domainName = domainName.TrimOrNull();
         siteName = siteName.TrimOrNull();
-        if (domainName == null || siteName == null)
-        {
-            return new List<string>();
-        }
+        if (domainName == null || siteName == null) return new List<string>();
 
         // ReSharper disable once CommentTypo
         /*
@@ -553,30 +485,15 @@ public class ActiveDirectoryCore : IDisposable
     /// <returns>True if it meets the limitations, false otherwise.</returns>
     public static bool IsGroupNameValid(string name)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            return false;
-        }
+        if (string.IsNullOrEmpty(name)) return false;
 
-        if (name.Length > 63)
-        {
-            return false; // Check whether the length of the name is less than or equal to 63 characters.
-        }
+        if (name.Length > 63) return false; // Check whether the length of the name is less than or equal to 63 characters.
 
-        if (name.StartsWith(" "))
-        {
-            return false;
-        }
+        if (name.StartsWith(" ")) return false;
 
-        if (name.StartsWith("."))
-        {
-            return false;
-        }
+        if (name.StartsWith(".")) return false;
 
-        if (name.ToCharArray().All(c => !char.IsLetter(c)))
-        {
-            return false; // must contain at least 1 letter
-        }
+        if (name.ToCharArray().All(c => !char.IsLetter(c))) return false; // must contain at least 1 letter
 
         return true;
     }
@@ -591,16 +508,8 @@ public class ActiveDirectoryCore : IDisposable
     public virtual void Dispose()
     {
         if (Ldap != null)
-        {
-            try
-            {
-                Ldap.Dispose();
-            }
-            catch (Exception e)
-            {
-                log.Warn("Error disposing of " + Ldap.GetType().FullName, e);
-            }
-        }
+            try { Ldap.Dispose(); }
+            catch (Exception e) { log.Warn("Error disposing of " + Ldap.GetType().FullName, e); }
     }
 
     #endregion IDisposable

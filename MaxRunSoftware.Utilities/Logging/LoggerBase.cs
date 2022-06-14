@@ -25,113 +25,50 @@ public abstract class LoggerBase : ILogger
     {
         private readonly Action<string, Exception, LogLevel> action;
 
-        public LoggerWrapper(Action<string, Exception, LogLevel> action)
-        {
-            this.action = action.CheckNotNull(nameof(action));
-        }
+        public LoggerWrapper(Action<string, Exception, LogLevel> action) { this.action = action.CheckNotNull(nameof(action)); }
 
-        protected override void Log(string message, Exception exception, LogLevel level)
-        {
-            action(message, exception, level);
-        }
+        protected override void Log(string message, Exception exception, LogLevel level) => action(message, exception, level);
     }
 
-    public static ILogger Create(Action<string, Exception, LogLevel> action)
-    {
-        return new LoggerWrapper(action);
-    }
+    public static ILogger Create(Action<string, Exception, LogLevel> action) => new LoggerWrapper(action);
 
     public static readonly ILogger NULL_LOGGER = new LoggerNull();
 
     protected abstract void Log(string message, Exception exception, LogLevel level);
 
-    public void Trace(string message)
-    {
-        Trace(message, null);
-    }
+    public void Trace(string message) => Trace(message, null);
 
-    public void Trace(Exception exception)
-    {
-        Trace(null, exception);
-    }
+    public void Trace(Exception exception) => Trace(null, exception);
 
-    public void Trace(string message, Exception exception)
-    {
-        Log(message, exception, LogLevel.Trace);
-    }
+    public void Trace(string message, Exception exception) => Log(message, exception, LogLevel.Trace);
 
-    public void Debug(string message)
-    {
-        Debug(message, null);
-    }
+    public void Debug(string message) => Debug(message, null);
 
-    public void Debug(Exception exception)
-    {
-        Debug(null, exception);
-    }
+    public void Debug(Exception exception) => Debug(null, exception);
 
-    public void Debug(string message, Exception exception)
-    {
-        Log(message, exception, LogLevel.Debug);
-    }
+    public void Debug(string message, Exception exception) => Log(message, exception, LogLevel.Debug);
 
-    public void Info(string message)
-    {
-        Info(message, null);
-    }
+    public void Info(string message) => Info(message, null);
 
-    public void Info(Exception exception)
-    {
-        Info(null, exception);
-    }
+    public void Info(Exception exception) => Info(null, exception);
 
-    public void Info(string message, Exception exception)
-    {
-        Log(message, exception, LogLevel.Info);
-    }
+    public void Info(string message, Exception exception) => Log(message, exception, LogLevel.Info);
 
-    public void Warn(string message)
-    {
-        Warn(message, null);
-    }
+    public void Warn(string message) => Warn(message, null);
 
-    public void Warn(Exception exception)
-    {
-        Warn(null, exception);
-    }
+    public void Warn(Exception exception) => Warn(null, exception);
 
-    public void Warn(string message, Exception exception)
-    {
-        Log(message, exception, LogLevel.Warn);
-    }
+    public void Warn(string message, Exception exception) => Log(message, exception, LogLevel.Warn);
 
-    public void Error(string message)
-    {
-        Error(message, null);
-    }
+    public void Error(string message) => Error(message, null);
 
-    public void Error(Exception exception)
-    {
-        Error(null, exception);
-    }
+    public void Error(Exception exception) => Error(null, exception);
 
-    public void Error(string message, Exception exception)
-    {
-        Log(message, exception, LogLevel.Error);
-    }
+    public void Error(string message, Exception exception) => Log(message, exception, LogLevel.Error);
 
-    public void Critical(string message)
-    {
-        Critical(message, null);
-    }
+    public void Critical(string message) => Critical(message, null);
 
-    public void Critical(Exception exception)
-    {
-        Critical(null, exception);
-    }
+    public void Critical(Exception exception) => Critical(null, exception);
 
-    public void Critical(string message, Exception exception)
-    {
-        Log(message, exception, LogLevel.Critical);
-    }
+    public void Critical(string message, Exception exception) => Log(message, exception, LogLevel.Critical);
 }

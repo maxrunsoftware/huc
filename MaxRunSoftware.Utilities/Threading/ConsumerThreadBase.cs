@@ -33,10 +33,7 @@ public abstract class ConsumerThreadBase<T> : ThreadBase
 
     public int ItemsCompleted => itemsCompleted;
 
-    protected ConsumerThreadBase(BlockingCollection<T> queue)
-    {
-        this.queue = queue.CheckNotNull(nameof(queue));
-    }
+    protected ConsumerThreadBase(BlockingCollection<T> queue) { this.queue = queue.CheckNotNull(nameof(queue)); }
 
     private bool ShouldExitWorkLoop()
     {
@@ -73,10 +70,7 @@ public abstract class ConsumerThreadBase<T> : ThreadBase
         var stopwatch = new Stopwatch();
         while (true)
         {
-            if (ShouldExitWorkLoop())
-            {
-                return;
-            }
+            if (ShouldExitWorkLoop()) return;
 
             T t = default;
             try
@@ -104,10 +98,7 @@ public abstract class ConsumerThreadBase<T> : ThreadBase
                 Cancel();
             }
 
-            if (ShouldExitWorkLoop())
-            {
-                return;
-            }
+            if (ShouldExitWorkLoop()) return;
 
             try
             {
@@ -134,30 +125,15 @@ public abstract class ConsumerThreadBase<T> : ThreadBase
     {
         lock (locker)
         {
-            if (IsCancelled)
-            {
-                return;
-            }
+            if (IsCancelled) return;
 
             IsCancelled = true;
         }
 
-        try
-        {
-            cancellation.Cancel();
-        }
-        catch (Exception e)
-        {
-            log.Warn("CancellationTokenSource.Cancel() request threw exception", e);
-        }
+        try { cancellation.Cancel(); }
+        catch (Exception e) { log.Warn("CancellationTokenSource.Cancel() request threw exception", e); }
 
-        try
-        {
-            CancelInternal();
-        }
-        catch (Exception e)
-        {
-            log.Warn("CancelInternal() request threw exception", e);
-        }
+        try { CancelInternal(); }
+        catch (Exception e) { log.Warn("CancelInternal() request threw exception", e); }
     }
 }

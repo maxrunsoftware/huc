@@ -20,10 +20,7 @@ public static class ExtensionsByte
 {
     #region IsValidUTF8
 
-    public static bool IsValidUTF8(this byte[] buffer)
-    {
-        return IsValidUTF8(buffer, buffer.Length);
-    }
+    public static bool IsValidUTF8(this byte[] buffer) => IsValidUTF8(buffer, buffer.Length);
 
     /// <summary></summary>
     /// <param name="buffer"></param>
@@ -35,10 +32,7 @@ public static class ExtensionsByte
         var bytes = 0;
         while (position < length)
         {
-            if (!IsValidUTF8(buffer, position, length, ref bytes))
-            {
-                return false;
-            }
+            if (!IsValidUTF8(buffer, position, length, ref bytes)) return false;
 
             position += bytes;
         }
@@ -54,10 +48,7 @@ public static class ExtensionsByte
     /// <returns></returns>
     public static bool IsValidUTF8(this byte[] buffer, int position, int length, ref int bytes)
     {
-        if (length > buffer.Length)
-        {
-            throw new ArgumentException("Invalid length");
-        }
+        if (length > buffer.Length) throw new ArgumentException("Invalid length");
 
         if (position > length - 1)
         {
@@ -245,76 +236,39 @@ public static class ExtensionsByte
 
     #endregion Compression
 
-    public static bool EqualsBytes(this Span<byte> b1, Span<byte> b2)
-    {
-        return b1.SequenceEqual(b2);
-        // https://stackoverflow.com/a/48599119
-    }
+    public static bool EqualsBytes(this Span<byte> b1, Span<byte> b2) => b1.SequenceEqual(b2);
 
-    public static bool EqualsBytes(this byte[] b1, byte[] b2)
-    {
+    // https://stackoverflow.com/a/48599119
+    public static bool EqualsBytes(this byte[] b1, byte[] b2) =>
         // alternative unsafe option https://stackoverflow.com/a/8808245
-        return EqualsBytes(b1, b2, false);
-    }
+        EqualsBytes(b1, b2, false);
 
     public static bool EqualsBytes(this byte[] b1, byte[] b2, bool reverse)
     {
-        if (b1 == b2)
-        {
-            return true; //reference equality check
-        }
+        if (b1 == b2) return true; //reference equality check
 
-        if (b1 == null || b2 == null)
-        {
-            return false;
-        }
+        if (b1 == null || b2 == null) return false;
 
-        if (b1.Length != b2.Length)
-        {
-            return false;
-        }
+        if (b1.Length != b2.Length) return false;
 
         var len = b1.Length;
-        if (len == 0)
-        {
-            return true;
-        }
+        if (len == 0) return true;
 
-        if (b1[0] != b2[0])
-        {
-            return false; // compare first byte
-        }
+        if (b1[0] != b2[0]) return false; // compare first byte
 
-        if (b1[len - 1] != b2[len - 1])
-        {
-            return false; // compare last byte
-        }
+        if (b1[len - 1] != b2[len - 1]) return false; // compare last byte
 
-        if (b1[len / 2] != b2[len / 2])
-        {
-            return false; // compare middle byte
-        }
+        if (b1[len / 2] != b2[len / 2]) return false; // compare middle byte
 
         if (reverse)
-        {
             for (var i = len - 1; i >= 0; i--)
             {
-                if (b1[i] != b2[i])
-                {
-                    return false;
-                }
+                if (b1[i] != b2[i]) return false;
             }
-        }
         else
-        {
             for (var i = 0; i < len; i++)
-            {
                 if (b1[i] != b2[i])
-                {
                     return false;
-                }
-            }
-        }
 
         return true;
     }

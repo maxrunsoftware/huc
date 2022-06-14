@@ -59,56 +59,35 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
 
     public int Count => keys.Count;
 
-    public bool ContainsKey(string key)
-    {
-        return TryGetValue(key, out var _);
-    }
+    public bool ContainsKey(string key) => TryGetValue(key, out var _);
 
-    public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator()
-    {
-        return items.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<string, TValue>> GetEnumerator() => items.GetEnumerator();
 
     public bool TryGetValue(string key, [MaybeNullWhen(false)] out TValue value)
     {
         lock (locker)
         {
-            if (dictionaryCache.TryGetValue(key, out value))
-            {
-                return true;
-            }
+            if (dictionaryCache.TryGetValue(key, out value)) return true;
 
-            if (invalidKeys.Contains(key))
-            {
-                return false;
-            }
+            if (invalidKeys.Contains(key)) return false;
 
             // Do a hard search
             var itemsFound = new List<KeyValuePair<string, TValue>>();
             var itemsCurrentD = new Dictionary<int, KeyValuePair<string, TValue>>();
-            for (var i = 0; i < items.Count; i++)
-            {
-                itemsCurrentD.Add(i, items[i]);
-            }
+            for (var i = 0; i < items.Count; i++) itemsCurrentD.Add(i, items[i]);
 
             foreach (var sc in Constant.STRINGCOMPARERS)
             {
                 foreach (var item in itemsCurrentD.ToArray())
                 {
-                    if (!sc.Equals(key, item.Value.Key))
-                    {
-                        continue;
-                    }
+                    if (!sc.Equals(key, item.Value.Key)) continue;
 
                     itemsFound.Add(item.Value);
                     itemsCurrentD.Remove(item.Key);
                 }
             }
 
-            if (itemsFound.Count > 1)
-            {
-                throw new ArgumentException($"For key '{key}' found multiple matching items: " + itemsFound.Select(o => o.Key).ToStringDelimited(", "), nameof(key));
-            }
+            if (itemsFound.Count > 1) throw new ArgumentException($"For key '{key}' found multiple matching items: " + itemsFound.Select(o => o.Key).ToStringDelimited(", "), nameof(key));
 
             if (itemsFound.Count == 1)
             {
@@ -123,16 +102,10 @@ public class DictionaryReadOnlyStringCaseInsensitive<TValue> : IReadOnlyDictiona
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return items.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => items.GetEnumerator();
 }
 
 public static class DictionaryReadOnlyStringCaseInsensitiveExtensions
 {
-    public static DictionaryReadOnlyStringCaseInsensitive<TValue> ToDictionaryReadOnlyStringCaseInsensitive<TValue>(this IEnumerable<TValue> values, Func<TValue, string> keySelector)
-    {
-        return new DictionaryReadOnlyStringCaseInsensitive<TValue>(values.ToDictionary(keySelector));
-    }
+    public static DictionaryReadOnlyStringCaseInsensitive<TValue> ToDictionaryReadOnlyStringCaseInsensitive<TValue>(this IEnumerable<TValue> values, Func<TValue, string> keySelector) => new(values.ToDictionary(keySelector));
 }

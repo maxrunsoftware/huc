@@ -25,13 +25,7 @@ public class ConsumerProducerThread<TConsume, TProduce> : ConsumerProducerThread
 {
     private readonly Func<TConsume, TProduce> func;
 
-    public ConsumerProducerThread(BlockingCollection<TConsume> consumerQueue, BlockingCollection<TProduce> producerQueue, Func<TConsume, TProduce> func) : base(consumerQueue, producerQueue)
-    {
-        this.func = func.CheckNotNull(nameof(func));
-    }
+    public ConsumerProducerThread(BlockingCollection<TConsume> consumerQueue, BlockingCollection<TProduce> producerQueue, Func<TConsume, TProduce> func) : base(consumerQueue, producerQueue) { this.func = func.CheckNotNull(nameof(func)); }
 
-    protected override TProduce WorkConsumeProduce(TConsume item)
-    {
-        return func(item);
-    }
+    protected override TProduce WorkConsumeProduce(TConsume item) => func(item);
 }

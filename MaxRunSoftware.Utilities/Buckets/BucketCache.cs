@@ -38,10 +38,7 @@ public class BucketCache<TKey, TValue> : IBucketReadOnly<TKey, TValue>
     {
         get
         {
-            if (!dictionary.TryGetValue(key, out var value))
-            {
-                dictionary[key] = value = factory(key);
-            }
+            if (!dictionary.TryGetValue(key, out var value)) dictionary[key] = value = factory(key);
 
             return value;
         }

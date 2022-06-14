@@ -76,21 +76,13 @@ public class Jsas : Command
             {
                 var isText = false;
                 foreach (var mime in mimeText)
-                {
                     if (mime.EqualsCaseInsensitive(ct))
-                    {
                         isText = true;
-                    }
-                }
 
                 if (isText)
-                {
                     log.Info(Constant.ENCODING_UTF8.GetString(response.Data));
-                }
                 else
-                {
                     log.Info("WebResponse.Data[" + response.Data.Length + "]");
-                }
             }
         }
         else

@@ -50,10 +50,8 @@ public class ActiveDirectoryListObjectDetails : ActiveDirectoryBase
             };
 
             if (!objectName.Contains('*') && !objectName.Contains("?"))
-            {
                 // don't search DistinguishedName on wildcard
                 propertiesToMatch.Add(activeDirectoryObject.DistinguishedName);
-            }
 
             foreach (var propertyToMatch in propertiesToMatch.TrimOrNull().WhereNotNull())
             {
@@ -65,10 +63,7 @@ public class ActiveDirectoryListObjectDetails : ActiveDirectoryBase
             }
         }
 
-        if (activeDirectoryObjects.IsEmpty())
-        {
-            log.Info("Object " + objectName + " not found");
-        }
+        if (activeDirectoryObjects.IsEmpty()) { log.Info("Object " + objectName + " not found"); }
         else
         {
             if (activeDirectoryObjects.Count > 1)
@@ -79,15 +74,9 @@ public class ActiveDirectoryListObjectDetails : ActiveDirectoryBase
 
             foreach (var activeDirectoryObject in activeDirectoryObjects)
             {
-                if (activeDirectoryObjects.Count > 1)
-                {
-                    log.Info(" ---  " + activeDirectoryObject.DistinguishedName + "  --- ");
-                }
+                if (activeDirectoryObjects.Count > 1) log.Info(" ---  " + activeDirectoryObject.DistinguishedName + "  --- ");
 
-                foreach (var kvp in activeDirectoryObject.GetPropertiesStrings().OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase))
-                {
-                    log.Info(kvp.Key + ": " + kvp.Value);
-                }
+                foreach (var kvp in activeDirectoryObject.GetPropertiesStrings().OrderBy(o => o.Key, StringComparer.OrdinalIgnoreCase)) log.Info(kvp.Key + ": " + kvp.Value);
 
                 log.Info("");
             }

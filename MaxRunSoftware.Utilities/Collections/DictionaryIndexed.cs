@@ -32,52 +32,25 @@ public sealed class DictionaryIndexed<TKey, TValue> : IDictionary<TKey, TValue>,
 
     private IEnumerable<KeyValuePair<TKey, TValue>> KeyValuePairs => d.OfType<DictionaryEntry>().Select(e => new KeyValuePair<TKey, TValue>((TKey)e.Key, (TValue)e.Value));
 
-    public DictionaryIndexed()
-    {
-        d = new OrderedDictionary();
-    }
+    public DictionaryIndexed() { d = new OrderedDictionary(); }
 
-    public DictionaryIndexed(IEqualityComparer comparer)
-    {
-        d = new OrderedDictionary(comparer);
-    }
+    public DictionaryIndexed(IEqualityComparer comparer) { d = new OrderedDictionary(comparer); }
 
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-    {
-        return KeyValuePairs.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => KeyValuePairs.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public void Add(KeyValuePair<TKey, TValue> item)
-    {
-        d[item.Key] = item.Value;
-    }
+    public void Add(KeyValuePair<TKey, TValue> item) => d[item.Key] = item.Value;
 
-    public void Clear()
-    {
-        d.Clear();
-    }
+    public void Clear() => d.Clear();
 
-    public bool Contains(KeyValuePair<TKey, TValue> item)
-    {
-        return d.Contains(item.Key);
-    }
+    public bool Contains(KeyValuePair<TKey, TValue> item) => d.Contains(item.Key);
 
-    public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-    {
-        KeyValuePairs.ToList().CopyTo(array, arrayIndex);
-    }
+    public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) => KeyValuePairs.ToList().CopyTo(array, arrayIndex);
 
     public bool Remove(KeyValuePair<TKey, TValue> item)
     {
-        if (!TryGetValue(item.Key, out var value) || !Equals(value, item.Value))
-        {
-            return false;
-        }
+        if (!TryGetValue(item.Key, out var value) || !Equals(value, item.Value)) return false;
 
         Remove(item.Key);
         return true;
@@ -87,23 +60,14 @@ public sealed class DictionaryIndexed<TKey, TValue> : IDictionary<TKey, TValue>,
 
     public bool IsReadOnly => d.IsReadOnly;
 
-    public bool ContainsKey(TKey key)
-    {
-        return d.Contains(key);
-    }
+    public bool ContainsKey(TKey key) => d.Contains(key);
 
-    public void Add(TKey key, TValue value)
-    {
-        d.Add(key, value);
-    }
+    public void Add(TKey key, TValue value) => d.Add(key, value);
 
     public bool Remove(TKey key)
     {
         var result = d.Contains(key);
-        if (result)
-        {
-            d.Remove(key);
-        }
+        if (result) d.Remove(key);
 
         return result;
     }

@@ -22,10 +22,7 @@ public static class ExtensionsStringConversion
 {
     #region bool
 
-    public static bool ToBool(this string str)
-    {
-        return str.ToBoolTry(out var output) ? output : bool.Parse(str);
-    }
+    public static bool ToBool(this string str) => str.ToBoolTry(out var output) ? output : bool.Parse(str);
 
     public static bool ToBoolTry(this string str, out bool output)
     {
@@ -37,7 +34,6 @@ public static class ExtensionsStringConversion
         }
 
         if (str.Length < 6)
-        {
             switch (str.ToUpperInvariant())
             {
                 case "1":
@@ -56,17 +52,13 @@ public static class ExtensionsStringConversion
                     output = false;
                     return true;
             }
-        }
 
         var returnValue = bool.TryParse(str, out var r);
         output = r;
         return returnValue;
     }
 
-    public static bool? ToBoolNullable(this string str)
-    {
-        return str?.ToBool();
-    }
+    public static bool? ToBoolNullable(this string str) => str?.ToBool();
 
     public static bool ToBoolNullableTry(this string str, out bool? output)
     {
@@ -85,20 +77,11 @@ public static class ExtensionsStringConversion
 
     #region byte
 
-    public static byte ToByte(this string str)
-    {
-        return byte.Parse(str);
-    }
+    public static byte ToByte(this string str) => byte.Parse(str);
 
-    public static bool ToByteTry(this string str, out byte output)
-    {
-        return byte.TryParse(str, out output);
-    }
+    public static bool ToByteTry(this string str, out byte output) => byte.TryParse(str, out output);
 
-    public static byte? ToByteNullable(this string str)
-    {
-        return str?.ToByte();
-    }
+    public static byte? ToByteNullable(this string str) => str?.ToByte();
 
     public static bool ToByteNullableTry(this string str, out byte? output)
     {
@@ -117,20 +100,11 @@ public static class ExtensionsStringConversion
 
     #region sbyte
 
-    public static sbyte ToSByte(this string str)
-    {
-        return sbyte.Parse(str);
-    }
+    public static sbyte ToSByte(this string str) => sbyte.Parse(str);
 
-    public static bool ToSByteTry(this string str, out sbyte output)
-    {
-        return sbyte.TryParse(str, out output);
-    }
+    public static bool ToSByteTry(this string str, out sbyte output) => sbyte.TryParse(str, out output);
 
-    public static sbyte? ToSByteNullable(this string str)
-    {
-        return str?.ToSByte();
-    }
+    public static sbyte? ToSByteNullable(this string str) => str?.ToSByte();
 
     public static bool ToSByteNullableTry(this string str, out sbyte? output)
     {
@@ -149,20 +123,11 @@ public static class ExtensionsStringConversion
 
     #region char
 
-    public static char ToChar(this string str)
-    {
-        return char.Parse(str);
-    }
+    public static char ToChar(this string str) => char.Parse(str);
 
-    public static bool ToCharTry(this string str, out char output)
-    {
-        return char.TryParse(str, out output);
-    }
+    public static bool ToCharTry(this string str, out char output) => char.TryParse(str, out output);
 
-    public static char? ToCharNullable(this string str)
-    {
-        return str?.ToChar();
-    }
+    public static char? ToCharNullable(this string str) => str?.ToChar();
 
     public static bool ToCharNullableTry(this string str, out char? output)
     {
@@ -181,20 +146,11 @@ public static class ExtensionsStringConversion
 
     #region short
 
-    public static short ToShort(this string str)
-    {
-        return short.Parse(str);
-    }
+    public static short ToShort(this string str) => short.Parse(str);
 
-    public static bool ToShortTry(this string str, out short output)
-    {
-        return short.TryParse(str, out output);
-    }
+    public static bool ToShortTry(this string str, out short output) => short.TryParse(str, out output);
 
-    public static short? ToShortNullable(this string str)
-    {
-        return str?.ToShort();
-    }
+    public static short? ToShortNullable(this string str) => str?.ToShort();
 
     public static bool ToShortNullableTry(this string str, out short? output)
     {
@@ -213,20 +169,11 @@ public static class ExtensionsStringConversion
 
     #region ushort
 
-    public static ushort ToUShort(this string str)
-    {
-        return ushort.Parse(str);
-    }
+    public static ushort ToUShort(this string str) => ushort.Parse(str);
 
-    public static bool ToUShortTry(this string str, out ushort output)
-    {
-        return ushort.TryParse(str, out output);
-    }
+    public static bool ToUShortTry(this string str, out ushort output) => ushort.TryParse(str, out output);
 
-    public static ushort? ToUShortNullable(this string str)
-    {
-        return str?.ToUShort();
-    }
+    public static ushort? ToUShortNullable(this string str) => str?.ToUShort();
 
     public static bool ToUShortNullableTry(this string str, out ushort? output)
     {
@@ -245,20 +192,11 @@ public static class ExtensionsStringConversion
 
     #region int
 
-    public static int ToInt(this string str)
-    {
-        return int.Parse(str);
-    }
+    public static int ToInt(this string str) => int.Parse(str);
 
-    public static bool ToIntTry(this string str, out int output)
-    {
-        return int.TryParse(str, out output);
-    }
+    public static bool ToIntTry(this string str, out int output) => int.TryParse(str, out output);
 
-    public static int? ToIntNullable(this string str)
-    {
-        return str?.ToInt();
-    }
+    public static int? ToIntNullable(this string str) => str?.ToInt();
 
     public static bool ToIntNullableTry(this string str, out int? output)
     {
@@ -277,20 +215,11 @@ public static class ExtensionsStringConversion
 
     #region uint
 
-    public static uint ToUInt(this string str)
-    {
-        return uint.Parse(str);
-    }
+    public static uint ToUInt(this string str) => uint.Parse(str);
 
-    public static bool ToUIntTry(this string str, out uint output)
-    {
-        return uint.TryParse(str, out output);
-    }
+    public static bool ToUIntTry(this string str, out uint output) => uint.TryParse(str, out output);
 
-    public static uint? ToUIntNullable(this string str)
-    {
-        return str?.ToUInt();
-    }
+    public static uint? ToUIntNullable(this string str) => str?.ToUInt();
 
     public static bool ToUIntNullableTry(this string str, out uint? output)
     {
@@ -309,20 +238,11 @@ public static class ExtensionsStringConversion
 
     #region long
 
-    public static long ToLong(this string str)
-    {
-        return long.Parse(str);
-    }
+    public static long ToLong(this string str) => long.Parse(str);
 
-    public static bool ToLongTry(this string str, out long output)
-    {
-        return long.TryParse(str, out output);
-    }
+    public static bool ToLongTry(this string str, out long output) => long.TryParse(str, out output);
 
-    public static long? ToLongNullable(this string str)
-    {
-        return str?.ToLong();
-    }
+    public static long? ToLongNullable(this string str) => str?.ToLong();
 
     public static bool ToLongNullableTry(this string str, out long? output)
     {
@@ -341,20 +261,11 @@ public static class ExtensionsStringConversion
 
     #region ulong
 
-    public static ulong ToULong(this string str)
-    {
-        return ulong.Parse(str);
-    }
+    public static ulong ToULong(this string str) => ulong.Parse(str);
 
-    public static bool ToULongTry(this string str, out ulong output)
-    {
-        return ulong.TryParse(str, out output);
-    }
+    public static bool ToULongTry(this string str, out ulong output) => ulong.TryParse(str, out output);
 
-    public static ulong? ToULongNullable(this string str)
-    {
-        return str?.ToULong();
-    }
+    public static ulong? ToULongNullable(this string str) => str?.ToULong();
 
     public static bool ToULongNullableTry(this string str, out ulong? output)
     {
@@ -373,20 +284,11 @@ public static class ExtensionsStringConversion
 
     #region float
 
-    public static float ToFloat(this string str)
-    {
-        return float.Parse(str);
-    }
+    public static float ToFloat(this string str) => float.Parse(str);
 
-    public static bool ToFloatTry(this string str, out float output)
-    {
-        return float.TryParse(str, out output);
-    }
+    public static bool ToFloatTry(this string str, out float output) => float.TryParse(str, out output);
 
-    public static float? ToFloatNullable(this string str)
-    {
-        return str?.ToFloat();
-    }
+    public static float? ToFloatNullable(this string str) => str?.ToFloat();
 
     public static bool ToFloatNullableTry(this string str, out float? output)
     {
@@ -405,20 +307,11 @@ public static class ExtensionsStringConversion
 
     #region double
 
-    public static double ToDouble(this string str)
-    {
-        return double.Parse(str);
-    }
+    public static double ToDouble(this string str) => double.Parse(str);
 
-    public static bool ToDoubleTry(this string str, out double output)
-    {
-        return double.TryParse(str, out output);
-    }
+    public static bool ToDoubleTry(this string str, out double output) => double.TryParse(str, out output);
 
-    public static double? ToDoubleNullable(this string str)
-    {
-        return str?.ToDouble();
-    }
+    public static double? ToDoubleNullable(this string str) => str?.ToDouble();
 
     public static bool ToDoubleNullableTry(this string str, out double? output)
     {
@@ -437,20 +330,11 @@ public static class ExtensionsStringConversion
 
     #region decimal
 
-    public static decimal ToDecimal(this string str)
-    {
-        return decimal.Parse(str);
-    }
+    public static decimal ToDecimal(this string str) => decimal.Parse(str);
 
-    public static bool ToDecimalTry(this string str, out decimal output)
-    {
-        return decimal.TryParse(str, out output);
-    }
+    public static bool ToDecimalTry(this string str, out decimal output) => decimal.TryParse(str, out output);
 
-    public static decimal? ToDecimalNullable(this string str)
-    {
-        return str?.ToDecimal();
-    }
+    public static decimal? ToDecimalNullable(this string str) => str?.ToDecimal();
 
     public static bool ToDecimalNullableTry(this string str, out decimal? output)
     {
@@ -469,20 +353,11 @@ public static class ExtensionsStringConversion
 
     #region DateTime
 
-    public static DateTime ToDateTime(this string str)
-    {
-        return DateTime.Parse(str);
-    }
+    public static DateTime ToDateTime(this string str) => DateTime.Parse(str);
 
-    public static bool ToDateTimeTry(this string str, out DateTime output)
-    {
-        return DateTime.TryParse(str, out output);
-    }
+    public static bool ToDateTimeTry(this string str, out DateTime output) => DateTime.TryParse(str, out output);
 
-    public static DateTime? ToDateTimeNullable(this string str)
-    {
-        return str?.ToDateTime();
-    }
+    public static DateTime? ToDateTimeNullable(this string str) => str?.ToDateTime();
 
     public static bool ToDateTimeNullableTry(this string str, out DateTime? output)
     {
@@ -501,20 +376,11 @@ public static class ExtensionsStringConversion
 
     #region Guid
 
-    public static Guid ToGuid(this string str)
-    {
-        return Guid.Parse(str);
-    }
+    public static Guid ToGuid(this string str) => Guid.Parse(str);
 
-    public static bool ToGuidTry(this string str, out Guid output)
-    {
-        return Guid.TryParse(str, out output);
-    }
+    public static bool ToGuidTry(this string str, out Guid output) => Guid.TryParse(str, out output);
 
-    public static Guid? ToGuidNullable(this string str)
-    {
-        return str?.ToGuid();
-    }
+    public static Guid? ToGuidNullable(this string str) => str?.ToGuid();
 
     public static bool ToGuidNullableTry(this string str, out Guid? output)
     {
@@ -533,10 +399,7 @@ public static class ExtensionsStringConversion
 
     #region IPAddress
 
-    public static IPAddress ToIPAddress(this string str)
-    {
-        return str == null ? null : IPAddress.Parse(str);
-    }
+    public static IPAddress ToIPAddress(this string str) => str == null ? null : IPAddress.Parse(str);
 
     public static bool ToIPAddressTry(this string str, out IPAddress output)
     {
@@ -553,10 +416,7 @@ public static class ExtensionsStringConversion
 
     #region Uri
 
-    public static Uri ToUri(this string str)
-    {
-        return str == null ? null : new Uri(str);
-    }
+    public static Uri ToUri(this string str) => str == null ? null : new Uri(str);
 
     public static bool ToUriTry(this string str, out Uri output)
     {
@@ -573,10 +433,7 @@ public static class ExtensionsStringConversion
 
     #region MailAddress
 
-    public static MailAddress ToMailAddress(this string str)
-    {
-        return str == null ? null : new MailAddress(str);
-    }
+    public static MailAddress ToMailAddress(this string str) => str == null ? null : new MailAddress(str);
 
     public static bool ToMailAddressTry(this string str, out MailAddress output)
     {
@@ -602,10 +459,7 @@ public static class ExtensionsStringConversion
 
     #region SecureString
 
-    public static SecureString ToSecureString(this string str)
-    {
-        return new NetworkCredential("", str).SecurePassword;
-    }
+    public static SecureString ToSecureString(this string str) => new NetworkCredential("", str).SecurePassword;
 
     #endregion SecureString
 }
