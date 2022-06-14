@@ -13,6 +13,7 @@
 // limitations under the License.
 
 // ReSharper disable InconsistentNaming
+
 namespace MaxRunSoftware.Utilities;
 
 public static class JavaPropertiesExtensions

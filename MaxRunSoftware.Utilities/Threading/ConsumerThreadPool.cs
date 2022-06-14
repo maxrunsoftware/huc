@@ -144,7 +144,7 @@ public class ConsumerThreadPool<T> : IDisposable
 
     protected virtual ConsumerThread<T> CreateThread(Action<T> workToPerform)
     {
-        return new(queue, workToPerform);
+        return new ConsumerThread<T>(queue, workToPerform);
     }
 
     protected virtual void DestroyThread(ConsumerThread<T> consumerThread)

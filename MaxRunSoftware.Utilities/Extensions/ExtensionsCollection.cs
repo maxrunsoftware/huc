@@ -1337,7 +1337,7 @@ public static class ExtensionsCollection
 
     public static ReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
     {
-        return new(dictionary);
+        return new ReadOnlyDictionary<TKey, TValue>(dictionary);
     }
 
     public static TValue GetValueNullable<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : class

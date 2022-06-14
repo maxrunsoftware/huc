@@ -583,7 +583,10 @@ public static class Constant
             {
                 if (Directory.Exists(location))
                 {
-                    if (set.Add(location)) list.Add(location);
+                    if (set.Add(location))
+                    {
+                        list.Add(location);
+                    }
                 }
                 else if (File.Exists(location))
                 {
@@ -593,18 +596,20 @@ public static class Constant
                         location2 = Path.GetFullPath(location2);
                         if (Directory.Exists(location2))
                         {
-                            if (set.Add(location2)) list.Add(location2);
+                            if (set.Add(location2))
+                            {
+                                list.Add(location2);
+                            }
                         }
                     }
-
                 }
             }
             catch { }
         }
-        
+
         return list;
     }
-    
+
     private static List<string> GetCurrentLocationsFile()
     {
         var list = new List<string>();
@@ -616,15 +621,18 @@ public static class Constant
             {
                 if (File.Exists(location))
                 {
-                    if (set.Add(location)) list.Add(location);
+                    if (set.Add(location))
+                    {
+                        list.Add(location);
+                    }
                 }
             }
             catch { }
         }
-        
+
         return list;
     }
-    
+
     private static List<string> GetCurrentLocations()
     {
         // https://stackoverflow.com/questions/616584/how-do-i-get-the-name-of-the-current-executable-in-c
@@ -672,14 +680,17 @@ public static class Constant
         foreach (var item in list)
         {
             var item2 = TrimOrNull(item);
-            if (item2 == null) continue;
-            
+            if (item2 == null)
+            {
+                continue;
+            }
+
             try
             {
                 item2 = Path.GetFullPath(item2);
             }
             catch { }
-            
+
             try
             {
                 if (!File.Exists(item2) && !Directory.Exists(item2))
@@ -696,15 +707,18 @@ public static class Constant
             }
             catch { }
 
-            if (!set.Add(item2)) continue;
+            if (!set.Add(item2))
+            {
+                continue;
+            }
 
             list2.Add(item2);
         }
 
         return list2;
     }
-    
-    
+
+
     /// <summary>
     /// Are we executing via a batch file or script or running the command directly from the console window?
     /// </summary>
