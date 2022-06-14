@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using JetBrains.Annotations;
+
 namespace MaxRunSoftware.Utilities;
 
 public static class ExtensionsStream
 {
-    public static long Read(this Stream stream, Action<byte[]> action, int bufferSize = (int)(Constant.BYTES_MEGA * 10))
+    public static long Read(this Stream stream, [InstantHandle] Action<byte[]> action, int bufferSize = (int)(Constant.BYTES_MEGA * 10))
     {
         var buffer = new byte[bufferSize];
         int read;
@@ -40,7 +42,7 @@ public static class ExtensionsStream
         return totalRead;
     }
 
-    public static long Read(this StreamReader reader, Action<char[]> action, int bufferSize = (int)(Constant.BYTES_MEGA * 10))
+    public static long Read(this StreamReader reader, [InstantHandle] Action<char[]> action, int bufferSize = (int)(Constant.BYTES_MEGA * 10))
     {
         var buffer = new char[bufferSize];
         int read;

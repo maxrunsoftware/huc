@@ -1,45 +1,45 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using MaxRunSoftware.Utilities.External;
 
-namespace MaxRunSoftware.Utilities.Console.Commands
+namespace MaxRunSoftware.Utilities.Console.Commands;
+
+public class WebServerUtilityGenerateKeyPair : WebServerUtilityBase
 {
-    public class WebServerUtilityGenerateKeyPair : WebServerUtilityBase
+    public (bool success, string publicKey, string privateKey) Handle()
     {
-
-        public (bool success, string publicKey, string privateKey) Handle()
+        var lengthN = GetParameterInt("length");
+        if (lengthN == null)
         {
-            var lengthN = GetParameterInt("length");
-            if (lengthN == null) return (false, null, null);
-            var length = lengthN.Value;
-
-            var keyPair = Encryption.GenerateKeyPair(length: length);
-            return (true, keyPair.publicKey, keyPair.privateKey);
-
+            return (false, null, null);
         }
 
-        public override string HandleHtml()
-        {
-            try
-            {
-                var result = Handle();
+        var length = lengthN.Value;
 
-                var html = $@"
+        var keyPair = Encryption.GenerateKeyPair(length);
+        return (true, keyPair.publicKey, keyPair.privateKey);
+    }
+
+    public override string HandleHtml()
+    {
+        try
+        {
+            var result = Handle();
+
+            var html = @"
 <form>
 <p>
     <label for='length'>Length </label>
@@ -52,9 +52,9 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 </p>
 </form>
 ";
-                if (result.success)
-                {
-                    html += $@"
+            if (result.success)
+            {
+                html += $@"
 <br><br>
 <h2>Public Key</h2>
 <textarea id='publicKey' name='publicKey' rows='12' cols='80'>{result.publicKey}</textarea>
@@ -63,17 +63,13 @@ namespace MaxRunSoftware.Utilities.Console.Commands
 <h2>Private Key</h2>
 <textarea id='privateKey' name='privateKey' rows='12' cols='80'>{result.privateKey}</textarea>
 ";
-                }
-
-                return External.WebServer.HtmlMessage("Asymetric Key Pair", html.Replace("'", "\""));
-
             }
-            catch (Exception e)
-            {
-                return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString());
-            }
+
+            return External.WebServer.HtmlMessage("Asymmetric Key Pair", html.Replace("'", "\""));
         }
-
-
+        catch (Exception e)
+        {
+            return External.WebServer.HtmlMessage(e.GetType().FullNameFormatted(), e.ToString());
+        }
     }
 }

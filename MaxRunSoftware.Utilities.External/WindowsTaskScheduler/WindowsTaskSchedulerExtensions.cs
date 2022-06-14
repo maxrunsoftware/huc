@@ -20,11 +20,11 @@ public static class WindowsTaskSchedulerExtensions
 {
     public static WindowsTaskSchedulerPath GetPath(this Task task)
     {
-        return new(task);
+        return new WindowsTaskSchedulerPath(task);
     }
 
     public static WindowsTaskSchedulerPath GetPath(this TaskFolder folder)
     {
-        return new(folder);
+        return new WindowsTaskSchedulerPath(folder);
     }
 }

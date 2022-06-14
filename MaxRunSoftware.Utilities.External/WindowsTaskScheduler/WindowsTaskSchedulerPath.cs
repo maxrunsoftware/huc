@@ -126,6 +126,6 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
 
     public WindowsTaskSchedulerPath Add(string name)
     {
-        return new(PathFull.ToArray().Add(name));
+        return new WindowsTaskSchedulerPath(PathFull.ToArray().Add(name));
     }
 }

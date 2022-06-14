@@ -139,7 +139,7 @@ public static partial class Util
         }
     }
 
-    public static TEnum GetEnumItem<TEnum>(string name) where TEnum : struct, IConvertible, IComparable, IFormattable
+    public static TEnum GetEnumItem<TEnum>(string name) where TEnum : struct, Enum
     {
         return (TEnum)GetEnumItem(typeof(TEnum), name);
     }
@@ -155,7 +155,7 @@ public static partial class Util
     /// <typeparam name="TEnum">The enum</typeparam>
     /// <param name="name">The enum item name</param>
     /// <returns>The enum item or null if not found</returns>
-    public static TEnum? GetEnumItemNullable<TEnum>(string name) where TEnum : struct, IConvertible, IComparable, IFormattable
+    public static TEnum? GetEnumItemNullable<TEnum>(string name) where TEnum : struct, Enum
     {
         if (name == null)
         {
@@ -186,7 +186,7 @@ public static partial class Util
         return null;
     }
 
-    public static IReadOnlyList<TEnum> GetEnumItems<TEnum>() where TEnum : struct, IConvertible, IComparable, IFormattable
+    public static IReadOnlyList<TEnum> GetEnumItems<TEnum>() where TEnum : struct, Enum
     {
         return (TEnum[])Enum.GetValues(typeof(TEnum));
     }
@@ -203,7 +203,7 @@ public static partial class Util
         return list;
     }
 
-    public static TEnum CombineEnumFlags<TEnum>(IEnumerable<TEnum> enums) where TEnum : struct, IConvertible, IComparable, IFormattable
+    public static TEnum CombineEnumFlags<TEnum>(IEnumerable<TEnum> enums) where TEnum : struct, Enum
     {
         return (TEnum)Enum.Parse(typeof(TEnum), string.Join(", ", enums.Select(o => o.ToString())));
     }

@@ -61,7 +61,7 @@ public class VMwareClient : IDisposable
 
     private Uri Uri(string path)
     {
-        return new("https://" + hostname + (path.StartsWith("/") ? path : "/" + path));
+        return new Uri("https://" + hostname + (path.StartsWith("/") ? path : "/" + path));
     }
 
     private string Action(string path, HttpMethod method, IDictionary<string, string> parameters = null, IDictionary<string, string> contentParameters = null, string contentJson = null)

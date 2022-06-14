@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using JetBrains.Annotations;
+
 namespace MaxRunSoftware.Utilities;
 
 public static class TableExtensions
@@ -225,7 +227,7 @@ public static class TableExtensions
 
     public static void ToDelimited(
         this Table table,
-        Action<string> writer,
+        [InstantHandle] Action<string> writer,
         string headerDelimiter = "\t",
         string headerQuoting = null,
         string dataDelimiter = "\t",

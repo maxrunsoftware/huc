@@ -206,7 +206,7 @@ tr:hover {background-color: #ddd;}
         Body(Element("label").Add("for", forId) + labelText + "</label>");
     }
 
-    public void Select<TEnum>(string id, string label = null) where TEnum : struct, IConvertible, IComparable, IFormattable
+    public void Select<TEnum>(string id, string label = null) where TEnum : struct, Enum
     {
         BodyLabel(id, label);
         Body(Element("select", id));

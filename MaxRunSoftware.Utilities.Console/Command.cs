@@ -1,529 +1,693 @@
-﻿/*
-Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 
-namespace MaxRunSoftware.Utilities.Console
+namespace MaxRunSoftware.Utilities.Console;
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class HideCommandAttribute : Attribute { }
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class SuppressBannerAttribute : Attribute { }
+
+public abstract class Command : ICommand
 {
-    public interface ICommand
+    private Args args;
+
+    public string[] Args
     {
-        string Name { get; }
-        string[] Args { get; set; }
-        void Execute();
-        string HelpSummary { get; }
-        string HelpDetails { get; }
-        bool IsHidden { get; }
-        bool SuppressBanner { get; }
+        get => args.ArgsString;
+        set => args = new Args(value);
     }
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public sealed class HideCommandAttribute : Attribute { }
+    public string WorkingDirectory => Path.GetFullPath(Environment.CurrentDirectory);
+    private ConfigFile config;
+    private ConfigFile Config => config ??= new ConfigFile();
 
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public sealed class SuppressBannerAttribute : Attribute { }
-
-    public abstract class Command : ICommand
+    protected string Encrypt(string data)
     {
-        private Args args;
-        public string[] Args { get => args.ArgsString; set => args = new Args(value); }
-        private ConfigFile config;
-        private ConfigFile Config => config ??= new ConfigFile();
-        protected string Encrypt(string data) => Config.Encrypt(data);
+        return Config.Encrypt(data);
+    }
 
-        protected readonly ILogger log;
+    protected readonly ILogger log;
 
-        public bool IsHidden => GetType().GetCustomAttributes(true).Any(o => o is HideCommandAttribute);
-        public bool SuppressBanner => GetType().GetCustomAttributes(true).Any(o => o is SuppressBannerAttribute);
+    public bool IsHidden => GetType().GetCustomAttributes(true).Any(o => o is HideCommandAttribute);
+    public bool SuppressBanner => GetType().GetCustomAttributes(true).Any(o => o is SuppressBannerAttribute);
 
-        public CommandHelpBuilder Help { get; }
-        public string Name => Help.Name;
-        public string HelpSummary => Name.PadRight(Program.CommandObjects.Select(o => o.Name).MaxLength() + 2) + Help.Summary;
-        public string HelpDetails
+    public CommandHelpBuilder Help { get; }
+    public string Name => Help.Name;
+    public string HelpSummary => Name.PadRight(Program.CommandObjects.Select(o => o.Name).MaxLength() + 2) + Help.Summary;
+
+    public string HelpDetails
+    {
+        get
         {
-            get
+            var sb = new StringBuilder();
+            sb.AppendLine(Name);
+            sb.AppendLine(Help.Summary);
+            foreach (var s in Help.Details)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine(Name);
-                sb.AppendLine(Help.Summary);
-                foreach (var s in Help.Details) sb.AppendLine(s);
+                sb.AppendLine(s);
+            }
 
-                if (!Help.Parameters.IsEmpty()) { sb.AppendLine(); sb.AppendLine("Parameters:"); }
-                var padWidth = 0;
-                foreach (var s in Help.Parameters)
-                {
-                    var ss = "-" + s.p1;
-                    if (s.p2 != null) ss += ", -" + s.p2;
-                    var len = ss.Length;
-                    if (len > padWidth) padWidth = len;
-                }
-                padWidth += 3;
+            if (!Help.Parameters.IsEmpty())
+            {
+                sb.AppendLine();
+                sb.AppendLine("Parameters:");
+            }
 
-                foreach (var s in Help.Parameters)
+            var padWidth = 0;
+            foreach (var s in Help.Parameters)
+            {
+                var ss = "-" + s.p1;
+                if (s.p2 != null)
                 {
-                    var ss = "-" + s.p1;
-                    if (s.p2 != null) ss += ", -" + s.p2;
-                    ss = ss.PadRight(padWidth);
-                    ss += s.description;
-                    sb.AppendLine("  " + ss);
+                    ss += ", -" + s.p2;
                 }
 
-                if (!Help.Values.IsEmpty()) { sb.AppendLine(); sb.AppendLine("Arguments:"); }
-                foreach (var s in Help.Values) sb.AppendLine("  " + s);
-
-                if (!Help.Examples.IsEmpty()) { sb.AppendLine(); sb.AppendLine("Examples:"); }
-                foreach (var example in Help.Examples) sb.AppendLine("  huc " + Name + " " + example);
-
-                return sb.ToString();
+                var len = ss.Length;
+                if (len > padWidth)
+                {
+                    padWidth = len;
+                }
             }
-        }
 
-        protected Command()
-        {
-            log = Program.LogFactory.GetLogger(GetType());
-            Help = new CommandHelpBuilder(GetType().Name);
-            // ReSharper disable once VirtualMemberCallInConstructor
-            CreateHelp(Help);
-        }
+            padWidth += 3;
 
-        public void Execute()
-        {
-            if (args == null) throw new Exception("Args not set");
-            using (Util.Diagnostic(log.Debug))
+            foreach (var s in Help.Parameters)
             {
-                ExecuteInternal();
+                var ss = "-" + s.p1;
+                if (s.p2 != null)
+                {
+                    ss += ", -" + s.p2;
+                }
+
+                ss = ss.PadRight(padWidth);
+                ss += s.description;
+                sb.AppendLine("  " + ss);
             }
-        }
 
-        protected abstract void ExecuteInternal();
-        protected abstract void CreateHelp(CommandHelpBuilder help);
-
-        #region File
-
-        protected void DeleteExistingFile(string file)
-        {
-            if (File.Exists(file))
+            if (!Help.Values.IsEmpty())
             {
-                log.Info("Deleting existing file " + file);
-                File.Delete(file);
+                sb.AppendLine();
+                sb.AppendLine("Arguments:");
             }
-        }
 
-        protected void CheckFileExists(string file)
-        {
-            if (!File.Exists(file)) throw new FileNotFoundException("File " + file + " does not exist", file);
-        }
-        protected void CheckFileExists(IEnumerable<string> files)
-        {
-            foreach (var file in files) CheckFileExists(file);
-        }
-        protected void CheckDirectoryExists(string directory)
-        {
-            if (!Directory.Exists(directory)) throw new DirectoryNotFoundException("Directory " + directory + " does not exist");
-        }
-        protected void CheckDirectoryExists(IEnumerable<string> directories)
-        {
-            foreach (var directory in directories) CheckDirectoryExists(directory);
-        }
-
-        protected string ReadFile(string path, Encoding encoding = null)
-        {
-            string data;
-            path = Path.GetFullPath(path);
-            log.Debug($"Reading text file {path}");
-            using (Util.Diagnostic(log.Trace))
+            foreach (var s in Help.Values)
             {
-                CheckFileExists(path);
-                data = Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8);
+                sb.AppendLine("  " + s);
             }
-            log.Debug($"Read text file {path}   {data.Length} characters");
-            return data;
-        }
 
-        protected byte[] ReadFileBinary(string path)
-        {
-            byte[] data;
-            path = Path.GetFullPath(path);
-            log.Debug($"Reading binary file {path}");
-            using (Util.Diagnostic(log.Trace))
+            if (!Help.Examples.IsEmpty())
             {
-                CheckFileExists(path);
-                data = Util.FileRead(path);
+                sb.AppendLine();
+                sb.AppendLine("Examples:");
             }
-            log.Debug($"Read binary file {path}   {data.Length} bytes");
-            return data;
-        }
 
-        protected void WriteFile(string path, string data, Encoding encoding = null)
-        {
-            path = Path.GetFullPath(path);
-            log.Debug($"Writing text file {path}   {data.Length} characters");
-            using (Util.Diagnostic(log.Trace))
+            foreach (var example in Help.Examples)
             {
-                DeleteExistingFile(path);
-                Util.FileWrite(path, data, encoding ?? Constant.ENCODING_UTF8);
-            }
-            log.Debug($"Wrote text file {path}   {data.Length} characters");
-        }
-
-        protected void WriteFileBinary(string path, byte[] data)
-        {
-            path = Path.GetFullPath(path);
-            log.Debug($"Writing binary file {path}   {data.Length} bytes");
-            using (Util.Diagnostic(log.Trace))
-            {
-                DeleteExistingFile(path);
-                Util.FileWrite(path, data);
-            }
-            log.Debug($"Wrote binary file {path}   {data.Length} bytes");
-        }
-
-        protected Table ReadTableTab(string path, Encoding encoding = null, bool headerRow = true)
-        {
-            var data = ReadFile(path, encoding);
-            log.Debug($"Read {data.Length} characters from file {path}");
-
-            var lines = data.SplitOnNewline();
-            if (lines.Length > 0 && lines[^1] != null && lines[^1].Length == 0) lines = lines.RemoveTail(); // Ignore if last line is just line feed
-            log.Debug($"Found {lines.Length} lines in file {path}");
-
-            var t = Table.Create(lines.Select(l => l.Split('\t')), headerRow);
-            log.Debug($"Created table with {t.Columns.Count} columns and {t.Count} rows");
-
-            return t;
-        }
-
-        protected void WriteTableTab(Table table, TextWriter writer)
-        {
-            table.CheckNotNull(nameof(table));
-
-            table.ToDelimited(
-                writer.Write,
-                headerDelimiter: "\t",
-                headerQuoting: null,
-                includeHeader: true,
-                dataDelimiter: "\t",
-                dataQuoting: null,
-                includeRows: true,
-                newLine: Constant.NEWLINE_WINDOWS,
-                headerDelimiterReplacement: "        ",
-                dataDelimiterReplacement: "        "
-                );
-            writer.Flush();
-        }
-
-
-        protected void WriteTableTab(string fileName, Table table, string suffix = null)
-        {
-            fileName = Path.GetFullPath(fileName);
-
-            log.Debug("Writing TAB delimited Table to file " + fileName);
-            using (var stream = Util.FileOpenWrite(fileName))
-            using (var writer = new StreamWriter(stream, Constant.ENCODING_UTF8))
-            {
-                WriteTableTab(table, writer);
-                stream.Flush(true);
+                sb.AppendLine("  huc " + Name + " " + example);
             }
 
-            log.Info("Successfully wrote " + table + " to file " + fileName + (suffix ?? string.Empty));
+            return sb.ToString();
+        }
+    }
+
+    protected Command()
+    {
+        log = Program.LogFactory.GetLogger(GetType());
+        Help = new CommandHelpBuilder(GetType().Name);
+        // ReSharper disable once VirtualMemberCallInConstructor
+        CreateHelp(Help);
+    }
+
+    public void Execute()
+    {
+        if (args == null)
+        {
+            throw new Exception("Args not set");
         }
 
-        protected string WriteTableTab(Table table)
+        using (Util.Diagnostic(log.Debug))
         {
-            using (var writer = new StringWriter())
-            {
-                WriteTableTab(table, writer);
-                return writer.ToString();
-            }
+            ExecuteInternal();
+        }
+    }
+
+    protected abstract void ExecuteInternal();
+    protected abstract void CreateHelp(CommandHelpBuilder help);
+
+    #region File
+
+    protected void DeleteExistingFile(string file)
+    {
+        if (File.Exists(file))
+        {
+            log.Info("Deleting existing file " + file);
+            File.Delete(file);
+        }
+    }
+
+    protected void CheckFileExists(string file)
+    {
+        if (!File.Exists(file))
+        {
+            throw new FileNotFoundException("File " + file + " does not exist", file);
+        }
+    }
+
+    protected void CheckFileExists(IEnumerable<string> files)
+    {
+        foreach (var file in files)
+        {
+            CheckFileExists(file);
+        }
+    }
+
+    protected void CheckDirectoryExists(string directory)
+    {
+        if (!Directory.Exists(directory))
+        {
+            throw new DirectoryNotFoundException("Directory " + directory + " does not exist");
+        }
+    }
+
+    protected void CheckDirectoryExists(IEnumerable<string> directories)
+    {
+        foreach (var directory in directories)
+        {
+            CheckDirectoryExists(directory);
+        }
+    }
+
+    protected string ReadFile(string path, Encoding encoding = null)
+    {
+        string data;
+        path = Path.GetFullPath(path);
+        log.Debug($"Reading text file {path}");
+        using (Util.Diagnostic(log.Trace))
+        {
+            CheckFileExists(path);
+            data = Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8);
         }
 
-        #endregion File
+        log.Debug($"Read text file {path}   {data.Length} characters");
+        return data;
+    }
 
-        #region Parameters
-
-        private static bool ShouldLog(string parameterName)
+    protected byte[] ReadFileBinary(string path)
+    {
+        byte[] data;
+        path = Path.GetFullPath(path);
+        log.Debug($"Reading binary file {path}");
+        using (Util.Diagnostic(log.Trace))
         {
-            if (parameterName == null) return true;
-            parameterName = parameterName.ToLower();
-            if (parameterName.Contains("password")) return false;
+            CheckFileExists(path);
+            data = Util.FileRead(path);
+        }
+
+        log.Debug($"Read binary file {path}   {data.Length} bytes");
+        return data;
+    }
+
+    protected void WriteFile(string path, string data, Encoding encoding = null)
+    {
+        path = Path.GetFullPath(path);
+        log.Debug($"Writing text file {path}   {data.Length} characters");
+        using (Util.Diagnostic(log.Trace))
+        {
+            DeleteExistingFile(path);
+            Util.FileWrite(path, data, encoding ?? Constant.ENCODING_UTF8);
+        }
+
+        log.Debug($"Wrote text file {path}   {data.Length} characters");
+    }
+
+    protected void WriteFileBinary(string path, byte[] data)
+    {
+        path = Path.GetFullPath(path);
+        log.Debug($"Writing binary file {path}   {data.Length} bytes");
+        using (Util.Diagnostic(log.Trace))
+        {
+            DeleteExistingFile(path);
+            Util.FileWrite(path, data);
+        }
+
+        log.Debug($"Wrote binary file {path}   {data.Length} bytes");
+    }
+
+    protected Table ReadTableTab(string path, Encoding encoding = null, bool headerRow = true)
+    {
+        var data = ReadFile(path, encoding);
+        log.Debug($"Read {data.Length} characters from file {path}");
+
+        var lines = data.SplitOnNewline();
+        if (lines.Length > 0 && lines[^1] != null && lines[^1].Length == 0)
+        {
+            lines = lines.RemoveTail(); // Ignore if last line is just line feed
+        }
+
+        log.Debug($"Found {lines.Length} lines in file {path}");
+
+        var t = Table.Create(lines.Select(l => l.Split('\t')), headerRow);
+        log.Debug($"Created table with {t.Columns.Count} columns and {t.Count} rows");
+
+        return t;
+    }
+
+    protected void WriteTableTab(Table table, TextWriter writer)
+    {
+        table.CheckNotNull(nameof(table));
+
+        table.ToDelimited(
+            writer.Write,
+            "\t",
+            null,
+            includeHeader: true,
+            dataDelimiter: "\t",
+            dataQuoting: null,
+            includeRows: true,
+            newLine: Constant.NEWLINE_WINDOWS,
+            headerDelimiterReplacement: "        ",
+            dataDelimiterReplacement: "        "
+        );
+        writer.Flush();
+    }
+
+
+    protected void WriteTableTab(string fileName, Table table, string suffix = null)
+    {
+        fileName = Path.GetFullPath(fileName);
+
+        log.Debug("Writing TAB delimited Table to file " + fileName);
+        using (var stream = Util.FileOpenWrite(fileName))
+        using (var writer = new StreamWriter(stream, Constant.ENCODING_UTF8))
+        {
+            WriteTableTab(table, writer);
+            stream.Flush(true);
+        }
+
+        log.Info("Successfully wrote " + table + " to file " + fileName + (suffix ?? string.Empty));
+    }
+
+    protected string WriteTableTab(Table table)
+    {
+        using (var writer = new StringWriter())
+        {
+            WriteTableTab(table, writer);
+            return writer.ToString();
+        }
+    }
+
+    #endregion File
+
+    #region Parameters
+
+    private static bool ShouldLog(string parameterName)
+    {
+        if (parameterName == null)
+        {
             return true;
         }
 
-        public string GetArgParameter(string key1, string key2) => args.GetParameter(key1, key2);
-
-        public string GetArgParameterOrConfig(string key1, string key2)
+        parameterName = parameterName.ToLower();
+        if (parameterName.Contains("password"))
         {
-            var v = GetArgParameter(key1, key2);
-            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
-            if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
+            return false;
+        }
+
+        return true;
+    }
+
+    public string GetArgParameter(string key1, string key2)
+    {
+        return args.GetParameter(key1, key2);
+    }
+
+    public string GetArgParameterOrConfig(string key1, string key2)
+    {
+        var v = GetArgParameter(key1, key2);
+        if (v.TrimOrNull() == null)
+        {
+            v = GetArgParameterConfig(key1);
+        }
+
+        if (ShouldLog(key1) && ShouldLog(key2))
+        {
+            log.Debug($"{key1}: {v}");
+        }
+
+        return v;
+    }
+
+    public string GetArgParameterOrConfig(string key1, string key2, string defaultValue)
+    {
+        var v = GetArgParameter(key1, key2);
+        if (v.TrimOrNull() == null)
+        {
+            v = GetArgParameterConfig(key1);
+        }
+
+        if (v.TrimOrNull() == null)
+        {
+            v = defaultValue;
+        }
+
+        if (ShouldLog(key1) && ShouldLog(key2))
+        {
+            log.Debug($"{key1}: {v}");
+        }
+
+        return v;
+    }
+
+    public string GetArgParameterOrConfigRequired(string key1, string key2)
+    {
+        var v = GetArgParameter(key1, key2);
+
+        if (v.TrimOrNull() == null)
+        {
+            v = GetArgParameterConfig(key1);
+        }
+
+        if (v.TrimOrNull() != null)
+        {
+            if (ShouldLog(key1) && ShouldLog(key2))
+            {
+                log.Debug($"{key1}: {v}");
+            }
+
             return v;
         }
 
-        public string GetArgParameterOrConfig(string key1, string key2, string defaultValue)
+        var msg = $"No value provided for argument '{key1}' or properties file entry for '{Name}.{key1}'";
+        throw new ArgsException(key1, msg);
+    }
+
+    public Encoding GetArgParameterOrConfigEncoding(string key1, string key2)
+    {
+        var v = GetArgParameter(key1, key2);
+        if (v.TrimOrNull() == null)
         {
-            var v = GetArgParameter(key1, key2);
-            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
-            if (v.TrimOrNull() == null) v = defaultValue;
-            if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
-            return v;
+            v = GetArgParameterConfig(key1);
         }
 
-        public string GetArgParameterOrConfigRequired(string key1, string key2)
+        log.Debug($"{key1}String: {v}");
+        var encoding = Constant.ENCODING_UTF8;
+        if (v.TrimOrNull() != null)
         {
-            var v = GetArgParameter(key1, key2);
+            encoding = Util.ParseEncoding(v);
+        }
 
-            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
-            if (v.TrimOrNull() != null)
+        log.Debug($"{key1}: {encoding}");
+        return encoding;
+    }
+
+    public int GetArgParameterOrConfigInt(string key1, string key2, int defaultValue)
+    {
+        var v = GetArgParameter(key1, key2);
+        if (v.TrimOrNull() == null)
+        {
+            v = GetArgParameterConfig(key1);
+        }
+
+        log.Debug($"{key1}String: {v}");
+        var o = defaultValue;
+        if (v.TrimOrNull() != null)
+        {
+            o = v.ToInt();
+        }
+
+        log.Debug($"{key1}: {o}");
+        return o;
+    }
+
+    public ushort GetArgParameterOrConfigUShort(string key1, string key2, ushort defaultValue)
+    {
+        var v = GetArgParameter(key1, key2);
+        if (v.TrimOrNull() == null)
+        {
+            v = GetArgParameterConfig(key1);
+        }
+
+        log.Debug($"{key1}String: {v}");
+        var o = defaultValue;
+        if (v.TrimOrNull() != null)
+        {
+            o = v.ToUShort();
+        }
+
+        log.Debug($"{key1}: {o}");
+        return o;
+    }
+
+    public bool GetArgParameterOrConfigBool(string key1, string key2, bool defaultValue)
+    {
+        var v = GetArgParameter(key1, key2);
+        if (v.TrimOrNull() == null)
+        {
+            v = GetArgParameterConfig(key1);
+        }
+
+        log.Debug($"{key1}String: {v}");
+        var o = defaultValue;
+        if (v.TrimOrNull() != null)
+        {
+            o = v.ToBool();
+        }
+
+        log.Debug($"{key1}: {o}");
+        return o;
+    }
+
+    public T GetArgParameterOrConfigEnum<T>(string key1, string key2, T defaultValue) where T : struct, Enum
+    {
+        var v = GetArgParameterOrConfigEnum<T>(key1, key2);
+        if (v == null)
+        {
+            return defaultValue;
+        }
+
+        return v.Value;
+    }
+
+    [CanBeNull]
+    public T? GetArgParameterOrConfigEnum<T>(string key1, string key2) where T : struct, Enum
+    {
+        var v = GetArgParameter(key1, key2).TrimOrNull() ?? GetArgParameterConfig(key1);
+        log.Debug($"{key1}String: {v}");
+
+        if (v == null)
+        {
+            log.Debug($"{key1}: {null}");
+            return null;
+        }
+
+        var objectNullable = Util.GetEnumItemNullable<T>(v);
+        if (objectNullable == null)
+        {
+            throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
+        }
+
+        var o = objectNullable.Value;
+        log.Debug($"{key1}: {o}");
+
+        return o;
+    }
+
+    public string GetArgParameterConfig(string key)
+    {
+        return Config[Name + "." + key];
+    }
+
+    public IReadOnlyList<string> GetArgValues()
+    {
+        return args.Values;
+    }
+
+    public List<string> GetArgValuesTrimmed()
+    {
+        return GetArgValues().TrimOrNull().WhereNotNull().ToList();
+    }
+
+    public string GetArgValueTrimmed(int index)
+    {
+        return GetArgValuesTrimmed().GetAtIndexOrDefault(index);
+    }
+
+    public (string firstValue, List<string> otherValues) GetArgValuesTrimmed1N()
+    {
+        var list = GetArgValuesTrimmed();
+        if (list.Count < 1)
+        {
+            return (null, list);
+        }
+
+        var firstItem = list.PopHead();
+        return (firstItem, list);
+    }
+
+    public string GetArgValueDirectory(int index, string valueName = "targetDirectory", bool isRequired = true, bool isExist = true, bool useCurrentDirectoryAsDefault = false)
+    {
+        var val = GetArgValueTrimmed(index);
+        log.DebugParameter(valueName, val);
+        if (val == null && useCurrentDirectoryAsDefault)
+        {
+            val = Environment.CurrentDirectory;
+        }
+
+        if (val == null)
+        {
+            if (isRequired)
             {
-                if (ShouldLog(key1) && ShouldLog(key2)) log.Debug($"{key1}: {v}");
-                return v;
+                throw ArgsException.ValueNotSpecified(valueName);
             }
 
-            var msg = $"No value provided for argument '{key1}' or properties file entry for '{Name}.{key1}'";
-            throw new ArgsException(key1, msg);
+            return null;
         }
 
-        public Encoding GetArgParameterOrConfigEncoding(string key1, string key2)
+        val = Path.GetFullPath(val);
+        log.DebugParameter(valueName, val);
+        if (isExist)
         {
-            var v = GetArgParameter(key1, key2);
-            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
-            log.Debug($"{key1}String: {v}");
-            var encoding = Constant.ENCODING_UTF8;
-            if (v.TrimOrNull() != null) encoding = Util.ParseEncoding(v);
-            log.Debug($"{key1}: {encoding}");
-            return encoding;
-        }
-
-        public int GetArgParameterOrConfigInt(string key1, string key2, int defaultValue)
-        {
-            var v = GetArgParameter(key1, key2);
-            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
-            log.Debug($"{key1}String: {v}");
-            var o = defaultValue;
-            if (v.TrimOrNull() != null) o = v.ToInt();
-            log.Debug($"{key1}: {o}");
-            return o;
-        }
-
-        public ushort GetArgParameterOrConfigUShort(string key1, string key2, ushort defaultValue)
-        {
-            var v = GetArgParameter(key1, key2);
-            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
-            log.Debug($"{key1}String: {v}");
-            var o = defaultValue;
-            if (v.TrimOrNull() != null) o = v.ToUShort();
-            log.Debug($"{key1}: {o}");
-            return o;
-        }
-
-        public bool GetArgParameterOrConfigBool(string key1, string key2, bool defaultValue)
-        {
-            var v = GetArgParameter(key1, key2);
-            if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
-            log.Debug($"{key1}String: {v}");
-            var o = defaultValue;
-            if (v.TrimOrNull() != null) o = v.ToBool();
-            log.Debug($"{key1}: {o}");
-            return o;
-        }
-
-        public T GetArgParameterOrConfigEnum<T>(string key1, string key2, T defaultValue) where T : struct, IConvertible, IComparable, IFormattable
-        {
-            var v = GetArgParameterOrConfigEnum<T>(key1, key2);
-            if (v == null) return defaultValue;
-            else return v.Value;
-        }
-
-        public T? GetArgParameterOrConfigEnum<T>(string key1, string key2) where T : struct, IConvertible, IComparable, IFormattable
-        {
-            var v = GetArgParameter(key1, key2).TrimOrNull() ?? GetArgParameterConfig(key1);
-            log.Debug($"{key1}String: {v}");
-
-            if (v == null)
+            if (!Directory.Exists(val))
             {
-                log.Debug($"{key1}: {null}");
-                return null;
+                throw new DirectoryNotFoundException("Arg <" + valueName + "> directory " + val + " does not exist");
+            }
+        }
+
+        return val;
+    }
+
+    public string GetArgValueFile(int index, string valueName = "targetFile", bool isRequired = true)
+    {
+        var val = GetArgValueTrimmed(index);
+        log.DebugParameter(valueName, val);
+        if (val == null)
+        {
+            if (isRequired)
+            {
+                throw ArgsException.ValueNotSpecified(valueName);
             }
 
-            var objectNullable = Util.GetEnumItemNullable<T>(v);
-            if (objectNullable == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
-
-            var o = objectNullable.Value;
-            log.Debug($"{key1}: {o}");
-
-            return o;
+            return null;
         }
 
-        public string GetArgParameterConfig(string key) => Config[Name + "." + key];
+        val = Path.GetFullPath(val);
+        log.DebugParameter(valueName, val);
 
-        public IReadOnlyList<string> GetArgValues() => args.Values;
+        return val;
+    }
 
-        public List<string> GetArgValuesTrimmed() => GetArgValues().TrimOrNull().WhereNotNull().ToList();
+    #endregion Parameters
 
-        public string GetArgValueTrimmed(int index) => GetArgValuesTrimmed().GetAtIndexOrDefault(index);
+    public string DisplayEnumOptions<TEnum>() where TEnum : struct, Enum
+    {
+        return "[ " + Util.GetEnumItems<TEnum>().Select(o => o.ToString()).ToStringDelimited(" | ") + " ]";
+    }
 
-        public (string firstValue, List<string> otherValues) GetArgValuesTrimmed1N()
-        {
-            var list = GetArgValuesTrimmed();
-            if (list.Count < 1) return (null, list);
-            var firstItem = list.PopHead();
-            return (firstItem, list);
-        }
+    public string DisplayEnumOptions<TEnum>(TEnum defaultOption) where TEnum : struct, Enum
+    {
+        return "(" + defaultOption + ")  " + DisplayEnumOptions<TEnum>();
+    }
 
-        public string GetArgValueDirectory(int index, string valueName = "targetDirectory", bool isRequired = true, bool isExist = true, bool useCurrentDirectoryAsDefault = false)
-        {
-            var val = GetArgValueTrimmed(index);
-            log.DebugParameter(valueName, val);
-            if (val == null && useCurrentDirectoryAsDefault) val = Environment.CurrentDirectory;
-            if (val == null)
-            {
-                if (isRequired) throw ArgsException.ValueNotSpecified(valueName);
-                else return null;
-            }
+    public static string ParseInputFile(string inputFile)
+    {
+        return ParseInputFiles(inputFile.Yield()).FirstOrDefault();
+    }
 
-            val = Path.GetFullPath(val);
-            log.DebugParameter(valueName, val);
-            if (isExist)
-            {
-                if (!Directory.Exists(val)) throw new DirectoryNotFoundException("Arg <" + valueName + "> directory " + val + " does not exist");
-            }
-
-            return val;
-        }
-
-        public string GetArgValueFile(int index, string valueName = "targetFile", bool isRequired = true)
-        {
-            var val = GetArgValueTrimmed(index);
-            log.DebugParameter(valueName, val);
-            if (val == null)
-            {
-                if (isRequired) throw ArgsException.ValueNotSpecified(valueName);
-                else return null;
-            }
-
-            val = Path.GetFullPath(val);
-            log.DebugParameter(valueName, val);
-
-            return val;
-        }
-
-        #endregion Parameters
-
-        public string DisplayEnumOptions<TEnum>() where TEnum : struct, IConvertible, IComparable, IFormattable => "[ " + Util.GetEnumItems<TEnum>().Select(o => o.ToString()).ToStringDelimited(" | ") + " ]";
-
-        public static string ParseInputFile(string inputFile) => ParseInputFiles(inputFile.Yield()).FirstOrDefault();
-
-        public static List<string> ParseInputFiles(IEnumerable<string> inputFiles, bool recursive = false) => inputFiles.OrEmpty()
+    public static List<string> ParseInputFiles(IEnumerable<string> inputFiles, bool recursive = false)
+    {
+        return inputFiles.OrEmpty()
             .TrimOrNull()
             .WhereNotNull()
-            .SelectMany(o => ParseFileName(o, recursive: recursive))
+            .SelectMany(o => ParseFileName(o, recursive))
             .Select(Path.GetFullPath)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Distinct(Constant.PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)
             .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
 
-        public static List<string> ParseFileName(string fileName, bool recursive = false)
+    public static List<string> ParseFileName(string fileName, bool recursive = false)
+    {
+        var l = new List<string>();
+        fileName = fileName.TrimOrNull();
+        if (fileName == null)
         {
-            var l = new List<string>();
-            fileName = fileName.TrimOrNull();
-            if (fileName == null) return l;
-            if (fileName.IndexOf('*') >= 0 || fileName.IndexOf('?') >= 0) // wildcard
-            {
-                var idx1 = fileName.LastIndexOf(Path.DirectorySeparatorChar);
-                var idx2 = fileName.LastIndexOf(Path.AltDirectorySeparatorChar);
-                var workingDirectory = Environment.CurrentDirectory;
-                var filePattern = fileName;
-                if (idx1 == -1 && idx2 == -1)
-                {
-                    // No directory prefix
-                }
-                else if (idx1 == idx2 || idx1 > idx2)
-                {
-                    workingDirectory = fileName.Substring(0, idx1);
-                    filePattern = fileName.Substring(idx1 + 1);
-                }
-                else
-                {
-                    workingDirectory = fileName.Substring(0, idx2);
-                    filePattern = fileName.Substring(idx2 + 1);
-                }
-
-                foreach (var f in Util.FileListFiles(workingDirectory, recursive))
-                {
-                    var n = Path.GetFileName(f);
-                    if (n.EqualsWildcard(filePattern, true))
-                    {
-                        l.Add(f);
-                    }
-                }
-            }
-            else
-            {
-                fileName = Path.GetFullPath(fileName);
-                if (Util.IsDirectory(fileName))
-                {
-                    l.AddRange(Util.FileListFiles(fileName, recursive));
-                }
-                else if (Util.IsFile(fileName))
-                {
-                    l.Add(fileName);
-                }
-            }
-
             return l;
         }
 
-        public static List<string> ParseFileNames(IEnumerable<string> fileNames)
+        if (fileName.IndexOf('*') >= 0 || fileName.IndexOf('?') >= 0) // wildcard
         {
-            var l = new List<string>();
-            foreach (var fileName in fileNames.OrEmpty())
+            var idx1 = fileName.LastIndexOf(Path.DirectorySeparatorChar);
+            var idx2 = fileName.LastIndexOf(Path.AltDirectorySeparatorChar);
+            var workingDirectory = Environment.CurrentDirectory;
+            var filePattern = fileName;
+            if (idx1 == -1 && idx2 == -1)
             {
-                l.AddRange(ParseFileName(fileName));
+                // No directory prefix
             }
-            return l.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            else if (idx1 == idx2 || idx1 > idx2)
+            {
+                workingDirectory = fileName.Substring(0, idx1);
+                filePattern = fileName.Substring(idx1 + 1);
+            }
+            else
+            {
+                workingDirectory = fileName.Substring(0, idx2);
+                filePattern = fileName.Substring(idx2 + 1);
+            }
+
+            foreach (var f in Util.FileListFiles(workingDirectory, recursive))
+            {
+                var n = Path.GetFileName(f);
+                if (n.EqualsWildcard(filePattern, true))
+                {
+                    l.Add(f);
+                }
+            }
         }
+        else
+        {
+            fileName = Path.GetFullPath(fileName);
+            if (Util.IsDirectory(fileName))
+            {
+                l.AddRange(Util.FileListFiles(fileName, recursive));
+            }
+            else if (Util.IsFile(fileName))
+            {
+                l.Add(fileName);
+            }
+        }
+
+        return l;
     }
 
-    public class CommandHelpBuilder
+    public static List<string> ParseFileNames(IEnumerable<string> fileNames)
     {
-        public CommandHelpBuilder(string name) => Name = name;
-        public string Name { get; }
+        var l = new List<string>();
+        foreach (var fileName in fileNames.OrEmpty())
+        {
+            l.AddRange(ParseFileName(fileName));
+        }
 
-        private readonly List<string> summary = new();
-        public string Summary => summary.FirstOrDefault();
-
-        private readonly List<(string p1, string p2, string description)> parameters = new();
-        public IReadOnlyList<(string p1, string p2, string description)> Parameters => parameters;
-
-        private readonly List<string> values = new();
-        public IReadOnlyList<string> Values => values;
-
-        private readonly List<string> details = new();
-        public IReadOnlyList<string> Details => details;
-
-        private readonly List<string> examples = new();
-        public IReadOnlyList<string> Examples => examples;
-
-        public void AddSummary(string msg) => summary.Add(msg);
-        public void AddValue(string msg) => values.Add(msg);
-        public void AddDetail(string msg) => details.Add(msg);
-        public void AddParameter(string p1, string p2, string description) => parameters.Add((p1, p2, description));
-        public void AddExample(string example) => examples.Add(example.Replace("`", "\""));
+        return l.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 }
