@@ -25,19 +25,47 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class WindowsTaskSchedulerTrigger
 {
+    [AttributeUsage(AttributeTargets.Field)]
+    private sealed class AltNamesAttribute : Attribute
+    {
+        public IEnumerable<string> Names => names.Split(',', ';', '|').TrimOrNull().WhereNotNull();
+        private readonly string names;
+        public AltNamesAttribute(string names) { this.names = names; }
+    }
+
     public enum Directive
     {
         Hourly,
         Daily,
         Monthly,
         Cron,
-        Sunday,
-        Monday,
-        Tuesday,
-        Wednesday,
-        Thursday,
-        Friday,
-        Saturday
+        [AltNames("SUN")] Sunday,
+        [AltNames("MON")] Monday,
+        [AltNames("TUE")] Tuesday,
+        [AltNames("WED")] Wednesday,
+        [AltNames("THU")] Thursday,
+        [AltNames("FRI")] Friday,
+        [AltNames("SAT")] Saturday
+    }
+
+    public static IReadOnlyDictionary<string, Directive> Directives { get; } = CreateDirectiveMap();
+
+    private static IReadOnlyDictionary<string, Directive> CreateDirectiveMap()
+    {
+        var d = new Dictionary<string, Directive>(StringComparer.OrdinalIgnoreCase);
+        foreach (var value in typeof(Directive).GetEnumValues())
+        {
+            var enumItemName = value.ToString();
+            if (enumItemName == null) continue;
+
+            d.Add(enumItemName, (Directive)value);
+            foreach (var altNamesAttribute in typeof(Directive).GetEnumItemAttributes<AltNamesAttribute>(enumItemName))
+            {
+                foreach (var altName in altNamesAttribute.Names) { d.Add(altName, (Directive)value); }
+            }
+        }
+
+        return d.AsReadOnly();
     }
 
     private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
@@ -51,24 +79,6 @@ public class WindowsTaskSchedulerTrigger
         if (second < 0 || second > 59) throw new ArgumentOutOfRangeException(nameof(second), second, $"Argument [{nameof(second)}] must be between 0 - 59");
     }
 
-    private static Directive ParseDirective(string directive)
-    {
-        if (directive.EqualsCaseInsensitive("SUN")) directive = Directive.Sunday.ToString();
-
-        if (directive.EqualsCaseInsensitive("MON")) directive = Directive.Monday.ToString();
-
-        if (directive.EqualsCaseInsensitive("TUE")) directive = Directive.Tuesday.ToString();
-
-        if (directive.EqualsCaseInsensitive("WED")) directive = Directive.Wednesday.ToString();
-
-        if (directive.EqualsCaseInsensitive("THU")) directive = Directive.Thursday.ToString();
-
-        if (directive.EqualsCaseInsensitive("FRI")) directive = Directive.Friday.ToString();
-
-        if (directive.EqualsCaseInsensitive("SAT")) directive = Directive.Saturday.ToString();
-
-        return Util.GetEnumItem<Directive>(directive);
-    }
 
     public static IEnumerable<Trigger> CreateTriggers(string line, string logPrefix = null)
     {
@@ -85,7 +95,7 @@ public class WindowsTaskSchedulerTrigger
         var directiveString = triggerPartsQueue.Dequeue().ToUpper();
         if (triggerPartsQueue.IsEmpty()) throw new Exception("No trigger details provided for trigger " + directiveString);
 
-        var directive = ParseDirective(directiveString);
+        if (!Directives.TryGetValue(directiveString, out var directive)) throw new ArgumentException($"Directive '{directiveString}' is not valid", nameof(directiveString));
 
         var triggers = new List<Trigger>();
         log.Debug("Parsing trigger directive " + directive + " " + triggerPartsQueue.ToStringGuessFormat());
@@ -129,7 +139,7 @@ public class WindowsTaskSchedulerTrigger
             {
                 var time = triggerPartsQueue.Dequeue();
                 var hhmm = ParseTimeHHMM(time, directive);
-                var dow = Util.GetEnumItem<DayOfWeek>(directive.ToString());
+                var dow = (DayOfWeek)typeof(DayOfWeek).GetEnumValue(directive.ToString());
                 var t = CreateTriggerWeekly(dow.Yield(), hhmm.hour, hhmm.minute);
                 triggers.Add(t);
                 log.Debug($"{logPrefix}{directive} created at time {hhmm.hour}:{hhmm.minute} --> " + t);
@@ -235,7 +245,7 @@ public class WindowsTaskSchedulerTrigger
         var list = new List<DaysOfTheWeek>();
         foreach (var day in days)
         {
-            var dotw = Util.GetEnumItem<DaysOfTheWeek>(day.ToString());
+            var dotw = (DaysOfTheWeek)typeof(DaysOfTheWeek).GetEnumValue(day.ToString());
             list.Add(dotw);
         }
 

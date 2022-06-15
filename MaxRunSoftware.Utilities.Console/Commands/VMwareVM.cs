@@ -29,8 +29,8 @@ public class VMwareVM : VMwareBase
         help.AddValue("<VM ID or Name> <Action>");
         help.AddDetail("Use CAUTION when enabling wildcard mode. Best to test with Action=None to see which VMs will be affected");
         help.AddDetail("Actions:");
-        var maxLength = Util.GetEnumItems<Action>().Select(o => o.ToString().Length).Max();
-        foreach (var action in Util.GetEnumItems<Action>()) help.AddDetail("  " + action.ToString().PadRight(maxLength) + "  " + DescriptionAttribute.Get(action).Description);
+        var maxLength = typeof(Action).GetEnumNames().Select(o => o.Length).Max();
+        foreach (var action in typeof(Action).GetEnumValues()) help.AddDetail("  " + action.ToString()!.PadRight(maxLength) + "  " + DescriptionAttribute.Get((Action)action).Description);
 
         help.AddExample(HelpExamplePrefix + " MyVM1 " + Action.Reboot);
         help.AddExample(HelpExamplePrefix + " vm-1394 Suspend" + Action.Shutdown);
@@ -48,10 +48,10 @@ public class VMwareVM : VMwareBase
         var actionString = GetArgValueTrimmed(1);
         actionString.CheckValueNotNull(nameof(actionString), log);
 
-        var actionN = Util.GetEnumItemNullable<Action>(actionString);
+        var actionN = typeof(Action).GetEnumValue(actionString);
         if (actionN == null) throw new ArgsException("action", "Invalid action [" + actionString + "] specified");
 
-        var action = actionN.Value;
+        var action = (Action)actionN;
 
         wildcard = GetArgParameterOrConfigBool(nameof(wildcard), "w", false);
 

@@ -54,7 +54,7 @@ public static partial class Util
 
             if (outputType == typeof(IPAddress)) return o.ToIPAddress();
 
-            if (outputType.IsEnum) return GetEnumItem(outputType, o);
+            if (outputType.IsEnum) return outputType.GetEnumValue(o);
         }
 
         if (inputType.IsEnum) return ChangeType(obj.ToString(), outputType);

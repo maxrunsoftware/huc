@@ -36,7 +36,7 @@ public class SqlType
         EnumType = enumType;
         EnumName = enumName;
 
-        EnumObject = Util.GetEnumItem(enumType, enumName);
+        EnumObject = enumType.GetEnumValue(enumName);
 
         var attribute = enumType.GetEnumItemAttribute<SqlTypeAttribute>(enumName);
         HasAttribute = attribute != null;

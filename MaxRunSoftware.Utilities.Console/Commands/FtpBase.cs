@@ -192,9 +192,10 @@ public abstract class FtpBase : Command
 
     private IFtpClient OpenClientFtpS()
     {
-        var em = Util.GetEnumItem<FtpClientFtpSEncryptionMode>(encryptionMode.ToString());
+        var em = typeof(FtpClientFtpSEncryptionMode).GetEnumValue(encryptionMode.ToString());
+        if (em == null) throw new CommandException($"No {nameof(FtpClientFtpSEncryptionMode)} available for {encryptionMode}");
         log.Debug($"Connecting to {em} FTPS server {host}:{port} with username {username} with EncryptionProtocol={encryptionProtocol}");
-        var c = new FtpClientFtp(host, port, username, password, em, encryptionProtocol);
+        var c = new FtpClientFtp(host, port, username, password, (FtpClientFtpSEncryptionMode)em, encryptionProtocol);
         log.Debug("Connection successful");
         return c;
     }

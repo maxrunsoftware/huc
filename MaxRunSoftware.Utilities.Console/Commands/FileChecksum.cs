@@ -42,7 +42,7 @@ public class FileChecksum : Command
     protected override void CreateHelp(CommandHelpBuilder help)
     {
         help.AddSummary("Generates a checksum of a file(s)");
-        help.AddParameter(nameof(checksumType), "t", "Checksum type to generate [ " + Util.GetEnumItems<ChecksumType>().ToStringDelimited(" | ") + " ] (" + ChecksumType.MD5 + ")");
+        help.AddParameter(nameof(checksumType), "t", "Checksum type to generate " + DisplayEnumOptions(ChecksumType.MD5));
         help.AddParameter(nameof(recursive), "r", "If a directory is specified, recursively search that directory and all subdirectories for files (false)");
         help.AddValue("<source file 1> <source file 2> <etc>");
         help.AddExample("MyFile.zip");

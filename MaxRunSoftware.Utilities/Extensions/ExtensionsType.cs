@@ -183,9 +183,41 @@ public static class ExtensionsType
         return Array.Empty<TAttribute>();
     }
 
-
     public static TAttribute GetEnumItemAttribute<TAttribute>(this Type enumType, string enumItemName) where TAttribute : Attribute => GetEnumItemAttributes<TAttribute>(enumType, enumItemName).FirstOrDefault();
 
+    private static readonly Dictionary<Type, Dictionary<string, object>> getEnumValueCache = new();
+    private static readonly object getEnumValueCacheLock = new();
+    
+    public static object GetEnumValue(this Type enumType, string enumItemName)
+    {
+        enumType.CheckIsEnum(nameof(enumType));
+        enumItemName = enumItemName.CheckNotNullTrimmed(nameof(enumItemName));
+
+        lock (getEnumValueCacheLock)
+        {
+            if (!getEnumValueCache.TryGetValue(enumType, out var enumItemDic))
+            {
+                enumItemDic = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+                foreach (var enumValue in enumType.GetEnumValues())
+                {
+                    var enumValueString = enumValue.ToString();
+                    if (enumValueString != null) enumItemDic[enumValueString] = enumValue;
+                }
+                getEnumValueCache.Add(enumType, enumItemDic);
+            }
+
+            return enumItemDic.TryGetValue(enumItemName, out var enumObject) ? enumObject : null;
+        }
+        
+    }
+    
+    
+    /// <summary>
+    /// https://stackoverflow.com/a/51441889
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="nonPublic"></param>
+    /// <returns></returns>
     public static bool IsStatic(this PropertyInfo info, bool nonPublic = false) => info.GetAccessors(nonPublic).Any(x => x.IsStatic);
-    // https://stackoverflow.com/a/51441889
+    
 }

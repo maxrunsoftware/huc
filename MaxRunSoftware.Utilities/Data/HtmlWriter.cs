@@ -171,7 +171,7 @@ tr:hover {background-color: #ddd;}
     {
         BodyLabel(id, label);
         Body(Element("select", id));
-        foreach (var enumItem in Util.GetEnumItems<TEnum>()) Body(Element("option").Add("value", enumItem).ToString() + enumItem + "</option>");
+        foreach (var enumItem in Util.GetEnumValues<TEnum>()) Body(Element("option").Add("value", enumItem).ToString() + enumItem + "</option>");
 
         Body("</select>");
     }

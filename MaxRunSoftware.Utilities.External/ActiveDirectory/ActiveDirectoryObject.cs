@@ -723,7 +723,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                 if (uacNullable == null) return set;
 
                 var uac = uacNullable.Value;
-                foreach (var item in Util.GetEnumItems<ActiveDirectoryUserAccountControl>())
+                foreach (var item in Util.GetEnumValues<ActiveDirectoryUserAccountControl>())
                 {
                     if ((uac & (int)item) == (int)item) { set.Add(item); }
                 }

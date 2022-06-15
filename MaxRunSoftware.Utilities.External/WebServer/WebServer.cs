@@ -41,7 +41,7 @@ public class WebServer : IDisposable
 
         public static IEnumerable<Swan.Logging.ILogger> CreateLoggers(ILogger log)
         {
-            foreach (var type in Util.GetEnumItems<Swan.Logging.LogLevel>()) yield return new SwanLogger(type, log);
+            foreach (var type in typeof(Swan.Logging.LogLevel).GetEnumValues()) yield return new SwanLogger((Swan.Logging.LogLevel)type, log);
         }
 
         public void Dispose() { }

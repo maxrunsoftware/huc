@@ -68,7 +68,7 @@ public class FtpClientFtp : FtpClientBase
             log.Debug("Cert: " + e.Certificate.GetRawCertDataString());
             e.Accept = true;
         };
-        client.EncryptionMode = Util.GetEnumItem<FtpEncryptionMode>(encryptionMode.ToString());
+        client.EncryptionMode = (FtpEncryptionMode)typeof(FtpEncryptionMode).GetEnumValue(encryptionMode.ToString());
 
         client.SslProtocols = sslProtocols;
 

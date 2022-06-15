@@ -381,16 +381,16 @@ public abstract class Command : ICommand
         return o;
     }
 
-    public T GetArgParameterOrConfigEnum<T>(string key1, string key2, T defaultValue) where T : struct, Enum
+    public TEnum GetArgParameterOrConfigEnum<TEnum>(string key1, string key2, TEnum defaultValue) where TEnum : struct, Enum
     {
-        var v = GetArgParameterOrConfigEnum<T>(key1, key2);
+        var v = GetArgParameterOrConfigEnum<TEnum>(key1, key2);
         if (v == null) return defaultValue;
 
         return v.Value;
     }
 
     [CanBeNull]
-    public T? GetArgParameterOrConfigEnum<T>(string key1, string key2) where T : struct, Enum
+    public TEnum? GetArgParameterOrConfigEnum<TEnum>(string key1, string key2) where TEnum : struct, Enum
     {
         var v = GetArgParameter(key1, key2).TrimOrNull() ?? GetArgParameterConfig(key1);
         log.Debug($"{key1}String: {v}");
@@ -401,13 +401,13 @@ public abstract class Command : ICommand
             return null;
         }
 
-        var objectNullable = Util.GetEnumItemNullable<T>(v);
-        if (objectNullable == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + Util.GetEnumItems<T>().ToStringDelimited(" | ") + " ]");
+        var enumType = typeof(TEnum);
+        var enumObject = enumType.GetEnumValue(v);
+        if (enumObject == null) throw new ArgsException(key1, "Parameter " + key1 + " is not valid, values are [ " + enumType.GetEnumNames().ToStringDelimited(" | ") + " ]");
 
-        var o = objectNullable.Value;
-        log.Debug($"{key1}: {o}");
+        log.Debug($"{key1}: {enumObject}");
 
-        return o;
+        return (TEnum)enumObject;
     }
 
     public string GetArgParameterConfig(string key) => Config[Name + "." + key];
@@ -469,7 +469,7 @@ public abstract class Command : ICommand
 
     #endregion Parameters
 
-    public string DisplayEnumOptions<TEnum>() where TEnum : struct, Enum => "[ " + Util.GetEnumItems<TEnum>().Select(o => o.ToString()).ToStringDelimited(" | ") + " ]";
+    public string DisplayEnumOptions<TEnum>() where TEnum : struct, Enum => "[ " + typeof(TEnum).GetEnumNames().ToStringDelimited(" | ") + " ]";
 
     public string DisplayEnumOptions<TEnum>(TEnum defaultOption) where TEnum : struct, Enum => "(" + defaultOption + ")  " + DisplayEnumOptions<TEnum>();
 
