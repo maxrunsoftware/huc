@@ -77,12 +77,14 @@ public class WebServerBucketStore : WebServerBase
                     ]
                 }
                 */
+        {
             using (var w = new JsonWriter(true))
             {
                 using (w.Object()) { w.Array("bucketNames", store.Buckets.ToArray()); }
 
                 return w.ToString();
             }
+        }
 
         var bucket = store[name];
         if (key != null)
@@ -93,6 +95,7 @@ public class WebServerBucketStore : WebServerBase
                     value="dfa"
                 }
                 */
+        {
             using (var w = new JsonWriter(true))
             {
                 using (w.Object())
@@ -103,6 +106,7 @@ public class WebServerBucketStore : WebServerBase
 
                 return w.ToString();
             }
+        }
 
 
         // return name+key value

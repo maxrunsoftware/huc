@@ -83,12 +83,9 @@ public class Args
             }
             else
             {
-                if (arg.EqualsCaseInsensitive("HELP"))
-                    IsHelp = true;
-                else if (Command == null)
-                    Command = arg;
-                else
-                    values.Add(arg);
+                if (arg.EqualsCaseInsensitive("HELP")) { IsHelp = true; }
+                else if (Command == null) { Command = arg; }
+                else { values.Add(arg); }
             }
         }
 
@@ -172,8 +169,9 @@ public class Args
         foreach (var key in keys.OrEmpty().TrimOrNull().WhereNotNull())
         {
             if (Parameters.TryGetValue(key, out var v))
-                if (v != null)
-                    return v;
+            {
+                if (v != null) { return v; }
+            }
         }
 
         return null;

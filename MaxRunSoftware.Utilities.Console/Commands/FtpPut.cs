@@ -60,10 +60,8 @@ public class FtpPut : FtpBase
             if (File.Exists(lf)) { localFiles2.Add(lf); }
             else
             {
-                if (ignoreMissingFiles)
-                    log.Warn($"File does not exist {lf}");
-                else
-                    throw new FileNotFoundException($"File does not exist {lf}");
+                if (ignoreMissingFiles) { log.Warn($"File does not exist {lf}"); }
+                else { throw new FileNotFoundException($"File does not exist {lf}"); }
             }
         }
 

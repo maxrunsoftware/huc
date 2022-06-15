@@ -104,20 +104,24 @@ public class WindowsTaskScheduler : IDisposable
     {
         var taskName = task.Name;
         if (task.State.In(TaskState.Queued, TaskState.Running, TaskState.Unknown))
+        {
             try
             {
                 log.Debug($"Stopping task {taskName} in state {task.State}");
                 task.Stop();
             }
             catch (Exception e) { log.Warn($"Error stopping task {taskName}. {e.Message}", e); }
+        }
 
         if (task.Enabled)
+        {
             try
             {
                 log.Debug($"Disabling task {taskName}");
                 task.Enabled = false;
             }
             catch (Exception e) { log.Warn($"Error disabling task {taskName}. {e.Message}", e); }
+        }
 
         var result = false;
         log.Debug($"Deleting task [{taskName}]");
@@ -181,8 +185,9 @@ public class WindowsTaskScheduler : IDisposable
     {
         log.Debug("Getting Task: " + path);
         foreach (var task in GetTasks())
-            if (path.Equals(task.GetPath()))
-                return task;
+        {
+            if (path.Equals(task.GetPath())) { return task; }
+        }
 
         return null;
     }
@@ -193,8 +198,9 @@ public class WindowsTaskScheduler : IDisposable
     {
         log.Debug("Getting TaskFolder: " + path);
         foreach (var folder in GetTaskFolders())
-            if (path.Equals(folder.GetPath()))
-                return folder;
+        {
+            if (path.Equals(folder.GetPath())) { return folder; }
+        }
 
         return null;
     }

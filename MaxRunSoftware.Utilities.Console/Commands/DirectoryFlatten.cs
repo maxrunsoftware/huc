@@ -51,8 +51,7 @@ public class DirectoryFlatten : Command
 
         var subFiles = new List<string>();
         foreach (var subDirectory in subDirectories)
-        foreach (var subFile in Util.FileListFiles(subDirectory))
-            subFiles.Add(subFile);
+        foreach (var subFile in Util.FileListFiles(subDirectory)) { subFiles.Add(subFile); }
 
         foreach (var sourceFile in subFiles)
         {

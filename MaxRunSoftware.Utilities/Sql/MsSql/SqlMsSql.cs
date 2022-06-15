@@ -252,12 +252,9 @@ public class SqlMsSql : Sql
 
         sql.Append(dbType);
 
-        if (dbType.In(SqlMsSqlType.NChar, SqlMsSqlType.Char))
-            sql.Append("(" + len + ")");
-        else if (dbType.In(SqlMsSqlType.NVarChar))
-            sql.Append("(" + (len <= 4000 ? len : "MAX") + ")");
-        else if (dbType.In(SqlMsSqlType.VarChar))
-            sql.Append("(" + (len <= 8000 ? len : "MAX") + ")");
+        if (dbType.In(SqlMsSqlType.NChar, SqlMsSqlType.Char)) { sql.Append("(" + len + ")"); }
+        else if (dbType.In(SqlMsSqlType.NVarChar)) { sql.Append("(" + (len <= 4000 ? len : "MAX") + ")"); }
+        else if (dbType.In(SqlMsSqlType.VarChar)) { sql.Append("(" + (len <= 8000 ? len : "MAX") + ")"); }
         else if (dbType.In(SqlMsSqlType.Float, SqlMsSqlType.Real, SqlMsSqlType.Decimal)) sql.Append("(" + column.NumericPrecision + "," + column.NumericScale + ")");
 
         if (!column.IsNullable) sql.Append(" NOT");

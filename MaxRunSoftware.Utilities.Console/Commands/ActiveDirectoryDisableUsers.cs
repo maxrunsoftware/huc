@@ -75,12 +75,14 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
 
                 var lastLogon = DateTime.MinValue;
                 if (user.LastLogon != null)
-                    if (user.LastLogon.Value > lastLogon)
-                        lastLogon = user.LastLogon.Value;
+                {
+                    if (user.LastLogon.Value > lastLogon) { lastLogon = user.LastLogon.Value; }
+                }
 
                 if (user.LastLogonTimestamp != null)
-                    if (user.LastLogonTimestamp.Value > lastLogon)
-                        lastLogon = user.LastLogonTimestamp.Value;
+                {
+                    if (user.LastLogonTimestamp.Value > lastLogon) { lastLogon = user.LastLogonTimestamp.Value; }
+                }
 
                 lastLogon = lastLogon.ToUniversalTime();
 
@@ -106,12 +108,14 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
             log.Info(msg + userToBeDisabled.ObjectName + " (" + item.Item2 + ")");
 
             if (execute)
+            {
                 try
                 {
                     var result = ad.DisableUser(userToBeDisabled.SAMAccountName);
                     log.Debug((result ? "User disabled: " : "User was already disabled: ") + userToBeDisabled.ObjectName);
                 }
                 catch (Exception e) { log.Error("Error disabling user '" + userToBeDisabled.SAMAccountName + "'", e); }
+            }
         }
     }
 
@@ -148,8 +152,9 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
         foreach (var groupToSkip in groupsToSkip)
         {
             foreach (var mem in ado.MemberOfNames)
-                if (groupToSkip.EqualsCaseInsensitive(mem))
-                    return true;
+            {
+                if (groupToSkip.EqualsCaseInsensitive(mem)) { return true; }
+            }
         }
 
         return false;

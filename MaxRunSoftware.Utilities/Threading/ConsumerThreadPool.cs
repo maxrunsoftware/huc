@@ -42,8 +42,9 @@ public class ConsumerThreadPool<T> : IDisposable
             lock (locker)
             {
                 if (queue.IsCompleted)
-                    if (threads.TrueForAll(o => o.ConsumerThreadState == ConsumerThreadState.Stopped))
-                        return true;
+                {
+                    if (threads.TrueForAll(o => o.ConsumerThreadState == ConsumerThreadState.Stopped)) { return true; }
+                }
 
                 return false;
             }
@@ -72,6 +73,7 @@ public class ConsumerThreadPool<T> : IDisposable
                 if (count == newCount) return;
 
                 if (newCount > count)
+                {
                     for (var i = 0; i < value - count; i++)
                     {
                         var threadName = ThreadPoolName + "(" + threadCounter + ")";
@@ -91,8 +93,10 @@ public class ConsumerThreadPool<T> : IDisposable
 
                         log.Debug(threadName + ": Created and Started thread");
                     }
+                }
 
                 if (newCount < count)
+                {
                     for (var i = 0; i < count - newCount; i++)
                     {
                         var thread = threads.PopAt(0);
@@ -104,6 +108,7 @@ public class ConsumerThreadPool<T> : IDisposable
                         }
                         finally { thread.Dispose(); }
                     }
+                }
             }
         }
     }

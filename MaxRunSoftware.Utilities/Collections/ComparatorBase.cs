@@ -33,8 +33,9 @@ public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IC
         if (y == null) return 1;
 
         if (x is T sa)
-            if (y is T sb)
-                return Compare(sa, sb);
+        {
+            if (y is T sb) { return Compare(sa, sb); }
+        }
 
         if (x is IComparable ia) return ia.CompareTo(y);
 
@@ -50,8 +51,9 @@ public abstract class ComparatorBase<T> : IComparer<T>, IEqualityComparer<T>, IC
         if (x == null || y == null) return false;
 
         if (x is T sa)
-            if (y is T sb)
-                return Equals(sa, sb);
+        {
+            if (y is T sb) { return Equals(sa, sb); }
+        }
 
         return x.Equals(y);
     }

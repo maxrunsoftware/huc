@@ -266,11 +266,11 @@ public class WebBrowserElementSearch
             {
                 var newElems = new List<IWebElement>();
 
-                if (elems == null)
-                    newElems.AddRange(by.FindElements(context));
+                if (elems == null) { newElems.AddRange(by.FindElements(context)); }
                 else
-                    foreach (var elem in elems)
-                        newElems.AddRange(elem.FindElements(by));
+                {
+                    foreach (var elem in elems) { newElems.AddRange(elem.FindElements(by)); }
+                }
 
                 elems = newElems;
             }

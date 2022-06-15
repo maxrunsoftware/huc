@@ -72,8 +72,9 @@ public static class VMwareExtensions
 
         var sb = new StringBuilder();
         for (var i = 0; i < val.Length; i++)
-            if (val[i].In("0123456789abcdef".ToCharArray()))
-                sb.Append(val[i]);
+        {
+            if (val[i].In("0123456789abcdef".ToCharArray())) { sb.Append(val[i]); }
+        }
 
         return sb.ToString().ToGuid();
     }

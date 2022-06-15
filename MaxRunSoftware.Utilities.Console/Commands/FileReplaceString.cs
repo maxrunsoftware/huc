@@ -58,12 +58,14 @@ public class FileReplaceString : Command
         if (input.Length == 0) return string.Empty;
 
         foreach (var kw in optionKeywordMap)
-            if (string.Equals(kw.Key, input, StringComparison.OrdinalIgnoreCase))
-                return kw.Value;
+        {
+            if (string.Equals(kw.Key, input, StringComparison.OrdinalIgnoreCase)) { return kw.Value; }
+        }
 
         foreach (var kw in optionKeywordMap)
-            if (kw.Key.StartsWith("\\"))
-                input = input.Replace(kw.Key, kw.Value);
+        {
+            if (kw.Key.StartsWith("\\")) { input = input.Replace(kw.Key, kw.Value); }
+        }
 
         return input;
     }

@@ -139,8 +139,9 @@ public class VMwareVMSlim : VMwareObject
         foreach (var slim in slims) d[slim.VM] = slim;
 
         foreach (var full in VMwareVM.Query(vmware))
-            if (!full.IsVMwareToolsInstalled)
-                yield return d[full.VM];
+        {
+            if (!full.IsVMwareToolsInstalled) { yield return d[full.VM]; }
+        }
     }
 
     private class SlimDiskSpace : VMwareVMSlim
@@ -239,14 +240,10 @@ public class VMwareVMSlim : VMwareObject
         var sb = new StringBuilder();
         sb.Append(VM.PadRight(10));
         sb.Append(" ");
-        if (PowerState == VMwareVM.VMPowerState.PoweredOn)
-            sb.Append("         ");
-        else if (PowerState == VMwareVM.VMPowerState.PoweredOff)
-            sb.Append("   OFF   ");
-        else if (PowerState == VMwareVM.VMPowerState.Suspended)
-            sb.Append("SUSPENDED");
-        else
-            sb.Append(" UNKNOWN ");
+        if (PowerState == VMwareVM.VMPowerState.PoweredOn) { sb.Append("         "); }
+        else if (PowerState == VMwareVM.VMPowerState.PoweredOff) { sb.Append("   OFF   "); }
+        else if (PowerState == VMwareVM.VMPowerState.Suspended) { sb.Append("SUSPENDED"); }
+        else { sb.Append(" UNKNOWN "); }
 
         sb.Append("  " + Name);
         return sb.ToString();

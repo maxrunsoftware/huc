@@ -66,8 +66,9 @@ public class VMwareList : VMwareBase
 
         var h = new HashSet<string>(ObjectTypeNames, StringComparer.OrdinalIgnoreCase);
         foreach (var objectType in objectTypes)
-            if (!h.Contains(objectType))
-                throw new ArgsException(nameof(objectType), $"Invalid <{nameof(objectType)}> specified: {objectType}");
+        {
+            if (!h.Contains(objectType)) { throw new ArgsException(nameof(objectType), $"Invalid <{nameof(objectType)}> specified: {objectType}"); }
+        }
 
         foreach (var objectType in objectTypes)
         {
@@ -84,8 +85,9 @@ public class VMwareList : VMwareBase
     {
         objectType = "VMware" + objectType;
         foreach (var kvp in handlerFunctions)
-            if (objectType.EqualsCaseInsensitive(kvp.Key))
-                return kvp.Value;
+        {
+            if (objectType.EqualsCaseInsensitive(kvp.Key)) { return kvp.Value; }
+        }
 
         return null;
     }

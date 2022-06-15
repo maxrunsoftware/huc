@@ -183,7 +183,9 @@ public class ActiveDirectoryCore : IDisposable
     {
         server = server.TrimOrNull();
         if (server == null)
+        {
             using (var domain = Domain.GetComputerDomain()) { server = domain.Name.TrimOrNull(); }
+        }
 
         ipaddress = server.CheckNotNull(nameof(server));
         ouDn = ouDn.TrimOrNull();
@@ -243,7 +245,9 @@ public class ActiveDirectoryCore : IDisposable
     {
         if (!string.IsNullOrWhiteSpace(pathToRoot))
             // The string is valid. Return the absolute path.
+        {
             return pathToRoot + "," + DistinguishedName;
+        }
 
         // The string is null or full of whitespace.
         // Check if the string is empty.
@@ -437,8 +441,9 @@ public class ActiveDirectoryCore : IDisposable
         if (dn1Parts.Length == 0) return false; // No DN to match
 
         for (var i = 0; i < dn1Parts.Length; i++)
-            if (!string.Equals(dn1Parts[i], dn2Parts[i], StringComparison.OrdinalIgnoreCase))
-                return false;
+        {
+            if (!string.Equals(dn1Parts[i], dn2Parts[i], StringComparison.OrdinalIgnoreCase)) { return false; }
+        }
 
         return true;
     }
@@ -508,8 +513,10 @@ public class ActiveDirectoryCore : IDisposable
     public virtual void Dispose()
     {
         if (Ldap != null)
+        {
             try { Ldap.Dispose(); }
             catch (Exception e) { log.Warn("Error disposing of " + Ldap.GetType().FullName, e); }
+        }
     }
 
     #endregion IDisposable

@@ -83,12 +83,9 @@ public class FtpClientFtp : FtpClientBase
     private void LogMessage(FtpTraceLevel ftpTraceLevel, string message)
     {
         var msg = "FTP: " + message;
-        if (ftpTraceLevel == FtpTraceLevel.Verbose)
-            log.Trace(msg);
-        else if (ftpTraceLevel == FtpTraceLevel.Info)
-            log.Debug(msg);
-        else if (ftpTraceLevel == FtpTraceLevel.Warn)
-            log.Warn(msg);
+        if (ftpTraceLevel == FtpTraceLevel.Verbose) { log.Trace(msg); }
+        else if (ftpTraceLevel == FtpTraceLevel.Info) { log.Debug(msg); }
+        else if (ftpTraceLevel == FtpTraceLevel.Warn) { log.Warn(msg); }
         else if (ftpTraceLevel == FtpTraceLevel.Error) log.Error(msg);
     }
 
@@ -105,6 +102,7 @@ public class FtpClientFtp : FtpClientBase
         catch (Exception e) { log.Warn("Error putting file using security protocol, retrying with all known security protocols", e); }
 
         if (!success)
+        {
             try
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
@@ -115,6 +113,7 @@ public class FtpClientFtp : FtpClientBase
                 log.Error("Error putting file (second time)", ee);
                 throw;
             }
+        }
     }
 
     protected override void ListFiles(string remotePath, List<FtpClientFile> fileList)
@@ -126,10 +125,8 @@ public class FtpClientFtp : FtpClientBase
             if (!fullName.StartsWith("/")) fullName = "/" + fullName;
 
             var type = FtpClientFileType.Unknown;
-            if (file.Type == FtpFileSystemObjectType.Directory)
-                type = FtpClientFileType.Directory;
-            else if (file.Type == FtpFileSystemObjectType.File)
-                type = FtpClientFileType.File;
+            if (file.Type == FtpFileSystemObjectType.Directory) { type = FtpClientFileType.Directory; }
+            else if (file.Type == FtpFileSystemObjectType.File) { type = FtpClientFileType.File; }
             else if (file.Type == FtpFileSystemObjectType.Link) type = FtpClientFileType.Link;
 
             fileList.Add(new FtpClientFile(name, fullName, type));

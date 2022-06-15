@@ -98,6 +98,7 @@ public class SqlBinary : SqlQueryBase
         stopwatch.Start();
 
         if (serverType == SqlServerType.MsSql)
+        {
             using (var connection = CreateConnectionMsSql())
             {
                 connection.Open();
@@ -111,6 +112,7 @@ public class SqlBinary : SqlQueryBase
                     using (var dataReader = command.ExecuteReader()) { ProcessResults(dataReader); }
                 }
             }
+        }
 
         stopwatch.Stop();
         var stopwatchTime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);

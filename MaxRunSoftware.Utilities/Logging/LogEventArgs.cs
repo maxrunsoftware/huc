@@ -51,23 +51,25 @@ public sealed class LogEventArgs : EventArgs
             catch (Exception) { }
 
             if (CallingMethod != null)
+            {
                 try { CallingType = CallingMethod.DeclaringType; }
                 catch (Exception) { }
+            }
 
             try { CallingFile = frame.GetFileName().TrimOrNull(); }
             catch (Exception) { }
 
             if (CallingFile != null)
+            {
                 try { CallingFileName = Path.GetFileName(CallingFile).TrimOrNull(); }
                 catch (Exception) { }
+            }
 
             try
             {
                 var fileLineNumber = frame.GetFileLineNumber();
-                if (fileLineNumber < 1)
-                    CallingFileLineNumber = null;
-                else
-                    CallingFileLineNumber = fileLineNumber;
+                if (fileLineNumber < 1) { CallingFileLineNumber = null; }
+                else { CallingFileLineNumber = fileLineNumber; }
             }
             catch (Exception) { }
         }
@@ -135,20 +137,24 @@ public sealed class LogEventArgs : EventArgs
         }
 
         if (includeCallingFile)
+        {
             if (CallingFileName != null)
             {
                 if (sb.Length > 0) sb.Append(" ");
 
                 sb.Append(CallingFileName + "[" + CallingFileLineNumber + "]");
             }
+        }
 
         if (includeCallingMethod)
+        {
             if (CallingMethod != null)
             {
                 if (sb.Length > 0) sb.Append(" ");
 
                 sb.Append(CallingMethod.GetSignature(false));
             }
+        }
 
         if (Message != null)
         {

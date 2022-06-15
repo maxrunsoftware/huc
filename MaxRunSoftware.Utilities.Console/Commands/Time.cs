@@ -49,8 +49,7 @@ public class Time : Command
             log.Info("Local:  " + localTime.ToString("yyyy-MM-dd HH:mm:ss"));
             var dr = internetTime - localTime;
             var msg = "Drift: ";
-            if (dr.Ticks < 0)
-                msg = msg + "+";
+            if (dr.Ticks < 0) { msg = msg + "+"; }
             else if (dr.Ticks > 0) msg = msg + "-";
 
             msg = msg + dr.Duration().TotalSeconds.Round(MidpointRounding.AwayFromZero, 0);

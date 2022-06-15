@@ -320,10 +320,8 @@ public class VMwareVM : VMwareObject
         var localFilesystem = QueryValueArraySafe(vmware, $"/rest/vcenter/vm/{VM}/guest/local-filesystem").ToArray();
         GuestLocalFilesystems = localFilesystem.Select(o => new GuestLocalFilesystem(o)).ToList();
 
-        if (obj == null && localFilesystem.Length == 0)
-            IsVMwareToolsInstalled = false;
-        else
-            IsVMwareToolsInstalled = true;
+        if (obj == null && localFilesystem.Length == 0) { IsVMwareToolsInstalled = false; }
+        else { IsVMwareToolsInstalled = true; }
 
         obj = QueryValueObjectSafe(vmware, $"/rest/vcenter/vm/{VM}/library-item");
         if (obj != null) LibraryItem = obj.ToString("check_out", "library_item");

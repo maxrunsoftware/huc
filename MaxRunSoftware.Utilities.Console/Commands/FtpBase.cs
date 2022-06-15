@@ -134,12 +134,9 @@ public abstract class FtpBase : Command
         encryptionMode = GetArgParameterOrConfigEnum(nameof(encryptionMode), "e", FtpEncryptionMode.None);
 
         var defaultPort = 21;
-        if (encryptionMode == FtpEncryptionMode.None)
-            defaultPort = 21;
-        else if (encryptionMode == FtpEncryptionMode.SSH)
-            defaultPort = 22;
-        else if (encryptionMode == FtpEncryptionMode.Implicit)
-            defaultPort = 990;
+        if (encryptionMode == FtpEncryptionMode.None) { defaultPort = 21; }
+        else if (encryptionMode == FtpEncryptionMode.SSH) { defaultPort = 22; }
+        else if (encryptionMode == FtpEncryptionMode.Implicit) { defaultPort = 990; }
         else if (encryptionMode == FtpEncryptionMode.Explicit) defaultPort = 21;
 
         port = GetArgParameterOrConfigInt(nameof(port), "o", defaultPort).ToString().ToUShort();

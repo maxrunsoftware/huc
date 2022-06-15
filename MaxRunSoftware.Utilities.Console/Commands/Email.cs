@@ -109,10 +109,8 @@ public class Email : Command
         if (bodyTemplate != null)
         {
             var bodyTemplateFile = ReadFile(bodyTemplate);
-            if (body != null)
-                body = body + Constant.NEWLINE_WINDOWS + bodyTemplateFile;
-            else
-                body = bodyTemplateFile;
+            if (body != null) { body = body + Constant.NEWLINE_WINDOWS + bodyTemplateFile; }
+            else { body = bodyTemplateFile; }
         }
 
         template1 = GetArgParameterOrConfig(nameof(template1), "t1");

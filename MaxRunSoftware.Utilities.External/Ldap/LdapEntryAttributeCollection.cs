@@ -87,12 +87,9 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
                 var end = range.rangeEnd.Value + blockSize;
                 var attributeFilter = range.name + ";range=" + start + "-" + end;
 
-                if (objectGUID != null)
-                    entry = ldap.SearchResultEntryGetByObjectGuid(objectGUID.Value, new LdapQueryConfig(attributes: attributeFilter.Yield()));
-                else if (DistinguishedName != null)
-                    entry = ldap.SearchResultEntryGetByDistinguishedName(DistinguishedName, new LdapQueryConfig(attributes: attributeFilter.Yield()));
-                else
-                    break;
+                if (objectGUID != null) { entry = ldap.SearchResultEntryGetByObjectGuid(objectGUID.Value, new LdapQueryConfig(attributes: attributeFilter.Yield())); }
+                else if (DistinguishedName != null) { entry = ldap.SearchResultEntryGetByDistinguishedName(DistinguishedName, new LdapQueryConfig(attributes: attributeFilter.Yield())); }
+                else { break; }
 
                 attributes = entry.Attributes;
                 if (attributes == null) break;
@@ -160,9 +157,13 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         var values = LdapEntryAttributeValue.Parse(directoryAttribute);
 
         if (dictionary.TryGetValue(name, out var list))
+        {
             list.AddRange(values); // we already have a list there so add to it
+        }
         else
+        {
             dictionary.Add(name, values.ToList()); // new key so add the key and list
+        }
     }
 
     /// <summary>
@@ -174,10 +175,8 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         {
             var list = kvp.Value;
             list = list.OrEmpty().WhereNotNull().ToList();
-            if (list.IsEmpty())
-                dictionary.Remove(kvp.Key);
-            else
-                dictionary[kvp.Key] = list;
+            if (list.IsEmpty()) { dictionary.Remove(kvp.Key); }
+            else { dictionary[kvp.Key] = list; }
         }
     }
 
@@ -240,11 +239,11 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
         {
             if (kvp.Value.Count == 0) continue;
 
-            if (kvp.Value.Count == 1)
-                sb.AppendLine("  " + kvp.Key + ": " + kvp.Value.First());
+            if (kvp.Value.Count == 1) { sb.AppendLine("  " + kvp.Key + ": " + kvp.Value.First()); }
             else
-                for (var i = 0; i < kvp.Value.Count; i++)
-                    sb.AppendLine("  " + kvp.Key + "[" + i + "]: " + kvp.Value[i]);
+            {
+                for (var i = 0; i < kvp.Value.Count; i++) { sb.AppendLine("  " + kvp.Key + "[" + i + "]: " + kvp.Value[i]); }
+            }
         }
 
         sb.AppendLine("]");

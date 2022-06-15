@@ -51,7 +51,9 @@ public class ActiveDirectoryListObjectDetails : ActiveDirectoryBase
 
             if (!objectName.Contains('*') && !objectName.Contains("?"))
                 // don't search DistinguishedName on wildcard
+            {
                 propertiesToMatch.Add(activeDirectoryObject.DistinguishedName);
+            }
 
             foreach (var propertyToMatch in propertiesToMatch.TrimOrNull().WhereNotNull())
             {

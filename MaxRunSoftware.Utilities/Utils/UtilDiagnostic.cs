@@ -50,8 +50,10 @@ public static partial class Util
             MemberName = memberName.TrimOrNull();
             SourceFilePath = sourceFilePath.TrimOrNull();
             if (SourceFilePath != null)
+            {
                 try { SourceFileName = Path.GetFileName(SourceFilePath).TrimOrNull(); }
                 catch (Exception) { }
+            }
 
             SourceLineNumber = sourceLineNumber;
             MemoryStart = Environment.WorkingSet;

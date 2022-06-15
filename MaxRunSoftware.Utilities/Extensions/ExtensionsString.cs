@@ -208,8 +208,9 @@ public static class ExtensionsString
     public static bool ContainsAny(this string str, StringComparison stringComparison, params string[] subStrings)
     {
         foreach (var subString in subStrings)
-            if (str.IndexOf(subString, stringComparison) >= 0)
-                return true;
+        {
+            if (str.IndexOf(subString, stringComparison) >= 0) { return true; }
+        }
 
         return false;
     }
@@ -218,8 +219,9 @@ public static class ExtensionsString
     {
         var chars = str.ToCharArray();
         for (var i = 0; i < str.Length; i++)
-            if (char.IsWhiteSpace(chars[i]))
-                return true;
+        {
+            if (char.IsWhiteSpace(chars[i])) { return true; }
+        }
 
         return false;
     }
@@ -340,8 +342,9 @@ public static class ExtensionsString
 
             case 1:
                 for (var i = 0; i < text.Length; i++)
-                    if (word[i] != filter[i] && filter[i] != '?')
-                        isLike = false;
+                {
+                    if (word[i] != filter[i] && filter[i] != '?') { isLike = false; }
+                }
 
                 break;
 
@@ -585,8 +588,9 @@ public static class ExtensionsString
     public static IEnumerable<string> TrimOrNull(this IEnumerable<string> strings)
     {
         if (strings != null)
-            foreach (var str in strings)
-                yield return str.TrimOrNull();
+        {
+            foreach (var str in strings) { yield return str.TrimOrNull(); }
+        }
     }
 
     public static string TrimOrNullUpper(this string str) => str.TrimOrNull()?.ToUpper();
@@ -701,8 +705,9 @@ public static class ExtensionsString
         if (list.All(o => Guid.TryParse(o, out _))) return nullable ? typeof(Guid?) : typeof(Guid);
 
         if (list.All(o => o.CountOccurrences(".") == 3))
-            if (list.All(o => IPAddress.TryParse(o, out _)))
-                return typeof(IPAddress);
+        {
+            if (list.All(o => IPAddress.TryParse(o, out _))) { return typeof(IPAddress); }
+        }
 
         if (list.All(o => o.ToBoolTry(out _))) return nullable ? typeof(bool?) : typeof(bool);
 

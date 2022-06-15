@@ -37,8 +37,7 @@ public class GoogleSheets : IDisposable
         foreach (var c in Constant.CHARS_A_Z_UPPER_ARRAY) list.Add(c.ToString());
 
         foreach (var c1 in Constant.CHARS_A_Z_UPPER_ARRAY)
-        foreach (var c2 in Constant.CHARS_A_Z_UPPER_ARRAY)
-            list.Add(c1 + c2.ToString());
+        foreach (var c2 in Constant.CHARS_A_Z_UPPER_ARRAY) { list.Add(c1 + c2.ToString()); }
 
         return list.AsReadOnly();
     }
@@ -380,8 +379,9 @@ public static class GoogleSheetsExtensions
         foreach (var comp in Constant.STRINGCOMPARISONS)
         {
             foreach (var kvp in d)
-                if (string.Equals(name, kvp.Key, comp))
-                    return kvp.Value;
+            {
+                if (string.Equals(name, kvp.Key, comp)) { return kvp.Value; }
+            }
         }
 
         return null;

@@ -84,8 +84,9 @@ public class WebServerUtility : WebServerBase
         foreach (var handler in handlers) handler.IsEnabled = !GetArgParameterOrConfigBool(handler.HelpP1, handler.HelpP2, false);
 
         foreach (var handler in handlers)
-            if (handler.IsEnabled)
-                config.AddPathHandler(handler.URL, handler.HttpVerbs, handler.HandlerMethod);
+        {
+            if (handler.IsEnabled) { config.AddPathHandler(handler.URL, handler.HttpVerbs, handler.HandlerMethod); }
+        }
 
         config.AddPathHandler("/", HttpVerbs.Get, Index);
 
@@ -97,8 +98,9 @@ public class WebServerUtility : WebServerBase
         var sb = new StringBuilder();
         sb.AppendLine("<br />");
         foreach (var handler in handlers)
-            if (handler.IsEnabled)
-                sb.AppendLine("<p><a href=\"" + handler.URL + "\">" + handler.NameWithSpaces + "</a></p>");
+        {
+            if (handler.IsEnabled) { sb.AppendLine("<p><a href=\"" + handler.URL + "\">" + handler.NameWithSpaces + "</a></p>"); }
+        }
 
         return External.WebServer.HtmlMessage("Utilities", sb.ToString());
     }

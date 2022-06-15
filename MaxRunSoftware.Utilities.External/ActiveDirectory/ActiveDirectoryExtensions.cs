@@ -45,8 +45,9 @@ public static class ActiveDirectoryExtensions
         principal.SamAccountName = samAccountName;
         s.QueryFilter = principal;
         foreach (var p in s.FindAll())
-            if (p is T pp)
-                return pp;
+        {
+            if (p is T pp) { return pp; }
+        }
 
         return null;
     }
@@ -177,9 +178,12 @@ public static class ActiveDirectoryExtensions
             var properties = entry.Properties[key];
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (properties != null)
+            {
                 foreach (var property in properties)
-                    if (property != null)
-                        yield return property;
+                {
+                    if (property != null) { yield return property; }
+                }
+            }
         }
     }
 }

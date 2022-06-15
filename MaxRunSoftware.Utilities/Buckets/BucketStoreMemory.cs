@@ -73,10 +73,8 @@ public class BucketStoreMemory<TKey, TValue> : BucketStoreBase<TKey, TValue>
 
         lock (d)
         {
-            if (bucketValue == null)
-                d.Remove(bucketKey);
-            else
-                d[bucketKey] = bucketValue;
+            if (bucketValue == null) { d.Remove(bucketKey); }
+            else { d[bucketKey] = bucketValue; }
         }
     }
 }

@@ -72,10 +72,8 @@ public class Zip : Command
         var inputFiles = new List<string>();
         foreach (var inputFile in values.otherValues)
         {
-            if (inputFile.ContainsAny("*", "?"))
-                inputFiles.AddRange(ParseFileName(inputFile, recursive));
-            else
-                inputFiles.Add(Path.GetFullPath(inputFile));
+            if (inputFile.ContainsAny("*", "?")) { inputFiles.AddRange(ParseFileName(inputFile, recursive)); }
+            else { inputFiles.Add(Path.GetFullPath(inputFile)); }
         }
 
         log.Debug(inputFiles, nameof(inputFiles));
@@ -83,8 +81,9 @@ public class Zip : Command
 
         // check to be sure all of the files or directories exist
         foreach (var includedItem in inputFiles)
-            if (!File.Exists(includedItem) && !Directory.Exists(includedItem))
-                throw new FileNotFoundException($"File or directory to compress not found {includedItem}", includedItem);
+        {
+            if (!File.Exists(includedItem) && !Directory.Exists(includedItem)) { throw new FileNotFoundException($"File or directory to compress not found {includedItem}", includedItem); }
+        }
 
         DeleteExistingFile(outputFile);
         var isWindows = Constant.OS_WINDOWS;

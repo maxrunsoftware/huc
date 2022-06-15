@@ -52,7 +52,9 @@ public static class ExtensionsIO
         // https://stackoverflow.com/a/26473940
         if (file.Attributes.HasFlag(FileAttributes.ReparsePoint)) // probably symbolic link
             // https://stackoverflow.com/a/57454136
+        {
             using (Stream fs = Util.FileOpenRead(file.FullName)) { return fs.Length; }
+        }
 
         return file.Length;
     }

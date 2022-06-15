@@ -156,7 +156,7 @@ public class WebBrowser : Command
             if (browserLocation == null) throw new CommandException($"Could not locate browser executable for {browserType.Value}, please specify the {nameof(browserExecutableFile)} argument");
         }
         else if (browserExecutableFile != null && browserType == null) { browserLocation = new WebBrowserLocation(browserExecutableFile, browserType, Constant.OS, null); }
-        else if (browserExecutableFile != null && browserType != null) { browserLocation = new WebBrowserLocation(browserExecutableFile, browserType, Constant.OS, null); }
+        else if (browserExecutableFile != null && browserType != null) browserLocation = new WebBrowserLocation(browserExecutableFile, browserType, Constant.OS, null);
 
         log.Debug(browserLocation.ToString());
 
@@ -181,8 +181,9 @@ public class WebBrowser : Command
                 var templateVal = template.Value;
 
                 foreach (var attributeKey in node.Attributes.Keys.ToArray())
-                    if (node.Attributes[attributeKey].TrimOrNull() != null && node.Attributes[attributeKey].Contains(templateKey))
-                        node.Attributes[attributeKey] = node.Attributes[attributeKey].Replace(templateKey, templateVal);
+                {
+                    if (node.Attributes[attributeKey].TrimOrNull() != null && node.Attributes[attributeKey].Contains(templateKey)) { node.Attributes[attributeKey] = node.Attributes[attributeKey].Replace(templateKey, templateVal); }
+                }
 
                 if (node.Value.TrimOrNull() != null && node.Value.Contains(templateKey)) node.Value = node.Value.Replace(templateKey, templateVal);
             }
@@ -207,20 +208,13 @@ public class WebBrowser : Command
                 actionNum++;
                 log.Debug($"Executing action {actionNum} {element.Name}");
 
-                if (element.Name.EqualsCaseInsensitive("sleep"))
-                    ActionSleep(element);
-                else if (element.Name.EqualsCaseInsensitive("text"))
-                    ActionText(element);
-                else if (element.Name.EqualsCaseInsensitive("click"))
-                    ActionClick(element);
-                else if (element.Name.EqualsCaseInsensitive("select"))
-                    ActionSelect(element);
-                else if (element.Name.EqualsCaseInsensitive("goto"))
-                    ActionGoTo(element);
-                else if (element.Name.EqualsCaseInsensitive("cookieSave"))
-                    ActionCookieSave(element);
-                else
-                    log.Warn($"Unknown action <{element.Name}>");
+                if (element.Name.EqualsCaseInsensitive("sleep")) { ActionSleep(element); }
+                else if (element.Name.EqualsCaseInsensitive("text")) { ActionText(element); }
+                else if (element.Name.EqualsCaseInsensitive("click")) { ActionClick(element); }
+                else if (element.Name.EqualsCaseInsensitive("select")) { ActionSelect(element); }
+                else if (element.Name.EqualsCaseInsensitive("goto")) { ActionGoTo(element); }
+                else if (element.Name.EqualsCaseInsensitive("cookieSave")) { ActionCookieSave(element); }
+                else { log.Warn($"Unknown action <{element.Name}>"); }
             }
         }
     }
@@ -270,17 +264,13 @@ public class WebBrowser : Command
     {
         var name = element["name"].TrimOrNull();
         // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-        if (name == null)
-            log.Debug($"Action <{element.Name}> does not define attribute [{nameof(name)}] so returning all cookies");
-        else
-            log.Debug($"Action <{element.Name}> defines attribute [{nameof(name)}] so looking for cookie named {name}");
+        if (name == null) { log.Debug($"Action <{element.Name}> does not define attribute [{nameof(name)}] so returning all cookies"); }
+        else { log.Debug($"Action <{element.Name}> defines attribute [{nameof(name)}] so looking for cookie named {name}"); }
 
         var file = element["file"].TrimOrNull();
         // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-        if (file == null)
-            log.Debug($"Action <{element.Name}> does not define attribute [{nameof(file)}] so returning results to console");
-        else
-            log.Debug($"Action <{element.Name}> defines attribute [{nameof(file)}] so writing results to {file}");
+        if (file == null) { log.Debug($"Action <{element.Name}> does not define attribute [{nameof(file)}] so returning results to console"); }
+        else { log.Debug($"Action <{element.Name}> defines attribute [{nameof(file)}] so writing results to {file}"); }
 
         var cookies = browser.GetCookies();
         if (name == null)
@@ -288,20 +278,16 @@ public class WebBrowser : Command
             var sb = new StringBuilder();
             foreach (var kvp in cookies.OrderBy(o => o.Key.ToLower())) sb.AppendLine(kvp.Key + "=" + kvp.Value);
 
-            if (file == null)
-                log.Info(sb.ToString());
-            else
-                WriteFile(file, sb.ToString());
+            if (file == null) { log.Info(sb.ToString()); }
+            else { WriteFile(file, sb.ToString()); }
         }
         else
         {
             var val = cookies.GetValueCaseInsensitive(name);
             if (val == null) throw new CommandException($"Could not find cookie named [{name}]");
 
-            if (file == null)
-                log.Info(val);
-            else
-                WriteFile(file, val);
+            if (file == null) { log.Info(val); }
+            else { WriteFile(file, val); }
         }
     }
 

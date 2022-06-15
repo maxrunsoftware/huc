@@ -34,6 +34,7 @@ public static class ExtensionsStringConversion
         }
 
         if (str.Length < 6)
+        {
             switch (str.ToUpperInvariant())
             {
                 case "1":
@@ -52,6 +53,7 @@ public static class ExtensionsStringConversion
                     output = false;
                     return true;
             }
+        }
 
         var returnValue = bool.TryParse(str, out var r);
         output = r;

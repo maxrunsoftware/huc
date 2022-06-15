@@ -59,8 +59,7 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
                 if (folderPath == null) { tasks.Add(task); }
                 else
                 {
-                    if (folderPathPath.Equals(taskPath))
-                        tasks.Add(task);
+                    if (folderPathPath.Equals(taskPath)) { tasks.Add(task); }
                     else if (taskPath.Parent != null && taskPath.Parent.Equals(folderPathPath)) tasks.Add(task);
                 }
             }
@@ -71,9 +70,12 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
                 var part1 = taskPath.PathFull.GetAtIndexOrDefault(0);
                 var part2 = taskPath.PathFull.GetAtIndexOrDefault(1);
                 if (part1 != null && part2 != null)
+                {
                     if (part1.EqualsCaseInsensitive("Microsoft") && part2.EqualsCaseInsensitive("Windows"))
-                        if (!all)
-                            continue;
+                    {
+                        if (!all) { continue; }
+                    }
+                }
 
                 log.Info(taskPath.ToString());
                 if (detail)

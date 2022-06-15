@@ -100,16 +100,11 @@ public class LogFactory : ILogFactory
             {
                 var level = args.Level;
                 var levelAppender = appender.Level;
-                if (level == LogLevel.Trace && levelAppender.In(LogLevel.Trace))
-                    shouldLog = true;
-                else if (level == LogLevel.Debug && levelAppender.In(LogLevel.Debug, LogLevel.Trace))
-                    shouldLog = true;
-                else if (level == LogLevel.Info && levelAppender.In(LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
-                    shouldLog = true;
-                else if (level == LogLevel.Warn && levelAppender.In(LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
-                    shouldLog = true;
-                else if (level == LogLevel.Error && levelAppender.In(LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace))
-                    shouldLog = true;
+                if (level == LogLevel.Trace && levelAppender.In(LogLevel.Trace)) { shouldLog = true; }
+                else if (level == LogLevel.Debug && levelAppender.In(LogLevel.Debug, LogLevel.Trace)) { shouldLog = true; }
+                else if (level == LogLevel.Info && levelAppender.In(LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) { shouldLog = true; }
+                else if (level == LogLevel.Warn && levelAppender.In(LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) { shouldLog = true; }
+                else if (level == LogLevel.Error && levelAppender.In(LogLevel.Error, LogLevel.Warn, LogLevel.Info, LogLevel.Debug, LogLevel.Trace)) { shouldLog = true; }
                 else if (level == LogLevel.Critical) shouldLog = true;
 
                 if (shouldLog) appender.Log(this, args);
@@ -179,7 +174,7 @@ public class LogFactory : ILogFactory
                 IsErrorEnabled = true;
                 IsCriticalEnabled = true;
             }
-            else if (level == LogLevel.Critical) { IsCriticalEnabled = true; }
+            else if (level == LogLevel.Critical) IsCriticalEnabled = true;
         }
     }
 }

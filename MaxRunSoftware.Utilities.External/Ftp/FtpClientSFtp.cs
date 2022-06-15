@@ -54,10 +54,8 @@ public class FtpClientSFtp : FtpClientBase
             if (!fullName.StartsWith("/")) fullName = "/" + fullName;
 
             var type = FtpClientFileType.Unknown;
-            if (file.IsDirectory)
-                type = FtpClientFileType.Directory;
-            else if (file.IsRegularFile)
-                type = FtpClientFileType.File;
+            if (file.IsDirectory) { type = FtpClientFileType.Directory; }
+            else if (file.IsRegularFile) { type = FtpClientFileType.File; }
             else if (file.IsSymbolicLink) type = FtpClientFileType.Link;
 
             fileList.Add(new FtpClientFile(name, fullName, type));

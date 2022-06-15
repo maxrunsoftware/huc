@@ -83,8 +83,9 @@ public class BucketStoreFile : BucketStoreBase<string, string>
 
         var d = ReadFile();
         if (d.TryGetValue(bucketName, out var dd))
-            if (dd.TryGetValue(bucketKey, out var v))
-                return v;
+        {
+            if (dd.TryGetValue(bucketKey, out var v)) { return v; }
+        }
 
         return null;
     }
@@ -145,10 +146,8 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         {
             if (string.Equals(bucketValue, jpVal.TrimOrNull(), Comparison)) return;
 
-            if (bucketValue == null)
-                jp.Remove(jpKey);
-            else
-                jp.SetProperty(bucketNameKey, bucketValue);
+            if (bucketValue == null) { jp.Remove(jpKey); }
+            else { jp.SetProperty(bucketNameKey, bucketValue); }
         }
 
         try

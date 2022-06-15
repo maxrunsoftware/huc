@@ -201,8 +201,9 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         // All of the columns exist, let's build up our new table...
         var header = new List<string>();
         foreach (var column in Columns)
-            if (!columnIndexesToRemove.Contains(column.Index))
-                header.Add(column.Name);
+        {
+            if (!columnIndexesToRemove.Contains(column.Index)) { header.Add(column.Name); }
+        }
 
         var dataRows = new List<string[]>();
         var newWidth = Columns.Count - columnIndexesToRemove.Count + 1;
@@ -210,8 +211,9 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         {
             var rowData = new List<string>(newWidth);
             for (var i = 0; i < Columns.Count; i++)
-                if (!columnIndexesToRemove.Contains(i))
-                    rowData.Add(row[i]);
+            {
+                if (!columnIndexesToRemove.Contains(i)) { rowData.Add(row[i]); }
+            }
 
             dataRows.Add(rowData.ToArray());
         }
@@ -333,8 +335,9 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         var list = new List<IEnumerable<string>>(Count);
 
         foreach (var row in this)
-            if (predicate(row))
-                list.Add(row);
+        {
+            if (predicate(row)) { list.Add(row); }
+        }
 
         return Create(list, Columns.ColumnNames);
     }
@@ -381,8 +384,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         for (var i = 0; i < colsOldCount; i++) list[i][0] = Columns.ColumnNames[i];
 
         for (var newRowIndex = 0; newRowIndex < rowsNewCount; newRowIndex++)
-        for (var newColIndex = 1; newColIndex < colsNewCount; newColIndex++)
-            list[newRowIndex][newColIndex] = this[newColIndex - 1][newRowIndex];
+        for (var newColIndex = 1; newColIndex < colsNewCount; newColIndex++) { list[newRowIndex][newColIndex] = this[newColIndex - 1][newRowIndex]; }
 
         return Create(list, true);
     }

@@ -139,8 +139,9 @@ public static partial class Util
             get
             {
                 if (Headers.TryGetValue("Content-Type", out var list))
-                    if (list.Count > 0)
-                        return list[0];
+                {
+                    if (list.Count > 0) { return list[0]; }
+                }
 
                 return null;
             }
@@ -179,11 +180,11 @@ public static partial class Util
 
                 if (valList.IsEmpty()) continue;
 
-                if (valList.Count == 1)
-                    sb.AppendLine("\t" + key + ": " + valList[0]);
+                if (valList.Count == 1) { sb.AppendLine("\t" + key + ": " + valList[0]); }
                 else
-                    for (var i = 0; i < valList.Count; i++)
-                        sb.AppendLine("\t" + key + "[" + i + "]: " + valList[i]);
+                {
+                    for (var i = 0; i < valList.Count; i++) { sb.AppendLine("\t" + key + "[" + i + "]: " + valList[i]); }
+                }
             }
 
             return sb.ToString().TrimOrNull(); // remove trailing newline
@@ -214,19 +215,19 @@ public static partial class Util
             cli.Headers.Add(HttpRequestHeader.Cookie, sb.ToString());
 
             if (outFilename != null)
+            {
                 if (outFilename.ContainsAny(Path.DirectorySeparatorChar.ToString(), Path.AltDirectorySeparatorChar.ToString()))
                 {
                     var directoryName = Path.GetDirectoryName(outFilename);
                     if (directoryName != null) Directory.CreateDirectory(directoryName);
                 }
+            }
 
             try
             {
                 byte[] data = null;
-                if (outFilename == null)
-                    data = cli.DownloadData(url);
-                else
-                    cli.DownloadFile(url, outFilename);
+                if (outFilename == null) { data = cli.DownloadData(url); }
+                else { cli.DownloadFile(url, outFilename); }
 
                 return new WebResponse(url, data, cli.ResponseHeaders);
             }
@@ -238,10 +239,8 @@ public static partial class Util
                 var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
                 cli.Headers[HttpRequestHeader.Authorization] = $"Basic {credentials}";
                 byte[] data = null;
-                if (outFilename == null)
-                    data = cli.DownloadData(url);
-                else
-                    cli.DownloadFile(url, outFilename);
+                if (outFilename == null) { data = cli.DownloadData(url); }
+                else { cli.DownloadFile(url, outFilename); }
 
                 return new WebResponse(url, data, cli.ResponseHeaders);
             }
@@ -305,7 +304,9 @@ public static partial class Util
                             // Quotation mark found
                             if (previousChar == currentChar)
                                 // Double quotes inside quoted string produce single quote
+                            {
                                 currentComponent.Append(currentChar);
+                            }
 
                             currentState = quotedString;
                             break;

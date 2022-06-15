@@ -83,12 +83,16 @@ public class WebBrowser : IDisposable
 
         var browserVersion = Version;
         if (browserVersion == null)
+        {
             try { browserVersion = driverConfig.GetMatchingBrowserVersion(); }
             catch (Exception) { }
+        }
 
         if (browserVersion == null)
+        {
             try { browserVersion = driverConfig.GetLatestVersion(); }
             catch (Exception) { }
+        }
 
         if (browserVersion == null) throw new Exception("Unable to determine browser version for automatic driver download");
 

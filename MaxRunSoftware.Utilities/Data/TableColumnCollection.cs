@@ -37,8 +37,9 @@ public sealed class TableColumnCollection : IReadOnlyList<TableColumn>, IBucketR
             foreach (var sc in Constant.STRINGCOMPARISONS)
             {
                 foreach (var item in tableColumns)
-                    if (string.Equals(item.Name, columnName, sc))
-                        return item;
+                {
+                    if (string.Equals(item.Name, columnName, sc)) { return item; }
+                }
             }
 
             return null;

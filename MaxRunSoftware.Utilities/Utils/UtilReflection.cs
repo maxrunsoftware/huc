@@ -154,8 +154,7 @@ public static partial class Util
     {
         var list = new List<T>();
         foreach (var enumerable in enumerables)
-        foreach (var item in enumerable)
-            list.Add(item);
+        foreach (var item in enumerable) { list.Add(item); }
 
         return list;
     }

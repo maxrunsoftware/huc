@@ -145,8 +145,9 @@ public class SqlResultRowCollection : SqlResultBase, IReadOnlyList<SqlResultRow>
         foreach (var valueRow in valueRows)
         {
             for (var i = 0; i < valueRow.Length; i++)
-                if (valueRow[i] == DBNull.Value)
-                    valueRow[i] = null;
+            {
+                if (valueRow[i] == DBNull.Value) { valueRow[i] = null; }
+            }
 
             var row = new SqlResultRow(valueRow, this);
             list.Add(row);

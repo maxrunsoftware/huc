@@ -275,8 +275,9 @@ public class SqlOracle : Sql
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
         foreach (var t in GetTables(database, schema))
-            if (string.Equals(t.TableName, table, StringComparison.OrdinalIgnoreCase))
-                return true;
+        {
+            if (string.Equals(t.TableName, table, StringComparison.OrdinalIgnoreCase)) { return true; }
+        }
 
         return false;
     }
@@ -322,11 +323,13 @@ public class SqlOracle : Sql
         }
 
         if (dbName != null)
+        {
             if (ExcludedDatabases.Contains(dbName))
             {
                 log.Debug($"Requested database name '{database}' is in our list of {nameof(ExcludedDatabases)} so we are not continuing request");
                 return true;
             }
+        }
 
         return false;
     }

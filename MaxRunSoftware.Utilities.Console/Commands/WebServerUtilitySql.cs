@@ -97,8 +97,9 @@ public class WebServerUtilitySql : WebServerUtilityBase
 
         var tables2 = new List<Utilities.Table>();
         foreach (var table in tables)
-            if (!table.Columns.IsEmpty())
-                tables2.Add(table);
+        {
+            if (!table.Columns.IsEmpty()) { tables2.Add(table); }
+        }
 
         return (true, stopwatchTime, tables2.ToArray());
     }

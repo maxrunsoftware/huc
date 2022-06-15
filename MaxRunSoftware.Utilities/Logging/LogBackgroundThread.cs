@@ -123,14 +123,18 @@ internal class LogBackgroundThread : IDisposable
             var timeStart = DateTime.UtcNow;
             var duration = TimeSpan.FromSeconds(5);
             if (queue.Count > 0)
+            {
                 while (thread.IsAlive)
                 {
                     Thread.Sleep(50);
                     if (DateTime.UtcNow - timeStart > duration)
                         //LogError("Waiting for thread.IsAlive == true");
                         //timeStart = DateTime.UtcNow;
+                    {
                         throw new Exception("Timeout waiting for thread exceeded");
+                    }
                 }
+            }
         }
 
         catch (Exception)

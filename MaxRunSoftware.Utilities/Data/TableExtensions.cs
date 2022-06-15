@@ -25,14 +25,18 @@ public static class TableExtensions
             using (w.Element("table"))
             {
                 foreach (var c in table.Columns)
+                {
                     using (w.Element("column", ("index", c.Index))) { w.Value(c.Name); }
+                }
 
                 foreach (var r in table)
                 {
                     using (w.Element("row", ("index", r.RowIndex)))
                     {
                         for (var j = 0; j < r.Count; j++)
+                        {
                             using (w.Element("cell", ("index", j))) { w.Value(r[j] ?? string.Empty); }
+                        }
                     }
                 }
             }
@@ -81,8 +85,9 @@ public static class TableExtensions
 
         var columnsToRemove = new HashSet<TableColumn>();
         foreach (var column in table.Columns)
-            if (!columnsToKeep.Contains(column))
-                columnsToRemove.Add(column);
+        {
+            if (!columnsToKeep.Contains(column)) { columnsToRemove.Add(column); }
+        }
 
         return table.RemoveColumns(columnsToRemove.ToArray());
     }
@@ -201,10 +206,8 @@ public static class TableExtensions
             var first = true;
             foreach (var col in table.Columns.ColumnNames)
             {
-                if (first)
-                    first = false;
-                else
-                    sb.Append(headerDelimiter);
+                if (first) { first = false; }
+                else { sb.Append(headerDelimiter); }
 
                 sb.Append(headerQuoting);
                 var colText = ToDelimitedReplacements(col, headerDelimiter, headerDelimiterReplacement);
@@ -216,16 +219,15 @@ public static class TableExtensions
         }
 
         if (includeRows)
+        {
             foreach (var row in table)
             {
                 var sb = new StringBuilder();
                 var first = true;
                 foreach (var cell in row)
                 {
-                    if (first)
-                        first = false;
-                    else
-                        sb.Append(dataDelimiter);
+                    if (first) { first = false; }
+                    else { sb.Append(dataDelimiter); }
 
                     sb.Append(dataQuoting);
                     var cellText = ToDelimitedReplacements(cell, dataDelimiter, dataDelimiterReplacement);
@@ -235,5 +237,6 @@ public static class TableExtensions
 
                 writer(sb + newLine);
             }
+        }
     }
 }

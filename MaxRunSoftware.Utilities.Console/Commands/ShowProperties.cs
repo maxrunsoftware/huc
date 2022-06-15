@@ -44,8 +44,9 @@ public class ShowProperties : Command
 
         var set = new HashSet<string>(keys, StringComparer.OrdinalIgnoreCase);
         foreach (var key in configFile.Keys)
-            if (set.Add(key))
-                keys.Add(key);
+        {
+            if (set.Add(key)) { keys.Add(key); }
+        }
 
         foreach (var prop in keys) log.Info(prop + "=" + configFile[prop]);
     }

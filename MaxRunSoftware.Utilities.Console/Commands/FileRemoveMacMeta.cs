@@ -67,12 +67,14 @@ public class FileRemoveMacMeta : Command
         var filename = Path.GetFileName(file);
 
         if (filename.EqualsCaseSensitive(".DS_Store"))
-            if (Util.FileGetSize(file) <= Constant.BYTES_MEBI)
-                return true;
+        {
+            if (Util.FileGetSize(file) <= Constant.BYTES_MEBI) { return true; }
+        }
 
         if (filename.StartsWith("._"))
-            if (Util.FileGetSize(file) == 4096L)
-                return true;
+        {
+            if (Util.FileGetSize(file) == 4096L) { return true; }
+        }
 
         return false;
     }

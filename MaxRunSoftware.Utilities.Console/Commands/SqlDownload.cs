@@ -43,10 +43,8 @@ public class SqlDownload : SqlQueryBase
 
         var response = Util.WebDownload(fileUrl, fileName, cookies: cookies);
         var msg = "[" + rowNum + "] Successfully downloaded file " + fileName + "  (" + Util.FileGetSize(fileName) + ")";
-        if (showSuccess)
-            log.Info(msg);
-        else
-            log.Debug(msg);
+        if (showSuccess) { log.Info(msg); }
+        else { log.Debug(msg); }
 
         log.Debug(response.ToString());
         log.Trace(response.ToStringDetail());
@@ -87,8 +85,9 @@ public class SqlDownload : SqlQueryBase
                 if (c.Name.In(StringComparer.OrdinalIgnoreCase, "FileName", "FileURL")) continue;
 
                 if (c.Name.StartsWith("Cookie_", StringComparison.OrdinalIgnoreCase) || c.Name.StartsWith("Cookie.", StringComparison.OrdinalIgnoreCase))
-                    if (c.Name.Length > 7)
-                        cookieColumns.Add(c);
+                {
+                    if (c.Name.Length > 7) { cookieColumns.Add(c); }
+                }
             }
 
             foreach (var c in cookieColumns) log.Debug("Found cookie column [" + c.Name + "]");

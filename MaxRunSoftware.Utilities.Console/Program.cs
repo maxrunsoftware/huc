@@ -58,8 +58,7 @@ public class Program
     {
         var a = new Args(args);
         var logLevel = LogLevel.Info;
-        if (a.IsTrace)
-            logLevel = LogLevel.Trace;
+        if (a.IsTrace) { logLevel = LogLevel.Trace; }
         else if (a.IsDebug) logLevel = LogLevel.Debug;
 
         Utilities.LogFactory.LogFactoryImpl.SetupConsole(logLevel);
@@ -78,20 +77,13 @@ public class Program
             var logFileLevel = config.LogFileLevel.TrimOrNull() ?? "info";
             logFileLevel = logFileLevel.ToLower();
             LogLevel level;
-            if (logFileLevel.EqualsCaseInsensitive(LogLevel.Critical.ToString()))
-                level = LogLevel.Critical;
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Error.ToString()))
-                level = LogLevel.Error;
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Warn.ToString()))
-                level = LogLevel.Warn;
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Info.ToString()))
-                level = LogLevel.Info;
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Debug.ToString()))
-                level = LogLevel.Debug;
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Trace.ToString()))
-                level = LogLevel.Trace;
-            else
-                throw new Exception("Unrecognized file log level in config file: " + logFileLevel + "   valid values are TRACE/DEBUG/INFO/WARN/ERROR/CRITICAL");
+            if (logFileLevel.EqualsCaseInsensitive(LogLevel.Critical.ToString())) { level = LogLevel.Critical; }
+            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Error.ToString())) { level = LogLevel.Error; }
+            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Warn.ToString())) { level = LogLevel.Warn; }
+            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Info.ToString())) { level = LogLevel.Info; }
+            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Debug.ToString())) { level = LogLevel.Debug; }
+            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Trace.ToString())) { level = LogLevel.Trace; }
+            else { throw new Exception("Unrecognized file log level in config file: " + logFileLevel + "   valid values are TRACE/DEBUG/INFO/WARN/ERROR/CRITICAL"); }
 
             Utilities.LogFactory.LogFactoryImpl.SetupFile(level, logFileName);
         }
@@ -121,8 +113,9 @@ public class Program
         if (a.Command.Contains("*") || a.Command.Contains("?"))
         {
             foreach (var c in CommandObjects)
-                if (c.Name.EqualsWildcard(a.Command))
-                    ListCommand(c);
+            {
+                if (c.Name.EqualsWildcard(a.Command)) { ListCommand(c); }
+            }
 
             return 5;
         }
@@ -169,15 +162,11 @@ public class Program
         if (suppressBanner) return;
 
         var os = "";
-        if (Constant.OS_WINDOWS)
-            os = " (Windows)";
-        else if (Constant.OS_UNIX)
-            os = " (Linux)";
+        if (Constant.OS_WINDOWS) { os = " (Windows)"; }
+        else if (Constant.OS_UNIX) { os = " (Linux)"; }
         else if (Constant.OS_MAC) os = " (Mac)";
 
-        if (command == null)
-            log.Info(typeof(Program).Namespace + " " + Version.Value + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
-        else
-            log.Info(typeof(Program).Namespace + " " + Version.Value + " : " + command.Name + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS());
+        if (command == null) { log.Info(typeof(Program).Namespace + " " + Version.Value + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS()); }
+        else { log.Info(typeof(Program).Namespace + " " + Version.Value + " : " + command.Name + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS()); }
     }
 }

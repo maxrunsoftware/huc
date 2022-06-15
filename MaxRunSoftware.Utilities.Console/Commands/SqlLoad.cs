@@ -156,13 +156,19 @@ public class SqlLoad : SqlBase
         {
             if (sqlColumns.Contains(tableColumn.Name))
                 // Found column in SQL table
+            {
                 columnsToInsert.Add(tableColumn);
+            }
             else if (!errorOnNonexistentColumns)
                 // Didn't find column in SQL table, but that is OK we'll just not import it
+            {
                 log.Info($"Ignoring column {tableColumn.Name} because it does not exist as a column in table {table}");
+            }
             else
                 // Didn't find column in SQL table, and it is required, so we should fail here
+            {
                 throw new Exception($"DataFile contains column {tableColumn.Name} but existing SQL table {table} does not contain this column.");
+            }
         }
 
         // Remove columns from file table that do not exist in SQL table

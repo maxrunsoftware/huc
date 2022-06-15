@@ -62,8 +62,9 @@ public class VMwareVM : VMwareBase
         {
             log.Debug("Wildcard matching on " + vm);
             foreach (var v in vms)
-                if (v.Name.EqualsWildcard(vm))
-                    vmsAction.Add(v);
+            {
+                if (v.Name.EqualsWildcard(vm)) { vmsAction.Add(v); }
+            }
         }
         else
         {
@@ -76,26 +77,16 @@ public class VMwareVM : VMwareBase
         foreach (var v in vmsAction)
         {
             log.Info(DescriptionAttribute.Get(action).Message + v.Name);
-            if (action == Action.None)
-                log.Debug("Doing nothing");
-            else if (action == Action.Shutdown)
-                v.Shutdown(vmware);
-            else if (action == Action.Reboot)
-                v.Reboot(vmware);
-            else if (action == Action.Standby)
-                v.Standby(vmware);
-            else if (action == Action.Reset)
-                v.Reset(vmware);
-            else if (action == Action.Start)
-                v.Start(vmware);
-            else if (action == Action.Stop)
-                v.Stop(vmware);
-            else if (action == Action.Suspend)
-                v.Suspend(vmware);
-            else if (action == Action.DetachISOs)
-                v.DetachISOs(vmware);
-            else
-                throw new NotImplementedException(nameof(Action) + " [" + action + "] has not been implemented yet");
+            if (action == Action.None) { log.Debug("Doing nothing"); }
+            else if (action == Action.Shutdown) { v.Shutdown(vmware); }
+            else if (action == Action.Reboot) { v.Reboot(vmware); }
+            else if (action == Action.Standby) { v.Standby(vmware); }
+            else if (action == Action.Reset) { v.Reset(vmware); }
+            else if (action == Action.Start) { v.Start(vmware); }
+            else if (action == Action.Stop) { v.Stop(vmware); }
+            else if (action == Action.Suspend) { v.Suspend(vmware); }
+            else if (action == Action.DetachISOs) { v.DetachISOs(vmware); }
+            else { throw new NotImplementedException(nameof(Action) + " [" + action + "] has not been implemented yet"); }
         }
     }
 

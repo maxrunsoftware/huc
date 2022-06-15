@@ -30,21 +30,25 @@ public static partial class Util
 
             var foregroundSwitch = false;
             if (foreground != null)
+            {
                 if (this.foreground != foreground.Value)
                 {
                     foregroundSwitch = true;
                     Console.ForegroundColor = foreground.Value;
                 }
+            }
 
             foregroundSwitched = foregroundSwitch;
 
             var backgroundSwitch = false;
             if (background != null)
+            {
                 if (this.background != background.Value)
                 {
                     backgroundSwitch = true;
                     Console.BackgroundColor = background.Value;
                 }
+            }
 
             backgroundSwitched = backgroundSwitch;
         }

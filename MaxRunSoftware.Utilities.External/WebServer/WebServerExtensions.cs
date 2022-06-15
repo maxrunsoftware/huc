@@ -59,8 +59,9 @@ public static class WebServerExtensions
     {
         var parameters = context.GetRequestQueryData();
         foreach (var key in parameters.AllKeys)
-            if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase))
-                return true;
+        {
+            if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase)) { return true; }
+        }
 
         return false;
     }

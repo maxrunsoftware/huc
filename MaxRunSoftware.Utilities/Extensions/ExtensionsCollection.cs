@@ -175,10 +175,8 @@ public static class ExtensionsCollection
         var size = 0;
         foreach (var s in array)
         {
-            if (s == null)
-                size = size + lengthOfNull;
-            else
-                size = size + s.Length;
+            if (s == null) { size = size + lengthOfNull; }
+            else { size = size + s.Length; }
         }
 
         return size;
@@ -212,10 +210,8 @@ public static class ExtensionsCollection
         var first = true;
         foreach (var item in enumerable)
         {
-            if (first)
-                first = false;
-            else
-                yield return item;
+            if (first) { first = false; }
+            else { yield return item; }
         }
     }
 
@@ -284,12 +280,9 @@ public static class ExtensionsCollection
             var cols = array.GetUpperBound(1) + 1;
             var result = new T[cols];
             int size;
-            if (typeof(T) == typeof(bool))
-                size = 1;
-            else if (typeof(T) == typeof(char))
-                size = 2;
-            else
-                size = Marshal.SizeOf<T>();
+            if (typeof(T) == typeof(bool)) { size = 1; }
+            else if (typeof(T) == typeof(char)) { size = 2; }
+            else { size = Marshal.SizeOf<T>(); }
 
             Buffer.BlockCopy(array, index * cols * size, result, 0, cols * size);
             return result;
@@ -489,8 +482,9 @@ public static class ExtensionsCollection
         if (array == null) return false;
 
         foreach (var item in items ?? Array.Empty<T>())
-            if (EqualsAt(array, index, comparer, item))
-                return true;
+        {
+            if (EqualsAt(array, index, comparer, item)) { return true; }
+        }
 
         return false;
     }
@@ -521,15 +515,17 @@ public static class ExtensionsCollection
     public static void ResizeAll<T>(this IList<T[]> list, int newLength)
     {
         for (var i = 0; i < list.Count; i++)
-            if (list[i] != null)
-                list[i] = list[i].Resize(newLength);
+        {
+            if (list[i] != null) { list[i] = list[i].Resize(newLength); }
+        }
     }
 
     public static void ResizeAll<T>(this T[][] list, int newLength)
     {
         for (var i = 0; i < list.Length; i++)
-            if (list[i] != null)
-                list[i] = list[i].Resize(newLength);
+        {
+            if (list[i] != null) { list[i] = list[i].Resize(newLength); }
+        }
     }
 
     #endregion Resize
@@ -546,8 +542,9 @@ public static class ExtensionsCollection
     {
         var len = 0;
         foreach (var item in enumerable)
-            if (item != null)
-                len = Math.Max(len, item.Length);
+        {
+            if (item != null) { len = Math.Max(len, item.Length); }
+        }
 
         return len;
     }
@@ -561,8 +558,9 @@ public static class ExtensionsCollection
     {
         var len = 0;
         foreach (var item in enumerable)
-            if (item != null)
-                len = Math.Max(len, item.Length);
+        {
+            if (item != null) { len = Math.Max(len, item.Length); }
+        }
 
         return len;
     }
@@ -578,8 +576,9 @@ public static class ExtensionsCollection
     {
         var len = 0;
         foreach (var item in enumerable)
-            if (item != null)
-                len = Math.Max(len, item.Count);
+        {
+            if (item != null) { len = Math.Max(len, item.Count); }
+        }
 
         return len;
     }
@@ -830,8 +829,9 @@ public static class ExtensionsCollection
 
         newArraySize = 0;
         foreach (var t in array)
-            if (t != null)
-                newArray[newArraySize++] = t;
+        {
+            if (t != null) { newArray[newArraySize++] = t; }
+        }
 
         return newArray;
     }
@@ -839,8 +839,9 @@ public static class ExtensionsCollection
     public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> enumerable) where T : class
     {
         foreach (var item in enumerable)
-            if (item != null)
-                yield return item;
+        {
+            if (item != null) { yield return item; }
+        }
     }
 
     public static T?[] WhereNotNull<T>(this T?[] array) where T : struct
@@ -853,8 +854,9 @@ public static class ExtensionsCollection
 
         newArraySize = 0;
         foreach (var t in array)
-            if (t != null)
-                newArray[newArraySize++] = t;
+        {
+            if (t != null) { newArray[newArraySize++] = t; }
+        }
 
         return newArray;
     }
@@ -862,8 +864,9 @@ public static class ExtensionsCollection
     public static IEnumerable<T?> WhereNotNull<T>(this IEnumerable<T?> enumerable) where T : struct
     {
         foreach (var item in enumerable)
-            if (item != null)
-                yield return item;
+        {
+            if (item != null) { yield return item; }
+        }
     }
 
     #endregion WhereNotNull
@@ -965,8 +968,9 @@ public static class ExtensionsCollection
         set.Add(item1);
         set.Add(item2);
         if (items != null)
-            foreach (var item in items)
-                set.Add(item);
+        {
+            foreach (var item in items) { set.Add(item); }
+        }
     }
 
     #endregion Set

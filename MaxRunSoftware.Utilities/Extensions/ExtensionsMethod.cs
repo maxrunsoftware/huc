@@ -57,7 +57,7 @@ public static class ExtensionsMethod
         }
         else if (method.IsPublic) { signature = "public "; }
         else if (method.IsPrivate) { signature = "private "; }
-        else if (method.IsFamily) { signature = "protected "; }
+        else if (method.IsFamily) signature = "protected ";
 
         if (method.IsStatic) signature += "static ";
 
@@ -83,16 +83,16 @@ public static class ExtensionsMethod
         // If this signature is designed to be invoked and it's an extension method
         if (isExtensionMethod && invokable)
             // Skip the first argument
+        {
             methodParameters = methodParameters.Skip(1);
+        }
 
         var methodParameterSignatures = methodParameters.Select(param =>
         {
             var signature = string.Empty;
 
-            if (param.ParameterType.IsByRef)
-                signature = "ref ";
-            else if (param.IsOut)
-                signature = "out ";
+            if (param.ParameterType.IsByRef) { signature = "ref "; }
+            else if (param.IsOut) { signature = "out "; }
             else if (isExtensionMethod && param.Position == 0) signature = "this ";
 
             if (!invokable) signature += GetSignature(param.ParameterType) + " ";
@@ -124,7 +124,9 @@ public static class ExtensionsMethod
 
         if (isGenericType)
             // Add the generic arguments
+        {
             signature += BuildGenericSignature(signatureType.GetGenericArguments());
+        }
 
         if (isNullableType) signature += "?";
 

@@ -45,8 +45,9 @@ public static partial class Util
         if (list.All(o => Guid.TryParse(o, out _))) return nullable ? typeof(Guid?) : typeof(Guid);
 
         if (list.All(o => o.CountOccurrences(".") == 3))
-            if (list.All(o => IPAddress.TryParse(o, out _)))
-                return typeof(IPAddress);
+        {
+            if (list.All(o => IPAddress.TryParse(o, out _))) { return typeof(IPAddress); }
+        }
 
         if (list.All(o => o.ToBoolTry(out _))) return nullable ? typeof(bool?) : typeof(bool);
 

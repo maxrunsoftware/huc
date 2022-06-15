@@ -47,21 +47,15 @@ public class VMwareHost : VMwareObject
         Host = obj.ToString("host");
 
         var connectionState = obj.ToString("connection_state");
-        if (connectionState == null)
-            ConnectionState = HostConnectionState.Unknown;
-        else if (connectionState.EqualsCaseInsensitive("CONNECTED"))
-            ConnectionState = HostConnectionState.Connected;
-        else if (connectionState.EqualsCaseInsensitive("DISCONNECTED"))
-            ConnectionState = HostConnectionState.Disconnected;
+        if (connectionState == null) { ConnectionState = HostConnectionState.Unknown; }
+        else if (connectionState.EqualsCaseInsensitive("CONNECTED")) { ConnectionState = HostConnectionState.Connected; }
+        else if (connectionState.EqualsCaseInsensitive("DISCONNECTED")) { ConnectionState = HostConnectionState.Disconnected; }
         else if (connectionState.EqualsCaseInsensitive("NOT_RESPONDING")) ConnectionState = HostConnectionState.NotResponding;
 
         var powerState = obj.ToString("power_state");
-        if (powerState == null)
-            PowerState = HostPowerState.Unknown;
-        else if (powerState.EqualsCaseInsensitive("POWERED_OFF"))
-            PowerState = HostPowerState.PoweredOff;
-        else if (powerState.EqualsCaseInsensitive("POWERED_ON"))
-            PowerState = HostPowerState.PoweredOn;
+        if (powerState == null) { PowerState = HostPowerState.Unknown; }
+        else if (powerState.EqualsCaseInsensitive("POWERED_OFF")) { PowerState = HostPowerState.PoweredOff; }
+        else if (powerState.EqualsCaseInsensitive("POWERED_ON")) { PowerState = HostPowerState.PoweredOn; }
         else if (powerState.EqualsCaseInsensitive("STANDBY")) PowerState = HostPowerState.Standby;
     }
 

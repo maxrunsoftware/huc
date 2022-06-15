@@ -23,8 +23,9 @@ public class GoogleSheetsFormatCells : GoogleSheetsBase
     private static Color? ParseColor(string colorName)
     {
         foreach (var kvp in Constant.COLORS)
-            if (string.Equals(kvp.Key, colorName, StringComparison.OrdinalIgnoreCase))
-                return kvp.Value;
+        {
+            if (string.Equals(kvp.Key, colorName, StringComparison.OrdinalIgnoreCase)) { return kvp.Value; }
+        }
 
         return null;
     }

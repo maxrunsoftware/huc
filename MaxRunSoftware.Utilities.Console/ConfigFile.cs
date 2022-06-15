@@ -118,8 +118,9 @@ public class ConfigFile : IBucketReadOnly<string, string>
         foreach (var commandObject in commandObjects)
         {
             if (commandObject is Command commandObject2)
-                foreach (var p in commandObject2.Help.Parameters)
-                    commandObjectParams.Add(commandObject.Name + "." + p.p1);
+            {
+                foreach (var p in commandObject2.Help.Parameters) { commandObjectParams.Add(commandObject.Name + "." + p.p1); }
+            }
         }
 
         return commandObjectParams;

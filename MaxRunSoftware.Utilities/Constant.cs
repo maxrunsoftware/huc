@@ -559,8 +559,9 @@ public static class Constant
                     {
                         location2 = Path.GetFullPath(location2);
                         if (Directory.Exists(location2))
-                            if (set.Add(location2))
-                                list.Add(location2);
+                        {
+                            if (set.Add(location2)) { list.Add(location2); }
+                        }
                     }
                 }
             }
@@ -580,8 +581,9 @@ public static class Constant
             try
             {
                 if (File.Exists(location))
-                    if (set.Add(location))
-                        list.Add(location);
+                {
+                    if (set.Add(location)) { list.Add(location); }
+                }
             }
             catch { }
         }
@@ -627,10 +629,8 @@ public static class Constant
             {
                 if (!File.Exists(item2) && !Directory.Exists(item2))
                 {
-                    if (File.Exists(item2 + ".exe"))
-                        item2 += ".exe";
-                    else
-                        continue;
+                    if (File.Exists(item2 + ".exe")) { item2 += ".exe"; }
+                    else { continue; }
                 }
             }
             catch { }
@@ -676,6 +676,7 @@ public static class Constant
     {
         var msg = nameof(Constant) + "." + memberName + "() failed.";
         if (exception != null)
+        {
             try
             {
                 var err = exception.ToString();
@@ -698,6 +699,7 @@ public static class Constant
                     catch (Exception) { }
                 }
             }
+        }
 
         try { Debug.WriteLine(msg); }
         catch (Exception)

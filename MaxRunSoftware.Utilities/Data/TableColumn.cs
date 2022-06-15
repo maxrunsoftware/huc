@@ -123,8 +123,7 @@ public sealed class TableColumn : IEquatable<TableColumn>
             var decimalDigits = 0;
             foreach (var c in val)
             {
-                if (c == decimalChar)
-                    foundDecimal = true;
+                if (c == decimalChar) { foundDecimal = true; }
                 else if (char.IsDigit(c) && foundDecimal) decimalDigits++;
             }
 

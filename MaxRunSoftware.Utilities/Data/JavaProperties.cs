@@ -422,6 +422,7 @@ public class JavaPropertyReader
     private char EscapedChar(int ch)
     {
         if (escaped)
+        {
             switch (ch)
             {
                 case 't':
@@ -441,18 +442,15 @@ public class JavaPropertyReader
                     for (var i = 0; i < 4; i++)
                     {
                         ch = NextChar();
-                        if (ch >= '0' && ch <= '9')
-                            uch = (uch << 4) + ch - '0';
-                        else if (ch >= 'a' && ch <= 'z')
-                            uch = (uch << 4) + ch - 'a' + 10;
-                        else if (ch >= 'A' && ch <= 'Z')
-                            uch = (uch << 4) + ch - 'A' + 10;
-                        else
-                            throw new JavaPropertyParseException("Invalid Unicode character.");
+                        if (ch >= '0' && ch <= '9') { uch = (uch << 4) + ch - '0'; }
+                        else if (ch >= 'a' && ch <= 'z') { uch = (uch << 4) + ch - 'a' + 10; }
+                        else if (ch >= 'A' && ch <= 'Z') { uch = (uch << 4) + ch - 'A' + 10; }
+                        else { throw new JavaPropertyParseException("Invalid Unicode character."); }
                     }
 
                     return (char)uch;
             }
+        }
 
         return (char)ch;
     }
@@ -491,7 +489,9 @@ public class JavaPropertyReader
         if (reader.BaseStream.Position == reader.BaseStream.Length)
             // We have reached the end of the stream. The reder will throw exception if we call Read any further.
             // We just return -1 now;
+        {
             return -1;
+        }
 
         // reader.ReadChar() will take into account the encoding.
         return reader.ReadChar();

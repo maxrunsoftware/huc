@@ -509,8 +509,9 @@ public static class ExtensionsCheck
         comparer ??= EqualityComparer<T>.Default;
 
         for (var i = 0; i < argument.Length; i++)
-            if (comparer.Equals(argument[i], argumentToCheckFor))
-                throw new ArgumentException($"Argument {argumentName}[{i}] cannot contain value {argumentToCheckFor.ToStringGuessFormat()}.");
+        {
+            if (comparer.Equals(argument[i], argumentToCheckFor)) { throw new ArgumentException($"Argument {argumentName}[{i}] cannot contain value {argumentToCheckFor.ToStringGuessFormat()}."); }
+        }
 
         return argument;
     }
@@ -590,12 +591,9 @@ public static class ExtensionsCheck
 
         var sb = new StringBuilder();
         sb.Append($"Type {type.FullNameFormatted()} does not implement ");
-        if (baseClass.IsInterface)
-            sb.Append("interface");
-        else if (baseClass.IsAbstract)
-            sb.Append("base abstract class");
-        else
-            sb.Append("base class");
+        if (baseClass.IsInterface) { sb.Append("interface"); }
+        else if (baseClass.IsAbstract) { sb.Append("base abstract class"); }
+        else { sb.Append("base class"); }
 
         sb.Append(" " + baseClass.FullNameFormatted());
         throw new ArgumentException(sb.ToString(), argumentName);

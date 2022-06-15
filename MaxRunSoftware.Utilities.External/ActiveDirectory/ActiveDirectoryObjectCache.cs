@@ -65,11 +65,11 @@ public class ActiveDirectoryObjectCache
     {
         if (objects.Count == 0) return;
 
-        if (objects.Count == 1)
-            log.Trace($"Cache[{cacheKey}]: " + objects.First());
+        if (objects.Count == 1) { log.Trace($"Cache[{cacheKey}]: " + objects.First()); }
         else
-            for (var i = 0; i < objects.Count; i++)
-                log.Trace($"Cache[{cacheKey}][{i}]: " + objects[i]);
+        {
+            for (var i = 0; i < objects.Count; i++) { log.Trace($"Cache[{cacheKey}][{i}]: " + objects[i]); }
+        }
 
         cache[cacheKey] = objects;
     }

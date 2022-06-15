@@ -96,6 +96,7 @@ public class VMwareClient : IDisposable
         var obj = JObject.Parse(json);
         var type = obj["type"]?.ToString();
         if (type != null)
+        {
             if (type.EndsWith("service_unavailable", StringComparison.OrdinalIgnoreCase))
             {
                 log.Debug("Service Unavailable: " + path);
@@ -104,23 +105,24 @@ public class VMwareClient : IDisposable
                 {
                     var tokenValue = obj["value"];
                     if (tokenValue != null)
+                    {
                         foreach (var message in tokenValue["messages"].OrEmpty())
                         {
                             if (message == null) continue;
 
                             var defaultMessage = message["default_message"]?.ToString().TrimOrNull();
                             var id = message["id"]?.ToString().TrimOrNull();
-                            if (id != null && defaultMessage != null)
-                                log.Debug(id + "  -->  " + defaultMessage);
-                            else if (id != null)
-                                log.Debug(id);
+                            if (id != null && defaultMessage != null) { log.Debug(id + "  -->  " + defaultMessage); }
+                            else if (id != null) { log.Debug(id); }
                             else if (defaultMessage != null) log.Debug(defaultMessage);
                         }
+                    }
                 }
                 catch (Exception e) { log.Debug("Error trying to parse error message", e); }
 
                 return null;
             }
+        }
 
         if (!obj.ContainsKey("value")) return null;
 
@@ -186,7 +188,9 @@ public class VMwareClient : IDisposable
 
 
         if (client != null)
+        {
             try { client.Dispose(); }
             catch (Exception e) { log.Warn("Failed to dispose of " + client.GetType().FullNameFormatted(), e); }
+        }
     }
 }

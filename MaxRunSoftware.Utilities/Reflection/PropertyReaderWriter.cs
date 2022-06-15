@@ -37,10 +37,8 @@ public sealed class PropertyReaderWriter
         // https://stackoverflow.com/questions/16436323/reading-properties-of-an-object-with-expression-trees
         var pt = propertyInfo.PropertyType;
 
-        if (pt.IsPrimitive || pt.IsValueType || pt.IsEnum)
-            DefaultNullValue = Activator.CreateInstance(pt);
-        else
-            DefaultNullValue = null;
+        if (pt.IsPrimitive || pt.IsValueType || pt.IsEnum) { DefaultNullValue = Activator.CreateInstance(pt); }
+        else { DefaultNullValue = null; }
 
         propertyGetter = CreatePropertyGetter(propertyInfo);
         propertySetter = CreatePropertySetter(propertyInfo);

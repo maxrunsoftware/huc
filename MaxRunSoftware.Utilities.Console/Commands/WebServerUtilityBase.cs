@@ -111,12 +111,9 @@ public abstract class WebServerUtilityBase
     {
         Context = context;
         var responseFormat = GetParameterString("format", "html").TrimOrNull() ?? "html";
-        if (responseFormat.EqualsCaseInsensitive(nameof(Format.Json)))
-            ResponseFormat = Format.Json;
-        else if (responseFormat.EqualsCaseInsensitive(nameof(Format.Xml)))
-            ResponseFormat = Format.Xml;
-        else
-            ResponseFormat = Format.Html;
+        if (responseFormat.EqualsCaseInsensitive(nameof(Format.Json))) { ResponseFormat = Format.Json; }
+        else if (responseFormat.EqualsCaseInsensitive(nameof(Format.Xml))) { ResponseFormat = Format.Xml; }
+        else { ResponseFormat = Format.Html; }
 
         if (ResponseFormat == Format.Json) return HandleJson();
 

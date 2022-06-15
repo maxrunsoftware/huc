@@ -50,14 +50,10 @@ public class SqlException : Exception
             foreach (var p in parameters.OrderByDescending(p => p.ParameterName.Length).ThenByDescending(p => p.ParameterName))
             {
                 string val;
-                if (p.Value == null || p.Value.Equals(DBNull.Value))
-                    val = "NULL";
-                else if (p.DbType == DbType.Binary && p.Value is byte[] bytes)
-                    val = "byte[" + bytes.Length + "]";
-                else if (Constant.DBTYPES_NUMERIC.Contains(p.DbType))
-                    val = p.Value.ToString();
-                else
-                    val = "'" + p.Value + "'";
+                if (p.Value == null || p.Value.Equals(DBNull.Value)) { val = "NULL"; }
+                else if (p.DbType == DbType.Binary && p.Value is byte[] bytes) { val = "byte[" + bytes.Length + "]"; }
+                else if (Constant.DBTYPES_NUMERIC.Contains(p.DbType)) { val = p.Value.ToString(); }
+                else { val = "'" + p.Value + "'"; }
 
                 sql = sql.Replace(p.ParameterName, val);
             }

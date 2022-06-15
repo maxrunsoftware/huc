@@ -443,8 +443,9 @@ public abstract class Command : ICommand
         val = Path.GetFullPath(val);
         log.DebugParameter(valueName, val);
         if (isExist)
-            if (!Directory.Exists(val))
-                throw new DirectoryNotFoundException("Arg <" + valueName + "> directory " + val + " does not exist");
+        {
+            if (!Directory.Exists(val)) { throw new DirectoryNotFoundException("Arg <" + valueName + "> directory " + val + " does not exist"); }
+        }
 
         return val;
     }
@@ -520,8 +521,7 @@ public abstract class Command : ICommand
         else
         {
             fileName = Path.GetFullPath(fileName);
-            if (Util.IsDirectory(fileName))
-                l.AddRange(Util.FileListFiles(fileName, recursive));
+            if (Util.IsDirectory(fileName)) { l.AddRange(Util.FileListFiles(fileName, recursive)); }
             else if (Util.IsFile(fileName)) l.Add(fileName);
         }
 

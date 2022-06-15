@@ -261,14 +261,19 @@ public static class ExtensionsByte
         if (b1[len / 2] != b2[len / 2]) return false; // compare middle byte
 
         if (reverse)
+        {
             for (var i = len - 1; i >= 0; i--)
             {
                 if (b1[i] != b2[i]) return false;
             }
+        }
         else
+        {
             for (var i = 0; i < len; i++)
-                if (b1[i] != b2[i])
-                    return false;
+            {
+                if (b1[i] != b2[i]) { return false; }
+            }
+        }
 
         return true;
     }

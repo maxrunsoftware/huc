@@ -41,8 +41,9 @@ public class LdapEntryAttributeValue
 
             if (s.EndsWith("Z") || s.EndsWith("z"))
                 // ReSharper disable once StringLiteralTypo
-                if (DateTime.TryParseExact(s, "yyyyMMddHHmmss.0Z", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
-                    return dt.ToUniversalTime();
+            {
+                if (DateTime.TryParseExact(s, "yyyyMMddHHmmss.0Z", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt)) { return dt.ToUniversalTime(); }
+            }
 
             if (Long != null)
             {

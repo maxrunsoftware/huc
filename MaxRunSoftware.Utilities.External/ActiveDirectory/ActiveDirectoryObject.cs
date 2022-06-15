@@ -724,8 +724,9 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
 
                 var uac = uacNullable.Value;
                 foreach (var item in Util.GetEnumItems<ActiveDirectoryUserAccountControl>())
-                    if ((uac & (int)item) == (int)item)
-                        set.Add(item);
+                {
+                    if ((uac & (int)item) == (int)item) { set.Add(item); }
+                }
 
                 userAccountControls = set;
             }
@@ -887,10 +888,8 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         var found = false;
         foreach (var member in Member)
         {
-            if (string.Equals(distinguishedName, member, StringComparison.OrdinalIgnoreCase))
-                found = true;
-            else
-                list.Add(member);
+            if (string.Equals(distinguishedName, member, StringComparison.OrdinalIgnoreCase)) { found = true; }
+            else { list.Add(member); }
         }
 
         if (!found) return false;
@@ -1029,12 +1028,9 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                         var index = 0;
                         foreach (var attributeValueObject in enumerable)
                         {
-                            if (attributeValueObject is string str2)
-                                v.Add((index, str2));
-                            else if (attributeValueObject is byte[] bytes2)
-                                v.Add((index, "0x" + Util.Base16(bytes2)));
-                            else
-                                v.Add((index, attributeValueObject.ToStringGuessFormat()));
+                            if (attributeValueObject is string str2) { v.Add((index, str2)); }
+                            else if (attributeValueObject is byte[] bytes2) { v.Add((index, "0x" + Util.Base16(bytes2))); }
+                            else { v.Add((index, attributeValueObject.ToStringGuessFormat())); }
 
                             index++;
                         }

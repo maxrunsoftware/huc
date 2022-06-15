@@ -155,8 +155,9 @@ public abstract class Sql
                 {
                     var val = row[i];
                     if (InsertCoerceValues)
-                        if (sqlObjectTableColumns != null && sqlObjectTableColumns.TryGetValue(tableData.Columns[i].Name, out var sqlObjectTableColumn))
-                            val = InsertCoerceValue(val, sqlObjectTableColumn);
+                    {
+                        if (sqlObjectTableColumns != null && sqlObjectTableColumns.TryGetValue(tableData.Columns[i].Name, out var sqlObjectTableColumn)) { val = InsertCoerceValue(val, sqlObjectTableColumn); }
+                    }
 
                     command.AddParameter(DbType.String, parameterName: "@v" + currentParameterCount, size: -1, value: val);
 
@@ -364,11 +365,15 @@ public abstract class Sql
 
         var el = EscapeLeft;
         if (el != null)
+        {
             while (!string.IsNullOrEmpty(objectToUnescape) && objectToUnescape.StartsWith(el.Value)) { objectToUnescape = objectToUnescape.RemoveLeft(1).TrimOrNull(); }
+        }
 
         var er = EscapeRight;
         if (er != null)
+        {
             while (!string.IsNullOrEmpty(objectToUnescape) && objectToUnescape.EndsWith(er.Value)) { objectToUnescape = objectToUnescape.RemoveRight(1).TrimOrNull(); }
+        }
 
         return objectToUnescape.TrimOrNull();
     }

@@ -64,10 +64,12 @@ public static class ExtensionsType
     {
         // https://stackoverflow.com/a/25287378
         if (type.IsGenericType)
+        {
             return string.Format(
                 "{0}<{1}>",
                 type.Name.Substring(0, type.Name.LastIndexOf("`", StringComparison.InvariantCulture)),
                 string.Join(", ", type.GetGenericArguments().Select(NameFormatted)));
+        }
 
         return type.Name;
     }

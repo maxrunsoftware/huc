@@ -47,10 +47,8 @@ public class Versions : Command
     private void DownloadLatestRelease(Release release)
     {
         var hucFileName = "huc-";
-        if (Constant.OS_MAC)
-            hucFileName += "osx";
-        else if (Constant.OS_UNIX)
-            hucFileName += "linux";
+        if (Constant.OS_MAC) { hucFileName += "osx"; }
+        else if (Constant.OS_UNIX) { hucFileName += "linux"; }
         else if (Constant.OS_WINDOWS) hucFileName += "win";
 
         hucFileName += ".zip";

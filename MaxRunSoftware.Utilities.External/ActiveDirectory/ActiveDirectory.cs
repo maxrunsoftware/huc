@@ -137,27 +137,32 @@ public class ActiveDirectory : ActiveDirectoryCore
         {
             // full distinguished name
             foreach (var ou in ous)
-                if (ou.DistinguishedName.EqualsCaseInsensitive(ouName))
-                    d[ou.DistinguishedName] = ou;
+            {
+                if (ou.DistinguishedName.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+            }
         }
         else
         {
             // SAM account name of OU
             foreach (var ou in ous)
-                if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsCaseInsensitive(ouName))
-                    d[ou.DistinguishedName] = ou;
+            {
+                if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+            }
 
             foreach (var ou in ous)
-                if (ou.Name != null && ou.Name.EqualsCaseInsensitive(ouName))
-                    d[ou.DistinguishedName] = ou;
+            {
+                if (ou.Name != null && ou.Name.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+            }
 
             foreach (var ou in ous)
-                if (ou.DisplayName != null && ou.DisplayName.EqualsCaseInsensitive(ouName))
-                    d[ou.DistinguishedName] = ou;
+            {
+                if (ou.DisplayName != null && ou.DisplayName.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+            }
 
             foreach (var ou in ous)
-                if (ou.ObjectName != null && ou.ObjectName.EqualsCaseInsensitive(ouName))
-                    d[ou.DistinguishedName] = ou;
+            {
+                if (ou.ObjectName != null && ou.ObjectName.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+            }
         }
 
         return d.Values.ToList();
@@ -345,8 +350,10 @@ public class ActiveDirectory : ActiveDirectoryCore
     public override void Dispose()
     {
         if (context != null)
+        {
             try { context.Dispose(); }
             catch (Exception e) { log.Warn("Error disposing of " + context.GetType().FullName, e); }
+        }
 
         base.Dispose();
     }

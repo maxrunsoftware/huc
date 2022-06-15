@@ -69,20 +69,16 @@ public class JsonWriter : IDisposable
 
     public IDisposable Object(string objectName = null)
     {
-        if (objectName == null)
-            writer.WriteStartObject();
-        else
-            writer.WriteStartObject(objectName);
+        if (objectName == null) { writer.WriteStartObject(); }
+        else { writer.WriteStartObject(objectName); }
 
         return new ObjectToken(this);
     }
 
     public IDisposable Array(string arrayPropertyName = null)
     {
-        if (arrayPropertyName == null)
-            writer.WriteStartArray();
-        else
-            writer.WriteStartArray(arrayPropertyName);
+        if (arrayPropertyName == null) { writer.WriteStartArray(); }
+        else { writer.WriteStartArray(arrayPropertyName); }
 
         return new ArrayToken(this);
     }

@@ -49,8 +49,9 @@ public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
         foreach (var allPropertyName in allPropertyNames.Keys)
         {
             foreach (var propertyToInclude in propertiesToInclude)
-                if (allPropertyName.EqualsWildcard(propertyToInclude, true))
-                    properties.Add(allPropertyName);
+            {
+                if (allPropertyName.EqualsWildcard(propertyToInclude, true)) { properties.Add(allPropertyName); }
+            }
         }
 
         properties = properties.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
@@ -65,10 +66,8 @@ public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
                 var first = true;
                 foreach (var property in properties)
                 {
-                    if (first)
-                        first = false;
-                    else
-                        sb.Append("\t");
+                    if (first) { first = false; }
+                    else { sb.Append("\t"); }
 
                     if (propValues.TryGetValue(property, out var val)) sb.Append(val ?? string.Empty);
                 }

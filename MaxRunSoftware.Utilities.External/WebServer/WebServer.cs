@@ -55,45 +55,33 @@ public class WebServer : IDisposable
                 case Swan.Logging.LogLevel.None:
                     break;
                 case Swan.Logging.LogLevel.Trace:
-                    if (logEvent.Exception == null)
-                        logSwan.Trace(logEvent.Message);
-                    else
-                        logSwan.Trace(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) { logSwan.Trace(logEvent.Message); }
+                    else { logSwan.Trace(logEvent.Message, logEvent.Exception); }
 
                     break;
                 case Swan.Logging.LogLevel.Debug:
-                    if (logEvent.Exception == null)
-                        logSwan.Debug(logEvent.Message);
-                    else
-                        logSwan.Debug(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) { logSwan.Debug(logEvent.Message); }
+                    else { logSwan.Debug(logEvent.Message, logEvent.Exception); }
 
                     break;
                 case Swan.Logging.LogLevel.Info:
-                    if (logEvent.Exception == null)
-                        logSwan.Info(logEvent.Message);
-                    else
-                        logSwan.Info(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) { logSwan.Info(logEvent.Message); }
+                    else { logSwan.Info(logEvent.Message, logEvent.Exception); }
 
                     break;
                 case Swan.Logging.LogLevel.Warning:
-                    if (logEvent.Exception == null)
-                        logSwan.Warn(logEvent.Message);
-                    else
-                        logSwan.Warn(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) { logSwan.Warn(logEvent.Message); }
+                    else { logSwan.Warn(logEvent.Message, logEvent.Exception); }
 
                     break;
                 case Swan.Logging.LogLevel.Error:
-                    if (logEvent.Exception == null)
-                        logSwan.Error(logEvent.Message);
-                    else
-                        logSwan.Error(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) { logSwan.Error(logEvent.Message); }
+                    else { logSwan.Error(logEvent.Message, logEvent.Exception); }
 
                     break;
                 case Swan.Logging.LogLevel.Fatal:
-                    if (logEvent.Exception == null)
-                        logSwan.Critical(logEvent.Message);
-                    else
-                        logSwan.Critical(logEvent.Message, logEvent.Exception);
+                    if (logEvent.Exception == null) { logSwan.Critical(logEvent.Message); }
+                    else { logSwan.Critical(logEvent.Message, logEvent.Exception); }
 
                     break;
             }
@@ -121,10 +109,8 @@ public class WebServer : IDisposable
     private async Task ProcessAction(IHttpContext context, Func<IHttpContext, object> handler)
     {
         var o = handler(context) ?? string.Empty;
-        if (o is string s)
-            await context.SendStringAsync(s, "text/html", Encoding.UTF8);
-        else
-            await context.SendDataAsync(o);
+        if (o is string s) { await context.SendStringAsync(s, "text/html", Encoding.UTF8); }
+        else { await context.SendDataAsync(o); }
     }
 
 

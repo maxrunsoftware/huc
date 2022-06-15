@@ -227,8 +227,9 @@ public static partial class Util
             yield return new FileListResult(currentDirectory, true, exception);
 
             if (exception == null && files != null)
-                for (var i = 0; i < files.Length; i++)
-                    yield return new FileListResult(Path.GetFullPath(files[i]), false, null);
+            {
+                for (var i = 0; i < files.Length; i++) { yield return new FileListResult(Path.GetFullPath(files[i]), false, null); }
+            }
 
             if (!recursive) queue.Clear();
         }
@@ -237,15 +238,17 @@ public static partial class Util
     public static IEnumerable<string> FileListFiles(string directoryPath, bool recursive = false)
     {
         foreach (var o in FileList(directoryPath, recursive))
-            if (o.Exception == null && !o.IsDirectory)
-                yield return o.Path;
+        {
+            if (o.Exception == null && !o.IsDirectory) { yield return o.Path; }
+        }
     }
 
     public static IEnumerable<string> FileListDirectories(string directoryPath, bool recursive = false)
     {
         foreach (var o in FileList(directoryPath, recursive))
-            if (o.Exception == null && o.IsDirectory)
-                yield return o.Path;
+        {
+            if (o.Exception == null && o.IsDirectory) { yield return o.Path; }
+        }
     }
 
     public static bool FileIsAbsolutePath(string path)
@@ -268,12 +271,15 @@ public static partial class Util
         string reassemblyChar;
         if (path.Contains("\\"))
             // windows path
+        {
             reassemblyChar = "\\";
+        }
         else if (path.Contains("/"))
             // linux / mac path
+        {
             reassemblyChar = "/";
-        else
-            reassemblyChar = Constant.OS_WINDOWS ? "\\" : "/";
+        }
+        else { reassemblyChar = Constant.OS_WINDOWS ? "\\" : "/"; }
 
         var pathParts = path.Split(reassemblyChar).TrimOrNull().WhereNotNull().ToList();
         if (pathParts.Count == 1) return null;

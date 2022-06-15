@@ -67,10 +67,8 @@ public class FileChecksum : Command
             var checksumFunction = GetHashMethod(checksumType);
             var checksum = checksumFunction(sourceFile);
 
-            if (sourceFiles.Count == 1)
-                log.Info(checksum);
-            else
-                log.Info(checksum + "  <--  " + sourceFile);
+            if (sourceFiles.Count == 1) { log.Info(checksum); }
+            else { log.Info(checksum + "  <--  " + sourceFile); }
         }
     }
 }
