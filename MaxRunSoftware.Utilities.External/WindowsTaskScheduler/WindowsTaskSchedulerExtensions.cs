@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using Microsoft.Win32.TaskScheduler;
 
 namespace MaxRunSoftware.Utilities.External;
@@ -21,4 +22,17 @@ public static class WindowsTaskSchedulerExtensions
     public static WindowsTaskSchedulerPath GetPath(this Task task) => new(task);
 
     public static WindowsTaskSchedulerPath GetPath(this TaskFolder folder) => new(folder);
+
+    public static DaysOfTheWeek ToDaysOfTheWeek(this DayOfWeek dayOfWeek) =>
+        dayOfWeek switch
+        {
+            DayOfWeek.Sunday => DaysOfTheWeek.Sunday,
+            DayOfWeek.Monday => DaysOfTheWeek.Monday,
+            DayOfWeek.Tuesday => DaysOfTheWeek.Tuesday,
+            DayOfWeek.Wednesday => DaysOfTheWeek.Wednesday,
+            DayOfWeek.Thursday => DaysOfTheWeek.Thursday,
+            DayOfWeek.Friday => DaysOfTheWeek.Friday,
+            DayOfWeek.Saturday => DaysOfTheWeek.Saturday,
+            _ => throw new ArgumentOutOfRangeException(nameof(dayOfWeek), dayOfWeek, null)
+        };
 }

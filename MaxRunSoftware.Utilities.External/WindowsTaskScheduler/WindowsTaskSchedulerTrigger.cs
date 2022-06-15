@@ -61,7 +61,7 @@ public class WindowsTaskSchedulerTrigger
             d.Add(enumItemName, (Directive)value);
             foreach (var altNamesAttribute in typeof(Directive).GetEnumItemAttributes<AltNamesAttribute>(enumItemName))
             {
-                foreach (var altName in altNamesAttribute.Names) { d.Add(altName, (Directive)value); }
+                foreach (var altName in altNamesAttribute.Names) d.Add(altName, (Directive)value);
             }
         }
 
@@ -72,11 +72,11 @@ public class WindowsTaskSchedulerTrigger
 
     private static void CheckTime(int hour, int minute, int second)
     {
-        if (hour < 0 || hour > 23) throw new ArgumentOutOfRangeException(nameof(hour), hour, $"Argument [{nameof(hour)}] must be between 0 - 23");
+        if (hour is < 0 or > 23) throw new ArgumentOutOfRangeException(nameof(hour), hour, $"Argument [{nameof(hour)}] must be between 0 - 23");
 
-        if (minute < 0 || minute > 59) throw new ArgumentOutOfRangeException(nameof(minute), minute, $"Argument [{nameof(minute)}] must be between 0 - 59");
+        if (minute is < 0 or > 59) throw new ArgumentOutOfRangeException(nameof(minute), minute, $"Argument [{nameof(minute)}] must be between 0 - 59");
 
-        if (second < 0 || second > 59) throw new ArgumentOutOfRangeException(nameof(second), second, $"Argument [{nameof(second)}] must be between 0 - 59");
+        if (second is < 0 or > 59) throw new ArgumentOutOfRangeException(nameof(second), second, $"Argument [{nameof(second)}] must be between 0 - 59");
     }
 
 
@@ -242,12 +242,7 @@ public class WindowsTaskSchedulerTrigger
         var startBoundary = DateTime.Today + TimeSpan.FromHours(hour) + TimeSpan.FromMinutes(minute);
         var t = new WeeklyTrigger { StartBoundary = startBoundary };
 
-        var list = new List<DaysOfTheWeek>();
-        foreach (var day in days)
-        {
-            var dotw = (DaysOfTheWeek)typeof(DaysOfTheWeek).GetEnumValue(day.ToString());
-            list.Add(dotw);
-        }
+        var list = days.Select(day => day.ToDaysOfTheWeek()).Distinct().OrderBy(day => day).ToList();
 
         t.DaysOfWeek = Util.CombineEnumFlags(list);
 
