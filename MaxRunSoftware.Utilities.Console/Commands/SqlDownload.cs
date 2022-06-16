@@ -14,7 +14,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
@@ -24,98 +24,135 @@ public class SqlDownload : SqlQueryBase
     {
         base.CreateHelp(help);
         help.AddSummary("Execute a SQL statement and/or script with a list of files to download, which must contain the columns [FileName] and [FileURL] and any [cookie_<CookieName>] cookies to be used");
+        help.AddParameter(nameof(threads), "t", "Number of threads (1)");
         help.AddParameter(nameof(showSuccess), "ss", "Show successfully downloaded file messages (false)");
         help.AddExample(HelpExamplePrefix + " -s=`SELECT file AS [FileName], myurl AS [FileURL] FROM MyDataTable`");
         help.AddExample(HelpExamplePrefix + " -f=`mssqlscript.sql`");
     }
 
+    private int threads;
     private bool showSuccess;
 
-    protected void DownloadFile(string fileName, string fileUrl, Dictionary<string, string> cookies, int rowNum)
+    private void ProcessFileDownload(FileDownload fileDownload)
     {
-        if (fileName == null) throw new Exception("[FileName] is NULL");
+        var msgPrefix = $"[{fileDownload.ResultNum}][{fileDownload.RowNum}]";
+        log.Debug($"{msgPrefix} Downloading [{fileDownload.FileName}] from {fileDownload.FileUrl}  (cookies: {fileDownload.Cookies.Count})");
 
-        if (fileUrl == null) throw new Exception("[FileURL] is NULL");
+        try
+        {
+            DeleteExistingFile(fileDownload.FileName);
+            var response = Util.WebDownload(fileDownload.FileUrl, fileDownload.FileName, cookies: fileDownload.Cookies);
+            var msg = $"{msgPrefix} Successfully downloaded file {fileDownload.FileName}  ({Util.FileGetSize(fileDownload.FileName)})";
+            if (showSuccess) { log.Info(msg); }
+            else { log.Debug(msg); }
 
-        log.Debug("[" + rowNum + "] Downloading [" + fileName + "] from " + fileUrl + "  (cookies: " + cookies.Count + ")");
+            log.Debug(response.ToString());
+            log.Trace(response.ToStringDetail());
+        }
+        catch (Exception e)
+        {
+            log.Warn($"{msgPrefix} Error downloading file {fileDownload.FileName} from {fileDownload.FileUrl}   : " + e.Message);
+            log.Debug(e);
+        }
+    }
+    
+    private class FileDownload
+    {
+        public string FileName { get; set; }
+        public string FileUrl { get; set; }
+        public Dictionary<string, string> Cookies { get; } = new();
+        public int ResultNum { get; set; }
+        public int RowNum { get; set; }
+        
+    }
 
-        DeleteExistingFile(fileName);
+    private List<FileDownload> ParseTable(Utilities.Table table, int resultSetNum)
+    {
+        var fileDownloads = new List<FileDownload>();
 
-        var response = Util.WebDownload(fileUrl, fileName, cookies: cookies);
-        var msg = "[" + rowNum + "] Successfully downloaded file " + fileName + "  (" + Util.FileGetSize(fileName) + ")";
-        if (showSuccess) { log.Info(msg); }
-        else { log.Debug(msg); }
+        log.Debug("Processing SQL Result: " + resultSetNum);
 
-        log.Debug(response.ToString());
-        log.Trace(response.ToStringDetail());
+        if (!table.Columns.TryGetColumn("FileName", out var columnFileName))
+        {
+            log.Warn("SQL Result " + resultSetNum + " does not contain a [FileName] column so skipping result");
+            return fileDownloads;
+        }
+
+        if (!table.Columns.TryGetColumn("FileURL", out var columnFileUrl))
+        {
+            log.Warn("SQL Result " + resultSetNum + " does not contain a [FileURL] column so skipping result");
+            return fileDownloads;
+        }
+
+        var cookieColumns = new List<TableColumn>();
+        foreach (var c in table.Columns)
+        {
+            if (c.Name.In(StringComparer.OrdinalIgnoreCase, "FileName", "FileURL")) continue;
+
+            if (c.Name.StartsWith("Cookie_", StringComparison.OrdinalIgnoreCase) || c.Name.StartsWith("Cookie.", StringComparison.OrdinalIgnoreCase))
+            {
+                if (c.Name.Length > 7)
+                {
+                    cookieColumns.Add(c);
+                }
+            }
+        }
+        foreach (var c in cookieColumns) log.Debug("Found cookie column [" + c.Name + "]");
+
+        var rowNum = 0;
+        foreach (var row in table)
+        {
+            rowNum++;
+            var fileDownload = new FileDownload();
+            fileDownload.FileName = row[columnFileName];
+            fileDownload.FileUrl = row[columnFileUrl];
+            fileDownload.RowNum = rowNum;
+            fileDownload.ResultNum = resultSetNum;
+            foreach (var c in cookieColumns) fileDownload.Cookies[c.Name.Substring(7)] = row[c];
+                
+            if (fileDownload.FileName == null) continue; // TODO: Log message
+            if (fileDownload.FileUrl == null) continue; // TODO: Log message
+                
+            fileDownloads.Add(fileDownload);
+        }
+
+        
+        return fileDownloads;
     }
 
     protected override void ExecuteInternal()
     {
         base.ExecuteInternal();
 
+        threads = GetArgParameterOrConfigInt(nameof(threads), "t", 1);
         showSuccess = GetArgParameterOrConfigBool(nameof(showSuccess), "ss", false);
         var tables = ExecuteTables();
 
+        var fileDownloads = new List<FileDownload>();
+        
         var resultSetNum = 0;
-        var resultSuccessNum = 0;
-        var resultFailNum = 0;
-
-        log.Info("Starting download of " + tables.Sum(o => o.Count) + " files");
         foreach (var table in tables)
         {
             resultSetNum++;
-            log.Debug("Processing SQL Result: " + resultSetNum);
-
-            if (!table.Columns.TryGetColumn("FileName", out var columnFileName))
-            {
-                log.Warn("SQL Result " + resultSetNum + " does not contain a [FileName] column so skipping result");
-                continue;
-            }
-
-            if (!table.Columns.TryGetColumn("FileURL", out var columnFileUrl))
-            {
-                log.Warn("SQL Result " + resultSetNum + " does not contain a [FileURL] column so skipping result");
-                continue;
-            }
-
-            var cookieColumns = new List<TableColumn>();
-            foreach (var c in table.Columns)
-            {
-                if (c.Name.In(StringComparer.OrdinalIgnoreCase, "FileName", "FileURL")) continue;
-
-                if (c.Name.StartsWith("Cookie_", StringComparison.OrdinalIgnoreCase) || c.Name.StartsWith("Cookie.", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (c.Name.Length > 7) { cookieColumns.Add(c); }
-                }
-            }
-
-            foreach (var c in cookieColumns) log.Debug("Found cookie column [" + c.Name + "]");
-
-            var rowNum = 0;
-            foreach (var row in table)
-            {
-                rowNum++;
-                var fileName = row[columnFileName];
-                var fileUrl = row[columnFileUrl];
-
-                var cookies = new Dictionary<string, string>();
-                foreach (var c in cookieColumns) cookies[c.Name.Substring(7)] = row[c];
-
-                try
-                {
-                    DownloadFile(fileName, fileUrl, cookies, rowNum);
-                    resultSuccessNum++;
-                }
-                catch (Exception e)
-                {
-                    resultFailNum++;
-                    log.Warn($"[{resultSetNum}][{rowNum}] Error downloading file {fileName} from {fileUrl}   : " + e.Message);
-                    log.Debug(e);
-                }
-            }
+            fileDownloads.AddRange(ParseTable(table, resultSetNum));
         }
 
-        log.Info($"Downloads complete  Success:{resultSuccessNum}  Failed:{resultFailNum}");
+        log.Info($"Downloading {fileDownloads.Count} files");
+
+        var pool = new ConsumerThreadPool<FileDownload>(ProcessFileDownload);
+        pool.NumberOfThreads = threads;
+        foreach (var fileDownload in fileDownloads)
+        {
+            pool.AddWorkItem(fileDownload);
+        }
+        
+        pool.FinishedAddingWorkItems();
+
+        while (!pool.IsComplete)
+        {
+            Thread.Sleep(1000);
+        }
+        
+        log.Info($"Downloads complete " + fileDownloads.Count);
     }
 }
