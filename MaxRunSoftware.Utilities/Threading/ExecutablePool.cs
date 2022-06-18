@@ -69,9 +69,16 @@ public sealed class ExecutablePoolState
     public int ThreadsTotal { get; }
     public int ThreadsInactive { get; }
     public int ThreadsActive { get; }
+    
+    /// <summary>
+    /// The currently executing items. May be empty even though there actually are executing items if they were not requested.
+    /// You can check ExecutingItemsIncluded to see if these items were actually included in the snapshot request.
+    /// </summary>
     public IReadOnlyDictionary<int, IExecutable> ExecutingItems { get; }
-    public bool IsComplete { get; }
+
     public bool ExecutingItemsIncluded { get; }
+
+    public bool IsComplete { get; }
     
     public ExecutablePoolState(ExecutablePool executablePool, int threadsTotal, int threadsInactive, IReadOnlyDictionary<int, IExecutable> executingItems, bool isComplete)
     {
@@ -85,6 +92,17 @@ public sealed class ExecutablePoolState
     }
 }
 
+/// <summary>
+/// A basic single use thread-pool for executing multiple method calls simultaneously on multiple threads.
+/// The items to execute are supplied by the ExecutablePoolConfig.Enumerator provider.
+/// As items are supplied from the Enumerator they are processed by multiple threads.
+/// Access to the Enumerator is synchronous so the Enumerator does not need to be thread-safe, so any Enumerator will work.
+/// If the Enumerator ends, throws an exception, or returns a null element, the ExecutablePool considers that the end of the collection.
+/// The supplied IExecutablePoolConfig is copied on creation of the ExecutablePool so changes to the supplied IExecutablePoolConfig after startup are NOT honored.
+/// Execution begins immediately. This can be delayed by holding the lock on the IExecutablePoolConfig.SynchronizationLock object.
+/// Calling Dispose early on the ExecutablePool will cancel any future items but will not kill the actively processing elements. That needs to be handled by your own IExecutable implementation, or tearing down the whole AppDomain.
+/// This is NOT a lightweight implementation, as full System.Threading.Thread objects are created and destroyed on each ExecutablePool implementation.
+/// </summary>
 public class ExecutablePool : IDisposable
 {
     private static readonly int maxNumberOfThreads = 1000; // No one needs more then this many threads
@@ -99,6 +117,14 @@ public class ExecutablePool : IDisposable
     private readonly object synchronizationLock; // improve lock acquisition performance by copying locally
     private readonly List<ExecutablePoolThread> threads = new();
     
+    /// <summary>
+    /// Gets a snapshot of the state of the current ExecutablePool.
+    /// </summary>
+    /// <param name="includeExecutingItems">If true, then includes a snapshot of all of the executing items as well.
+    /// Getting the items can be an expensive operation if done repeatedly in a tight loop (because it requires a lock) so only use true if you actually need the items.
+    /// If you are just checking to see if the ExecutablePool is still executing (like in a loop) then use false.
+    /// </param>
+    /// <returns>A snapshot of the current ExecutablePool state</returns>
     public ExecutablePoolState GetState(bool includeExecutingItems)
     {
         lock (synchronizationLock)
@@ -115,7 +141,7 @@ public class ExecutablePool : IDisposable
 
     public static ExecutablePool Execute(IExecutablePoolConfig config) => new(config);
     
-    public ExecutablePool(IExecutablePoolConfig config)
+    protected ExecutablePool(IExecutablePoolConfig config)
     {
         config.CheckNotNull(nameof(config));
         log = LogFactory.LogFactoryImpl.GetLogger(GetType());

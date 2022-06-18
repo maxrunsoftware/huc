@@ -16,28 +16,35 @@ namespace MaxRunSoftware.Utilities;
 
 public abstract class SqlObject { }
 
-public class SqlObjectDatabase : SqlObject, IEquatable<SqlObjectDatabase>
+public sealed class SqlObjectDatabase : SqlObject, IEquatable<SqlObjectDatabase>
 {
+    private readonly int hashCode;
     public string DatabaseName { get; }
 
-    public SqlObjectDatabase(string databaseName) { DatabaseName = databaseName; }
+    public SqlObjectDatabase(string databaseName)
+    {
+        DatabaseName = databaseName;
+        
+        hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper());
+    }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectDatabase);
 
     public bool Equals(SqlObjectDatabase other)
     {
         if (other == null) return false;
-
+        if (ReferenceEquals(this, other)) return true;
+        if (GetHashCode() != other.GetHashCode()) return false;
         if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName)) return false;
-
         return true;
     }
 
-    public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper());
+    public override int GetHashCode() => hashCode;
 }
 
-public class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
+public sealed class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
 {
+    private readonly int hashCode;
     public string DatabaseName { get; }
     public string SchemaName { get; }
 
@@ -45,6 +52,8 @@ public class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
     {
         DatabaseName = databaseName;
         SchemaName = schemaName;
+        
+        hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper());
     }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectSchema);
@@ -52,17 +61,19 @@ public class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
     public bool Equals(SqlObjectSchema other)
     {
         if (other == null) return false;
-
-        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName)) return false;
-
+        if (ReferenceEquals(this, other)) return true;
+        if (GetHashCode() != other.GetHashCode()) return false;
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName)) return false;
+        if (!Util.IsEqualCaseInsensitive(SchemaName, other.SchemaName)) return false;
         return true;
     }
 
-    public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper());
+    public override int GetHashCode() => hashCode;
 }
 
-public class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
+public sealed  class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
 {
+    private readonly int hashCode;
     public string DatabaseName { get; }
     public string SchemaName { get; }
     public string TableName { get; }
@@ -72,6 +83,8 @@ public class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
         DatabaseName = databaseName;
         SchemaName = schemaName;
         TableName = tableName;
+        
+        hashCode =  Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
     }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectTable);
@@ -79,17 +92,20 @@ public class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
     public bool Equals(SqlObjectTable other)
     {
         if (other == null) return false;
-
-        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName, TableName, other.TableName)) return false;
-
+        if (ReferenceEquals(this, other)) return true;
+        if (GetHashCode() != other.GetHashCode()) return false;
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName)) return false;
+        if (!Util.IsEqualCaseInsensitive(SchemaName, other.SchemaName)) return false;
+        if (!Util.IsEqualCaseInsensitive(TableName, other.TableName)) return false;
         return true;
     }
 
-    public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
+    public override int GetHashCode() => hashCode;
 }
 
-public class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableColumn>
+public sealed class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableColumn>
 {
+    private readonly int hashCode;
     public string DatabaseName { get; }
     public string SchemaName { get; }
     public string TableName { get; }
@@ -132,6 +148,8 @@ public class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableColumn>
         NumericPrecision = numericPrecision;
         NumericScale = numericScale;
         ColumnDefault = columnDefault;
+        
+        hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper(), ColumnName?.ToUpper(), Ordinal);
     }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectTableColumn);
@@ -139,13 +157,15 @@ public class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableColumn>
     public bool Equals(SqlObjectTableColumn other)
     {
         if (other == null) return false;
-
-        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName, SchemaName, other.SchemaName, TableName, other.TableName, ColumnName, other.ColumnName)) return false;
-
+        if (ReferenceEquals(this, other)) return true;
+        if (GetHashCode() != other.GetHashCode()) return false;
         if (Ordinal != other.Ordinal) return false;
-
+        if (!Util.IsEqualCaseInsensitive(DatabaseName, other.DatabaseName)) return false;
+        if (!Util.IsEqualCaseInsensitive(SchemaName, other.SchemaName)) return false;
+        if (!Util.IsEqualCaseInsensitive(TableName, other.TableName)) return false;
+        if (!Util.IsEqualCaseInsensitive(ColumnName, other.ColumnName)) return false;
         return true;
     }
 
-    public override int GetHashCode() => Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper(), ColumnName?.ToUpper(), Ordinal);
+    public override int GetHashCode() => hashCode;
 }

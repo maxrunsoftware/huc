@@ -43,11 +43,11 @@ public class SqlOracle : Sql
 
         var sqlStatements = new[]
         {
-            "select SYS_CONTEXT('USERENV','DB_NAME') from dual;",
-            "select global_name from global_name;",
-            "select ora_database_name from dual;",
-            "select pdb_name FROM DBA_PDBS;",
-            "select name from v$database;"
+            "select SYS_CONTEXT('USERENV','DB_NAME') from dual",
+            "select global_name from global_name",
+            "select ora_database_name from dual",
+            "select pdb_name FROM DBA_PDBS",
+            "select name from v$database"
         };
 
         var exceptions = new List<Exception>();
@@ -75,9 +75,9 @@ public class SqlOracle : Sql
     {
         var sqlStatements = new[]
         {
-            "select SYS_CONTEXT('USERENV','CURRENT_SCHEMA') from dual;",
-            "select user from dual;",
-            "select SYS_CONTEXT('USERENV','SESSION_USER') from dual;"
+            "select SYS_CONTEXT('USERENV','CURRENT_SCHEMA') from dual",
+            "select user from dual",
+            "select SYS_CONTEXT('USERENV','SESSION_USER') from dual"
         };
 
         var exceptions = new List<Exception>();
@@ -117,12 +117,12 @@ public class SqlOracle : Sql
         // TODO: Expensive operation
         var sqlStatements = new[]
         {
-            "SELECT DISTINCT username FROM dba_users;",
-            "SELECT DISTINCT username FROM all_users;",
-            "SELECT DISTINCT owner FROM dba_objects;",
-            "SELECT DISTINCT owner FROM dba_segments;",
-            "SELECT DISTINCT OWNER FROM dba_tables;",
-            "SELECT DISTINCT OWNER FROM all_tables;"
+            "SELECT DISTINCT username FROM dba_users",
+            "SELECT DISTINCT username FROM all_users",
+            "SELECT DISTINCT owner FROM dba_objects",
+            "SELECT DISTINCT owner FROM dba_segments",
+            "SELECT DISTINCT OWNER FROM dba_tables",
+            "SELECT DISTINCT OWNER FROM all_tables"
         };
 
         var exceptions = new List<Exception>();
@@ -154,13 +154,12 @@ public class SqlOracle : Sql
         if (ShouldStop(database, out var dbName)) yield break;
 
         var currentSchema = GetCurrentSchemaName();
-
-        // TODO: Expensive operation
+        
         var sqlStatements = new[]
         {
-            "SELECT DISTINCT OWNER,TABLE_NAME FROM dba_tables;",
-            "SELECT DISTINCT OWNER,TABLE_NAME FROM all_tables;",
-            "SELECT DISTINCT NULL AS OWNER,TABLE_NAME FROM user_tables;"
+            "SELECT DISTINCT OWNER,TABLE_NAME FROM dba_tables",
+            "SELECT DISTINCT OWNER,TABLE_NAME FROM all_tables",
+            "SELECT DISTINCT NULL AS OWNER,TABLE_NAME FROM user_tables"
         };
 
         var exceptions = new List<Exception>();
@@ -184,6 +183,8 @@ public class SqlOracle : Sql
 
                 yield return so;
             }
+
+            //break;
         }
 
         if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
@@ -211,9 +212,9 @@ public class SqlOracle : Sql
         };
         var sqlStatements = new[]
         {
-            "SELECT DISTINCT      " + cols.ToStringDelimited(",") + " FROM dba_tab_columns;",
-            "SELECT DISTINCT      " + cols.ToStringDelimited(",") + " FROM all_tab_columns;",
-            "SELECT DISTINCT NULL " + cols.ToStringDelimited(",") + " FROM user_tab_columns;"
+            "SELECT " + cols.ToStringDelimited(",") + " FROM dba_tab_columns",
+            "SELECT " + cols.ToStringDelimited(",") + " FROM all_tab_columns",
+            "SELECT NULL AS OWNER," + cols.Skip(1).ToStringDelimited(",") + " FROM user_tab_columns"
         };
 
         var exceptions = new List<Exception>();
@@ -262,6 +263,8 @@ public class SqlOracle : Sql
 
                 yield return so;
             }
+            
+            //break;
         }
 
         if (alreadyUsed.IsEmpty() && exceptions.IsNotEmpty()) throw CreateExceptionErrorInSqlStatements(sqlStatements, exceptions);
@@ -295,7 +298,7 @@ public class SqlOracle : Sql
 
         if (DropTablePurge) sql.Append(" PURGE");
 
-        sql.Append(';');
+        //sql.Append(';');
 
         ExecuteNonQuery(sql.ToString());
         return true;

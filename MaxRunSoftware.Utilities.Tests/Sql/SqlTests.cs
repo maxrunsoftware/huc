@@ -30,27 +30,75 @@ public abstract class SqlTestBase<TSql> where TSql : Sql, new()
 
     protected abstract IReadOnlyList<string> Queries { get; }
 
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    public void QueryTest(int queryIndex)
+    private TSql CreateSql() => new TSql { ConnectionFactory = CreateConnection };
+    
+    [Fact]
+    public void QueryTests()
     {
-        var c = new TSql();
-        c.ConnectionFactory = CreateConnection;
-        c.ExecuteQuery(Queries[queryIndex], HandleDataReader);
+        var c = CreateSql();
+        
+        var src = c.ExecuteQuery(Queries[0]);
+        Assert.Single(src);
+        var sr = src[0];
+        output.WriteLine(sr.Columns.Names.ToStringDelimited(", "));
+        Assert.Equal(typeof(int), sr.Columns[0].DataType);
+
+        src = c.ExecuteQuery(Queries[1]);
+        Assert.Single(src);
+        sr = src[0];
+        output.WriteLine(sr.Columns.Names.ToStringDelimited(", "));
+        Assert.Equal(typeof(int), sr.Columns[0].DataType);
+        
+        
+        
+        
     }
 
-    private void HandleDataReader(IDataReader reader)
+   
+
+    [Fact]
+    public void GetCurrentDatabaseName()
     {
-        /*
-        var m = new SqlResultMeta(reader);
-        foreach (var c in m.Columns)
-        {
-            output.WriteLine(c.ToString());
-            output.WriteLine("");
-        }
-        */
+        var c = CreateSql();
+        Assert.NotNull(c.GetCurrentDatabaseName());
     }
+    
+    [Fact]
+    public void GetCurrentSchemaName()
+    {
+        var c = CreateSql();
+        Assert.NotNull(c.GetCurrentSchemaName());
+    }
+    
+    [Fact]
+    public void GetDatabases()
+    {
+        var c = CreateSql();
+        Assert.NotEmpty(c.GetDatabases());
+    }
+    
+    [Fact]
+    public void GetSchemas()
+    {
+        var c = CreateSql();
+        Assert.NotEmpty(c.GetSchemas());
+    }
+
+    [Fact]
+    public void GetTables()
+    {
+        var c = CreateSql();
+        Assert.NotEmpty(c.GetTables());
+    }
+
+    [Fact]
+    public void GetTableColumns()
+    {
+        var c = CreateSql();
+        var o = c.GetTableColumns();
+        Assert.NotEmpty(o);
+    }
+    
 }
 
 public class MsSqlTests : SqlTestBase<SqlMsSql>
@@ -61,8 +109,9 @@ public class MsSqlTests : SqlTestBase<SqlMsSql>
 
     protected override IReadOnlyList<string> Queries => new[]
     {
-        "SELECT * FROM Orders",
-        "SELECT * FROM Orders WHERE 1=0"
+        "SELECT * FROM NORTHWIND.dbo.ORDERS",
+        "SELECT * FROM NORTHWIND.dbo.ORDERS WHERE 1=0",
+        
     };
 }
 
@@ -74,8 +123,8 @@ public class MySqlTests : SqlTestBase<SqlMySql>
 
     protected override IReadOnlyList<string> Queries => new[]
     {
-        "SELECT * FROM Orders",
-        "SELECT * FROM Orders WHERE 1=0"
+        "SELECT * FROM NORTHWIND.ORDERS",
+        "SELECT * FROM NORTHWIND.ORDERS WHERE 1=0",
     };
 }
 
@@ -87,7 +136,7 @@ public class OracleTests : SqlTestBase<SqlOracle>
 
     protected override IReadOnlyList<string> Queries => new[]
     {
-        "SELECT * FROM user_tables",
-        "SELECT * FROM user_tables WHERE 1=0"
+        "SELECT * FROM NORTHWIND.ORDERS",
+        "SELECT * FROM NORTHWIND.ORDERS WHERE 1=0",
     };
 }

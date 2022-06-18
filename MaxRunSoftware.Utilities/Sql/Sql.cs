@@ -87,8 +87,9 @@ public abstract class Sql
         sb.Append(string.Join(",", columnNames));
         sb.Append(") VALUES (");
         sb.Append(string.Join(",", columnParameterNames));
-        sb.Append(");");
-
+        sb.Append(')');
+        //sb.Append(';');  // breaks Oracle
+        
         using var cmd = CreateCommand(connection, sb.ToString());
 
         for (var i = 0; i < columnValues.Length; i++) cmd.AddParameter(parameterName: columnParameterNames[i], value: columnValues[i]);
@@ -130,7 +131,7 @@ public abstract class Sql
                 commandVariableName++;
             }
 
-            sbInsert.Append("); ");
+            sbInsert.Append("); "); // TODO: Check Oracle
             commandsByRow[i] = sbInsert.ToString();
         }
 
@@ -315,7 +316,6 @@ public abstract class Sql
     }
 
     #endregion Execute
-
 
     #region Escape / Format
 

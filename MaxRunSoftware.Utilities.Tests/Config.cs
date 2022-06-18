@@ -19,6 +19,11 @@ namespace MaxRunSoftware.Utilities.Tests;
 public static class Config
 {
     public static string Sql_MsSql_ConnectionString => "Server=172.16.46.3;Database=NorthWind;User Id=testuser;Password=testpass;TrustServerCertificate=True;";
+    
     public static string Sql_MySql_ConnectionString => "Server=172.16.46.3;Database=NorthWind;User Id=testuser;Password=testpass;";
-    public static string Sql_Oracle_ConnectionString => "Data Source=172.16.46.9;User Id=system;Password=oracle;";
+    
+    //public static string Sql_Oracle_ConnectionString => "Data Source=172.16.46.9;User Id=system;Password=oracle;";
+    public static string Sql_Oracle_ConnectionString => "Data Source=172.16.46.9:1521/orcl;User Id=testuser;Password=testpass;";
+
+
 }

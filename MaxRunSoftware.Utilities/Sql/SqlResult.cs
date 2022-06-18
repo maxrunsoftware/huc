@@ -83,13 +83,13 @@ public class SqlResultColumnCollection : SqlResultBase, IReadOnlyList<SqlResultC
         columns = reader.GetSchema(fullSchemaDetails).Select(o => new SqlResultColumn(o)).OrderBy(o => o.Index).ToList().AsReadOnly();
 
         columnsByName = columns.ToDictionaryReadOnlyStringCaseInsensitive(o => o.Name);
-        ColumnNames = columns.Select(o => o.Name).ToList().AsReadOnly();
+        Names = columns.Select(o => o.Name).ToList().AsReadOnly();
         columnIndexes = columns.Select(o => o.Index).ToList().AsReadOnly();
     }
 
     public SqlResultColumn this[int index] => columns[index];
     public SqlResultColumn this[string name] => columnsByName[name];
-    public IReadOnlyList<string> ColumnNames { get; }
+    public IReadOnlyList<string> Names { get; }
 
     public bool Contains(int index) => index >= 0 && index < Count;
 
@@ -101,7 +101,7 @@ public class SqlResultColumnCollection : SqlResultBase, IReadOnlyList<SqlResultC
 
     public IEnumerator<SqlResultColumn> GetEnumerator() => columns.GetEnumerator();
 
-    IEnumerable<string> IBucketReadOnly<string, SqlResultColumn>.Keys => ColumnNames;
+    IEnumerable<string> IBucketReadOnly<string, SqlResultColumn>.Keys => Names;
     IEnumerable<int> IBucketReadOnly<int, SqlResultColumn>.Keys => columnIndexes;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

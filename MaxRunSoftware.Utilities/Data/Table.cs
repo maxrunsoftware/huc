@@ -193,7 +193,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         var items = new List<string[]>(sqlResult.Rows.Count + 1);
         var columns = sqlResult.Columns.ToArray();
         var width = columns.Length;
-        items.Add(sqlResult.Columns.ColumnNames.ToArray());
+        items.Add(sqlResult.Columns.Names.ToArray());
         
         foreach (var row in sqlResult.Rows)
         {
