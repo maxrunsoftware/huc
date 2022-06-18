@@ -41,7 +41,7 @@ public class SqlMsSql : Sql
     public override IEnumerable<SqlObjectDatabase> GetDatabases()
     {
         var sql = "SELECT DISTINCT [name] FROM sys.databases;";
-        var t = ExecuteQuery(sql).First();
+        var t = this.ExecuteQueryToTable(sql);
         foreach (var r in t)
         {
             var so = new SqlObjectDatabase(r[0]);

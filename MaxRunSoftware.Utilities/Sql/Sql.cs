@@ -167,9 +167,10 @@ public abstract class Sql
                 if (currentParameterCount + countColumns > bs || currentRow == countRows)
                 {
                     // Commit tran
-                    command.CommandText = sb.ToString().TrimOrNull();
-                    if (command.CommandText != null)
+                    var sqlText = sb.ToString().TrimOrNull();
+                    if (sqlText != null)
                     {
+                        command.CommandText = sqlText;
                         log.Trace("ExecuteNonQuery: " + command.CommandText);
                         command.ExecuteNonQueryExceptionWrapped(ExceptionShowFullSql);
                         command.Dispose();
@@ -259,30 +260,18 @@ public abstract class Sql
         }
     }
 
-    public Table[] ExecuteQuery(string sql, params SqlParameter[] parameters)
+    public SqlResultCollection ExecuteQuery(string sql, params SqlParameter[] parameters)
     {
         using (var connection = OpenConnection())
         using (var command = CreateCommand(connection, sql))
         {
             AddParameters(command, parameters);
             log.Trace($"ExecuteQuery: {sql}");
-            using (var reader = command.ExecuteReaderExceptionWrapped(ExceptionShowFullSql)) { return Table.Create(reader); }
+            using (var reader = command.ExecuteReaderExceptionWrapped(ExceptionShowFullSql)) { return reader.ReadSqlResults(); }
         }
     }
 
-    public List<string> ExecuteQueryToList(string sql, params SqlParameter[] parameters)
-    {
-        var tables = ExecuteQuery(sql, parameters);
-        var list = new List<string>();
-        if (tables.Length < 1) return list;
 
-        var table = tables[0];
-        if (table.Columns.Count < 1) return list;
-
-        foreach (var row in table) list.Add(row[0]);
-
-        return list;
-    }
 
     public int ExecuteNonQuery(string sql, params SqlParameter[] parameters)
     {
@@ -384,7 +373,7 @@ public abstract class Sql
 
     protected Table Query(string sql, List<Exception> exceptions)
     {
-        try { return ExecuteQuery(sql).First(); }
+        try { return this.ExecuteQueryToTable(sql); }
         catch (Exception e)
         {
             log.Debug("Error Executing SQL: " + sql, e);

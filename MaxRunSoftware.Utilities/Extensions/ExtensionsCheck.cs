@@ -351,7 +351,7 @@ public static class ExtensionsCheck
 
     #region CheckNotZeroNotNegative
 
-    private static ArgumentOutOfRangeException CheckNotZeroNotNegativeException(object argument, string argumentName) => new(argumentName, $"Argument {argumentName} with value {argument} cannot be negative or zero.");
+    private static ArgumentOutOfRangeException CheckNotZeroNotNegativeException(object argument, string argumentName) => new(argumentName, argument, $"Argument {argumentName} with value {argument} cannot be negative or zero.");
 
     public static byte CheckNotZeroNotNegative(this byte argument, string argumentName)
     {
@@ -444,7 +444,7 @@ public static class ExtensionsCheck
     [ContractAnnotation("argument: null => halt")]
     public static T CheckNotNull<T>([NoEnumeration] this T argument, string argumentName) where T : class
     {
-        if (argument == null) throw new ArgumentNullException(argumentName);
+        if (argument == null) throw new ArgumentNullException(argumentName, "Argument " + argumentName + " cannot be null");
 
         return argument;
     }

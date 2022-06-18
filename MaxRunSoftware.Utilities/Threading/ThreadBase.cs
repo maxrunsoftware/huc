@@ -57,12 +57,12 @@ public abstract class ThreadBase : IDisposable
     }
 
     /// <summary>
-    /// Peform work. When this method returns Dispose() is automatically called and the thread shuts down.
+    /// Perform work. When this method returns Dispose() is automatically called and the thread shuts down.
     /// </summary>
     protected abstract void Work();
 
     /// <summary>
-    /// Dispose of any resources used. Guarenteed to be only called once.
+    /// Dispose of any resources used. Guaranteed to be only called once.
     /// </summary>
     protected virtual void DisposeInternally() { }
 
@@ -87,7 +87,7 @@ public abstract class ThreadBase : IDisposable
 
         thread.IsBackground = isBackgroundThread;
         thread.Name = name ?? GetType().FullNameFormatted();
-        if (!GetType().Equals(typeof(LogBackgroundThread))) LogFactory.GetLogger<ThreadBase>().Debug($"Starting thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
+        if (GetType() != typeof(LogBackgroundThread)) LogFactory.GetLogger<ThreadBase>().Debug($"Starting thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
 
         thread.Start();
     }

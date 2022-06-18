@@ -184,6 +184,30 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         return list.ToArray();
     }
 
+    public static Table[] Create(SqlResultCollection sqlResultCollection) => Create(sqlResultCollection, (o, _) => Util.ChangeType<string>(o));
+
+    public static Table[] Create(SqlResultCollection sqlResultCollection, Func<object, SqlResultColumn, string> converter) => sqlResultCollection.Select(o => Create(o, converter)).ToArray();
+
+    public static Table Create(SqlResult sqlResult, Func<object, SqlResultColumn, string> converter)
+    {
+        var items = new List<string[]>(sqlResult.Rows.Count + 1);
+        var columns = sqlResult.Columns.ToArray();
+        var width = columns.Length;
+        items.Add(sqlResult.Columns.ColumnNames.ToArray());
+        
+        foreach (var row in sqlResult.Rows)
+        {
+            var array = new string[width];
+            for (var i = 0; i < width; i++)
+            {
+                array[i] = converter(row[i], columns[i]);
+            }
+            items.Add(array);
+        }
+
+        return Create(items, true);
+    }
+
     #endregion Create
 
     #region RemoveColumns

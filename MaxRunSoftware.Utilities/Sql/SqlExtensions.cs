@@ -33,4 +33,20 @@ public static class SqlExtensions
         try { return command.ExecuteNonQuery(); }
         catch (Exception e) { throw new SqlException(e, command, exceptionShowFullSql); }
     }
+    
+    public static List<string> ExecuteQueryToList(this Sql sql, string sqlQuery, params SqlParameter[] parameters)
+    {
+        var list = new List<string>();
+        var table = ExecuteQueryToTable(sql, sqlQuery, parameters);
+        if (table == null) return list;
+        if (table.Columns.Count < 1) return list;
+
+        foreach (var row in table) list.Add(row[0]);
+
+        return list;
+    }
+
+    public static Table ExecuteQueryToTable(this Sql sql, string sqlQuery, params SqlParameter[] parameters) => ExecuteQueryToTables(sql, sqlQuery, parameters).FirstOrDefault();
+    
+    public static Table[] ExecuteQueryToTables(this Sql sql, string sqlQuery, params SqlParameter[] parameters) => Table.Create(sql.ExecuteQuery(sqlQuery, parameters));
 }

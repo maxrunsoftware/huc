@@ -40,7 +40,7 @@ public class SqlMySql : Sql
 
     public override IEnumerable<SqlObjectDatabase> GetDatabases()
     {
-        var t = ExecuteQuery("SELECT DISTINCT schema_name FROM information_schema.schemata;")[0];
+        var t = this.ExecuteQueryToTable("SELECT DISTINCT schema_name FROM information_schema.schemata;");
         foreach (var r in t)
         {
             var so = new SqlObjectDatabase(r[0]);
@@ -70,7 +70,7 @@ public class SqlMySql : Sql
 
         sql.Append(';');
 
-        var t = ExecuteQuery(sql.ToString())[0];
+        var t = this.ExecuteQueryToTable(sql.ToString());
 
         foreach (var r in t)
         {
@@ -119,7 +119,7 @@ public class SqlMySql : Sql
 
         sb.Append(';');
 
-        var t = ExecuteQuery(sb.ToString())[0];
+        var t = this.ExecuteQueryToTable(sb.ToString());
         foreach (var r in t)
         {
             var dbTypeItem = GetSqlDbType(r[3]);

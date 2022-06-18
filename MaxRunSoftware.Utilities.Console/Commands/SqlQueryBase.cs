@@ -61,7 +61,7 @@ public abstract class SqlQueryBase : SqlBase
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         var c = GetSqlHelper();
-        var tables = c.ExecuteQuery(sql);
+        var tables = c.ExecuteQueryToTables(sql);
         stopwatch.Stop();
         var stopwatchTime = stopwatch.Elapsed.TotalSeconds.ToString(MidpointRounding.AwayFromZero, 3);
         log.Info($"Completed SQL execution in {stopwatchTime} seconds");

@@ -974,4 +974,34 @@ public static class ExtensionsCollection
     }
 
     #endregion Set
+
+    #region Enumerator
+
+    public static bool TryGetNext<T>(this IEnumerator<T> enumerator, out T obj)
+    {
+        var moveNext = enumerator.MoveNext();
+        if (moveNext)
+        {
+            obj = enumerator.Current;
+            return true;
+        }
+
+        obj = default;
+        return false;
+    }
+
+    public static bool TryGetNext(this IEnumerator enumerator, out object obj)
+    {
+        var moveNext = enumerator.MoveNext();
+        if (moveNext)
+        {
+            obj = enumerator.Current;
+            return true;
+        }
+
+        obj = default;
+        return false;
+    }
+
+    #endregion Enumerator
 }
