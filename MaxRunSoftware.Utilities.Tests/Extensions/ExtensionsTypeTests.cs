@@ -20,7 +20,7 @@ public class ExtensionsTypeTests : TestBase
 {
     public ExtensionsTypeTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 
-    [TestFact]
+    [Fact]
     public void Name_Primitive()
     {
         Assert.Equal("Void", typeof(void).Name);

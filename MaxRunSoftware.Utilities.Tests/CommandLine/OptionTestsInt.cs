@@ -32,7 +32,7 @@ public class OptionTestsInt : OptionTestsBase
         public int Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value()
     {
         var (o, r) = Scan<Value_Command>();
@@ -54,7 +54,7 @@ public class OptionTestsInt : OptionTestsBase
         public int? Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value_Nullable()
     {
         var (o, r) = Scan<Value_Nullable_Command>();
@@ -81,7 +81,7 @@ public class OptionTestsInt : OptionTestsBase
         public int Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value_Min()
     {
         var (o, r) = Scan<Value_Min_Command>();
@@ -109,7 +109,7 @@ public class OptionTestsInt : OptionTestsBase
         public int Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value_Max()
     {
         var (o, r) = Scan<Value_Max_Command>();
@@ -137,7 +137,7 @@ public class OptionTestsInt : OptionTestsBase
         public int Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value_Min_Max()
     {
         var (o, r) = Scan<Value_Min_Max_Command>();
@@ -171,7 +171,7 @@ public class OptionTestsInt : OptionTestsBase
         public int Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Validate_Default()
     {
         var (o, r) = Scan<Validate_Default_Command>();
@@ -203,7 +203,7 @@ public class OptionTestsInt : OptionTestsBase
         public int? Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Validate_Default_Nullable()
     {
         var (o, r) = Scan<Validate_Default_Nullable_Command>();
@@ -235,7 +235,7 @@ public class OptionTestsInt : OptionTestsBase
         public int Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Validate_Min_Default_Fails()
     {
         var (o, r) = Scan<Validate_Min_Default_Fails_Command>();
@@ -252,7 +252,7 @@ public class OptionTestsInt : OptionTestsBase
         public int Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Validate_Max_Default_Fails()
     {
         var (o, r) = Scan<Validate_Max_Default_Fails_Command>();

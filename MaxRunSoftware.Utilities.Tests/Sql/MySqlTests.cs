@@ -16,7 +16,7 @@ using MySql.Data.MySqlClient;
 
 namespace MaxRunSoftware.Utilities.Tests.Sql;
 
-[Trait("Sql", "MySql")]
+[Trait("Category", "Sql")]
 public class MySqlTests : SqlTestBase<SqlMySql>
 {
     protected override IDbConnection CreateConnection() => new MySqlConnection(Config.Sql_MySql_ConnectionString);

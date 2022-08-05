@@ -14,12 +14,13 @@
 
 namespace MaxRunSoftware.Utilities.Tests.Sql;
 
-[Trait("Type", "Sql")]
+[Trait("Category", "Sql")]
 public abstract class SqlTestBase : TestBase
 {
     protected SqlTestBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 }
 
+[Trait("Category", "Sql")]
 public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql, new()
 {
     protected SqlTestBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
@@ -30,7 +31,7 @@ public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql
 
     protected TSql CreateSql() => new() { ConnectionFactory = CreateConnection };
 
-    [TestFact]
+    [Fact]
     public void QueryTests()
     {
         var c = CreateSql();
@@ -49,7 +50,7 @@ public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql
     }
 
 
-    [TestFact]
+    [Fact]
     public void GetCurrentDatabaseName()
     {
         var o = CreateSql().GetCurrentDatabaseName();
@@ -57,7 +58,7 @@ public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql
         Assert.NotNull(o);
     }
 
-    [TestFact]
+    [Fact]
     public void GetCurrentSchemaName()
     {
         var o = CreateSql().GetCurrentSchemaName();
@@ -65,7 +66,7 @@ public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql
         Assert.NotNull(o);
     }
 
-    [TestFact]
+    [Fact]
     public void GetDatabases()
     {
         var os = CreateSql().GetDatabases();
@@ -73,7 +74,7 @@ public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql
         Assert.NotEmpty(os);
     }
 
-    [TestFact]
+    [Fact]
     public void GetSchemas()
     {
         var os = CreateSql().GetSchemas();
@@ -81,7 +82,7 @@ public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql
         Assert.NotEmpty(os);
     }
 
-    [TestFact]
+    [Fact]
     public void GetTables()
     {
         var os = CreateSql().GetTables();
@@ -89,7 +90,7 @@ public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql
         Assert.NotEmpty(os);
     }
 
-    [TestFact]
+    [Fact]
     public void GetTableColumns()
     {
         var os = CreateSql().GetTableColumns();

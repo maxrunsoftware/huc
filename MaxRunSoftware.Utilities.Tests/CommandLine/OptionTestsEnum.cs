@@ -1,11 +1,11 @@
 // Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ public class OptionTestsEnum : OptionTestsBase
         public MyEnum Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value()
     {
         var (o, r) = Scan<Value_Command>();
@@ -60,7 +60,7 @@ public class OptionTestsEnum : OptionTestsBase
         public MyEnum? Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value_Nullable()
     {
         var (o, r) = Scan<Value_Nullable_Command>();
@@ -87,7 +87,7 @@ public class OptionTestsEnum : OptionTestsBase
         public MyEnum Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value_Min()
     {
         var (o, r) = Scan<Value_Min_Command>();
@@ -104,7 +104,7 @@ public class OptionTestsEnum : OptionTestsBase
         public MyEnum Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value_Max()
     {
         var (o, r) = Scan<Value_Min_Command>();
@@ -121,7 +121,7 @@ public class OptionTestsEnum : OptionTestsBase
         public MyEnum Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Value_Min_Max()
     {
         var (o, r) = Scan<Value_Min_Command>();
@@ -138,7 +138,7 @@ public class OptionTestsEnum : OptionTestsBase
         public MyEnum Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Validate_Default()
     {
         var (o, r) = Scan<Validate_Default_Command>();
@@ -171,7 +171,7 @@ public class OptionTestsEnum : OptionTestsBase
         public MyEnum? Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Validate_Default_Nullable()
     {
         var (o, r) = Scan<Validate_Default_Nullable_Command>();
@@ -202,7 +202,7 @@ public class OptionTestsEnum : OptionTestsBase
         public int Value { get; set; }
     }
 
-    [TestFact]
+    [Fact]
     public void Validate_Default_Not_Found()
     {
         var (o, r) = Scan<Validate_Default_Not_Found_Command>();

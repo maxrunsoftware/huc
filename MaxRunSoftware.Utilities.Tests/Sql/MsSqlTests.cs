@@ -16,7 +16,7 @@ using Microsoft.Data.SqlClient;
 
 namespace MaxRunSoftware.Utilities.Tests.Sql;
 
-[Trait("Sql", "MsSql")]
+[Trait("Category", "Sql")]
 public class MsSqlTests : SqlTestBase<SqlMsSql>
 {
     protected override IDbConnection CreateConnection() => new SqlConnection(Config.Sql_MsSql_ConnectionString);

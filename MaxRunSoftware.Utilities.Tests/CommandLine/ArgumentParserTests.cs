@@ -75,39 +75,39 @@ public class ArgumentParserTests : TestBase
 
     private static ExpectedParameter[] Paras(params string[] expected) => expected.OrEmpty().Select((o, i) => new ExpectedParameter((ushort)i, o)).ToArray();
 
-    [TestFact]
+    [Fact]
     public void Parse_Null() => AssertTest(null, null, null);
 
-    [TestFact]
+    [Fact]
     public void Parse_Empty() => AssertTest(Args(), null, null);
 
-    [TestFact]
+    [Fact]
     public void Parse_Option1() => AssertTest(Args("-foo=bar"), Opts(("foo", "bar")), null);
 
-    [TestFact]
+    [Fact]
     public void Parse_Option3() => AssertTest(Args("-foo=bar", "--faa=bee2", "---fee=baa"), Opts(("foo", "bar"), ("faa", "bee2"), ("fee", "baa")), null);
 
-    [TestFact]
+    [Fact]
     public void Parse_Option1_With_Space() => AssertTest(Args("-foo=bar train"), Opts(("foo", "bar train")), null);
 
-    [TestFact]
+    [Fact]
     public void Parse_Option1_With_Dash() => AssertTest(Args("-foo=bar-train"), Opts(("foo", "bar-train")), null);
 
-    [TestFact]
+    [Fact]
     public void Parse_Option1_With_SpaceDashEquals() => AssertTest(Args("-foo==b-a=r-tr-=ain-=-"), Opts(("foo", "=b-a=r-tr-=ain-=-")), null);
 
-    [TestFact]
+    [Fact]
     public void Parse_Parameter1() => AssertTest(Args("foo"), null, Paras((0, "foo")));
 
-    [TestFact]
+    [Fact]
     public void Parse_Parameter2() => AssertTest(Args("foo", "bar"), null, Paras("foo", "bar"));
 
-    [TestFact]
+    [Fact]
     public void Parse_Parameter4_Null() => AssertTest(Args("foo", "bar", "", "train"), null, Paras("foo", "bar", "", "train"));
 
-    [TestFact]
+    [Fact]
     public void Parse_Parameter4_Empty() => AssertTest(Args("foo", "bar", "", "train"), null, Paras("foo", "bar", "", "train"));
 
-    [TestFact]
+    [Fact]
     public void Parse_Parameter5_NullEmpty() => AssertTest(Args(null, "", null, "", null), null, Paras(null, "", null, "", null));
 }

@@ -18,14 +18,14 @@ public class PercentTests : TestBase
 {
     public PercentTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 
-    [TestFact]
+    [Fact]
     public void Default_Value()
     {
         var p = new Percent();
         Assert.Equal(0, (int)p);
     }
 
-    [TestFact]
+    [Fact]
     public void Cast_To_Int_Rounds()
     {
         Assert.Equal(2, (int)(Percent)1.75f);
@@ -34,7 +34,7 @@ public class PercentTests : TestBase
         Assert.Equal(1, (int)(Percent)1.49f);
     }
 
-    [TestFact]
+    [Fact]
     public void Cast_To_Int_Rounds_Every_Other()
     {
         Assert.Equal(2, (int)(Percent)1.5f); // up
@@ -43,14 +43,14 @@ public class PercentTests : TestBase
         Assert.Equal(4, (int)(Percent)4.5f); // down
     }
 
-    [TestFact]
+    [Fact]
     public void Min()
     {
         Assert.Equal(0, (int)(Percent)(-5.0f));
         Assert.Equal(0, (int)(Percent)(-1000.0f));
     }
 
-    [TestFact]
+    [Fact]
     public void Max()
     {
         Assert.Equal(100, (int)(Percent)101.0f);

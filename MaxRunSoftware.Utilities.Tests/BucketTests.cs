@@ -20,7 +20,7 @@ public class BucketReadOnlyTests : TestBase
 {
     public BucketReadOnlyTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 
-    [TestFact]
+    [Fact]
     public void Testing()
     {
         var cgf = new CacheGenFunc();

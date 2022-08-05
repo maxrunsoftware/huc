@@ -60,7 +60,7 @@ public class ExtensionsReflectionTests : TestBase
     }
 
 
-    [TestFact]
+    [Fact]
     public void Find_Impl_Method_From_Interface()
     {
         Info();
