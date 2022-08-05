@@ -14,28 +14,16 @@
 
 namespace MaxRunSoftware.Utilities.CommandLine;
 
-public interface ICommand
+public abstract class PropertyAttribute : Attribute
 {
-    ICommandEnvironment Environment { get; set; }
+    public string Description { get; }
+    public string? Name { get; set; }
+    public CallerInfo CallerInfo { get; }
+    public bool? IsTrimmed { get; set; }
 
-    string CommandName { get; }
-
-    void Build(ICommandBuilder b);
-
-    void Setup(ICommandArgumentReader r, IValidationFailureCollection f) { }
-
-    void Execute();
-}
-
-public abstract class Command : ICommand
-{
-    public virtual ICommandEnvironment Environment { get; set; }
-
-    public virtual string CommandName => GetType().NameFormatted();
-
-    public abstract void Build(ICommandBuilder b);
-
-    public abstract void Setup(ICommandArgumentReader r, IValidationFailureCollection f);
-
-    public abstract void Execute();
+    protected PropertyAttribute(string description, string? filePath, int lineNumber, string? memberName)
+    {
+        Description = description;
+        CallerInfo = new CallerInfo(filePath, lineNumber == int.MinValue ? null : lineNumber, memberName);
+    }
 }

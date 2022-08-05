@@ -1,11 +1,11 @@
 // Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -13,20 +13,6 @@
 // limitations under the License.
 
 namespace MaxRunSoftware.Utilities.CommandLine;
-
-public abstract class PropertyAttribute : Attribute
-{
-    public string Description { get; }
-    public string? Name { get; set; }
-    public CallerInfo CallerInfo { get; }
-    public bool? IsTrimmed { get; set; }
-
-    protected PropertyAttribute(string description, string? filePath, int lineNumber, string? memberName)
-    {
-        Description = description;
-        CallerInfo = new CallerInfo(filePath, lineNumber == int.MinValue ? null : lineNumber, memberName);
-    }
-}
 
 public abstract class PropertyDetail<TAttribute> where TAttribute : PropertyAttribute
 {
@@ -62,25 +48,5 @@ public abstract class PropertyDetail<TAttribute> where TAttribute : PropertyAttr
         object? converted = null;
         if (valueString != null) converted = ConvertValue(valueString);
         Info.SetValue(instance, converted);
-    }
-}
-
-public abstract class PropertyDetailWrapped<TAttribute, TDetail>
-    where TAttribute : PropertyAttribute
-    where TDetail : PropertyDetail<TAttribute>
-{
-    public TypeSlim Type { get; }
-    public PropertyInfo Info { get; }
-    public TAttribute Attribute { get; }
-    public TDetail? Detail { get; }
-    public Exception? Exception { get; }
-
-    protected PropertyDetailWrapped(TypeSlim type, PropertyInfo info, TAttribute attribute, TDetail? detail, Exception? exception)
-    {
-        Type = type;
-        Info = info;
-        Attribute = attribute;
-        Detail = detail;
-        Exception = exception;
     }
 }
