@@ -12,11 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.DirectoryServices.Protocols;
-using System.Linq;
-using System.Text;
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -73,7 +69,7 @@ public class LdapQueryConfig : IEquatable<LdapQueryConfig>
             .ToList()
             .AsReadOnly();
 
-        hashCode = Util.GenerateHashCode(BaseDn?.ToLower(), Scope, QueryPageSize, ChaseReferrals, Util.GenerateHashCodeFromCollection(Attributes.WhereNotNull().Select(o => o.ToLower())));
+        hashCode = Util.GenerateHashCode(BaseDn?.ToLower(), Scope, QueryPageSize, ChaseReferrals, Util.GenerateHashCodeEnumerable(Attributes.WhereNotNull().Select(o => o.ToLower())));
     }
 
     public override bool Equals(object obj) => Equals(obj as LdapQueryConfig);

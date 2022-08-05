@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Drawing;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -22,9 +21,9 @@ public class GoogleSheetsFormatCells : GoogleSheetsBase
     //private static IEnumerable<string> ColorNames => Constant.COLORS.Keys.OrderBy(o => o, StringComparer.OrdinalIgnoreCase);
     private static Color? ParseColor(string colorName)
     {
-        foreach (var kvp in Constant.COLORS)
+        foreach (var kvp in Constant.Colors)
         {
-            if (string.Equals(kvp.Key, colorName, StringComparison.OrdinalIgnoreCase)) { return kvp.Value; }
+            if (string.Equals(kvp.Key, colorName, StringComparison.OrdinalIgnoreCase)) return kvp.Value;
         }
 
         return null;

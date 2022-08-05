@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 
 // ReSharper disable StringLiteralTypo
 
@@ -103,13 +99,13 @@ public class Email : Command
 
         if (body.TrimOrNull() == null) body = null;
 
-        if (body != null) body = body.Replace("\\" + "n", Constant.NEWLINE_WINDOWS, StringComparison.OrdinalIgnoreCase);
+        if (body != null) body = body.Replace("\\" + "n", Constant.NewLine_Windows, StringComparison.OrdinalIgnoreCase);
 
         bodyTemplate = GetArgParameterOrConfig(nameof(bodyTemplate), "bt").TrimOrNull();
         if (bodyTemplate != null)
         {
             var bodyTemplateFile = ReadFile(bodyTemplate);
-            if (body != null) { body = body + Constant.NEWLINE_WINDOWS + bodyTemplateFile; }
+            if (body != null) { body = body + Constant.NewLine_Windows + bodyTemplateFile; }
             else { body = bodyTemplateFile; }
         }
 

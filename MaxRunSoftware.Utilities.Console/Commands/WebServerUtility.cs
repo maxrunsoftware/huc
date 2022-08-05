@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using EmbedIO;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -85,7 +81,7 @@ public class WebServerUtility : WebServerBase
 
         foreach (var handler in handlers)
         {
-            if (handler.IsEnabled) { config.AddPathHandler(handler.URL, handler.HttpVerbs, handler.HandlerMethod); }
+            if (handler.IsEnabled) config.AddPathHandler(handler.URL, handler.HttpVerbs, handler.HandlerMethod);
         }
 
         config.AddPathHandler("/", HttpVerbs.Get, Index);
@@ -99,7 +95,7 @@ public class WebServerUtility : WebServerBase
         sb.AppendLine("<br />");
         foreach (var handler in handlers)
         {
-            if (handler.IsEnabled) { sb.AppendLine("<p><a href=\"" + handler.URL + "\">" + handler.NameWithSpaces + "</a></p>"); }
+            if (handler.IsEnabled) sb.AppendLine("<p><a href=\"" + handler.URL + "\">" + handler.NameWithSpaces + "</a></p>");
         }
 
         return External.WebServer.HtmlMessage("Utilities", sb.ToString());

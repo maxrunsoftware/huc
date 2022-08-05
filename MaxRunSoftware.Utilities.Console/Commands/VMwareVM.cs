@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -63,12 +60,12 @@ public class VMwareVM : VMwareBase
             log.Debug("Wildcard matching on " + vm);
             foreach (var v in vms)
             {
-                if (v.Name.EqualsWildcard(vm)) { vmsAction.Add(v); }
+                if (v.Name.EqualsWildcard(vm)) vmsAction.Add(v);
             }
         }
         else
         {
-            var foundVM = vms.FirstOrDefault(o => vm.EqualsCaseInsensitive(o.VM)) ?? vms.FirstOrDefault(o => vm.EqualsCaseInsensitive(o.Name));
+            var foundVM = vms.FirstOrDefault(o => vm.EqualsIgnoreCase(o.VM)) ?? vms.FirstOrDefault(o => vm.EqualsIgnoreCase(o.Name));
             if (foundVM == null) throw new ArgsException(nameof(vm), "VM not found: " + vm);
 
             vmsAction.Add(foundVM);

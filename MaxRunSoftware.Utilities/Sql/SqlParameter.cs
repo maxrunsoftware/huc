@@ -50,7 +50,7 @@ public sealed class SqlParameter
         }
         else
         {
-            if (Constant.TYPE_DBTYPE.TryGetValue(value.GetType(), out var dbType))
+            if (Constant.Type_DbType.TryGetValue(value.GetType(), out var dbType))
             {
                 Type = dbType;
                 Value = value;

@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace MaxRunSoftware.Utilities.Tests;
+namespace MaxRunSoftware.Utilities.Tests.Threading;
 
-public class ExecutablePoolTests
+public class ExecutablePoolTests : TestBase
 {
+    public ExecutablePoolTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
+
     public class Executable : IExecutable
     {
         public int ExecutedCount { get; private set; }
@@ -23,19 +25,17 @@ public class ExecutablePoolTests
         public void Execute()
         {
             Thread.Sleep(10);
-            ExecutedCount++; 
-            
+            ExecutedCount++;
         }
     }
-    
+
     public class OnComplete
     {
         public int CompletedCount { get; private set; }
         public void Complete(ExecutablePool pool) => CompletedCount++;
-
     }
-    
-    [Fact]
+
+    [TestFact]
     public void AllTasksExecuted()
     {
         var list = new List<Executable>();
@@ -44,21 +44,17 @@ public class ExecutablePoolTests
 
         var oc = new OnComplete();
 
-        
-        
+
         var c = new ExecutablePoolConfig
         {
             Enumerator = list.GetEnumerator(),
             NumberOfThreads = 12,
-            OnComplete    = oc.Complete,
+            OnComplete = oc.Complete
         };
 
         using (var ep = ExecutablePool.Execute(c))
         {
-            while (!ep.GetState(false).IsComplete)
-            {
-                Thread.Sleep(100);
-            }
+            while (!ep.GetState(false).IsComplete) { Thread.Sleep(100); }
 
             var state = ep.GetState(true);
             Assert.True(state.ExecutingItems.IsEmpty());
@@ -67,9 +63,8 @@ public class ExecutablePoolTests
             Assert.True(state.ThreadsTotal == 12);
         }
 
-        
+
         Assert.True(list.All(o => o.ExecutedCount == 1));
         Assert.True(oc.CompletedCount == 1);
-        
     }
 }

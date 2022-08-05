@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Linq;
 using MaxRunSoftware.Utilities.External;
 
 // ReSharper disable StringLiteralTypo
@@ -39,7 +37,7 @@ public abstract class ActiveDirectoryBase : Command
 
     protected override void ExecuteInternal()
     {
-        if (!Constant.OS_WINDOWS) throw new Exception("This function is only supported on Windows clients");
+        if (!Constant.OS_Windows) throw new Exception("This function is only supported on Windows clients");
 
         host = GetArgParameterOrConfigRequired(nameof(host), "h");
         port = GetArgParameterOrConfigInt(nameof(port), "o", Ldap.LDAP_PORT).ToString().ToUShort();
@@ -66,14 +64,14 @@ public abstract class ActiveDirectoryBase : Command
     {
         var users = ad.GetUsers();
         var ado = users
-            .Where(o => samAccountName.EqualsCaseInsensitive(o.SAMAccountName))
+            .Where(o => samAccountName.EqualsIgnoreCase(o.SAMAccountName))
             .FirstOrDefault(o => ActiveDirectoryCore.MatchesDN(o.OrganizationalUnit, ou));
 
         // ReSharper disable once ConvertIfStatementToNullCoalescingExpression
         if (ado == null)
         {
             ado = users
-                .Where(o => samAccountName.EqualsCaseInsensitive(o.UID))
+                .Where(o => samAccountName.EqualsIgnoreCase(o.UID))
                 .FirstOrDefault(o => ActiveDirectoryCore.MatchesDN(o.OrganizationalUnit, ou));
         }
 
@@ -81,14 +79,14 @@ public abstract class ActiveDirectoryBase : Command
         if (ado == null)
         {
             ado = users
-                .FirstOrDefault(o => samAccountName.EqualsCaseInsensitive(o.SAMAccountName));
+                .FirstOrDefault(o => samAccountName.EqualsIgnoreCase(o.SAMAccountName));
         }
 
         // ReSharper disable once ConvertIfStatementToNullCoalescingExpression
         if (ado == null)
         {
             ado = users
-                .FirstOrDefault(o => samAccountName.EqualsCaseInsensitive(o.UID));
+                .FirstOrDefault(o => samAccountName.EqualsIgnoreCase(o.UID));
         }
 
         return ado;

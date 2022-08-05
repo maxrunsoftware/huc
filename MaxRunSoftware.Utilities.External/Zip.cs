@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
-using System.Reflection;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class Zip
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     public static void AddFileToZip(FileInfo file, DirectoryInfo baseDirectoryToRemove, ZipOutputStream zos, string zipFileName, bool encrypt = false)
     {

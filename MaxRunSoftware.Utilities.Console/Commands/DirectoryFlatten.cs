@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class DirectoryFlatten : Command
@@ -45,7 +40,7 @@ public class DirectoryFlatten : Command
         conflictResolution = GetArgParameterOrConfigEnum(nameof(conflictResolution), "c", ConflictResolution.LeaveAsIs);
         var subDirectories = Util.FileListDirectories(targetDirectory, true)
             .Select(Path.GetFullPath)
-            .Where(o => !o.EqualsCaseInsensitive(targetDirectory))
+            .Where(o => !o.EqualsIgnoreCase(targetDirectory))
             .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
             .ToList();
 

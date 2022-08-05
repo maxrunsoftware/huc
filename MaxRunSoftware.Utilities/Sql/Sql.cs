@@ -39,7 +39,7 @@ public abstract class Sql
     public ISet<string> ReservedWords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public ISet<char> ValidIdentifierChars { get; } = new HashSet<char>();
 
-    protected Sql() { log = LogFactory.LogFactoryImpl.GetLogger(GetType()); }
+    protected Sql() { log = Constant.GetLogger(GetType()); }
 
     public abstract string GetCurrentDatabaseName();
     public abstract string GetCurrentSchemaName();
@@ -89,7 +89,7 @@ public abstract class Sql
         sb.Append(string.Join(",", columnParameterNames));
         sb.Append(')');
         //sb.Append(';');  // breaks Oracle
-        
+
         using var cmd = CreateCommand(connection, sb.ToString());
 
         for (var i = 0; i < columnValues.Length; i++) cmd.AddParameter(parameterName: columnParameterNames[i], value: columnValues[i]);
@@ -157,7 +157,7 @@ public abstract class Sql
                     var val = row[i];
                     if (InsertCoerceValues)
                     {
-                        if (sqlObjectTableColumns != null && sqlObjectTableColumns.TryGetValue(tableData.Columns[i].Name, out var sqlObjectTableColumn)) { val = InsertCoerceValue(val, sqlObjectTableColumn); }
+                        if (sqlObjectTableColumns != null && sqlObjectTableColumns.TryGetValue(tableData.Columns[i].Name, out var sqlObjectTableColumn)) val = InsertCoerceValue(val, sqlObjectTableColumn);
                     }
 
                     command.AddParameter(DbType.String, parameterName: "@v" + currentParameterCount, size: -1, value: val);
@@ -222,32 +222,6 @@ public abstract class Sql
 
     #endregion Insert
 
-    protected IDbCommand CreateCommand(IDbConnection connection, string sql, CommandType commandType = CommandType.Text)
-    {
-        var c = connection.CreateCommand();
-        c.CommandText = sql;
-        c.CommandType = commandType;
-        c.CommandTimeout = CommandTimeout;
-        return c;
-    }
-
-    protected virtual IDbConnection OpenConnection()
-    {
-        var cf = ConnectionFactory;
-        if (cf == null) throw new NullReferenceException($"{GetType().FullNameFormatted()}.{nameof(ConnectionFactory)} is null");
-
-        var connection = cf();
-        if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken) connection.Open();
-
-        return connection;
-    }
-
-    protected IDataParameter[] AddParameters(IDbCommand command, SqlParameter[] parameters) => parameters.OrEmpty().Select(o => AddParameter(command, o)).ToArray();
-
-    protected virtual IDataParameter AddParameter(IDbCommand command, SqlParameter parameter) => parameter == null ? null : command.AddParameter(parameter.Type, parameterName: CleanParameterName(parameter.Name), value: parameter.Value);
-
-    protected virtual string CleanParameterName(string parameterName) => parameterName.CheckNotNullTrimmed(nameof(parameterName)).Replace(' ', '_');
-
     #region Execute
 
     public void ExecuteQuery(string sql, Action<IDataReader> action, params SqlParameter[] parameters)
@@ -271,7 +245,6 @@ public abstract class Sql
             using (var reader = command.ExecuteReaderExceptionWrapped(ExceptionShowFullSql)) { return reader.ReadSqlResults(); }
         }
     }
-
 
 
     public int ExecuteNonQuery(string sql, params SqlParameter[] parameters)
@@ -371,23 +344,7 @@ public abstract class Sql
 
     #endregion Escape / Format
 
-    protected Table Query(string sql, List<Exception> exceptions)
-    {
-        try { return this.ExecuteQueryToTable(sql); }
-        catch (Exception e)
-        {
-            log.Debug("Error Executing SQL: " + sql, e);
-            exceptions.Add(e);
-        }
-
-        return null;
-    }
-
-    protected AggregateException CreateExceptionErrorInSqlStatements(IEnumerable<string> sqlStatements, IEnumerable<Exception> exceptions)
-    {
-        var sqlStatementsArray = sqlStatements.ToArray();
-        return new AggregateException("Error executing " + sqlStatementsArray.Length + " SQL queries", exceptions);
-    }
+    #region SqlDbType
 
     public SqlType GetSqlDbType(object sqlDbTypeEnum) => sqlDbTypeEnum == null ? null : GetSqlDbType(sqlDbTypeEnum.ToString());
 
@@ -418,4 +375,54 @@ public abstract class Sql
 
         return SqlType.GetEnumItems(dbTypesEnumType);
     }
+
+    #endregion SqlDbType
+
+    #region Protected
+
+    protected IDbCommand CreateCommand(IDbConnection connection, string sql, CommandType commandType = CommandType.Text)
+    {
+        var c = connection.CreateCommand();
+        c.CommandText = sql;
+        c.CommandType = commandType;
+        c.CommandTimeout = CommandTimeout;
+        return c;
+    }
+
+    protected virtual IDbConnection OpenConnection()
+    {
+        var cf = ConnectionFactory;
+        if (cf == null) throw new NullReferenceException($"{GetType().FullNameFormatted()}.{nameof(ConnectionFactory)} is null");
+
+        var connection = cf();
+        if (connection.State == ConnectionState.Closed || connection.State == ConnectionState.Broken) connection.Open();
+
+        return connection;
+    }
+
+    protected IDataParameter[] AddParameters(IDbCommand command, SqlParameter[] parameters) => parameters.OrEmpty().Select(o => AddParameter(command, o)).ToArray();
+
+    protected virtual IDataParameter AddParameter(IDbCommand command, SqlParameter parameter) => parameter == null ? null : command.AddParameter(parameter.Type, parameterName: CleanParameterName(parameter.Name), value: parameter.Value);
+
+    protected virtual string CleanParameterName(string parameterName) => parameterName.CheckNotNullTrimmed(nameof(parameterName)).Replace(' ', '_');
+
+    protected Table Query(string sql, List<Exception> exceptions)
+    {
+        try { return this.ExecuteQueryToTable(sql); }
+        catch (Exception e)
+        {
+            log.Debug("Error Executing SQL: " + sql, e);
+            exceptions.Add(e);
+        }
+
+        return null;
+    }
+
+    protected AggregateException CreateExceptionErrorInSqlStatements(IEnumerable<string> sqlStatements, IEnumerable<Exception> exceptions)
+    {
+        var sqlStatementsArray = sqlStatements.ToArray();
+        return new AggregateException("Error executing " + sqlStatementsArray.Length + " SQL queries", exceptions);
+    }
+
+    #endregion Protected
 }

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Text;
 using Newtonsoft.Json.Linq;
 
 namespace MaxRunSoftware.Utilities.External;
@@ -73,7 +71,7 @@ public static class VMwareExtensions
         var sb = new StringBuilder();
         for (var i = 0; i < val.Length; i++)
         {
-            if (val[i].In("0123456789abcdef".ToCharArray())) { sb.Append(val[i]); }
+            if (val[i].In("0123456789abcdef".ToCharArray())) sb.Append(val[i]);
         }
 
         return sb.ToString().ToGuid();
@@ -94,15 +92,15 @@ public static class VMwareExtensions
         var s = token.ToString(keys);
         if (s == null) return VMwareVM.VmHardwareConnectionState.Unknown;
 
-        if (s.EqualsCaseInsensitive("CONNECTED")) return VMwareVM.VmHardwareConnectionState.Connected;
+        if (s.EqualsIgnoreCase("CONNECTED")) return VMwareVM.VmHardwareConnectionState.Connected;
 
-        if (s.EqualsCaseInsensitive("RECOVERABLE_ERROR")) return VMwareVM.VmHardwareConnectionState.RecoverableError;
+        if (s.EqualsIgnoreCase("RECOVERABLE_ERROR")) return VMwareVM.VmHardwareConnectionState.RecoverableError;
 
-        if (s.EqualsCaseInsensitive("UNRECOVERABLE_ERROR")) return VMwareVM.VmHardwareConnectionState.UnrecoverableError;
+        if (s.EqualsIgnoreCase("UNRECOVERABLE_ERROR")) return VMwareVM.VmHardwareConnectionState.UnrecoverableError;
 
-        if (s.EqualsCaseInsensitive("NOT_CONNECTED")) return VMwareVM.VmHardwareConnectionState.NotConnected;
+        if (s.EqualsIgnoreCase("NOT_CONNECTED")) return VMwareVM.VmHardwareConnectionState.NotConnected;
 
-        if (s.EqualsCaseInsensitive("UNKNOWN")) return VMwareVM.VmHardwareConnectionState.Unknown;
+        if (s.EqualsIgnoreCase("UNKNOWN")) return VMwareVM.VmHardwareConnectionState.Unknown;
 
         return VMwareVM.VmHardwareConnectionState.Unknown;
     }
@@ -112,11 +110,11 @@ public static class VMwareExtensions
         var s = token.ToString(keys);
         if (s == null) return VMwareVM.VMPowerState.Unknown;
 
-        if (s.EqualsCaseInsensitive("POWERED_OFF")) return VMwareVM.VMPowerState.PoweredOff;
+        if (s.EqualsIgnoreCase("POWERED_OFF")) return VMwareVM.VMPowerState.PoweredOff;
 
-        if (s.EqualsCaseInsensitive("POWERED_ON")) return VMwareVM.VMPowerState.PoweredOn;
+        if (s.EqualsIgnoreCase("POWERED_ON")) return VMwareVM.VMPowerState.PoweredOn;
 
-        if (s.EqualsCaseInsensitive("SUSPENDED")) return VMwareVM.VMPowerState.Suspended;
+        if (s.EqualsIgnoreCase("SUSPENDED")) return VMwareVM.VMPowerState.Suspended;
 
         return VMwareVM.VMPowerState.Unknown;
     }

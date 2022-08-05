@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -76,19 +73,19 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
                 var lastLogon = DateTime.MinValue;
                 if (user.LastLogon != null)
                 {
-                    if (user.LastLogon.Value > lastLogon) { lastLogon = user.LastLogon.Value; }
+                    if (user.LastLogon.Value > lastLogon) lastLogon = user.LastLogon.Value;
                 }
 
                 if (user.LastLogonTimestamp != null)
                 {
-                    if (user.LastLogonTimestamp.Value > lastLogon) { lastLogon = user.LastLogonTimestamp.Value; }
+                    if (user.LastLogonTimestamp.Value > lastLogon) lastLogon = user.LastLogonTimestamp.Value;
                 }
 
                 lastLogon = lastLogon.ToUniversalTime();
 
                 if (lastLogon < dateDaysAgo)
                 {
-                    var msg = "lastLogin: " + lastLogon.ToLocalTime().ToStringYYYYMMDD();
+                    var msg = "lastLogin: " + lastLogon.ToLocalTime().ToString(DateTimeToStringFormat.YYYY_MM_DD);
                     if (lastLogon == DateTime.MinValue.ToUniversalTime()) msg = "never logged in";
 
                     usersToBeDisabled.Add((user, msg));
@@ -144,16 +141,16 @@ public class ActiveDirectoryDisableUsers : ActiveDirectoryBase
 
         foreach (var accountToSkip in accountsToSkip)
         {
-            if (ado.SAMAccountName.EqualsCaseInsensitive(accountToSkip)) return true;
+            if (ado.SAMAccountName.EqualsIgnoreCase(accountToSkip)) return true;
 
-            if (ado.ObjectName.EqualsCaseInsensitive(accountToSkip)) return true;
+            if (ado.ObjectName.EqualsIgnoreCase(accountToSkip)) return true;
         }
 
         foreach (var groupToSkip in groupsToSkip)
         {
             foreach (var mem in ado.MemberOfNames)
             {
-                if (groupToSkip.EqualsCaseInsensitive(mem)) { return true; }
+                if (groupToSkip.EqualsIgnoreCase(mem)) return true;
             }
         }
 

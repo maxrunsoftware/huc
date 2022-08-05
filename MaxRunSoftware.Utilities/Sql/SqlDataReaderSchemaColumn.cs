@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -108,7 +108,7 @@ public class SqlDataReaderSchemaColumn
             (b, e) => b.index == e.index && b.type == e.type,
             (b, e) => b.index == e.index,
             (b, e) => b.name.EqualsCaseSensitive(e.name),
-            (b, e) => b.name.EqualsCaseInsensitive(e.name),
+            (b, e) => b.name.EqualsIgnoreCase(e.name),
             (b, e) => b.type == e.type
         };
         foreach (var matcher in matchers)
@@ -215,16 +215,24 @@ public class SqlDataReaderSchemaColumnExtended
 
         var cols = new DictionaryReadOnlyStringCaseInsensitive<DataColumn>(d);
 
-        var props = ClassReaderWriter.GetProperties(typeof(SqlDataReaderSchemaColumnExtended), canSet: true, isInstance: true).ToList();
+        //var props = ClassReaderWriter.GetProperties(typeof(SqlDataReaderSchemaColumnExtended), canSet: true, isInstance: true).ToList();
+        var type = typeof(SqlDataReaderSchemaColumnExtended);
         foreach (DataRow dataRow in dataTable.Rows)
         {
             var columnExtended = new SqlDataReaderSchemaColumnExtended();
-            foreach (var prop in props)
+            foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(o => o.CanWrite))
             {
                 if (!cols.TryGetValue(prop.Name, out var dataColumn)) continue; // DataTable does not contain column
 
                 var dataValue = dataRow[dataColumn];
-                prop.SetValue(columnExtended, dataValue, Util.ChangeType);
+                if (dataValue == DBNull.Value) dataValue = null;
+                if (dataValue != null)
+                {
+                    var dataValueType = dataValue.GetType();
+                    if (!dataValueType.IsAssignableTo(prop.PropertyType)) dataValue = Util.ChangeType(dataValue, prop.PropertyType);
+                }
+
+                prop.SetValue(columnExtended, dataValue);
             }
 
             columns.Add(columnExtended);
@@ -237,7 +245,10 @@ public class SqlDataReaderSchemaColumnExtended
 
     public override string ToString()
     {
-        var props = ClassReaderWriter.GetPropertiesValues(this).Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToStringGuessFormat() ?? "")).ToList();
+        var type = GetType();
+        var props = type.GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(o => o.CanRead)
+            .Select(o => KeyValuePair.Create(o.Name, o.GetValue(this).ToStringGuessFormat() ?? ""))
+            .ToList();
 
         var maxColumnLen = props.Select(o => o.Key.Length).Max() + 2;
 

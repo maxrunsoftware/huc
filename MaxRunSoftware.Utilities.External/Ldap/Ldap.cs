@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.Protocols;
-using System.Linq;
 using System.Net;
-using System.Reflection;
-using System.Text;
+using SearchOption = System.DirectoryServices.Protocols.SearchOption;
 using SearchScope = System.DirectoryServices.Protocols.SearchScope;
 
 // ReSharper disable InconsistentNaming
@@ -31,7 +27,7 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class Ldap : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
     private readonly object locker = new();
 
     /// <summary>

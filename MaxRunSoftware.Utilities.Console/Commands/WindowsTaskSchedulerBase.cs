@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -53,19 +52,19 @@ public abstract class WindowsTaskSchedulerBase : Command
     {
         if (usernameRaw == null) return false;
 
-        if (usernameRaw.EqualsCaseInsensitive("SYSTEM"))
+        if (usernameRaw.EqualsIgnoreCase("SYSTEM"))
         {
             usernameRaw = WindowsTaskScheduler.USER_SYSTEM;
             return true;
         }
 
-        if (usernameRaw.EqualsCaseInsensitive("LOCALSERVICE"))
+        if (usernameRaw.EqualsIgnoreCase("LOCALSERVICE"))
         {
             usernameRaw = WindowsTaskScheduler.USER_LOCALSERVICE;
             return true;
         }
 
-        if (usernameRaw.EqualsCaseInsensitive("NETWORKSERVICE"))
+        if (usernameRaw.EqualsIgnoreCase("NETWORKSERVICE"))
         {
             usernameRaw = WindowsTaskScheduler.USER_NETWORKSERVICE;
             return true;

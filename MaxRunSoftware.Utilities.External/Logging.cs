@@ -16,5 +16,5 @@ namespace MaxRunSoftware.Utilities.External;
 
 internal class Logging
 {
-    public static ILogFactory LogFactory => Utilities.LogFactory.LogFactoryImpl;
+    public static ILogger GetLogger(Type type) => Constant.GetLogger(type);
 }

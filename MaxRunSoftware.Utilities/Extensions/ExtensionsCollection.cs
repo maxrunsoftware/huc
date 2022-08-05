@@ -29,7 +29,10 @@ public static class ExtensionsCollection
     /// <typeparam name="T">Type of the object.</typeparam>
     /// <param name="item">The instance that will be wrapped.</param>
     /// <returns>An IEnumerable&lt;T&gt; consisting of a single item.</returns>
-    public static IEnumerable<T> Yield<T>(this T item) { yield return item; }
+    public static IEnumerable<T> Yield<T>(this T item)
+    {
+        yield return item;
+    }
 
     /// <summary>
     /// Concatenates an item to the end of a sequence
@@ -67,7 +70,7 @@ public static class ExtensionsCollection
 
     public static T[] Copy<T>(this T[] array)
     {
-        if (array == null) return null;
+        //if (array == null) return null;
 
         var len = array.Length;
         var arrayNew = new T[len];
@@ -132,7 +135,7 @@ public static class ExtensionsCollection
     /// <typeparam name="T">Type</typeparam>
     /// <param name="array">The array to check for null</param>
     /// <returns>The same array or if null an empty array</returns>
-    public static T[] OrEmpty<T>(this T[] array) => array ?? Array.Empty<T>();
+    public static T[] OrEmpty<T>(this T[]? array) => array ?? Array.Empty<T>();
 
     /// <summary>
     /// If the enumerable is null then returns an empty enumerable
@@ -140,16 +143,20 @@ public static class ExtensionsCollection
     /// <typeparam name="T">Type</typeparam>
     /// <param name="enumerable">The enumerable to check for null</param>
     /// <returns>The same enumerable or if null an empty enumerable</returns>
-    public static IEnumerable<T> OrEmpty<T>(this IEnumerable<T> enumerable) => enumerable ?? Enumerable.Empty<T>();
+    public static IEnumerable<T> OrEmpty<T>(this IEnumerable<T>? enumerable) => enumerable ?? Enumerable.Empty<T>();
+
+    public static IReadOnlyCollection<T> OrEmpty<T>(this IReadOnlyCollection<T>? list) => list ?? EmptyReadOnlyList<T>.Instance;
+
+    public static IReadOnlyList<T> OrEmpty<T>(this IReadOnlyList<T>? list) => list ?? EmptyReadOnlyList<T>.Instance;
 
     /// <summary>
     /// If the string is null then returns an empty string
     /// </summary>
     /// <param name="str">The string to check for null</param>
     /// <returns>The same string or an empty string if null</returns>
-    public static string OrEmpty(this string str) => str ?? string.Empty;
+    public static string OrEmpty(this string? str) => str ?? string.Empty;
 
-    public static T DequeueOrDefault<T>(this Queue<T> queue) => queue.Count < 1 ? default : queue.Dequeue();
+    public static T? DequeueOrDefault<T>(this Queue<T> queue) => queue.Count < 1 ? default : queue.Dequeue();
 
     public static void Populate<T>(this T[] array, T value)
     {
@@ -160,7 +167,6 @@ public static class ExtensionsCollection
     {
         var list = new List<object>();
         foreach (var o in collection) list.Add(o);
-
         return list;
     }
 
@@ -168,19 +174,7 @@ public static class ExtensionsCollection
 
     public static SortedSet<T> ToSortedSet<T>(this IEnumerable<T> enumerable, IComparer<T> comparer) => new(enumerable, comparer);
 
-    public static int GetNumberOfCharacters(this string[] array, int lengthOfNull = 0)
-    {
-        if (array == null) return 0;
-
-        var size = 0;
-        foreach (var s in array)
-        {
-            if (s == null) { size = size + lengthOfNull; }
-            else { size = size + s.Length; }
-        }
-
-        return size;
-    }
+    public static int GetNumberOfCharacters(this IEnumerable<string?> array, int lengthOfNull = 0) => array.Sum(s => s?.Length ?? lengthOfNull);
 
     public static IEnumerable<string> ToStringsColumns(this IEnumerable<string> enumerable, int numberOfColumns, string paddingBetweenColumns = "   ", bool rightAlign = false)
     {
@@ -199,7 +193,8 @@ public static class ExtensionsCollection
                 list.Add(part);
             }
 
-            lines.Add(list.ToStringDelimited(paddingBetweenColumns));
+            var s = list.ToStringDelimited(paddingBetweenColumns);
+            lines.Add(s);
         }
 
         return lines;
@@ -210,8 +205,10 @@ public static class ExtensionsCollection
         var first = true;
         foreach (var item in enumerable)
         {
-            if (first) { first = false; }
-            else { yield return item; }
+            if (first)
+                first = false;
+            else
+                yield return item;
         }
     }
 
@@ -280,9 +277,12 @@ public static class ExtensionsCollection
             var cols = array.GetUpperBound(1) + 1;
             var result = new T[cols];
             int size;
-            if (typeof(T) == typeof(bool)) { size = 1; }
-            else if (typeof(T) == typeof(char)) { size = 2; }
-            else { size = Marshal.SizeOf<T>(); }
+            if (typeof(T) == typeof(bool))
+                size = 1;
+            else if (typeof(T) == typeof(char))
+                size = 2;
+            else
+                size = Marshal.SizeOf<T>();
 
             Buffer.BlockCopy(array, index * cols * size, result, 0, cols * size);
             return result;
@@ -483,7 +483,7 @@ public static class ExtensionsCollection
 
         foreach (var item in items ?? Array.Empty<T>())
         {
-            if (EqualsAt(array, index, comparer, item)) { return true; }
+            if (EqualsAt(array, index, comparer, item)) return true;
         }
 
         return false;
@@ -516,7 +516,7 @@ public static class ExtensionsCollection
     {
         for (var i = 0; i < list.Count; i++)
         {
-            if (list[i] != null) { list[i] = list[i].Resize(newLength); }
+            if (list[i] != null) list[i] = list[i].Resize(newLength);
         }
     }
 
@@ -524,7 +524,7 @@ public static class ExtensionsCollection
     {
         for (var i = 0; i < list.Length; i++)
         {
-            if (list[i] != null) { list[i] = list[i].Resize(newLength); }
+            if (list[i] != null) list[i] = list[i].Resize(newLength);
         }
     }
 
@@ -543,7 +543,7 @@ public static class ExtensionsCollection
         var len = 0;
         foreach (var item in enumerable)
         {
-            if (item != null) { len = Math.Max(len, item.Length); }
+            if (item != null) len = Math.Max(len, item.Length);
         }
 
         return len;
@@ -559,7 +559,7 @@ public static class ExtensionsCollection
         var len = 0;
         foreach (var item in enumerable)
         {
-            if (item != null) { len = Math.Max(len, item.Length); }
+            if (item != null) len = Math.Max(len, item.Length);
         }
 
         return len;
@@ -577,7 +577,7 @@ public static class ExtensionsCollection
         var len = 0;
         foreach (var item in enumerable)
         {
-            if (item != null) { len = Math.Max(len, item.Count); }
+            if (item != null) len = Math.Max(len, item.Count);
         }
 
         return len;
@@ -611,7 +611,7 @@ public static class ExtensionsCollection
 
         if (dictionary.TryGetValue(key.ToUpper(), out value)) return true;
 
-        foreach (var sc in Constant.STRINGCOMPARISONS)
+        foreach (var sc in Constant.StringComparisons)
         {
             foreach (var kvp in dictionary)
             {
@@ -642,7 +642,31 @@ public static class ExtensionsCollection
         collection.CompleteAdding();
     }
 
-    public static T[] Add<T>(this T[] array, params T[] itemsToAdd) => array.Concat(itemsToAdd).ToArray();
+    public static T[] AppendHead<T>(this T[] array, params T[] itemsToAdd)
+    {
+        // TODO: Add overload for single item for performance
+
+        itemsToAdd ??= Array.Empty<T>();
+        var arrayNew = new T[array.Length + itemsToAdd.Length];
+        for (var i = 0; i < itemsToAdd.Length; i++) arrayNew[i] = itemsToAdd[i];
+
+        for (var i = 0; i < array.Length; i++) arrayNew[i + itemsToAdd.Length] = array[i];
+
+        return arrayNew;
+    }
+
+    public static T[] AppendTail<T>(this T[] array, params T[] itemsToAdd)
+    {
+        // TODO: Add overload for single item for performance
+
+        itemsToAdd ??= Array.Empty<T>();
+        var arrayNew = new T[array.Length + itemsToAdd.Length];
+        for (var i = 0; i < array.Length; i++) arrayNew[i] = array[i];
+
+        for (var i = 0; i < itemsToAdd.Length; i++) arrayNew[i + array.Length] = itemsToAdd[i];
+
+        return arrayNew;
+    }
 
     public static void AddIfNotNull<T>(this ICollection<T> collection, T item) where T : class
     {
@@ -656,6 +680,32 @@ public static class ExtensionsCollection
 
         return str;
     }
+
+    /*
+    public static TItem AddReturnItem<TItem, TItemCollection, TCollection>(this TCollection collection, TItem item) where TCollection : ICollection<TItemCollection> where TItem : TItemCollection
+    {
+        collection.Add(item);
+        return item;
+    }
+
+    public static TCollection AddReturn<TItem, TItemCollection, TCollection>(this TCollection collection, TItem item) where TCollection : ICollection<TItemCollection> where TItem : TItemCollection
+    {
+        collection.Add(item);
+        return collection;
+    }
+
+    public static TDictionary AddReturn<TKey, TKeyDictionary, TValue, TValueDictionary, TDictionary>(this TDictionary dictionary, TKey key, TValue value) where TDictionary : IDictionary<TKeyDictionary, TValueDictionary> where TKey : TKeyDictionary where TValue : TValueDictionary
+    {
+        dictionary.Add(key, value);
+        return dictionary;
+    }
+
+    public static TDictionary SetReturn<TKey, TKeyDictionary, TValue, TValueDictionary, TDictionary>(this TDictionary dictionary, TKey key, TValue value)  where TDictionary : IDictionary<TKeyDictionary, TValueDictionary> where TKey : TKeyDictionary where TValue : TValueDictionary
+    {
+        dictionary[key] = value;
+        return dictionary;
+    }
+    */
 
     #endregion Add
 
@@ -819,28 +869,23 @@ public static class ExtensionsCollection
 
     #region WhereNotNull
 
-    public static T[] WhereNotNull<T>(this T[] array) where T : class
+    public static T[] WhereNotNull<T>(this T?[] array) where T : class
     {
-        if (array == null) return null;
-
-        var newArraySize = array.Count(t => t != null);
-
-        var newArray = new T[newArraySize];
-
-        newArraySize = 0;
+        var newArray = new T[array.Count(t => t != null)];
+        var newArrayIndex = 0;
         foreach (var t in array)
         {
-            if (t != null) { newArray[newArraySize++] = t; }
+            if (t != null) newArray[newArrayIndex++] = t;
         }
 
         return newArray;
     }
 
-    public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> enumerable) where T : class
+    public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> enumerable) where T : class
     {
         foreach (var item in enumerable)
         {
-            if (item != null) { yield return item; }
+            if (item != null) yield return item;
         }
     }
 
@@ -855,7 +900,7 @@ public static class ExtensionsCollection
         newArraySize = 0;
         foreach (var t in array)
         {
-            if (t != null) { newArray[newArraySize++] = t; }
+            if (t != null) newArray[newArraySize++] = t;
         }
 
         return newArray;
@@ -865,7 +910,7 @@ public static class ExtensionsCollection
     {
         foreach (var item in enumerable)
         {
-            if (item != null) { yield return item; }
+            if (item != null) yield return item;
         }
     }
 
@@ -1004,4 +1049,119 @@ public static class ExtensionsCollection
     }
 
     #endregion Enumerator
+
+    #region ToImmutable
+
+    public static ImmutableArray<T> AsImmutableArray<T>(this IEnumerable<T> enumerable) => ImmutableArray.Create(enumerable.OrEmpty().ToArray());
+
+    public static ImmutableList<T> AsImmutableList<T>(this IEnumerable<T> enumerable) => ImmutableList.Create(enumerable.OrEmpty().ToArray());
+
+    #endregion ToImmutable
+
+    #region CompareTo
+
+    /// <summary>
+    /// Performs lexical comparison of 2 IEnumerable collections holding elements of type T.
+    /// https://stackoverflow.com/a/18211470
+    /// </summary>
+    /// <typeparam name="T">Type of collection elements.</typeparam>
+    /// <param name="obj">The first collection to compare.</param>
+    /// <param name="other">The second collection to compare.</param>
+    /// <returns>
+    /// A signed integer that indicates the relative values of a and b:
+    /// Less than zero: first is less than second;
+    /// Zero: first is equal to second;
+    /// Greater than zero: first is greater than second.
+    /// </returns>
+    /// <remarks>
+    /// Can be called as either static method: EnumerableExtensions.Compare(a, b) or extension method: a.Compare(b).
+    /// </remarks>
+    public static int CompareToEnumerable<T>(this IEnumerable<T> obj, IEnumerable<T> other) where T : IComparable<T>
+    {
+        if (obj == null) return other == null ? 0 : -1;
+        if (other == null) return 1;
+
+        var c = 0;
+
+        using var xEnum = obj.GetEnumerator();
+        using var yEnum = other.GetEnumerator();
+
+        do
+        {
+            var xHas = xEnum.MoveNext();
+            var yHas = yEnum.MoveNext();
+
+            if (!xHas) return yHas ? -1 : 0;
+            if (!yHas) return 1;
+
+            var xCurrent = xEnum.Current;
+            var yCurrent = yEnum.Current;
+
+            if (xCurrent == null)
+            {
+                if (yCurrent == null) continue;
+                return -1;
+            }
+
+            if (yCurrent == null) return 1;
+
+            c = xCurrent.CompareTo(yCurrent);
+        } while (c == 0);
+
+        return c;
+    }
+
+    #endregion CompareTo
+
+    #region Equals
+
+    // TODO: Update docs
+    /// <summary>
+    /// Performs lexical comparison of 2 IEnumerable collections holding elements of type T.
+    /// https://stackoverflow.com/a/18211470
+    /// </summary>
+    /// <typeparam name="T">Type of collection elements.</typeparam>
+    /// <param name="obj">The first collection to compare.</param>
+    /// <param name="other">The second collection to compare.</param>
+    /// <returns>
+    /// A signed integer that indicates the relative values of a and b:
+    /// Less than zero: first is less than second;
+    /// Zero: first is equal to second;
+    /// Greater than zero: first is greater than second.
+    /// </returns>
+    /// <remarks>
+    /// Can be called as either static method: EnumerableExtensions.Compare(a, b) or extension method: a.Compare(b).
+    /// </remarks>
+    public static bool EqualsEnumerable<T>(this IEnumerable<T> obj, IEnumerable<T> other) where T : IEquatable<T>
+    {
+        if (obj == null) return other == null;
+        if (other == null) return false;
+
+        using var xEnum = obj.GetEnumerator();
+        using var yEnum = other.GetEnumerator();
+
+        while (true)
+        {
+            var xHas = xEnum.MoveNext();
+            var yHas = yEnum.MoveNext();
+
+            if (!xHas) return !yHas;
+            if (!yHas) return false;
+
+            var xCurrent = xEnum.Current;
+            var yCurrent = yEnum.Current;
+
+            if (xCurrent == null)
+            {
+                if (yCurrent == null) continue;
+                return false;
+            }
+
+            if (yCurrent == null) return false;
+
+            if (!xCurrent.Equals(yCurrent)) return false;
+        }
+    }
+
+    #endregion Equals
 }

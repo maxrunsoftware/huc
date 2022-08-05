@@ -27,13 +27,13 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
     private readonly Func<TKey, TValue> factory;
     private readonly object locker = new();
 
-    private IReadOnlyDictionary<TKey, TValue> dictionary; // shouldn't need volatile because of memory barrier of lock(locker)
+    private volatile IDictionary<TKey, TValue> dictionary; // volatile is required http://disq.us/p/2ge3kge
 
     public BucketCacheThreadSafeCopyOnWrite(Func<TKey, TValue> factory, Func<IDictionary<TKey, TValue>> dictionaryFactory)
     {
         this.factory = factory.CheckNotNull(nameof(factory));
         this.dictionaryFactory = dictionaryFactory.CheckNotNull(nameof(dictionaryFactory));
-        dictionary = dictionaryFactory().AsReadOnly();
+        dictionary = dictionaryFactory();
     }
 
     public BucketCacheThreadSafeCopyOnWrite(Func<TKey, TValue> factory) : this(factory, () => new Dictionary<TKey, TValue>()) { }
@@ -44,6 +44,9 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
     {
         get
         {
+            // Double-checked locking is OK because we are never changing the values of the existing
+            // dictionary, we are replacing the whole dictionary variable with a new dictionary
+
             if (dictionary.TryGetValue(key, out var val)) return val;
 
             lock (locker)
@@ -55,7 +58,7 @@ public class BucketCacheThreadSafeCopyOnWrite<TKey, TValue> : IBucketReadOnly<TK
 
                 val = factory(key);
                 d.Add(key, val);
-                dictionary = d.AsReadOnly();
+                dictionary = d;
                 return val;
             }
         }

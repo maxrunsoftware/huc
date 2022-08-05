@@ -194,14 +194,12 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         var columns = sqlResult.Columns.ToArray();
         var width = columns.Length;
         items.Add(sqlResult.Columns.Names.ToArray());
-        
+
         foreach (var row in sqlResult.Rows)
         {
             var array = new string[width];
-            for (var i = 0; i < width; i++)
-            {
-                array[i] = converter(row[i], columns[i]);
-            }
+            for (var i = 0; i < width; i++) array[i] = converter(row[i], columns[i]);
+
             items.Add(array);
         }
 
@@ -226,7 +224,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
         var header = new List<string>();
         foreach (var column in Columns)
         {
-            if (!columnIndexesToRemove.Contains(column.Index)) { header.Add(column.Name); }
+            if (!columnIndexesToRemove.Contains(column.Index)) header.Add(column.Name);
         }
 
         var dataRows = new List<string[]>();
@@ -236,7 +234,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
             var rowData = new List<string>(newWidth);
             for (var i = 0; i < Columns.Count; i++)
             {
-                if (!columnIndexesToRemove.Contains(i)) { rowData.Add(row[i]); }
+                if (!columnIndexesToRemove.Contains(i)) rowData.Add(row[i]);
             }
 
             dataRows.Add(rowData.ToArray());
@@ -360,7 +358,7 @@ public sealed class Table : ISerializable, IReadOnlyList<TableRow>
 
         foreach (var row in this)
         {
-            if (predicate(row)) { list.Add(row); }
+            if (predicate(row)) list.Add(row);
         }
 
         return Create(list, Columns.ColumnNames);

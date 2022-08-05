@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-
 // ReSharper disable StringLiteralTypo
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -35,17 +29,17 @@ public class FileReplaceString : Command
         { "DoubleQuote", "\"" },
         { "\\\"", "\"" },
 
-        { "\\r\\n", Constant.NEWLINE_WINDOWS },
-        { "LinefeedWindows", Constant.NEWLINE_WINDOWS },
+        { "\\r\\n", Constant.NewLine_Windows },
+        { "LinefeedWindows", Constant.NewLine_Windows },
 
-        { "\\n", Constant.NEWLINE_UNIX },
-        { "NewLine", Constant.NEWLINE_UNIX },
-        { "LinefeedUNIX", Constant.NEWLINE_UNIX },
+        { "\\n", Constant.NewLine_Unix },
+        { "NewLine", Constant.NewLine_Unix },
+        { "LinefeedUNIX", Constant.NewLine_Unix },
 
-        { "\\r", Constant.NEWLINE_MAC },
-        { "CarriageReturn", Constant.NEWLINE_MAC },
-        { "LinefeedMAC", Constant.NEWLINE_MAC },
-        { "LinefeedApple", Constant.NEWLINE_MAC },
+        { "\\r", Constant.NewLine_Mac },
+        { "CarriageReturn", Constant.NewLine_Mac },
+        { "LinefeedMAC", Constant.NewLine_Mac },
+        { "LinefeedApple", Constant.NewLine_Mac },
 
         { "BackSlash", "\\" },
         { "\\\\", "\\" }
@@ -59,12 +53,12 @@ public class FileReplaceString : Command
 
         foreach (var kw in optionKeywordMap)
         {
-            if (string.Equals(kw.Key, input, StringComparison.OrdinalIgnoreCase)) { return kw.Value; }
+            if (string.Equals(kw.Key, input, StringComparison.OrdinalIgnoreCase)) return kw.Value;
         }
 
         foreach (var kw in optionKeywordMap)
         {
-            if (kw.Key.StartsWith("\\")) { input = input.Replace(kw.Key, kw.Value); }
+            if (kw.Key.StartsWith("\\")) input = input.Replace(kw.Key, kw.Value);
         }
 
         return input;

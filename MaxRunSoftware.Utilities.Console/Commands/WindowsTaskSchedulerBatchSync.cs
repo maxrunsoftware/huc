@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using MaxRunSoftware.Utilities.External;
 using Microsoft.Win32.TaskScheduler;
 
@@ -50,7 +45,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
 
     private class BatchFile
     {
-        private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+        private static readonly ILogger log = Program.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
         private static readonly Func<byte[], string> hashingAlgorithm = Util.GenerateHashSHA256;
         public string FilePath { get; }
@@ -69,7 +64,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
             FileName = Path.GetFileName(FilePath);
             TaskName = Path.GetFileNameWithoutExtension(FilePath);
 
-            var fileText = Util.FileRead(FilePath, Constant.ENCODING_UTF8).TrimOrNull() ?? string.Empty;
+            var fileText = Util.FileRead(FilePath, Constant.Encoding_UTF8).TrimOrNull() ?? string.Empty;
             var fileLines = fileText.SplitOnNewline().TrimOrNull().ToList();
 
             var triggers = new List<Trigger>();
@@ -104,8 +99,8 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
 
             Triggers = triggers.AsReadOnly();
 
-            var hashValue = hashList.ToStringDelimited(Constant.NEWLINE_WINDOWS);
-            Hash = hashingAlgorithm(Constant.ENCODING_UTF8.GetBytes(hashValue));
+            var hashValue = hashList.ToStringDelimited(Constant.NewLine_Windows);
+            Hash = hashingAlgorithm(Constant.Encoding_UTF8.GetBytes(hashValue));
         }
 
         public static bool IsBatchFile(string filename)
@@ -118,7 +113,7 @@ public class WindowsTaskSchedulerBatchSync : WindowsTaskSchedulerBase
 
             if (!ext.In(StringComparer.OrdinalIgnoreCase, "cmd", ".cmd", "bat", ".bat")) return false;
 
-            if (Util.FileGetSize(filename) > Constant.BYTES_MEGA * 10L) return false; // no batch file should be over 10MB
+            if (Util.FileGetSize(filename) > Constant.Bytes_Mega * 10L) return false; // no batch file should be over 10MB
 
             return true;
         }

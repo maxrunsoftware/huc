@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Linq;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -30,7 +29,7 @@ public class ActiveDirectoryListUsersOfGroup : ActiveDirectoryListBase
     protected override bool IsValidObject(ActiveDirectoryObject obj) => obj.IsUser && obj.MemberOfNames.Any(o => o.EqualsWildcard(groupPattern, true));
 
     private string groupPattern;
-    public override string[] DefaultColumnsToInclude => base.DefaultColumnsToInclude.Add(nameof(ActiveDirectoryObject.MemberOfNamesString));
+    public override string[] DefaultColumnsToInclude => base.DefaultColumnsToInclude.AppendHead(nameof(ActiveDirectoryObject.MemberOfNamesString));
 
     protected override void ExecuteInternal(ActiveDirectory ad)
     {

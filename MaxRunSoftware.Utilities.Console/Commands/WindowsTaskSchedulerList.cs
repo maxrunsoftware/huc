@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using MaxRunSoftware.Utilities.External;
 using Microsoft.Win32.TaskScheduler;
 
@@ -71,9 +69,9 @@ public class WindowsTaskSchedulerList : WindowsTaskSchedulerBase
                 var part2 = taskPath.PathFull.GetAtIndexOrDefault(1);
                 if (part1 != null && part2 != null)
                 {
-                    if (part1.EqualsCaseInsensitive("Microsoft") && part2.EqualsCaseInsensitive("Windows"))
+                    if (part1.EqualsIgnoreCase("Microsoft") && part2.EqualsIgnoreCase("Windows"))
                     {
-                        if (!all) { continue; }
+                        if (!all) continue;
                     }
                 }
 

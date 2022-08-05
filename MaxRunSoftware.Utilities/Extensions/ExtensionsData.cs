@@ -110,7 +110,7 @@ public static class ExtensionsData
     {
         var columnNames = dataReader.GetNames();
 
-        foreach (var sc in Constant.STRINGCOMPARISONS)
+        foreach (var sc in Constant.StringComparisons)
         {
             for (var i = 0; i < columnNames.Count; i++)
             {

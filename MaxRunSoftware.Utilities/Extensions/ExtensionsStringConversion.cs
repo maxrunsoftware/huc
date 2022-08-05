@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -375,6 +375,98 @@ public static class ExtensionsStringConversion
     }
 
     #endregion DateTime
+
+    #region DateOnly
+
+    public static DateOnly ToDateOnly(this string str) => DateOnly.Parse(str);
+
+    public static bool ToDateOnlyTry(this string str, out DateOnly output) => DateOnly.TryParse(str, out output);
+
+    public static DateOnly? ToDateOnlyNullable(this string str) => str?.ToDateOnly();
+
+    public static bool ToDateOnlyNullableTry(this string str, out DateOnly? output)
+    {
+        if (str == null)
+        {
+            output = null;
+            return true;
+        }
+
+        var r = str.ToDateOnlyTry(out var o);
+        output = r ? o : null;
+        return r;
+    }
+
+    #endregion DateOnly
+
+    #region TimeOnly
+
+    public static TimeOnly ToTimeOnly(this string str) => TimeOnly.Parse(str);
+
+    public static bool ToTimeOnlyTry(this string str, out TimeOnly output) => TimeOnly.TryParse(str, out output);
+
+    public static TimeOnly? ToTimeOnlyNullable(this string str) => str?.ToTimeOnly();
+
+    public static bool ToTimeOnlyNullableTry(this string str, out TimeOnly? output)
+    {
+        if (str == null)
+        {
+            output = null;
+            return true;
+        }
+
+        var r = str.ToTimeOnlyTry(out var o);
+        output = r ? o : null;
+        return r;
+    }
+
+    #endregion TimeOnly
+
+    #region TimeSpan
+
+    public static TimeSpan ToTimeSpan(this string str) => TimeSpan.Parse(str);
+
+    public static bool ToTimeSpanTry(this string str, out TimeSpan output) => TimeSpan.TryParse(str, out output);
+
+    public static TimeSpan? ToTimeSpanNullable(this string str) => str?.ToTimeSpan();
+
+    public static bool ToTimeSpanNullableTry(this string str, out TimeSpan? output)
+    {
+        if (str == null)
+        {
+            output = null;
+            return true;
+        }
+
+        var r = str.ToTimeSpanTry(out var o);
+        output = r ? o : null;
+        return r;
+    }
+
+    #endregion TimeSpan
+
+    #region Enum
+
+    public static object ToEnum(this string str, Type enumType) => Enum.Parse(enumType, str, true);
+
+    public static bool ToEnumTry(this string str, Type enumType, out object output) => Enum.TryParse(enumType, str, true, out output);
+
+    public static object ToEnumNullable(this string str, Type enumType) => str?.ToEnum(enumType);
+
+    public static bool ToEnumNullableTry(this string str, Type enumType, out object output)
+    {
+        if (str == null)
+        {
+            output = null;
+            return true;
+        }
+
+        var r = str.ToEnumTry(enumType, out var o);
+        output = r ? o : null;
+        return r;
+    }
+
+    #endregion Enum
 
     #region Guid
 

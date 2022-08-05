@@ -36,6 +36,6 @@ public class VMwareListJSON : VMwareBase
 
         var data = JsonConvert.SerializeObject(vmware, Formatting.Indented);
 
-        Util.FileWrite(outputFile, data, Constant.ENCODING_UTF8);
+        Util.FileWrite(outputFile, data, Constant.Encoding_UTF8);
     }
 }

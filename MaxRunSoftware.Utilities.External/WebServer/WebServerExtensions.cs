@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using EmbedIO;
 
 namespace MaxRunSoftware.Utilities.External;
@@ -60,7 +57,7 @@ public static class WebServerExtensions
         var parameters = context.GetRequestQueryData();
         foreach (var key in parameters.AllKeys)
         {
-            if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase)) { return true; }
+            if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase)) return true;
         }
 
         return false;
@@ -77,7 +74,7 @@ public static class WebServerExtensions
 
     public static void SendFile(this IHttpContext context, string data, string fileName, Encoding encoding = null)
     {
-        encoding ??= Constant.ENCODING_UTF8;
+        encoding ??= Constant.Encoding_UTF8;
         var bytes = encoding.GetBytes(data);
         SendFile(context, bytes, fileName);
     }

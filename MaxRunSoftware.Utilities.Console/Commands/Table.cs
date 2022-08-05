@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-
 // ReSharper disable StringLiteralTypo
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -64,16 +58,16 @@ public class Table : TableBase
         { "DQ", "\"" },
         { "\\\"", "\"" },
 
-        { "\\r\\n", Constant.NEWLINE_WINDOWS },
-        { "WIN", Constant.NEWLINE_WINDOWS },
-        { "WINDOWS", Constant.NEWLINE_WINDOWS },
-        { "\\n", Constant.NEWLINE_UNIX },
-        { "UNIX", Constant.NEWLINE_UNIX },
-        { "NIX", Constant.NEWLINE_UNIX },
-        { "LINUX", Constant.NEWLINE_UNIX },
-        { "\\r", Constant.NEWLINE_MAC },
-        { "MAC", Constant.NEWLINE_MAC },
-        { "APPLE", Constant.NEWLINE_MAC }
+        { "\\r\\n", Constant.NewLine_Windows },
+        { "WIN", Constant.NewLine_Windows },
+        { "WINDOWS", Constant.NewLine_Windows },
+        { "\\n", Constant.NewLine_Unix },
+        { "UNIX", Constant.NewLine_Unix },
+        { "NIX", Constant.NewLine_Unix },
+        { "LINUX", Constant.NewLine_Unix },
+        { "\\r", Constant.NewLine_Mac },
+        { "MAC", Constant.NewLine_Mac },
+        { "APPLE", Constant.NewLine_Mac }
     }.AsReadOnly();
 
     public static string ParseOption(string input)

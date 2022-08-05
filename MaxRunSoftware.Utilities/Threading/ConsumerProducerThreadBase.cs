@@ -20,7 +20,7 @@ namespace MaxRunSoftware.Utilities;
 public abstract class ConsumerProducerThreadBase<TConsume, TProduce> : ConsumerThreadBase<TConsume>
 {
     // ReSharper disable once StaticMemberInGenericType
-    private static readonly ILogger log = LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Constant.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private readonly BlockingCollection<TProduce> producerQueue;
     private readonly CancellationTokenSource cancellation = new();

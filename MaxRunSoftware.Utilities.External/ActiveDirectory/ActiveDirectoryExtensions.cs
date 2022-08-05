@@ -12,12 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.Protocols;
-using System.Linq;
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -46,7 +43,7 @@ public static class ActiveDirectoryExtensions
         s.QueryFilter = principal;
         foreach (var p in s.FindAll())
         {
-            if (p is T pp) { return pp; }
+            if (p is T pp) return pp;
         }
 
         return null;
@@ -104,13 +101,13 @@ public static class ActiveDirectoryExtensions
     /// Gets a specific OU in the Active Directory.
     /// </summary>
     /// <returns>A list of all OUs in the Active Directory.</returns>
-    public static ActiveDirectoryObject GetOUByName(this ActiveDirectoryCore ad, string ouName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.Name.TrimOrNull() != null).FirstOrDefault(o => o.Name.TrimOrNull().EqualsCaseInsensitive(ouName));
+    public static ActiveDirectoryObject GetOUByName(this ActiveDirectoryCore ad, string ouName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.Name.TrimOrNull() != null).FirstOrDefault(o => o.Name.TrimOrNull().EqualsIgnoreCase(ouName));
 
     /// <summary>
     /// Gets a specific OU in the Active Directory.
     /// </summary>
     /// <returns>A list of all OUs in the Active Directory.</returns>
-    public static ActiveDirectoryObject GetOUByDistinguishedName(this ActiveDirectoryCore ad, string ouDistinguishedName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.DistinguishedName.TrimOrNull() != null).FirstOrDefault(o => o.Name.TrimOrNull().EqualsCaseInsensitive(ouDistinguishedName));
+    public static ActiveDirectoryObject GetOUByDistinguishedName(this ActiveDirectoryCore ad, string ouDistinguishedName, LdapQueryConfig queryConfig = null, bool useCache = false) => GetOUs(ad, queryConfig, useCache).Where(o => o.DistinguishedName.TrimOrNull() != null).FirstOrDefault(o => o.Name.TrimOrNull().EqualsIgnoreCase(ouDistinguishedName));
 
     /// <summary>
     /// Gets of all user accounts that were modified within the specified time frame.
@@ -181,7 +178,7 @@ public static class ActiveDirectoryExtensions
             {
                 foreach (var property in properties)
                 {
-                    if (property != null) { yield return property; }
+                    if (property != null) yield return property;
                 }
             }
         }

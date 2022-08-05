@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -55,7 +53,7 @@ public class SqlDownload : SqlQueryBase
             log.Debug(e);
         }
     }
-    
+
     private class FileDownload
     {
         public string FileName { get; set; }
@@ -63,7 +61,6 @@ public class SqlDownload : SqlQueryBase
         public Dictionary<string, string> Cookies { get; } = new();
         public int ResultNum { get; set; }
         public int RowNum { get; set; }
-        
     }
 
     private List<FileDownload> ParseTable(Utilities.Table table, int resultSetNum)
@@ -91,12 +88,10 @@ public class SqlDownload : SqlQueryBase
 
             if (c.Name.StartsWith("Cookie_", StringComparison.OrdinalIgnoreCase) || c.Name.StartsWith("Cookie.", StringComparison.OrdinalIgnoreCase))
             {
-                if (c.Name.Length > 7)
-                {
-                    cookieColumns.Add(c);
-                }
+                if (c.Name.Length > 7) cookieColumns.Add(c);
             }
         }
+
         foreach (var c in cookieColumns) log.Debug("Found cookie column [" + c.Name + "]");
 
         var rowNum = 0;
@@ -109,14 +104,14 @@ public class SqlDownload : SqlQueryBase
             fileDownload.RowNum = rowNum;
             fileDownload.ResultNum = resultSetNum;
             foreach (var c in cookieColumns) fileDownload.Cookies[c.Name.Substring(7)] = row[c];
-                
+
             if (fileDownload.FileName == null) continue; // TODO: Log message
             if (fileDownload.FileUrl == null) continue; // TODO: Log message
-                
+
             fileDownloads.Add(fileDownload);
         }
 
-        
+
         return fileDownloads;
     }
 
@@ -129,7 +124,7 @@ public class SqlDownload : SqlQueryBase
         var tables = ExecuteTables();
 
         var fileDownloads = new List<FileDownload>();
-        
+
         var resultSetNum = 0;
         foreach (var table in tables)
         {
@@ -141,18 +136,12 @@ public class SqlDownload : SqlQueryBase
 
         var pool = new ConsumerThreadPool<FileDownload>(ProcessFileDownload);
         pool.NumberOfThreads = threads;
-        foreach (var fileDownload in fileDownloads)
-        {
-            pool.AddWorkItem(fileDownload);
-        }
-        
+        foreach (var fileDownload in fileDownloads) pool.AddWorkItem(fileDownload);
+
         pool.FinishedAddingWorkItems();
 
-        while (!pool.IsComplete)
-        {
-            Thread.Sleep(1000);
-        }
-        
-        log.Info($"Downloads complete " + fileDownloads.Count);
+        while (!pool.IsComplete) { Thread.Sleep(1000); }
+
+        log.Info("Downloads complete " + fileDownloads.Count);
     }
 }

@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Win32.TaskScheduler;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class WindowsTaskScheduler : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
     private readonly object locker = new();
     private TaskService taskService;
     public static readonly IReadOnlyList<string> PATH_PARSE_CHARACTERS = new[] { "/", "\\" }.ToList().AsReadOnly();
@@ -77,7 +73,7 @@ public class WindowsTaskScheduler : IDisposable
         username ??= USER_SYSTEM;
 
         var tlt = TaskLogonType.Password;
-        foreach (var sc in Constant.STRINGCOMPARERS)
+        foreach (var sc in Constant.StringComparers)
         {
             if (username.In(sc, USER_SYSTEM, USER_LOCALSERVICE, USER_NETWORKSERVICE))
             {
@@ -186,7 +182,7 @@ public class WindowsTaskScheduler : IDisposable
         log.Debug("Getting Task: " + path);
         foreach (var task in GetTasks())
         {
-            if (path.Equals(task.GetPath())) { return task; }
+            if (path.Equals(task.GetPath())) return task;
         }
 
         return null;
@@ -199,7 +195,7 @@ public class WindowsTaskScheduler : IDisposable
         log.Debug("Getting TaskFolder: " + path);
         foreach (var folder in GetTaskFolders())
         {
-            if (path.Equals(folder.GetPath())) { return folder; }
+            if (path.Equals(folder.GetPath())) return folder;
         }
 
         return null;

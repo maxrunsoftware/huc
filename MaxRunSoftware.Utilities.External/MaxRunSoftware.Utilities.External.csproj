@@ -11,64 +11,64 @@
         <NoWarn>1701;1702;1591;CA1416</NoWarn>
     </PropertyGroup>
     <ItemGroup>
-        <None Remove="EmbedIO" />
-        <None Remove="System.Data.SqlClient" />
-        <None Remove="SharpZipLib" />
-        <None Remove="TaskScheduler" />
-        <None Remove="FluentFTP" />
-        <None Remove="SSH.NET" />
-        <None Remove="MySql.Data" />
-        <None Remove="Oracle.ManagedDataAccess.Core" />
-        <None Remove="Google.Apis.Sheets.v4" />
-        <None Remove="Inferno" />
-        <None Remove="System.DirectoryServices.AccountManagement" />
-        <None Remove="System.DirectoryServices.Protocols" />
-        <None Remove="HttpMultipartParser" />
-        <None Remove="Newtonsoft.Json" />
-        <None Remove="Octokit" />
-        <None Remove="Selenium.WebDriver" />
-        <None Remove="Selenium.Support" />
-        <None Remove="WebDriverManager" />
-        <None Remove="ActiveDirectory\" />
-        <None Remove="Ldap\" />
-        <None Remove="VMware\" />
-        <None Remove="WindowsTaskScheduler\" />
-        <None Remove="WebBrowser\" />
-        <None Remove="WebServer\" />
-        <None Remove="Ftp\" />
-        <None Remove="CsvHelper" />
+        <None Remove="EmbedIO"/>
+        <None Remove="System.Data.SqlClient"/>
+        <None Remove="SharpZipLib"/>
+        <None Remove="TaskScheduler"/>
+        <None Remove="FluentFTP"/>
+        <None Remove="SSH.NET"/>
+        <None Remove="MySql.Data"/>
+        <None Remove="Oracle.ManagedDataAccess.Core"/>
+        <None Remove="Google.Apis.Sheets.v4"/>
+        <None Remove="Inferno"/>
+        <None Remove="System.DirectoryServices.AccountManagement"/>
+        <None Remove="System.DirectoryServices.Protocols"/>
+        <None Remove="HttpMultipartParser"/>
+        <None Remove="Newtonsoft.Json"/>
+        <None Remove="Octokit"/>
+        <None Remove="Selenium.WebDriver"/>
+        <None Remove="Selenium.Support"/>
+        <None Remove="WebDriverManager"/>
+        <None Remove="ActiveDirectory\"/>
+        <None Remove="Ldap\"/>
+        <None Remove="VMware\"/>
+        <None Remove="WindowsTaskScheduler\"/>
+        <None Remove="WebBrowser\"/>
+        <None Remove="WebServer\"/>
+        <None Remove="Ftp\"/>
+        <None Remove="CsvHelper"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="EmbedIO" Version="3.4.3" />
-        <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-        <PackageReference Include="SharpZipLib" Version="1.3.3" />
-        <PackageReference Include="TaskScheduler" Version="2.10.1" />
-        <PackageReference Include="FluentFTP" Version="37.0.3" />
-        <PackageReference Include="SSH.NET" Version="2020.0.2" />
-        <PackageReference Include="MySql.Data" Version="8.0.29" />
-        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.61" />
-        <PackageReference Include="Google.Apis.Sheets.v4" Version="1.57.0.2657" />
-        <PackageReference Include="Inferno" Version="1.6.4" />
-        <PackageReference Include="System.DirectoryServices.AccountManagement" Version="6.0.0" />
-        <PackageReference Include="System.DirectoryServices.Protocols" Version="6.0.1" />
-        <PackageReference Include="HttpMultipartParser" Version="6.0.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="Octokit" Version="0.51.0" />
-        <PackageReference Include="Selenium.WebDriver" Version="4.2.0" />
-        <PackageReference Include="Selenium.Support" Version="4.2.0" />
-        <PackageReference Include="WebDriverManager" Version="2.13.0" />
-        <PackageReference Include="CsvHelper" Version="27.2.1" />
+        <PackageReference Include="EmbedIO" Version="3.4.3"/>
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.3"/>
+        <PackageReference Include="SharpZipLib" Version="1.3.3"/>
+        <PackageReference Include="TaskScheduler" Version="2.10.1"/>
+        <PackageReference Include="FluentFTP" Version="37.0.3"/>
+        <PackageReference Include="SSH.NET" Version="2020.0.2"/>
+        <PackageReference Include="MySql.Data" Version="8.0.29"/>
+        <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.61"/>
+        <PackageReference Include="Google.Apis.Sheets.v4" Version="1.57.0.2657"/>
+        <PackageReference Include="Inferno" Version="1.6.4"/>
+        <PackageReference Include="System.DirectoryServices.AccountManagement" Version="6.0.0"/>
+        <PackageReference Include="System.DirectoryServices.Protocols" Version="6.0.1"/>
+        <PackageReference Include="HttpMultipartParser" Version="6.0.1"/>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
+        <PackageReference Include="Octokit" Version="0.51.0"/>
+        <PackageReference Include="Selenium.WebDriver" Version="4.2.0"/>
+        <PackageReference Include="Selenium.Support" Version="4.2.0"/>
+        <PackageReference Include="WebDriverManager" Version="2.13.0"/>
+        <PackageReference Include="CsvHelper" Version="27.2.1"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\MaxRunSoftware.Utilities\MaxRunSoftware.Utilities.csproj" />
+        <ProjectReference Include="..\MaxRunSoftware.Utilities\MaxRunSoftware.Utilities.csproj"/>
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="ActiveDirectory\" />
-        <Folder Include="Ldap\" />
-        <Folder Include="VMware\" />
-        <Folder Include="WindowsTaskScheduler\" />
-        <Folder Include="WebBrowser\" />
-        <Folder Include="WebServer\" />
-        <Folder Include="Ftp\" />
+        <Folder Include="ActiveDirectory\"/>
+        <Folder Include="Ldap\"/>
+        <Folder Include="VMware\"/>
+        <Folder Include="WindowsTaskScheduler\"/>
+        <Folder Include="WebBrowser\"/>
+        <Folder Include="WebServer\"/>
+        <Folder Include="Ftp\"/>
     </ItemGroup>
 </Project>

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -52,7 +51,7 @@ public class FileDecrypt : Command
 
         var fileToDecryptData = ReadFileBinary(fileToDecrypt);
         var decryptedData = password != null
-            ? Encryption.Decrypt(Constant.ENCODING_UTF8.GetBytes(password), fileToDecryptData)
+            ? Encryption.Decrypt(Constant.Encoding_UTF8.GetBytes(password), fileToDecryptData)
             : Encryption.Decrypt(ReadFile(privateKey), fileToDecryptData);
 
         WriteFileBinary(decryptedFile, decryptedData);

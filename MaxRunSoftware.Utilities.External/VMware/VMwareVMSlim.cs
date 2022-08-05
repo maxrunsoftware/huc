@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable IdentifierTypo
@@ -140,7 +136,7 @@ public class VMwareVMSlim : VMwareObject
 
         foreach (var full in VMwareVM.Query(vmware))
         {
-            if (!full.IsVMwareToolsInstalled) { yield return d[full.VM]; }
+            if (!full.IsVMwareToolsInstalled) yield return d[full.VM];
         }
     }
 

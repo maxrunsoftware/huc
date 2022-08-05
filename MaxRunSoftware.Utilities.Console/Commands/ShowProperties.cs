@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class ShowProperties : Command
@@ -45,7 +42,7 @@ public class ShowProperties : Command
         var set = new HashSet<string>(keys, StringComparer.OrdinalIgnoreCase);
         foreach (var key in configFile.Keys)
         {
-            if (set.Add(key)) { keys.Add(key); }
+            if (set.Add(key)) keys.Add(key);
         }
 
         foreach (var prop in keys) log.Info(prop + "=" + configFile[prop]);

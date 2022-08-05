@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
-
 // ReSharper disable StringLiteralTypo
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -47,13 +45,13 @@ public class FileAppend : Command
 
         using (var targetFileStream = Util.FileOpenWrite(targetFile))
         {
-            targetFileStream.Seek(targetFileStream.Length, SeekOrigin.Begin); // Set the stream position to the end of the file. 
+            targetFileStream.Seek(targetFileStream.Length, SeekOrigin.Begin); // Set the stream position to the end of the file.
             foreach (var sourceFile in sourceFiles)
             {
                 using (var sourceFileStream = Util.FileOpenRead(sourceFile))
                 {
                     log.Debug("Writing file " + sourceFile + " to " + targetFile);
-                    sourceFileStream.CopyTo(targetFileStream, 10 * (int)Constant.BYTES_MEGA);
+                    sourceFileStream.CopyTo(targetFileStream, 10 * (int)Constant.Bytes_Mega);
                     log.Info(targetFile + "  <--  " + sourceFile);
                 }
             }

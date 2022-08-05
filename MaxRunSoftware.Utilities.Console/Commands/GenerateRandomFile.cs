@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
 using System.Security.Cryptography;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -42,14 +40,14 @@ public class GenerateRandomFile : Command
     protected override void ExecuteInternal()
     {
         bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10);
-        bufferSizeMegabytes = bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
+        bufferSizeMegabytes = bufferSizeMegabytes * (int)Constant.Bytes_Mega;
 
         length = GetArgParameterOrConfigInt(nameof(length), "l", 1000);
         width = GetArgParameterOrConfigInt(nameof(width), "w", 80);
         if (width < 1) width = int.MaxValue;
 
         secureRandom = GetArgParameterOrConfigBool(nameof(secureRandom), "s", false);
-        characters = GetArgParameterOrConfig(nameof(characters), "c").TrimOrNull() ?? Constant.CHARS_A_Z_LOWER + Constant.CHARS_0_9;
+        characters = GetArgParameterOrConfig(nameof(characters), "c").TrimOrNull() ?? Constant.Chars_A_Z_Lower_String + Constant.Chars_0_9_String;
 
         var outputFiles = GetArgValuesTrimmed();
         log.Debug(outputFiles, nameof(outputFiles));
@@ -64,9 +62,18 @@ public class GenerateRandomFile : Command
             var ww = 0;
 
             DeleteExistingFile(outputFile);
+            var file = Path.GetFullPath(outputFile);
+            var dir = Path.GetDirectoryName(file);
+
+            if (!Directory.Exists(dir))
+            {
+                log.Info("Creating directory: " + dir);
+                Directory.CreateDirectory(dir!);
+            }
+
             using (var fs = Util.FileOpenWrite(outputFile))
             {
-                using (var sw = new StreamWriter(fs, Constant.ENCODING_UTF8, bufferSizeMegabytes))
+                using (var sw = new StreamWriter(fs, Constant.Encoding_UTF8, bufferSizeMegabytes))
                 {
                     while (ll < length)
                     {

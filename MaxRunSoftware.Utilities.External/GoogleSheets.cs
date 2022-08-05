@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Requests;
 using Google.Apis.Services;
@@ -28,16 +24,17 @@ namespace MaxRunSoftware.Utilities.External;
 
 public class GoogleSheets : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
     private static readonly IReadOnlyList<string> googleColumns = CreateGoogleColumns();
 
     private static IReadOnlyList<string> CreateGoogleColumns()
     {
         var list = new List<string>();
-        foreach (var c in Constant.CHARS_A_Z_UPPER_ARRAY) list.Add(c.ToString());
+        foreach (var c in Constant.Chars_A_Z_Upper) list.Add(c.ToString());
 
-        foreach (var c1 in Constant.CHARS_A_Z_UPPER_ARRAY)
-        foreach (var c2 in Constant.CHARS_A_Z_UPPER_ARRAY) { list.Add(c1 + c2.ToString()); }
+        foreach (var c1 in Constant.Chars_A_Z_Upper)
+        foreach (var c2 in Constant.Chars_A_Z_Upper)
+            list.Add(c1 + c2.ToString());
 
         return list.AsReadOnly();
     }
@@ -376,11 +373,11 @@ public static class GoogleSheetsExtensions
         var spreadsheet = service.GetSpreadsheet(spreadsheetId);
         foreach (var sheet in spreadsheet.Sheets) d[sheet.Properties.Title] = sheet;
 
-        foreach (var comp in Constant.STRINGCOMPARISONS)
+        foreach (var comp in Constant.StringComparisons)
         {
             foreach (var kvp in d)
             {
-                if (string.Equals(name, kvp.Key, comp)) { return kvp.Value; }
+                if (string.Equals(name, kvp.Key, comp)) return kvp.Value;
             }
         }
 

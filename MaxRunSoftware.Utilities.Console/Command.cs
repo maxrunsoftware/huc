@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using JetBrains.Annotations;
-
 namespace MaxRunSoftware.Utilities.Console;
 
 [AttributeUsage(AttributeTargets.Class)]
@@ -111,7 +104,7 @@ public abstract class Command : ICommand
 
     protected Command()
     {
-        log = Program.LogFactory.GetLogger(GetType());
+        log = Program.GetLogger(GetType());
         Help = new CommandHelpBuilder(GetType().Name);
         // ReSharper disable once VirtualMemberCallInConstructor
         CreateHelp(Help);
@@ -166,7 +159,7 @@ public abstract class Command : ICommand
         using (Util.Diagnostic(log.Trace))
         {
             CheckFileExists(path);
-            data = Util.FileRead(path, encoding ?? Constant.ENCODING_UTF8);
+            data = Util.FileRead(path, encoding ?? Constant.Encoding_UTF8);
         }
 
         log.Debug($"Read text file {path}   {data.Length} characters");
@@ -195,7 +188,7 @@ public abstract class Command : ICommand
         using (Util.Diagnostic(log.Trace))
         {
             DeleteExistingFile(path);
-            Util.FileWrite(path, data, encoding ?? Constant.ENCODING_UTF8);
+            Util.FileWrite(path, data, encoding ?? Constant.Encoding_UTF8);
         }
 
         log.Debug($"Wrote text file {path}   {data.Length} characters");
@@ -242,7 +235,7 @@ public abstract class Command : ICommand
             dataDelimiter: "\t",
             dataQuoting: null,
             includeRows: true,
-            newLine: Constant.NEWLINE_WINDOWS,
+            newLine: Constant.NewLine_Windows,
             headerDelimiterReplacement: "        ",
             dataDelimiterReplacement: "        "
         );
@@ -256,7 +249,7 @@ public abstract class Command : ICommand
 
         log.Debug("Writing TAB delimited Table to file " + fileName);
         using (var stream = Util.FileOpenWrite(fileName))
-        using (var writer = new StreamWriter(stream, Constant.ENCODING_UTF8))
+        using (var writer = new StreamWriter(stream, Constant.Encoding_UTF8))
         {
             WriteTableTab(table, writer);
             stream.Flush(true);
@@ -335,7 +328,7 @@ public abstract class Command : ICommand
         if (v.TrimOrNull() == null) v = GetArgParameterConfig(key1);
 
         log.Debug($"{key1}String: {v}");
-        var encoding = Constant.ENCODING_UTF8;
+        var encoding = Constant.Encoding_UTF8;
         if (v.TrimOrNull() != null) encoding = Util.ParseEncoding(v);
 
         log.Debug($"{key1}: {encoding}");
@@ -389,7 +382,6 @@ public abstract class Command : ICommand
         return v.Value;
     }
 
-    [CanBeNull]
     public TEnum? GetArgParameterOrConfigEnum<TEnum>(string key1, string key2) where TEnum : struct, Enum
     {
         var v = GetArgParameter(key1, key2).TrimOrNull() ?? GetArgParameterConfig(key1);
@@ -444,7 +436,7 @@ public abstract class Command : ICommand
         log.DebugParameter(valueName, val);
         if (isExist)
         {
-            if (!Directory.Exists(val)) { throw new DirectoryNotFoundException("Arg <" + valueName + "> directory " + val + " does not exist"); }
+            if (!Directory.Exists(val)) throw new DirectoryNotFoundException("Arg <" + valueName + "> directory " + val + " does not exist");
         }
 
         return val;
@@ -481,7 +473,7 @@ public abstract class Command : ICommand
             .WhereNotNull()
             .SelectMany(o => ParseFileName(o, recursive))
             .Select(Path.GetFullPath)
-            .Distinct(Constant.PATH_CASE_SENSITIVE ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)
+            .Distinct(Constant.Path_IsCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)
             .OrderBy(o => o, StringComparer.OrdinalIgnoreCase)
             .ToList();
 

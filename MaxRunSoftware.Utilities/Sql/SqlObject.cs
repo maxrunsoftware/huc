@@ -24,7 +24,7 @@ public sealed class SqlObjectDatabase : SqlObject, IEquatable<SqlObjectDatabase>
     public SqlObjectDatabase(string databaseName)
     {
         DatabaseName = databaseName;
-        
+
         hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper());
     }
 
@@ -40,6 +40,8 @@ public sealed class SqlObjectDatabase : SqlObject, IEquatable<SqlObjectDatabase>
     }
 
     public override int GetHashCode() => hashCode;
+
+    public override string ToString() => DatabaseName;
 }
 
 public sealed class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
@@ -52,7 +54,7 @@ public sealed class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
     {
         DatabaseName = databaseName;
         SchemaName = schemaName;
-        
+
         hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper());
     }
 
@@ -69,9 +71,11 @@ public sealed class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
     }
 
     public override int GetHashCode() => hashCode;
+
+    public override string ToString() => SchemaName;
 }
 
-public sealed  class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
+public sealed class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
 {
     private readonly int hashCode;
     public string DatabaseName { get; }
@@ -83,8 +87,8 @@ public sealed  class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
         DatabaseName = databaseName;
         SchemaName = schemaName;
         TableName = tableName;
-        
-        hashCode =  Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
+
+        hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
     }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectTable);
@@ -101,6 +105,8 @@ public sealed  class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
     }
 
     public override int GetHashCode() => hashCode;
+
+    public override string ToString() => TableName;
 }
 
 public sealed class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableColumn>
@@ -148,7 +154,7 @@ public sealed class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableC
         NumericPrecision = numericPrecision;
         NumericScale = numericScale;
         ColumnDefault = columnDefault;
-        
+
         hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper(), ColumnName?.ToUpper(), Ordinal);
     }
 
@@ -168,4 +174,6 @@ public sealed class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableC
     }
 
     public override int GetHashCode() => hashCode;
+
+    public override string ToString() => ColumnName;
 }

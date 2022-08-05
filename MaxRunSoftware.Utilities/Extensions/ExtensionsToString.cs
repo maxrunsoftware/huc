@@ -73,23 +73,18 @@ public static class ExtensionsToString
     #endregion ToStringRoundAwayFromZero
 
 
-    public static string ToStringItems(this IEnumerable enumerable)
-    {
-        var list = new List<string>();
+    public static string ToStringItems(this IEnumerable enumerable) => "[" + string.Join(", ", enumerable.Cast<object?>().Select(ToStringGuessFormat)) + "]";
 
-        foreach (var item in enumerable) list.Add(item.ToStringGuessFormat());
+    public static string ToString(this DateTime dateTime, DateTimeToStringFormat format) =>
+        format switch
+        {
+            DateTimeToStringFormat.ISO_8601 => dateTime.ToString("o", CultureInfo.InvariantCulture),
+            DateTimeToStringFormat.YYYY_MM_DD => dateTime.ToString("yyyy-MM-dd"),
+            DateTimeToStringFormat.YYYY_MM_DD_HH_MM_SS => dateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+            _ => throw new NotImplementedException(nameof(DateTimeToStringFormat) + "." + format + " is not implemented")
+        };
 
-        return "[" + string.Join(",", list) + "]";
-    }
-
-    public static string ToStringISO8601(this DateTime dateTime) => dateTime.ToString("o");
-
-    // ISO 8601
-    public static string ToStringYYYYMMDD(this DateTime dateTime) => dateTime.ToString("yyyy-MM-dd");
-
-    public static string ToStringYYYYMMDDHHMMSS(this DateTime dateTime) => dateTime.ToString("yyyy-MM-dd HH:mm:ss");
-
-    public static string ToStringGuessFormat(this object obj)
+    public static string? ToStringGuessFormat(this object? obj)
     {
         if (obj == null) return null;
 
@@ -97,7 +92,7 @@ public static class ExtensionsToString
 
         if (obj is string objString) return objString;
 
-        if (obj is DateTime objDateTime) return objDateTime.ToStringYYYYMMDDHHMMSS();
+        if (obj is DateTime objDateTime) return objDateTime.ToString(DateTimeToStringFormat.YYYY_MM_DD_HH_MM_SS);
 
         if (obj is byte[] objBytes) return "0x" + Util.Base16(objBytes);
 
@@ -106,42 +101,40 @@ public static class ExtensionsToString
         var t = obj.GetType();
         if (t.IsNullable(out var underlyingType)) t = underlyingType;
 
-        if (t == typeof(DateTime?)) return ((DateTime?)obj).Value.ToStringYYYYMMDDHHMMSS();
+        if (t == typeof(DateTime?)) return ((DateTime?)obj).Value.ToString(DateTimeToStringFormat.YYYY_MM_DD_HH_MM_SS);
 
         if (obj is IEnumerable enumerable) return enumerable.ToStringItems();
 
         return obj.ToString();
     }
 
-    public static IEnumerable<string> ToStringsGuessFormat(this IEnumerable<object> enumerable)
+    public static IEnumerable<string?> ToStringsGuessFormat(this IEnumerable<object> enumerable)
     {
         foreach (var obj in enumerable.OrEmpty()) yield return obj.ToStringGuessFormat();
     }
 
-    public static string ToStringGenerated(this object obj, BindingFlags flags = BindingFlags.Instance | BindingFlags.Public)
+    public static string ToStringGenerated(this object obj, BindingFlags flags = BindingFlags.Instance | BindingFlags.Public, string nullValue = "")
     {
-        // TODO: Can add performance improvements if needed
-
         obj.CheckNotNull(nameof(obj));
 
         var t = obj.GetType();
-
         var list = new List<string>();
+
+        // TODO: Use IReflectionProperty for faster reads
+
         foreach (var prop in t.GetProperties(flags))
         {
             if (!prop.CanRead) continue;
-
             var name = prop.Name;
-            var val = prop.GetValue(obj).ToStringGuessFormat() ?? "null";
-
+            var val = prop.GetValue(obj).ToStringGuessFormat() ?? nullValue;
             list.Add(name + "=" + val);
         }
 
         var sb = new StringBuilder();
         sb.Append(t.NameFormatted());
-        sb.Append("(");
+        sb.Append('(');
         sb.Append(list.ToStringDelimited(", "));
-        sb.Append(")");
+        sb.Append(')');
 
         return sb.ToString();
     }
@@ -161,4 +154,14 @@ public static class ExtensionsToString
     private static readonly string[] toStringBase64Cache = Enumerable.Range(0, 256).Select(o => Convert.ToBase64String(new[] { (byte)o }).Substring(0, 2)).ToArray();
 
     public static string ToStringBase64(this byte b) => toStringBase64Cache[b];
+}
+
+public enum DateTimeToStringFormat
+{
+    // ReSharper disable InconsistentNaming
+    ISO_8601,
+    YYYY_MM_DD,
+
+    YYYY_MM_DD_HH_MM_SS
+    // ReSharper restore InconsistentNaming
 }

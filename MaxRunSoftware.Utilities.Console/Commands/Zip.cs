@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -46,7 +42,7 @@ public class Zip : Command
     protected override void ExecuteInternal()
     {
         bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10);
-        var bufferSize = bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
+        var bufferSize = bufferSizeMegabytes * (int)Constant.Bytes_Mega;
         log.DebugParameter(nameof(bufferSize), bufferSize);
 
         recursive = GetArgParameterOrConfigBool(nameof(recursive), "r", false);
@@ -82,11 +78,11 @@ public class Zip : Command
         // check to be sure all of the files or directories exist
         foreach (var includedItem in inputFiles)
         {
-            if (!File.Exists(includedItem) && !Directory.Exists(includedItem)) { throw new FileNotFoundException($"File or directory to compress not found {includedItem}", includedItem); }
+            if (!File.Exists(includedItem) && !Directory.Exists(includedItem)) throw new FileNotFoundException($"File or directory to compress not found {includedItem}", includedItem);
         }
 
         DeleteExistingFile(outputFile);
-        var isWindows = Constant.OS_WINDOWS;
+        var isWindows = Constant.OS_Windows;
 
         using (var fs = Util.FileOpenWrite(outputFile))
         {
@@ -121,10 +117,10 @@ public class Zip : Command
                         foreach (var item in items)
                         {
                             if (item.Exception != null) { log.Warn($"ERROR: {item.Path} --> {item.Exception.Message}", item.Exception); }
-                            else if (item.IsDirectory) { External.Zip.AddDirectoryToZip((DirectoryInfo)item.GetFileSystemInfo(), basePath, zos, Path.GetFileName(outputFile), password != null); }
+                            else if (item.IsDirectory) { External.Zip.AddDirectoryToZip(item.DirectoryInfo, basePath, zos, Path.GetFileName(outputFile), password != null); }
                             else // IsFile
                             {
-                                var fi = (FileInfo)item.GetFileSystemInfo();
+                                var fi = item.FileInfo;
                                 if (fi.Name.EqualsWildcard(mask)) External.Zip.AddFileToZip(fi, basePath, zos, Path.GetFileName(outputFile), password != null);
                             }
                         }

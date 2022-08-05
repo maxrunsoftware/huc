@@ -28,7 +28,7 @@ public class SqlOracle : Sql
         //InsertBatchSizeMax = 2000;
 
         // https://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements008.htm
-        ValidIdentifierChars.AddRange(Constant.CHARS_ALPHANUMERIC + "$_#");
+        ValidIdentifierChars.AddRange(Constant.Chars_Alphanumeric_String + "$_#");
         ReservedWords.AddRange(SqlOracleReservedWords.WORDS.SplitOnWhiteSpace().TrimOrNull().WhereNotNull());
     }
 
@@ -154,7 +154,7 @@ public class SqlOracle : Sql
         if (ShouldStop(database, out var dbName)) yield break;
 
         var currentSchema = GetCurrentSchemaName();
-        
+
         var sqlStatements = new[]
         {
             "SELECT DISTINCT OWNER,TABLE_NAME FROM dba_tables",
@@ -237,7 +237,7 @@ public class SqlOracle : Sql
                 if (valCharacterLengthMax < 1) valCharacterLengthMax = (r["DATA_LENGTH"] ?? "0").ToInt();
 
                 var valColumnDefault = r["DATA_DEFAULT"].TrimOrNull();
-                if (valColumnDefault != null && valColumnDefault.EqualsCaseInsensitive("null")) valColumnDefault = null;
+                if (valColumnDefault != null && valColumnDefault.EqualsIgnoreCase("null")) valColumnDefault = null;
 
                 var dbTypeItem = GetSqlDbType(r["DATA_TYPE"]);
                 var dbType = dbTypeItem?.DbType ?? DbType.String;
@@ -263,7 +263,7 @@ public class SqlOracle : Sql
 
                 yield return so;
             }
-            
+
             //break;
         }
 
@@ -279,7 +279,7 @@ public class SqlOracle : Sql
 
         foreach (var t in GetTables(database, schema))
         {
-            if (string.Equals(t.TableName, table, StringComparison.OrdinalIgnoreCase)) { return true; }
+            if (string.Equals(t.TableName, table, StringComparison.OrdinalIgnoreCase)) return true;
         }
 
         return false;
@@ -318,7 +318,7 @@ public class SqlOracle : Sql
                 return false;
             }
 
-            if (!dbName.EqualsCaseInsensitive(database))
+            if (!dbName.EqualsIgnoreCase(database))
             {
                 log.Debug($"Requested database name '{database}' does not match our connected database '{dbName}' so we are not continuing request");
                 return true;

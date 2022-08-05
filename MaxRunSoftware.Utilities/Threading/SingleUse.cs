@@ -14,16 +14,28 @@
 
 namespace MaxRunSoftware.Utilities;
 
-public class SingleUse
+[Serializable]
+public sealed class SingleUse
 {
-    private readonly AtomicBoolean boolean = false;
+    private readonly object locker;
+    private volatile bool isUsed;
 
-    public bool IsUsed => boolean;
+    public SingleUse() : this(new object()) { }
+    public SingleUse(object locker)
+    {
+        this.locker = locker.CheckNotNull(nameof(locker));
+    }
 
-    /// <summary>
-    /// Attempts to 'use' this instance. If this is the first time using it, we will return
-    /// true. Otherwise we return false if we have already been used.
-    /// </summary>
-    /// <returns>true if we have never used before, false if we have already been used</returns>
-    public bool TryUse() => boolean.SetTrue();
+    public bool TryUse()
+    {
+        if (isUsed) return false;
+        lock (locker)
+        {
+            if (isUsed) return false;
+            isUsed = true;
+            return true;
+        }
+    }
+
+    public bool IsUsed => isUsed;
 }

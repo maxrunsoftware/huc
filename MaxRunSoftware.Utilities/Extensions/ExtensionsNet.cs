@@ -69,11 +69,11 @@ public static class ExtensionsNet
 
         if (ui2 >= ui1)
         {
-            for (var i = ui1; i <= ui2; i++) { yield return i.ToIPAddress(); }
+            for (var i = ui1; i <= ui2; i++) yield return i.ToIPAddress();
         }
         else
         {
-            for (var i = ui1; i >= ui2; i--) { yield return i.ToIPAddress(); }
+            for (var i = ui1; i >= ui2; i--) yield return i.ToIPAddress();
         }
     }
 }

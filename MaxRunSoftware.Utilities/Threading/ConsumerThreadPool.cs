@@ -25,7 +25,7 @@ namespace MaxRunSoftware.Utilities;
 public class ConsumerThreadPool<T> : IDisposable
 {
     // ReSharper disable once StaticMemberInGenericType
-    private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Constant.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private readonly List<ConsumerThread<T>> threads = new();
     private readonly BlockingCollection<T> queue = new();
@@ -43,7 +43,7 @@ public class ConsumerThreadPool<T> : IDisposable
             {
                 if (queue.IsCompleted)
                 {
-                    if (threads.TrueForAll(o => o.ConsumerThreadState == ConsumerThreadState.Stopped)) { return true; }
+                    if (threads.TrueForAll(o => o.ConsumerThreadState == ConsumerThreadState.Stopped)) return true;
                 }
 
                 return false;

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Diagnostics;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -43,7 +42,7 @@ public abstract class SqlQueryBase : SqlBase
 
         if (sqlStatement.TrimOrNull() == null && sqlScriptFileData.TrimOrNull() == null) throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
 
-        var sql = (sqlStatement ?? string.Empty) + Constant.NEWLINE_WINDOWS + (sqlScriptFileData ?? string.Empty);
+        var sql = (sqlStatement ?? string.Empty) + Constant.NewLine_Windows + (sqlScriptFileData ?? string.Empty);
         sql = sql.TrimOrNull();
         if (sql == null) throw new ArgsException(nameof(sqlStatement), "No SQL provided to execute");
 

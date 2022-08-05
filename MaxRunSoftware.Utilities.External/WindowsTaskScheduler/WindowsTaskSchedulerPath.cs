@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Win32.TaskScheduler;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IComparable<WindowsTaskSchedulerPath>
 {
-    private static readonly IReadOnlyList<string> pathParseCharacters = new[] { "/", "\\" }.ToList().AsReadOnly();
-
     public IReadOnlyList<string> PathFull { get; }
 
     public IReadOnlyList<string> Path
@@ -63,7 +58,7 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
     public WindowsTaskSchedulerPath(IEnumerable<string> pathParts) { PathFull = pathParts.ToList(); }
 
     public WindowsTaskSchedulerPath(TaskFolder folder) : this(folder.Path) { }
-    public WindowsTaskSchedulerPath(string path) : this(Util.PathParse(path ?? string.Empty, pathParseCharacters).TrimOrNull().WhereNotNull()) { }
+    public WindowsTaskSchedulerPath(string path) : this((path ?? string.Empty).Split('/', '\\').TrimOrNull().WhereNotNull()) { }
 
     public override string ToString() => "/" + PathFull.ToStringDelimited("/");
 
@@ -88,5 +83,5 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
 
     public override int GetHashCode() => Util.GenerateHashCode(PathFull.Select(o => o.ToUpper()));
 
-    public WindowsTaskSchedulerPath Add(string name) => new(PathFull.ToArray().Add(name));
+    public WindowsTaskSchedulerPath Add(string name) => new(PathFull.ToArray().AppendHead(name));
 }

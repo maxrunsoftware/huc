@@ -23,7 +23,8 @@ public sealed class LogEventArgs : EventArgs
     public Exception Exception { get; }
     public LogLevel Level { get; }
     public Type Type { get; }
-    public DateTime UtcTimestamp { get; }
+    public DateTime TimestampUtc { get; }
+    public DateTime Timestamp { get; }
     public string ThreadName { get; }
     public int ThreadId { get; }
 
@@ -41,7 +42,8 @@ public sealed class LogEventArgs : EventArgs
 
         Level = level;
         Type = type;
-        UtcTimestamp = DateTime.UtcNow;
+        TimestampUtc = DateTime.UtcNow;
+        Timestamp = TimestampUtc.ToLocalTime();
         ThreadName = Thread.CurrentThread.Name.TrimOrNull();
         ThreadId = Thread.CurrentThread.ManagedThreadId;
 
@@ -101,37 +103,32 @@ public sealed class LogEventArgs : EventArgs
 
         if (id != null)
         {
-            if (sb.Length > 0) sb.Append(" ");
-
+            if (sb.Length > 0) sb.Append(' ');
             sb.Append(id);
         }
 
         if (includeTimestamp)
         {
-            if (sb.Length > 0) sb.Append(" ");
-
-            sb.Append(UtcTimestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"));
+            if (sb.Length > 0) sb.Append(' ');
+            sb.Append(TimestampUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"));
         }
 
         if (includeLevel)
         {
-            if (sb.Length > 0) sb.Append(" ");
-
+            if (sb.Length > 0) sb.Append(' ');
             sb.Append($"[{Level}]".PadRight(7));
         }
 
         if (includeThread)
         {
-            if (sb.Length > 0) sb.Append(" ");
-
+            if (sb.Length > 0) sb.Append(' ');
             var threadName = ThreadName ?? "";
             sb.Append($"{threadName}({ThreadId})");
         }
 
         if (includeType)
         {
-            if (sb.Length > 0) sb.Append(" ");
-
+            if (sb.Length > 0) sb.Append(' ');
             var strType = Type?.NameFormatted() ?? "?";
             sb.Append($"[{strType}]");
         }
@@ -140,8 +137,7 @@ public sealed class LogEventArgs : EventArgs
         {
             if (CallingFileName != null)
             {
-                if (sb.Length > 0) sb.Append(" ");
-
+                if (sb.Length > 0) sb.Append(' ');
                 sb.Append(CallingFileName + "[" + CallingFileLineNumber + "]");
             }
         }
@@ -150,16 +146,14 @@ public sealed class LogEventArgs : EventArgs
         {
             if (CallingMethod != null)
             {
-                if (sb.Length > 0) sb.Append(" ");
-
+                if (sb.Length > 0) sb.Append(' ');
                 sb.Append(CallingMethod.GetSignature(false));
             }
         }
 
         if (Message != null)
         {
-            if (sb.Length > 0) sb.Append(" ");
-
+            if (sb.Length > 0) sb.Append(' ');
             sb.Append(Message);
         }
 

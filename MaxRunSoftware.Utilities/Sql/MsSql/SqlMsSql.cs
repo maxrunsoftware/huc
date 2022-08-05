@@ -30,7 +30,7 @@ public class SqlMsSql : Sql
         InsertBatchSizeMax = 2000;
 
         // https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers?view=sql-server-ver16
-        ValidIdentifierChars.AddRange(Constant.CHARS_ALPHANUMERIC + "@$#_");
+        ValidIdentifierChars.AddRange(Constant.Chars_Alphanumeric_String + "@$#_");
         ReservedWords.AddRange(SqlMsSqlReservedWords.WORDS.SplitOnWhiteSpace().TrimOrNull().WhereNotNull());
     }
 
@@ -118,7 +118,7 @@ public class SqlMsSql : Sql
 
                 if (schema == null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
-                if (schema != null && !schema.EqualsCaseInsensitive(so.SchemaName)) continue;
+                if (schema != null && !schema.EqualsIgnoreCase(so.SchemaName)) continue;
 
                 yield return so;
             }
@@ -192,9 +192,9 @@ public class SqlMsSql : Sql
 
                 if (schema == null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
-                if (schema != null && !schema.EqualsCaseInsensitive(so.SchemaName)) continue;
+                if (schema != null && !schema.EqualsIgnoreCase(so.SchemaName)) continue;
 
-                if (table != null && !table.EqualsCaseInsensitive(so.TableName)) continue;
+                if (table != null && !table.EqualsIgnoreCase(so.TableName)) continue;
 
                 yield return so;
             }
@@ -213,7 +213,7 @@ public class SqlMsSql : Sql
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
-        return GetTables(database, schema).Any(o => o.TableName.EqualsCaseInsensitive(table));
+        return GetTables(database, schema).Any(o => o.TableName.EqualsIgnoreCase(table));
     }
 
     public override bool DropTable(string database, string schema, string table)

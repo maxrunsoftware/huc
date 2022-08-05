@@ -86,7 +86,7 @@ public static class TableExtensions
         var columnsToRemove = new HashSet<TableColumn>();
         foreach (var column in table.Columns)
         {
-            if (!columnsToKeep.Contains(column)) { columnsToRemove.Add(column); }
+            if (!columnsToKeep.Contains(column)) columnsToRemove.Add(column);
         }
 
         return table.RemoveColumns(columnsToRemove.ToArray());
@@ -172,9 +172,9 @@ public static class TableExtensions
     {
         if (str == null) return null;
 
-        str = str.Replace(Constant.NEWLINE_WINDOWS, " ");
-        str = str.Replace(Constant.NEWLINE_MAC, " ");
-        str = str.Replace(Constant.NEWLINE_UNIX, " ");
+        str = str.Replace(Constant.NewLine_Windows, " ");
+        str = str.Replace(Constant.NewLine_Mac, " ");
+        str = str.Replace(Constant.NewLine_Unix, " ");
         if (replacement != null) str = str.Replace(delimiter, replacement);
 
         return str;
@@ -187,7 +187,7 @@ public static class TableExtensions
         string headerQuoting = null,
         string dataDelimiter = "\t",
         string dataQuoting = null,
-        string newLine = Constant.NEWLINE_WINDOWS,
+        string newLine = Constant.NewLine_Windows,
         bool includeHeader = true,
         bool includeRows = true,
         string headerDelimiterReplacement = null,

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Text;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public abstract class TableBase : Command

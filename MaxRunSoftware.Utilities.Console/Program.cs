@@ -12,19 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
 namespace MaxRunSoftware.Utilities.Console;
 
 public class Program
 {
-    private static readonly ILogger log = LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    public static ILogger GetLogger(Type type) => Constant.GetLogger(type);
+    private static readonly ILogger log = GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
     private ConfigFile config;
-
-    public static ILogFactory LogFactory => Utilities.LogFactory.LogFactoryImpl;
 
     public static List<Type> CommandTypes => typeof(Program).Assembly
         .GetTypesOf<ICommand>(requireNoArgConstructor: true)
@@ -61,7 +55,7 @@ public class Program
         if (a.IsTrace) { logLevel = LogLevel.Trace; }
         else if (a.IsDebug) logLevel = LogLevel.Debug;
 
-        Utilities.LogFactory.LogFactoryImpl.SetupConsole(logLevel);
+        Constant.LogSubscribe(new LogListenerConsole(logLevel).Log);
         log.Debug(a.ToString());
 
         var commandTypes = CommandTypes;
@@ -77,15 +71,14 @@ public class Program
             var logFileLevel = config.LogFileLevel.TrimOrNull() ?? "info";
             logFileLevel = logFileLevel.ToLower();
             LogLevel level;
-            if (logFileLevel.EqualsCaseInsensitive(LogLevel.Critical.ToString())) { level = LogLevel.Critical; }
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Error.ToString())) { level = LogLevel.Error; }
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Warn.ToString())) { level = LogLevel.Warn; }
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Info.ToString())) { level = LogLevel.Info; }
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Debug.ToString())) { level = LogLevel.Debug; }
-            else if (logFileLevel.EqualsCaseInsensitive(LogLevel.Trace.ToString())) { level = LogLevel.Trace; }
+            if (logFileLevel.EqualsIgnoreCase(LogLevel.Error.ToString())) { level = LogLevel.Error; }
+            else if (logFileLevel.EqualsIgnoreCase(LogLevel.Warn.ToString())) { level = LogLevel.Warn; }
+            else if (logFileLevel.EqualsIgnoreCase(LogLevel.Info.ToString())) { level = LogLevel.Info; }
+            else if (logFileLevel.EqualsIgnoreCase(LogLevel.Debug.ToString())) { level = LogLevel.Debug; }
+            else if (logFileLevel.EqualsIgnoreCase(LogLevel.Trace.ToString())) { level = LogLevel.Trace; }
             else { throw new Exception("Unrecognized file log level in config file: " + logFileLevel + "   valid values are TRACE/DEBUG/INFO/WARN/ERROR/CRITICAL"); }
 
-            Utilities.LogFactory.LogFactoryImpl.SetupFile(level, logFileName);
+            Constant.LogSubscribe(new LogListenerFile(level, logFileName).Log);
         }
 
 
@@ -94,7 +87,7 @@ public class Program
             if (a.IsShowHidden || !c.IsHidden) log.Info((c.IsHidden ? "* " : "  ") + c.HelpSummary);
         }
 
-        if (a.IsVersion || (a.Command != null && a.Command.EqualsCaseInsensitive("VERSION")))
+        if (a.IsVersion || (a.Command != null && a.Command.EqualsIgnoreCase("VERSION")))
         {
             ShowBanner(a, null);
             return 6;
@@ -114,7 +107,7 @@ public class Program
         {
             foreach (var c in CommandObjects)
             {
-                if (c.Name.EqualsWildcard(a.Command)) { ListCommand(c); }
+                if (c.Name.EqualsWildcard(a.Command)) ListCommand(c);
             }
 
             return 5;
@@ -162,11 +155,11 @@ public class Program
         if (suppressBanner) return;
 
         var os = "";
-        if (Constant.OS_WINDOWS) { os = " (Windows)"; }
-        else if (Constant.OS_UNIX) { os = " (Linux)"; }
-        else if (Constant.OS_MAC) os = " (Mac)";
+        if (Constant.OS_Windows) { os = " (Windows)"; }
+        else if (Constant.OS_Unix) { os = " (Linux)"; }
+        else if (Constant.OS_Mac) os = " (Mac)";
 
-        if (command == null) { log.Info(typeof(Program).Namespace + " " + Version.Value + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS()); }
-        else { log.Info(typeof(Program).Namespace + " " + Version.Value + " : " + command.Name + os + " " + DateTime.Now.ToStringYYYYMMDDHHMMSS()); }
+        if (command == null) { log.Info(typeof(Program).Namespace + " " + Version.Value + os + " " + DateTime.Now.ToString(DateTimeToStringFormat.YYYY_MM_DD_HH_MM_SS)); }
+        else { log.Info(typeof(Program).Namespace + " " + Version.Value + " : " + command.Name + os + " " + DateTime.Now.ToString(DateTimeToStringFormat.YYYY_MM_DD_HH_MM_SS)); }
     }
 }

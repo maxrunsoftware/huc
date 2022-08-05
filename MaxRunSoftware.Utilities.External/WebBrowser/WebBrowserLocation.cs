@@ -12,17 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class WebBrowserLocation
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     public WebBrowserType BrowserType { get; }
     public OSPlatform BrowserOS { get; }
@@ -64,7 +60,7 @@ public class WebBrowserLocation
             else if (BrowserOS == OSPlatform.Windows && BrowserExecutable!.ToLower().Contains("\\program files (x86)\\")) isBrowser64Bit = false;
         }
 
-        IsBrowser64Bit = isBrowser64Bit ?? Constant.OS_X64;
+        IsBrowser64Bit = isBrowser64Bit ?? Constant.OS_x64;
     }
 
     public static IReadOnlyList<WebBrowserLocation> DefaultLocations { get; } = new List<WebBrowserLocation>

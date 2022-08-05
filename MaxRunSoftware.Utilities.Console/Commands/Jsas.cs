@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class Jsas : Command
@@ -77,10 +75,10 @@ public class Jsas : Command
                 var isText = false;
                 foreach (var mime in mimeText)
                 {
-                    if (mime.EqualsCaseInsensitive(ct)) { isText = true; }
+                    if (mime.EqualsIgnoreCase(ct)) isText = true;
                 }
 
-                if (isText) { log.Info(Constant.ENCODING_UTF8.GetString(response.Data)); }
+                if (isText) { log.Info(Constant.Encoding_UTF8.GetString(response.Data)); }
                 else { log.Info("WebResponse.Data[" + response.Data.Length + "]"); }
             }
         }

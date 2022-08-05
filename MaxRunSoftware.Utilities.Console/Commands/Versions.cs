@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
-using System.Text;
 using MaxRunSoftware.Utilities.External;
 using Octokit;
 
@@ -47,9 +44,9 @@ public class Versions : Command
     private void DownloadLatestRelease(Release release)
     {
         var hucFileName = "huc-";
-        if (Constant.OS_MAC) { hucFileName += "osx"; }
-        else if (Constant.OS_UNIX) { hucFileName += "linux"; }
-        else if (Constant.OS_WINDOWS) hucFileName += "win";
+        if (Constant.OS_Mac) { hucFileName += "osx"; }
+        else if (Constant.OS_Unix) { hucFileName += "linux"; }
+        else if (Constant.OS_Windows) hucFileName += "win";
 
         hucFileName += ".zip";
 
@@ -58,7 +55,7 @@ public class Versions : Command
         {
             if (asset.Name == null) continue;
 
-            if (!asset.Name.EqualsCaseInsensitive(hucFileName)) continue;
+            if (!asset.Name.EqualsIgnoreCase(hucFileName)) continue;
 
             url = asset.BrowserDownloadUrl;
         }
@@ -83,7 +80,7 @@ public class Versions : Command
     {
         var sb = new StringBuilder();
         var currentVersion = "v" + Version.Value;
-        sb.Append(currentVersion.EqualsCaseInsensitive(release.TagName) ? "* " : "  ");
+        sb.Append(currentVersion.EqualsIgnoreCase(release.TagName) ? "* " : "  ");
         sb.Append(release.TagName.PadRight(10));
         var publishedAt = release.PublishedAt;
         var dtFormat = "yyyy-MM-dd HH:mm:ss";

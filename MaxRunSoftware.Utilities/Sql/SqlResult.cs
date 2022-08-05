@@ -22,7 +22,7 @@ public abstract class SqlResultBase
 
     protected SqlResultBase() : this(true) { }
 
-    protected SqlResultBase(bool createLogger) { log = createLogger ? LogFactory.LogFactoryImpl.GetLogger(GetType()) : LoggerBase.NULL_LOGGER; }
+    protected SqlResultBase(bool createLogger) { log = createLogger ? Constant.GetLogger(GetType()) : Constant.GetLoggerNull(); }
 }
 
 public class SqlResultCollection : SqlResultBase, IReadOnlyList<SqlResult>
@@ -70,6 +70,8 @@ public class SqlResult : SqlResultBase
 public static class SqlResultExtensions
 {
     public static SqlResultCollection ReadSqlResults(this IDataReader reader) => new(reader);
+
+    public static SqlType GetSqlType(this SqlResultColumn sqlResultColumn, Sql sql) => sql.GetSqlDbType(sqlResultColumn.DataTypeName);
 }
 
 public class SqlResultColumnCollection : SqlResultBase, IReadOnlyList<SqlResultColumn>, IBucketReadOnly<string, SqlResultColumn>, IBucketReadOnly<int, SqlResultColumn>
@@ -146,7 +148,7 @@ public class SqlResultRowCollection : SqlResultBase, IReadOnlyList<SqlResultRow>
         {
             for (var i = 0; i < valueRow.Length; i++)
             {
-                if (valueRow[i] == DBNull.Value) { valueRow[i] = null; }
+                if (valueRow[i] == DBNull.Value) valueRow[i] = null;
             }
 
             var row = new SqlResultRow(valueRow, this);

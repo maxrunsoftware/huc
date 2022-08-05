@@ -1,25 +1,19 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable StringLiteralTypo
@@ -31,7 +25,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class IgnoreInPropertiesListAttribute : Attribute { }
 
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     //private static readonly DateTime JAN_01_1601 = new DateTime(1601, 1, 1);
     // ReSharper disable once InconsistentNaming
@@ -416,7 +410,8 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                     var name = LogonName.Split("@").FirstOrDefault().TrimOrNull();
                     if (name != null) return name;
                 }
-                else { return LogonName; }
+                else
+                    return LogonName;
             }
 
             if (LogonNamePreWindows2000 != null)
@@ -426,7 +421,8 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                     var name = LogonNamePreWindows2000.Split("\\").LastOrDefault().TrimOrNull();
                     if (name != null) return name;
                 }
-                else { return LogonNamePreWindows2000; }
+                else
+                    return LogonNamePreWindows2000;
             }
 
             if (Name != null) return Name;
@@ -564,7 +560,8 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                     user.Save();
                 }
             }
-            else { AttributeSave("pwdLastSet", "-1"); }
+            else
+                AttributeSave("pwdLastSet", "-1");
         }
     }
 
@@ -725,7 +722,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                 var uac = uacNullable.Value;
                 foreach (var item in Util.GetEnumValues<ActiveDirectoryUserAccountControl>())
                 {
-                    if ((uac & (int)item) == (int)item) { set.Add(item); }
+                    if ((uac & (int)item) == (int)item) set.Add(item);
                 }
 
                 userAccountControls = set;
@@ -888,8 +885,10 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
         var found = false;
         foreach (var member in Member)
         {
-            if (string.Equals(distinguishedName, member, StringComparison.OrdinalIgnoreCase)) { found = true; }
-            else { list.Add(member); }
+            if (string.Equals(distinguishedName, member, StringComparison.OrdinalIgnoreCase))
+                found = true;
+            else
+                list.Add(member);
         }
 
         if (!found) return false;
@@ -935,7 +934,6 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
     {
         var d = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
-        var crw = ClassReaderWriter.Get(GetType());
         foreach (var prop in GetPropertyInfos(true))
         {
             if (!includeExpensiveObjects && ExpensiveProperties.Contains(prop.Name))
@@ -950,7 +948,7 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                 continue;
             }
 
-            try { d[prop.Name] = crw.Properties[prop.Name].GetValue(this); }
+            try { d[prop.Name] = prop.GetValue(this); }
             catch (Exception e)
             {
                 log.Warn("Error getting property [" + prop.Name + "] for object " + DistinguishedName);
@@ -1021,21 +1019,27 @@ public class ActiveDirectoryObject : IEquatable<ActiveDirectoryObject>, ICompara
                 var v = new List<(int attributeIndex, string attributeValue)>();
                 if (attributeValue != null)
                 {
-                    if (attributeValue is string str) { v.Add((0, str)); }
-                    else if (attributeValue is byte[] bytes) { v.Add((0, "0x" + Util.Base16(bytes))); }
+                    if (attributeValue is string str)
+                        v.Add((0, str));
+                    else if (attributeValue is byte[] bytes)
+                        v.Add((0, "0x" + Util.Base16(bytes)));
                     else if (attributeValue is IEnumerable enumerable)
                     {
                         var index = 0;
                         foreach (var attributeValueObject in enumerable)
                         {
-                            if (attributeValueObject is string str2) { v.Add((index, str2)); }
-                            else if (attributeValueObject is byte[] bytes2) { v.Add((index, "0x" + Util.Base16(bytes2))); }
-                            else { v.Add((index, attributeValueObject.ToStringGuessFormat())); }
+                            if (attributeValueObject is string str2)
+                                v.Add((index, str2));
+                            else if (attributeValueObject is byte[] bytes2)
+                                v.Add((index, "0x" + Util.Base16(bytes2)));
+                            else
+                                v.Add((index, attributeValueObject.ToStringGuessFormat()));
 
                             index++;
                         }
                     }
-                    else { v.Add((0, attributeValue.ToStringGuessFormat())); }
+                    else
+                        v.Add((0, attributeValue.ToStringGuessFormat()));
                 }
 
                 foreach (var item in v)

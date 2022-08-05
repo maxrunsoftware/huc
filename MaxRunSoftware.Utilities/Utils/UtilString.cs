@@ -46,7 +46,7 @@ public static partial class Util
 
         if (list.All(o => o.CountOccurrences(".") == 3))
         {
-            if (list.All(o => IPAddress.TryParse(o, out _))) { return typeof(IPAddress); }
+            if (list.All(o => IPAddress.TryParse(o, out _))) return typeof(IPAddress);
         }
 
         if (list.All(o => o.ToBoolTry(out _))) return nullable ? typeof(bool?) : typeof(bool);
@@ -90,7 +90,7 @@ public static partial class Util
     {
         var type = GuessType(strings);
 
-        if (Constant.TYPE_DBTYPE.TryGetValue(type, out var dbType)) return dbType;
+        if (Constant.Type_DbType.TryGetValue(type, out var dbType)) return dbType;
 
         return DbType.String;
     }

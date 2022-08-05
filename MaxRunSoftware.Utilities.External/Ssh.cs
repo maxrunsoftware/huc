@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using Renci.SshNet;
 
 namespace MaxRunSoftware.Utilities.External;
@@ -35,7 +30,7 @@ public sealed class SshKeyFile
 
 public class Ssh : IDisposable
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private SshClient client;
 

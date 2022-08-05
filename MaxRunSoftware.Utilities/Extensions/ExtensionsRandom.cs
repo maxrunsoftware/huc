@@ -63,6 +63,142 @@ public static class ExtensionsRandom
         return array;
     }
 
+    public static string NextString(this Random random, int size, params char[] pool) => NextStringInternal(random, size, pool);
+
+    public static string NextString(this Random random, int size, params string[] pool) => NextStringInternal(random, size, pool);
+
+    public static string NextString<T>(this Random random, int size, params T[] pool) => NextStringInternal(random, size, pool);
+
+    private static string NextStringInternal<T>(this Random random, int size, params T[] pool)
+    {
+        // https://stackoverflow.com/a/1344255
+
+        var data = new byte[4 * size];
+
+        random.NextBytes(data);
+
+        var result = new StringBuilder(size);
+        for (var i = 0; i < size; i++)
+        {
+            var rnd = BitConverter.ToUInt32(data, i * 4);
+            var idx = rnd % pool.Length;
+
+            result.Append(pool[idx]);
+        }
+
+        return result.ToString();
+    }
+
+    public static bool NextBool(this Random random)
+    {
+        // https://stackoverflow.com/a/28763727
+        const double nextBoolHalf = 0.5;
+        return random.NextDouble() >= nextBoolHalf;
+    }
+
+    public static bool NextBool(this Random random, decimal percentWillBeTrue)
+    {
+        if (percentWillBeTrue <= 0) return false;
+        if (percentWillBeTrue >= 100) return true;
+        return random.Next(0, 100) < percentWillBeTrue;
+    }
+
+
+    public static byte NextByte(this Random random, byte minInclusive = byte.MinValue, byte maxInclusive = byte.MaxValue) => (byte)random.Next(minInclusive, maxInclusive + 1);
+    public static sbyte NextSByte(this Random random, sbyte minInclusive = sbyte.MinValue, sbyte maxInclusive = sbyte.MaxValue) => (sbyte)random.Next(minInclusive, maxInclusive + 1);
+    public static short NextShort(this Random random, short minInclusive = short.MinValue, short maxInclusive = short.MaxValue) => (short)random.Next(minInclusive, maxInclusive + 1);
+    public static ushort NextUShort(this Random random, ushort minInclusive = ushort.MinValue, ushort maxInclusive = ushort.MaxValue) => (ushort)random.Next(minInclusive, maxInclusive + 1);
+
+    public static int NextInt(this Random random, int minInclusive = int.MinValue, int maxInclusive = int.MaxValue - 1)
+    {
+        if (maxInclusive < int.MaxValue) return random.Next(minInclusive, maxInclusive + 1);
+        return (int)random.NextInt64(minInclusive, maxInclusive + 1L);
+    }
+
+    public static uint NextUInt(this Random random, uint minInclusive = uint.MinValue, uint maxInclusive = uint.MaxValue)
+    {
+        if (minInclusive < int.MaxValue && maxInclusive < int.MaxValue) return (uint)random.Next((int)minInclusive, (int)maxInclusive + 1);
+        return (uint)random.NextInt64(minInclusive, maxInclusive + 1L);
+    }
+
+    public static long NextLong(this Random random, long minInclusive = long.MinValue, long maxInclusive = long.MaxValue - 1)
+    {
+        if (maxInclusive < long.MaxValue) return random.NextInt64(minInclusive, maxInclusive + 1);
+        if (minInclusive > long.MinValue) return random.NextInt64(minInclusive - 1L, maxInclusive) + 1L;
+        var bytes = new byte[8];
+        random.NextBytes(bytes);
+        return BitConverter.ToInt64(bytes, 0);
+    }
+
+    public static ulong NextULong(this Random random, ulong minInclusive = ulong.MinValue, ulong maxInclusive = ulong.MaxValue - 1UL)
+    {
+        var min = (decimal)minInclusive;
+        var max = (decimal)maxInclusive;
+        const decimal minus = long.MinValue;
+        var minNew = min + minus;
+        var maxNew = max + minus;
+        return (ulong)(NextLong(random, (long)minNew, (long)maxNew) - minus);
+    }
+
+    public static decimal NextDecimal(this Random random)
+    {
+        var a = (int)(uint.MaxValue * random.NextDouble());
+        var b = (int)(uint.MaxValue * random.NextDouble());
+        var c = (int)(uint.MaxValue * random.NextDouble());
+        var n = random.NextBool();
+        return new decimal(a, b, c, n, 0);
+    }
+
+    public static DateTime NextDateTime(this Random random, DateTime? minInclusive = null, DateTime? maxInclusive = null)
+    {
+        minInclusive ??= DateTime.MinValue.ToUniversalTime();
+        var minKind = minInclusive.Value.Kind;
+
+        maxInclusive ??= DateTime.MaxValue.ToUniversalTime();
+        var maxKind = maxInclusive.Value.Kind;
+
+        var kind = DateTimeKind.Unspecified;
+        if (minKind != DateTimeKind.Unspecified) kind = minKind;
+        if (kind == DateTimeKind.Unspecified) kind = maxKind;
+
+        var ticks = random.NextInt64(minInclusive.Value.Ticks, maxInclusive.Value.Ticks + 1L);
+        return new DateTime(ticks, kind);
+    }
+
+    public static DateOnly NextDateOnly(this Random random, DateOnly? minInclusive = null, DateOnly? maxInclusive = null)
+    {
+        minInclusive ??= DateOnly.MinValue;
+        maxInclusive ??= DateOnly.MaxValue;
+
+        var minDateTime = minInclusive.Value.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var maxDateTime = maxInclusive.Value.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
+
+        var dt = NextDateTime(random, minDateTime, maxDateTime);
+        return new DateOnly(dt.Year, dt.Month, dt.Day);
+    }
+
+    public static TimeOnly NextTimeOnly(this Random random, TimeOnly? minInclusive = null, TimeOnly? maxInclusive = null)
+    {
+        minInclusive ??= TimeOnly.MinValue;
+        maxInclusive ??= TimeOnly.MaxValue;
+
+        var dtMin = DateTime.MinValue.Ticks;
+        var minDateTime = new DateTime(dtMin + minInclusive.Value.Ticks, DateTimeKind.Utc);
+        var maxDateTime = new DateTime(dtMin + maxInclusive.Value.Ticks, DateTimeKind.Utc);
+
+        var dt = NextDateTime(random, minDateTime, maxDateTime);
+        return new TimeOnly(dt.Hour, dt.Minute, dt.Second, dt.Millisecond);
+    }
+
+    public static byte[] NextBytes(this Random random, int length)
+    {
+        var bytes = new byte[length];
+        random.NextBytes(bytes);
+        return bytes;
+    }
+
+    public static Guid NextGuid(this Random random) => new(random.NextBytes(16));
+
     #endregion System.Random
 
     #region System.Security.Cryptography.RandomNumberGenerator
@@ -143,6 +279,42 @@ public static class ExtensionsRandom
             items[i] = items[swapIndex];
             items[swapIndex] = tmp;
         }
+    }
+
+    public static string NextString(this RandomNumberGenerator random, int size, params char[] pool) => NextStringInternal(random, size, pool);
+
+    public static string NextString(this RandomNumberGenerator random, int size, params string[] pool) => NextStringInternal(random, size, pool);
+
+    public static string NextString<T>(this RandomNumberGenerator random, int size, params T[] pool) => NextStringInternal(random, size, pool);
+
+    private static string NextStringInternal<T>(this RandomNumberGenerator random, int size, params T[] pool)
+    {
+        // https://stackoverflow.com/a/1344255
+
+        var data = new byte[4 * size];
+
+        random.GetBytes(data);
+
+        var result = new StringBuilder(size);
+        for (var i = 0; i < size; i++)
+        {
+            var rnd = BitConverter.ToUInt32(data, i * 4);
+            var idx = rnd % pool.Length;
+
+            result.Append(pool[idx]);
+        }
+
+        return result.ToString();
+    }
+
+    public static bool NextBool(this RandomNumberGenerator random) => random.Next(2) == 0;
+
+
+    public static bool NextBool(this RandomNumberGenerator random, decimal percentWillBeTrue)
+    {
+        if (percentWillBeTrue <= 0) return false;
+        if (percentWillBeTrue >= 100) return true;
+        return random.Next(0, 100) < percentWillBeTrue;
     }
 
     #endregion System.Security.Cryptography.RandomNumberGenerator

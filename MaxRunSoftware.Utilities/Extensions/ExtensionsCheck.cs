@@ -1,17 +1,19 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
 namespace MaxRunSoftware.Utilities;
@@ -20,20 +22,37 @@ public static class ExtensionsCheck
 {
     #region CheckFileExists
 
-    public static string CheckFileExists(this string filename)
+    public static string CheckFileExists(this string fileName)
     {
-        if (!File.Exists(filename)) throw new FileNotFoundException("File does not exist " + filename, filename);
+        if (!File.Exists(fileName)) throw new FileNotFoundException("File does not exist " + fileName, fileName);
 
-        return filename;
+        return fileName;
     }
 
-    public static string CheckFileExists(this string filename, string argumentName)
+    public static string CheckFileExists(this string fileName, string argumentName)
     {
-        CheckNotNull(filename, argumentName);
-        return CheckFileExists(filename);
+        CheckNotNull(fileName, argumentName);
+        return CheckFileExists(fileName);
     }
 
     #endregion CheckFileExists
+
+    #region CheckDirectoryExists
+
+    public static string CheckDirectoryExists(this string directoryName)
+    {
+        if (!Directory.Exists(directoryName)) throw new DirectoryNotFoundException("Directory does not exist " + directoryName);
+
+        return directoryName;
+    }
+
+    public static string CheckDirectoryExists(this string directoryName, string argumentName)
+    {
+        CheckNotNull(directoryName, argumentName);
+        return CheckDirectoryExists(directoryName);
+    }
+
+    #endregion CheckDirectoryExists
 
     #region CheckMax
 
@@ -221,48 +240,12 @@ public static class ExtensionsCheck
 
     // ReSharper disable once UnusedParameter.Global
     public static byte CheckNotNegative(this byte argument, string argumentName) => argument;
-
-    public static decimal CheckNotNegative(this decimal argument, string argumentName)
-    {
-        if (argument < Constant.ZERO_DECIMAL) throw CheckNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static double CheckNotNegative(this double argument, string argumentName)
-    {
-        if (argument < Constant.ZERO_DOUBLE) throw CheckNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static float CheckNotNegative(this float argument, string argumentName)
-    {
-        if (argument < Constant.ZERO_FLOAT) throw CheckNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static int CheckNotNegative(this int argument, string argumentName)
-    {
-        if (argument < Constant.ZERO_INT) throw CheckNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static long CheckNotNegative(this long argument, string argumentName)
-    {
-        if (argument < Constant.ZERO_LONG) throw CheckNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static short CheckNotNegative(this short argument, string argumentName)
-    {
-        if (argument < Constant.ZERO_SHORT) throw CheckNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
+    public static decimal CheckNotNegative(this decimal argument, string argumentName) => Math.Sign(argument) < 0 ? throw CheckNotNegativeException(argument, argumentName) : argument;
+    public static double CheckNotNegative(this double argument, string argumentName) => Math.Sign(argument) < 0 ? throw CheckNotNegativeException(argument, argumentName) : argument;
+    public static float CheckNotNegative(this float argument, string argumentName) => Math.Sign(argument) < 0 ? throw CheckNotNegativeException(argument, argumentName) : argument;
+    public static int CheckNotNegative(this int argument, string argumentName) => Math.Sign(argument) < 0 ? throw CheckNotNegativeException(argument, argumentName) : argument;
+    public static long CheckNotNegative(this long argument, string argumentName) => Math.Sign(argument) < 0 ? throw CheckNotNegativeException(argument, argumentName) : argument;
+    public static short CheckNotNegative(this short argument, string argumentName) => Math.Sign(argument) < 0 ? throw CheckNotNegativeException(argument, argumentName) : argument;
 
     #endregion CheckNotNegative
 
@@ -270,82 +253,18 @@ public static class ExtensionsCheck
 
     private static ArgumentOutOfRangeException CheckNotZeroException(object argument, string argumentName) => new(argumentName, $"Argument {argumentName} with value {argument} cannot be zero.");
 
-    public static byte CheckNotZero(this byte argument, string argumentName)
-    {
-        if (argument == Constant.ZERO_BYTE) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static sbyte CheckNotZero(this sbyte argument, string argumentName)
-    {
-        if (argument == Constant.ZERO_SBYTE) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static decimal CheckNotZero(this decimal argument, string argumentName, decimal tolerance = Constant.ZERO_DECIMAL)
-    {
-        if (Math.Abs(argument) < Math.Abs(tolerance)) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static double CheckNotZero(this double argument, string argumentName, double tolerance = Constant.ZERO_DOUBLE)
-    {
-        if (Math.Abs(argument) < Math.Abs(tolerance)) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static float CheckNotZero(this float argument, string argumentName, float tolerance = Constant.ZERO_FLOAT)
-    {
-        if (Math.Abs(argument) < Math.Abs(tolerance)) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static int CheckNotZero(this int argument, string argumentName)
-    {
-        if (argument == Constant.ZERO_INT) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static uint CheckNotZero(this uint argument, string argumentName)
-    {
-        if (argument == Constant.ZERO_UINT) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static long CheckNotZero(this long argument, string argumentName)
-    {
-        if (argument == Constant.ZERO_LONG) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static ulong CheckNotZero(this ulong argument, string argumentName)
-    {
-        if (argument == Constant.ZERO_ULONG) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static short CheckNotZero(this short argument, string argumentName)
-    {
-        if (argument == Constant.ZERO_SHORT) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static ushort CheckNotZero(this ushort argument, string argumentName)
-    {
-        if (argument == Constant.ZERO_USHORT) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
+    private const ulong zeroULong = 0;
+    public static ulong CheckNotZero(this ulong argument, string argumentName) => argument == zeroULong ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static byte CheckNotZero(this byte argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static sbyte CheckNotZero(this sbyte argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static decimal CheckNotZero(this decimal argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static double CheckNotZero(this double argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static float CheckNotZero(this float argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static int CheckNotZero(this int argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static uint CheckNotZero(this uint argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static long CheckNotZero(this long argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static short CheckNotZero(this short argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
+    public static ushort CheckNotZero(this ushort argument, string argumentName) => Math.Sign(argument) == 0 ? throw CheckNotZeroException(argument, argumentName) : argument;
 
     #endregion CheckNotZero
 
@@ -353,86 +272,39 @@ public static class ExtensionsCheck
 
     private static ArgumentOutOfRangeException CheckNotZeroNotNegativeException(object argument, string argumentName) => new(argumentName, argument, $"Argument {argumentName} with value {argument} cannot be negative or zero.");
 
-    public static byte CheckNotZeroNotNegative(this byte argument, string argumentName)
-    {
-        if (argument <= Constant.ZERO_BYTE) throw CheckNotZeroNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static sbyte CheckNotZeroNotNegative(this sbyte argument, string argumentName)
-    {
-        if (argument <= Constant.ZERO_SBYTE) throw CheckNotZeroNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static decimal CheckNotZeroNotNegative(this decimal argument, string argumentName, decimal tolerance = Constant.ZERO_DECIMAL)
-    {
-        if (Math.Abs(argument) <= Math.Abs(tolerance)) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static double CheckNotZeroNotNegative(this double argument, string argumentName, double tolerance = Constant.ZERO_DOUBLE)
-    {
-        if (Math.Abs(argument) <= Math.Abs(tolerance)) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static float CheckNotZeroNotNegative(this float argument, string argumentName, float tolerance = Constant.ZERO_FLOAT)
-    {
-        if (Math.Abs(argument) <= Math.Abs(tolerance)) throw CheckNotZeroException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static int CheckNotZeroNotNegative(this int argument, string argumentName)
-    {
-        if (argument <= Constant.ZERO_INT) throw CheckNotZeroNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static uint CheckNotZeroNotNegative(this uint argument, string argumentName)
-    {
-        if (argument <= Constant.ZERO_UINT) throw CheckNotZeroNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static long CheckNotZeroNotNegative(this long argument, string argumentName)
-    {
-        if (argument <= Constant.ZERO_LONG) throw CheckNotZeroNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static ulong CheckNotZeroNotNegative(this ulong argument, string argumentName)
-    {
-        if (argument <= Constant.ZERO_ULONG) throw CheckNotZeroNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static short CheckNotZeroNotNegative(this short argument, string argumentName)
-    {
-        if (argument <= Constant.ZERO_SHORT) throw CheckNotZeroNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
-
-    public static ushort CheckNotZeroNotNegative(this ushort argument, string argumentName)
-    {
-        if (argument <= Constant.ZERO_USHORT) throw CheckNotZeroNotNegativeException(argument, argumentName);
-
-        return argument;
-    }
+    public static byte CheckNotZeroNotNegative(this byte argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static sbyte CheckNotZeroNotNegative(this sbyte argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static decimal CheckNotZeroNotNegative(this decimal argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static double CheckNotZeroNotNegative(this double argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static float CheckNotZeroNotNegative(this float argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static int CheckNotZeroNotNegative(this int argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static uint CheckNotZeroNotNegative(this uint argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static long CheckNotZeroNotNegative(this long argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static ulong CheckNotZeroNotNegative(this ulong argument, string argumentName) => argument <= zeroULong ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static short CheckNotZeroNotNegative(this short argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
+    public static ushort CheckNotZeroNotNegative(this ushort argument, string argumentName) => Math.Sign(argument) <= 0 ? throw CheckNotZeroNotNegativeException(argument, argumentName) : argument;
 
     #endregion CheckNotZeroNotNegative
 
     #region CheckNotNull
+
+    /// <summary>
+    /// https://blog.jetbrains.com/dotnet/2021/11/04/caller-argument-expressions-in-csharp-10/
+    /// https://weblogs.asp.net/dixin/csharp-10-new-feature-callerargumentexpression-argument-check-and-more
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <param name="message"></param>
+    /// <param name="parameterName"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    [return: System.Diagnostics.CodeAnalysis.NotNull]
+    public static T NotNull<T>(
+        [System.Diagnostics.CodeAnalysis.NotNull] this T? obj,
+        string? message = default,
+        [CallerArgumentExpression("obj")] string? parameterName = default
+    ) where T : class =>
+        obj ?? throw new ArgumentNullException(parameterName, message);
 
     /// <summary>
     /// Checks if an argument is null. If it is, throw an ArgumentNullException
@@ -441,8 +313,9 @@ public static class ExtensionsCheck
     /// <param name="argument">The argument to check</param>
     /// <param name="argumentName">The nameof argument</param>
     /// <returns>The argument</returns>
-    [ContractAnnotation("argument: null => halt")]
-    public static T CheckNotNull<T>([NoEnumeration] this T argument, string argumentName) where T : class
+    //[ContractAnnotation("argument: null => halt")]
+    [return: NotNullIfNotNull("argument")]
+    public static T CheckNotNull<T>([NoEnumeration] this T? argument, string argumentName) where T : class
     {
         if (argument == null) throw new ArgumentNullException(argumentName, "Argument " + argumentName + " cannot be null");
 
@@ -498,6 +371,186 @@ public static class ExtensionsCheck
 
     #endregion CheckNotNull
 
+    #region CheckPropertyNotNull
+
+    private static string CheckPropertyNotNullFormatException(Type classWithProperty, string propertyName, bool fullTypeName, string suffixMessage)
+    {
+        var sb = new StringBuilder();
+
+        sb.Append("Property ");
+
+        if (classWithProperty != null)
+        {
+            sb.Append(fullTypeName ? classWithProperty.FullNameFormatted() : classWithProperty.NameFormatted());
+            sb.Append('.');
+        }
+
+        propertyName = propertyName.TrimOrNull() ?? "!NotSpecified";
+        sb.Append(propertyName);
+
+        sb.Append(" cannot be ");
+
+        sb.Append(suffixMessage);
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Checks if a property is null. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T CheckPropertyNotNull<T>([NoEnumeration] this T property, string propertyName) where T : class => CheckPropertyNotNull(property, propertyName, null);
+
+    /// <summary>
+    /// Checks if a property is null. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <param name="classWithProperty">The class containing the property</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T CheckPropertyNotNull<T>([NoEnumeration] this T property, string propertyName, Type classWithProperty) where T : class => CheckPropertyNotNull(property, propertyName, classWithProperty, true);
+
+    /// <summary>
+    /// Checks if a property is null. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <param name="classWithProperty">The class containing the property</param>
+    /// <param name="displayFullTypeName">Whether to display the full class name in the exception</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T CheckPropertyNotNull<T>([NoEnumeration] this T property, string propertyName, Type classWithProperty, bool displayFullTypeName) where T : class
+    {
+        if (property == null) throw new NullReferenceException(CheckPropertyNotNullFormatException(classWithProperty, propertyName, displayFullTypeName, "null"));
+        return property;
+    }
+
+    /// <summary>
+    /// Checks if a property is null. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T? CheckPropertyNotNull<T>([NoEnumeration] this T? property, string propertyName) where T : struct => CheckPropertyNotNull(property, propertyName, null);
+
+    /// <summary>
+    /// Checks if a property is null. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <param name="classWithProperty">The class containing the property</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T? CheckPropertyNotNull<T>([NoEnumeration] this T? property, string propertyName, Type classWithProperty) where T : struct => CheckPropertyNotNull(property, propertyName, classWithProperty, true);
+
+
+    /// <summary>
+    /// Checks if a property is null. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <param name="classWithProperty">The class containing the property</param>
+    /// <param name="displayFullTypeName">Whether to display the full class name in the exception</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T? CheckPropertyNotNull<T>([NoEnumeration] this T? property, string propertyName, Type classWithProperty, bool displayFullTypeName) where T : struct
+    {
+        if (property == null) throw new NullReferenceException(CheckPropertyNotNullFormatException(classWithProperty, propertyName, displayFullTypeName, "null"));
+        return property;
+    }
+
+
+    /// <summary>
+    /// Checks if a property is null or empty. If it is null throw a NullReferenceException. If it is empty, throw an
+    /// InvalidOperationException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T[] CheckPropertyNotEmpty<T>(this T[] property, string propertyName) => CheckPropertyNotEmpty(property, propertyName, null);
+
+    /// <summary>
+    /// Checks if a property is null or empty. If it is null throw a NullReferenceException. If it is empty, throw an
+    /// InvalidOperationException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <param name="classWithProperty">The class containing the property</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T[] CheckPropertyNotEmpty<T>(this T[] property, string propertyName, Type classWithProperty) => CheckPropertyNotEmpty(property, propertyName, classWithProperty, true);
+
+
+    /// <summary>
+    /// Checks if a property is null or empty. If it is null throw a NullReferenceException. If it is empty, throw an
+    /// InvalidOperationException
+    /// </summary>
+    /// <typeparam name="T">Property type</typeparam>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <param name="classWithProperty">The class containing the property</param>
+    /// <param name="displayFullTypeName">Whether to display the full class name in the exception</param>
+    /// <returns>The property value</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static T[] CheckPropertyNotEmpty<T>(this T[] property, string propertyName, Type classWithProperty, bool displayFullTypeName)
+    {
+        if (property == null) throw new NullReferenceException(CheckPropertyNotNullFormatException(classWithProperty, propertyName, displayFullTypeName, "null"));
+        if (property.Length == 0) throw new InvalidOperationException(CheckPropertyNotNullFormatException(classWithProperty, propertyName, displayFullTypeName, "empty"));
+        return property;
+    }
+
+
+    /// <summary>
+    /// Checks if a property is null or empty after being trimmed. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <returns>The property value trimmed</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static string CheckPropertyNotNullTrimmed(this string property, string propertyName) => CheckPropertyNotNullTrimmed(property, propertyName, null);
+
+    /// <summary>
+    /// Checks if a property is null or empty after being trimmed. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <param name="classWithProperty">The class containing the property</param>
+    /// <returns>The property value trimmed</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static string CheckPropertyNotNullTrimmed(this string property, string propertyName, Type classWithProperty) => CheckPropertyNotNullTrimmed(property, propertyName, classWithProperty, true);
+
+    /// <summary>
+    /// Checks if a property is null or empty after being trimmed. If it is, throw a NullReferenceException
+    /// </summary>
+    /// <param name="property">The property to check</param>
+    /// <param name="propertyName">The nameof of the property</param>
+    /// <param name="classWithProperty">The class containing the property</param>
+    /// <param name="displayFullTypeName">Whether to display the full class name in the exception</param>
+    /// <returns>The property value trimmed</returns>
+    [ContractAnnotation("property: null => halt")]
+    public static string CheckPropertyNotNullTrimmed(this string property, string propertyName, Type classWithProperty, bool displayFullTypeName)
+    {
+        var s = property.TrimOrNull();
+        if (s == null) throw new NullReferenceException(CheckPropertyNotNullFormatException(classWithProperty, propertyName, displayFullTypeName, "null or empty after being trimmed"));
+        return s;
+    }
+
+    #endregion CheckPropertyNotNull
+
     #region CheckNotContains
 
     public static T[] CheckNotContains<T>(this T[] argument, T argumentToCheckFor, string argumentName) => CheckNotContains(argument, argumentToCheckFor, null, argumentName);
@@ -510,7 +563,7 @@ public static class ExtensionsCheck
 
         for (var i = 0; i < argument.Length; i++)
         {
-            if (comparer.Equals(argument[i], argumentToCheckFor)) { throw new ArgumentException($"Argument {argumentName}[{i}] cannot contain value {argumentToCheckFor.ToStringGuessFormat()}."); }
+            if (comparer.Equals(argument[i], argumentToCheckFor)) throw new ArgumentException($"Argument {argumentName}[{i}] cannot contain value {argumentToCheckFor.ToStringGuessFormat()}.");
         }
 
         return argument;
@@ -591,9 +644,12 @@ public static class ExtensionsCheck
 
         var sb = new StringBuilder();
         sb.Append($"Type {type.FullNameFormatted()} does not implement ");
-        if (baseClass.IsInterface) { sb.Append("interface"); }
-        else if (baseClass.IsAbstract) { sb.Append("base abstract class"); }
-        else { sb.Append("base class"); }
+        if (baseClass.IsInterface)
+            sb.Append("interface");
+        else if (baseClass.IsAbstract)
+            sb.Append("base abstract class");
+        else
+            sb.Append("base class");
 
         sb.Append(" " + baseClass.FullNameFormatted());
         throw new ArgumentException(sb.ToString(), argumentName);
@@ -605,6 +661,17 @@ public static class ExtensionsCheck
         if (type.IsEnum) return type;
 
         throw new ArgumentException($"Type {type.FullNameFormatted()} is not an enum", argumentName);
+    }
+
+    public static Type CheckIsAssignableTo<T>(this Type sourceType, string argumentName) => CheckIsAssignableTo(sourceType, typeof(T), argumentName);
+
+    public static Type CheckIsAssignableTo(this Type sourceType, Type targetType, string argumentName)
+    {
+        sourceType.CheckNotNull(argumentName);
+        targetType.CheckNotNull(nameof(targetType));
+        if (!sourceType.IsAssignableTo(targetType)) throw new ArgumentException($"{sourceType.FullNameFormatted()} is not a {targetType.FullNameFormatted()}", argumentName);
+
+        return sourceType;
     }
 
     #endregion CheckType

@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
-using System.Linq;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class FileRemoveMacMeta : Command
@@ -44,7 +40,7 @@ public class FileRemoveMacMeta : Command
         log.Info("Found " + filesToDelete.Count + " Apple/Mac files that will be deleted");
         foreach (var file in filesToDelete)
         {
-            var msg = Util.FileGetSize(file).ToString().PadLeft(Constant.BYTES_MEBI.ToString().Length, ' ') + "  " + file;
+            var msg = Util.FileGetSize(file).ToString().PadLeft(Constant.Bytes_Mebi.ToString().Length, ' ') + "  " + file;
 
             if (test) { log.Info(msg); }
             else
@@ -68,12 +64,12 @@ public class FileRemoveMacMeta : Command
 
         if (filename.EqualsCaseSensitive(".DS_Store"))
         {
-            if (Util.FileGetSize(file) <= Constant.BYTES_MEBI) { return true; }
+            if (Util.FileGetSize(file) <= Constant.Bytes_Mebi) return true;
         }
 
         if (filename.StartsWith("._"))
         {
-            if (Util.FileGetSize(file) == 4096L) { return true; }
+            if (Util.FileGetSize(file) == 4096L) return true;
         }
 
         return false;

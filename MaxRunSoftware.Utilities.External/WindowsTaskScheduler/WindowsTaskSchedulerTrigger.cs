@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Microsoft.Win32.TaskScheduler;
 
 // ReSharper disable IdentifierTypo
@@ -68,7 +64,7 @@ public class WindowsTaskSchedulerTrigger
         return d.AsReadOnly();
     }
 
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private static void CheckTime(int hour, int minute, int second)
     {

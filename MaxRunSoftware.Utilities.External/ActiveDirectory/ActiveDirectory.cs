@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
-using System.Linq;
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -128,7 +125,7 @@ public class ActiveDirectory : ActiveDirectoryCore
 
     private List<ActiveDirectoryObject> FindOU(string ouName)
     {
-        if (ouName.EqualsCaseInsensitive(DistinguishedName)) return GetObjectByDistinguishedName(DistinguishedName).Yield().WhereNotNull().ToList();
+        if (ouName.EqualsIgnoreCase(DistinguishedName)) return GetObjectByDistinguishedName(DistinguishedName).Yield().WhereNotNull().ToList();
 
         var d = new Dictionary<string, ActiveDirectoryObject>(StringComparer.OrdinalIgnoreCase);
 
@@ -138,7 +135,7 @@ public class ActiveDirectory : ActiveDirectoryCore
             // full distinguished name
             foreach (var ou in ous)
             {
-                if (ou.DistinguishedName.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+                if (ou.DistinguishedName.EqualsIgnoreCase(ouName)) d[ou.DistinguishedName] = ou;
             }
         }
         else
@@ -146,22 +143,22 @@ public class ActiveDirectory : ActiveDirectoryCore
             // SAM account name of OU
             foreach (var ou in ous)
             {
-                if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+                if (ou.SAMAccountName != null && ou.SAMAccountName.EqualsIgnoreCase(ouName)) d[ou.DistinguishedName] = ou;
             }
 
             foreach (var ou in ous)
             {
-                if (ou.Name != null && ou.Name.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+                if (ou.Name != null && ou.Name.EqualsIgnoreCase(ouName)) d[ou.DistinguishedName] = ou;
             }
 
             foreach (var ou in ous)
             {
-                if (ou.DisplayName != null && ou.DisplayName.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+                if (ou.DisplayName != null && ou.DisplayName.EqualsIgnoreCase(ouName)) d[ou.DistinguishedName] = ou;
             }
 
             foreach (var ou in ous)
             {
-                if (ou.ObjectName != null && ou.ObjectName.EqualsCaseInsensitive(ouName)) { d[ou.DistinguishedName] = ou; }
+                if (ou.ObjectName != null && ou.ObjectName.EqualsIgnoreCase(ouName)) d[ou.DistinguishedName] = ou;
             }
         }
 
@@ -312,7 +309,7 @@ public class ActiveDirectory : ActiveDirectoryCore
         var userObject = GetObjectBySAMAccountName(samAccountName);
         if (userObject == null) throw new Exception($"Could not locate user object for {userDn}");
 
-        if (newOuSamAccountName.EqualsCaseInsensitive("Users")) { MoveObject(userObject, DomainUsersDN); }
+        if (newOuSamAccountName.EqualsIgnoreCase("Users")) { MoveObject(userObject, DomainUsersDN); }
         else
         {
             var ou = this.GetOUByName(newOuSamAccountName);
@@ -331,7 +328,7 @@ public class ActiveDirectory : ActiveDirectoryCore
         var groupObject = GetObjectBySAMAccountName(samAccountName);
         if (groupObject == null) throw new Exception($"Could not locate group object for {groupDn}");
 
-        if (newOuSamAccountName.EqualsCaseInsensitive("Users")) { MoveObject(groupObject, DomainUsersDN); }
+        if (newOuSamAccountName.EqualsIgnoreCase("Users")) { MoveObject(groupObject, DomainUsersDN); }
         else
         {
             var ou = this.GetOUByName(newOuSamAccountName);

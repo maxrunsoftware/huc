@@ -22,7 +22,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
     {
         File = Path.GetFullPath(file);
         Comparison = comparison;
-        Comparer = Constant.STRINGCOMPARISON_STRINGCOMPARER[comparison];
+        Comparer = Constant.StringComparison_StringComparer[comparison];
         BucketNameDelimiter = bucketNameDelimiter.CheckNotNull(nameof(bucketNameDelimiter));
     }
 
@@ -41,7 +41,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         {
             using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
             {
-                using (var fs = Util.FileOpenRead(File)) { jp.Load(fs, Constant.ENCODING_UTF8); }
+                using (var fs = Util.FileOpenRead(File)) { jp.Load(fs, Constant.Encoding_UTF8); }
             }
         }
         catch (MutexLockTimeoutException mte) { throw new IOException("Could not access file " + File, mte); }
@@ -84,7 +84,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         var d = ReadFile();
         if (d.TryGetValue(bucketName, out var dd))
         {
-            if (dd.TryGetValue(bucketKey, out var v)) { return v; }
+            if (dd.TryGetValue(bucketKey, out var v)) return v;
         }
 
         return null;
@@ -117,7 +117,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
         {
             using (MutexLock.Create(TimeSpan.FromSeconds(10), File))
             {
-                using (var fs = Util.FileOpenRead(File)) { jp.Load(fs, Constant.ENCODING_UTF8); }
+                using (var fs = Util.FileOpenRead(File)) { jp.Load(fs, Constant.Encoding_UTF8); }
             }
         }
         catch (MutexLockTimeoutException mte) { throw new IOException("Could not access file " + File, mte); }
@@ -158,7 +158,7 @@ public class BucketStoreFile : BucketStoreBase<string, string>
 
                 using (var fs = Util.FileOpenWrite(File))
                 {
-                    jp.Store(fs, null, Constant.ENCODING_UTF8);
+                    jp.Store(fs, null, Constant.Encoding_UTF8);
                     fs.FlushSafe();
                     fs.CloseSafe();
                 }

@@ -87,8 +87,8 @@ public static partial class Util
             "DEFAULT" => Encoding.Default,
             "UNICODE" => Encoding.Unicode,
             "UTF32" => Encoding.UTF32,
-            "UTF8" => Constant.ENCODING_UTF8,
-            "UTF8BOM" => Constant.ENCODING_UTF8_BOM,
+            "UTF8" => Constant.Encoding_UTF8,
+            "UTF8BOM" => Constant.Encoding_UTF8_BOM,
             _ => throw new Exception("Unknown encoding type specified: " + encoding)
         };
 }

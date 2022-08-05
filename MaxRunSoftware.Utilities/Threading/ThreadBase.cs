@@ -22,11 +22,11 @@ namespace MaxRunSoftware.Utilities;
 public abstract class ThreadBase : IDisposable
 {
     private readonly Thread thread;
-    protected static ILogFactory LogFactory => Utilities.LogFactory.LogFactoryImpl;
+    protected object Locker { get; } = new();
 
-    private readonly SingleUse isStarted = new();
+    private readonly SingleUse isStarted;
     public bool IsStarted => isStarted.IsUsed;
-    private readonly SingleUse isDisposed = new();
+    private readonly SingleUse isDisposed;
     public bool IsDisposed => isDisposed.IsUsed;
     public string Name => thread.Name;
 
@@ -36,7 +36,12 @@ public abstract class ThreadBase : IDisposable
     public ThreadState ThreadState => thread.ThreadState;
     public Exception Exception { get; protected set; }
 
-    protected ThreadBase() { thread = new Thread(WorkPrivate); }
+    protected ThreadBase()
+    {
+        isStarted = new SingleUse(Locker);
+        isDisposed = new SingleUse(Locker);
+        thread = new Thread(WorkPrivate);
+    }
 
     private void WorkPrivate()
     {
@@ -51,10 +56,13 @@ public abstract class ThreadBase : IDisposable
             {
                 Console.Error.Write("Exception encountered while trying to dispose. ");
                 Console.Error.WriteLine(e);
-                LogFactory.GetLogger<ThreadBase>().Error("Exception encountered while trying to dispose", e);
+                Logger.Error("Exception encountered while trying to dispose", e);
             }
         }
     }
+
+    private ILogger Logger => Constant.GetLogger(typeof(ThreadBase));
+
 
     /// <summary>
     /// Perform work. When this method returns Dispose() is automatically called and the thread shuts down.
@@ -74,7 +82,7 @@ public abstract class ThreadBase : IDisposable
     {
         if (!isDisposed.TryUse()) return;
 
-        LogFactory.GetLogger<ThreadBase>().Debug($"Disposing thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
+        Logger.Debug($"Disposing thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
 
         DisposeInternally();
     }
@@ -87,7 +95,7 @@ public abstract class ThreadBase : IDisposable
 
         thread.IsBackground = isBackgroundThread;
         thread.Name = name ?? GetType().FullNameFormatted();
-        if (GetType() != typeof(LogBackgroundThread)) LogFactory.GetLogger<ThreadBase>().Debug($"Starting thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
+        if (GetType() != typeof(LogBackgroundThread)) Logger.Debug($"Starting thread \"{thread.Name}\" with IsBackground={thread.IsBackground} of type {GetType().FullNameFormatted()}");
 
         thread.Start();
     }

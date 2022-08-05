@@ -59,7 +59,7 @@ public class SqlType
         var sqlTypeNames2Set = new HashSet<string>();
         foreach (var n in sqlTypeNames)
         {
-            if (sqlTypeNames2Set.Add(n)) { sqlTypeNames2.Add(n); }
+            if (sqlTypeNames2Set.Add(n)) sqlTypeNames2.Add(n);
         }
 
         SqlTypeNames = sqlTypeNames2.AsReadOnly();
@@ -116,7 +116,7 @@ public class SqlType
         {
             foreach (var sqlTypeName in item.SqlTypeNames)
             {
-                if (!sqlTypeNames.Add(sqlTypeName)) { throw new InvalidOperationException(enumType.FullNameFormatted() + $" defines multiple SqlType names of '{sqlTypeName}'"); }
+                if (!sqlTypeNames.Add(sqlTypeName)) throw new InvalidOperationException(enumType.FullNameFormatted() + $" defines multiple SqlType names of '{sqlTypeName}'");
             }
         }
 

@@ -90,7 +90,7 @@ public sealed class TableColumn : IEquatable<TableColumn>
     {
         var columnType = table.Columns[index].Type;
         columnType = Nullable.GetUnderlyingType(columnType) ?? columnType;
-        if (columnType.NotIn(Constant.TYPES_BASE_NUMERIC)) return 0;
+        if (columnType.NotIn(Constant.Types_Numeric)) return 0;
 
         var result = 0;
         foreach (var row in table)

@@ -16,9 +16,11 @@
 
 namespace MaxRunSoftware.Utilities.Tests;
 
-public class BucketReadOnlyTests
+public class BucketReadOnlyTests : TestBase
 {
-    [Fact]
+    public BucketReadOnlyTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
+
+    [TestFact]
     public void Testing()
     {
         var cgf = new CacheGenFunc();

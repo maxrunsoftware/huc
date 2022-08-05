@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -104,7 +101,7 @@ public class Ssh : Command
 
         if (command.TrimOrNull() == null && sshScriptFileData.TrimOrNull() == null) throw new ArgsException(nameof(command), "No SSH command(s) to execute");
 
-        var commands = (command ?? string.Empty) + Constant.NEWLINE_WINDOWS + (sshScriptFileData ?? string.Empty);
+        var commands = (command ?? string.Empty) + Constant.NewLine_Windows + (sshScriptFileData ?? string.Empty);
         commands = commands.TrimOrNull();
         if (commands == null) throw new ArgsException(nameof(command), "No SSH command(s) to execute");
 

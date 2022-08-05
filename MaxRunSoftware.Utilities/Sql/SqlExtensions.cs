@@ -33,7 +33,7 @@ public static class SqlExtensions
         try { return command.ExecuteNonQuery(); }
         catch (Exception e) { throw new SqlException(e, command, exceptionShowFullSql); }
     }
-    
+
     public static List<string> ExecuteQueryToList(this Sql sql, string sqlQuery, params SqlParameter[] parameters)
     {
         var list = new List<string>();
@@ -47,6 +47,6 @@ public static class SqlExtensions
     }
 
     public static Table ExecuteQueryToTable(this Sql sql, string sqlQuery, params SqlParameter[] parameters) => ExecuteQueryToTables(sql, sqlQuery, parameters).FirstOrDefault();
-    
+
     public static Table[] ExecuteQueryToTables(this Sql sql, string sqlQuery, params SqlParameter[] parameters) => Table.Create(sql.ExecuteQuery(sqlQuery, parameters));
 }

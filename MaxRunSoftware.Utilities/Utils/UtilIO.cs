@@ -18,27 +18,6 @@ public static partial class Util
 {
     #region File
 
-    public readonly struct FileListResult
-    {
-        public string Path { get; }
-
-        // ReSharper disable once MemberHidesStaticFromOuterClass
-        public bool IsDirectory { get; }
-
-        public Exception Exception { get; }
-
-        public FileListResult(string path, bool isDirectory, Exception exception) : this()
-        {
-            Path = path;
-            IsDirectory = isDirectory;
-            Exception = exception;
-        }
-
-        public override string ToString() => Path;
-
-        public FileSystemInfo GetFileSystemInfo() => IsDirectory ? new DirectoryInfo(Path) : new FileInfo(Path);
-    }
-
     internal static DirectoryNotFoundException CreateExceptionDirectoryNotFound(string directoryPath) => new("Directory does not exist " + directoryPath);
 
     internal static FileNotFoundException CreateExceptionFileNotFound(string filePath) => new("File does not exist " + filePath, filePath);
@@ -186,60 +165,33 @@ public static partial class Util
         return false;
     }
 
+    public static bool IsFileSymbolic(string path)
+    {
+        path = path.CheckNotNullTrimmed(path);
+        if (!IsFile(path)) return false;
+        var pathInfo = new FileInfo(path);
+
+        // TODO: Unreliable  https://stackoverflow.com/a/26473940
+        return pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
+    }
+
     /// <summary>
     /// Returns a list of files and directories including the provided directory
     /// </summary>
     /// <param name="directoryPath">The directory path to list</param>
     /// <param name="recursive">Whether to be recursive or not</param>
     /// <returns>An IEnumerable of FileListResult</returns>
-    public static IEnumerable<FileListResult> FileList(string directoryPath, bool recursive = false)
+    public static IEnumerable<FileSystemObject> FileList(string directoryPath, bool recursive = false)
     {
-        directoryPath = directoryPath.CheckNotNullTrimmed(nameof(directoryPath));
-        directoryPath = Path.GetFullPath(directoryPath);
-        if (IsFile(directoryPath)) throw CreateExceptionIsNotDirectory(directoryPath);
-
-        if (!IsDirectory(directoryPath)) throw CreateExceptionDirectoryNotFound(directoryPath);
-
-        var alreadyScannedDirectories = new HashSet<string>(Constant.OS_WINDOWS ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
-        var queue = new Queue<string>();
-        queue.Enqueue(directoryPath);
-        while (queue.Count > 0)
-        {
-            var currentDirectory = Path.GetFullPath(queue.Dequeue());
-
-            // prevent loops
-            if (!alreadyScannedDirectories.Add(currentDirectory)) continue;
-
-            // ignore links to other paths
-            if (!currentDirectory.StartsWith(directoryPath, Constant.OS_WINDOWS ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)) continue;
-
-            Exception exception = null;
-            string[] files = null;
-            try
-            {
-                var subDirectories = Directory.GetDirectories(currentDirectory).OrEmpty();
-                for (var i = 0; i < subDirectories.Length; i++) queue.Enqueue(subDirectories[i]);
-
-                files = Directory.GetFiles(currentDirectory).OrEmpty();
-            }
-            catch (Exception ex) { exception = ex; }
-
-            yield return new FileListResult(currentDirectory, true, exception);
-
-            if (exception == null && files != null)
-            {
-                for (var i = 0; i < files.Length; i++) { yield return new FileListResult(Path.GetFullPath(files[i]), false, null); }
-            }
-
-            if (!recursive) queue.Clear();
-        }
+        var d = FileSystemObject.GetDirectory(directoryPath);
+        return recursive ? d.ObjectsRecursive : d.Objects;
     }
 
     public static IEnumerable<string> FileListFiles(string directoryPath, bool recursive = false)
     {
         foreach (var o in FileList(directoryPath, recursive))
         {
-            if (o.Exception == null && !o.IsDirectory) { yield return o.Path; }
+            if (!o.IsDirectory) yield return o.Path;
         }
     }
 
@@ -247,7 +199,7 @@ public static partial class Util
     {
         foreach (var o in FileList(directoryPath, recursive))
         {
-            if (o.Exception == null && o.IsDirectory) { yield return o.Path; }
+            if (o.IsDirectory) yield return o.Path;
         }
     }
 
@@ -279,7 +231,7 @@ public static partial class Util
         {
             reassemblyChar = "/";
         }
-        else { reassemblyChar = Constant.OS_WINDOWS ? "\\" : "/"; }
+        else { reassemblyChar = Constant.OS_Windows ? "\\" : "/"; }
 
         var pathParts = path.Split(reassemblyChar).TrimOrNull().WhereNotNull().ToList();
         if (pathParts.Count == 1) return null;
@@ -369,11 +321,12 @@ public static partial class Util
 
     private sealed class TempDirectory : IDisposable
     {
-        private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger<TempDirectory>();
+        private readonly ILogger log;
         private readonly string path;
 
         public TempDirectory(string path)
         {
+            log = Constant.GetLogger(GetType());
             log.Debug($"Creating temporary directory {path}");
             Directory.CreateDirectory(path);
             this.path = path;
@@ -396,11 +349,12 @@ public static partial class Util
 
     private sealed class TempFile : IDisposable
     {
-        private static readonly ILogger log = LogFactory.LogFactoryImpl.GetLogger<TempFile>();
+        private readonly ILogger log;
         private readonly string path;
 
         public TempFile(string path)
         {
+            log = Constant.GetLogger(GetType());
             log.Debug($"Creating temporary file {path}");
             File.WriteAllBytes(path, Array.Empty<byte>());
             this.path = path;
@@ -421,11 +375,11 @@ public static partial class Util
         }
     }
 
-    public static IDisposable CreateTempDirectory(out string path)
+    public static IDisposable CreateTempDirectory(string basePath, out string path)
     {
         lock (lockTemp)
         {
-            var parentDir = Path.GetTempPath();
+            var parentDir = basePath;
             string p;
             do { p = Path.GetFullPath(Path.Combine(parentDir, Path.GetRandomFileName())); } while (Directory.Exists(p));
 
@@ -434,6 +388,18 @@ public static partial class Util
             return t;
         }
     }
+
+    public static IDisposable CreateTempDirectory(string basePath, string directoryName)
+    {
+        lock (lockTemp) { return CreateTempDirectory(Path.GetFullPath(Path.Combine(basePath, directoryName))); }
+    }
+
+    public static IDisposable CreateTempDirectory(string path)
+    {
+        lock (lockTemp) { return new TempDirectory(Path.GetFullPath(path)); }
+    }
+
+    public static IDisposable CreateTempDirectory(out string path) => CreateTempDirectory(Path.GetTempPath(), out path);
 
     public static IDisposable CreateTempFile(out string path)
     {
@@ -453,28 +419,8 @@ public static partial class Util
 
     #region Path
 
-    public static string[] PathParse(string path) => PathParse(path, Constant.PATH_DELIMITERS_STRINGS);
-
-    public static string[] PathParse(string path, params string[] pathDelimiters) => PathParse(path.Yield(), pathDelimiters);
-
-    public static string[] PathParse(IEnumerable<string> pathParts) => PathParse(pathParts, Constant.PATH_DELIMITERS_STRINGS);
-
-    public static string[] PathParse(string path, IEnumerable<string> pathDelimiters) => PathParse(path.Yield(), pathDelimiters);
-
-    public static string[] PathParse(IEnumerable<string> pathParts, IEnumerable<string> pathDelimiters)
-    {
-        var list = (pathParts ?? Enumerable.Empty<string>()).TrimOrNull().WhereNotNull().ToList();
-
-        var pathDelimitersArray = pathDelimiters.CheckNotNull(nameof(pathDelimiters)).ToArray();
-        var list2 = new List<string>();
-        foreach (var item in list)
-        {
-            var itemParts = item.Split(pathDelimitersArray, StringSplitOptions.RemoveEmptyEntries).TrimOrNull().WhereNotNull().ToArray();
-            foreach (var itemPart in itemParts) list2.Add(itemPart);
-        }
-
-        return list2.ToArray();
-    }
+    private static readonly string[] pathDelimitersStrings = Constant.PathDelimiters_String.ToArray();
+    public static string[] PathParts(string path) => path.Split(pathDelimitersStrings, StringSplitOptions.RemoveEmptyEntries).TrimOrNull().WhereNotNull().ToArray();
 
     public static string PathToString(IEnumerable<string> pathParts, string pathDelimiter = "/", bool trailingDelimiter = true)
     {

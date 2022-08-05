@@ -16,14 +16,24 @@
 
 namespace MaxRunSoftware.Utilities.Tests;
 
+/// <summary>
+/// TODO: Make these based off config file or environment vars or something so other people can test
+/// </summary>
 public static class Config
 {
     public static string Sql_MsSql_ConnectionString => "Server=172.16.46.3;Database=NorthWind;User Id=testuser;Password=testpass;TrustServerCertificate=True;";
-    
+
     public static string Sql_MySql_ConnectionString => "Server=172.16.46.3;Database=NorthWind;User Id=testuser;Password=testpass;";
-    
+
     //public static string Sql_Oracle_ConnectionString => "Data Source=172.16.46.9;User Id=system;Password=oracle;";
     public static string Sql_Oracle_ConnectionString => "Data Source=172.16.46.9:1521/orcl;User Id=testuser;Password=testpass;";
 
+    public static string Temp_Directory => "/Users/user/github/huc/huc/temp";
 
+    public static IDisposable CreateTempDirectory(out string path) => Util.CreateTempDirectory(Temp_Directory, out path);
+
+    public static IEnumerable<Tuple<string, string>> SkipTraits => new[]
+    {
+        ("SqlType", "Oracle")
+    }.Select(o => new Tuple<string, string>(o.Item1, o.Item2));
 }

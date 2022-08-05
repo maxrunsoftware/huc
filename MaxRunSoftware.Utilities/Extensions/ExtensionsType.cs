@@ -13,15 +13,67 @@
 // limitations under the License.
 
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace MaxRunSoftware.Utilities;
 
 public static class ExtensionsType
 {
+    #region Property
+
+    public static PropertyInfo FindProperty(this Type type, string name, BindingFlags flags = Constant.BindingFlag_Lookup_Default)
+    {
+        type.CheckNotNull(nameof(type));
+        name.CheckNotNullTrimmed(nameof(name));
+
+        var infos = type.GetProperties(flags);
+        foreach (var sc in Constant.StringComparisons)
+        {
+            foreach (var info in infos)
+            {
+                if (string.Equals(name, info.Name, sc)) return info;
+            }
+        }
+
+        // OK, so maybe we are trying to find Explicit declared property
+        name = "." + name;
+        foreach (var sc in Constant.StringComparisons)
+        {
+            var explicitList = infos.Where(info => info.Name.EndsWith(name, sc)).ToList();
+            if (explicitList.Count == 1) return explicitList[0];
+            if (explicitList.Count > 1) throw new MissingMemberException($"Found multiple explicit implementations of property {type.FullNameFormatted()}.{name} -> " + explicitList.Select(o => o.Name).OrderBy(o => o, StringComparer.OrdinalIgnoreCase).ToStringDelimited(" | "));
+        }
+
+        // Could not find property so throw exception
+        throw new MissingMemberException($"Could not find property {type.FullNameFormatted()}.{name} -> " + infos.Select(o => o.Name).OrderBy(o => o, StringComparer.OrdinalIgnoreCase).ToStringDelimited(" | "));
+    }
+
+    public static object GetPropertyValue(this Type type, string name, object instance, BindingFlags flags = Constant.BindingFlag_Lookup_Default) => type.FindProperty(name, flags).GetValue(instance);
+
+    #endregion Property
+
+    #region Field
+
+    public static object GetFieldValue(this Type type, string name, object instance, BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic)
+    {
+        var info = type.GetField(name, flags);
+        if (info == null) throw new MissingFieldException(type.FullNameFormatted(), name);
+        return info.GetValue(instance);
+    }
+
+    #endregion Field
+
     public static bool IsNullable(this Type type, out Type underlyingType)
     {
-        underlyingType = Nullable.GetUnderlyingType(type);
-        return underlyingType != null;
+        var t = Nullable.GetUnderlyingType(type);
+        if (t == null)
+        {
+            underlyingType = type;
+            return false;
+        }
+
+        underlyingType = t;
+        return true;
     }
 
     public static bool IsNullable(this Type type) => Nullable.GetUnderlyingType(type) != null;
@@ -29,7 +81,7 @@ public static class ExtensionsType
     /// <summary>Is this type a generic type</summary>
     /// <param name="type"></param>
     /// <returns>True if generic, otherwise False</returns>
-    public static bool IsGeneric(this Type type) => type.IsGenericType && type.Name.Contains("`");
+    public static bool IsGeneric(this Type type) => type.IsGenericType && type.Name.Contains('`');
 
     //TODO: Figure out why IsGenericType isn't good enough and document (or remove) this condition
     public static Type AsNullable(this Type type)
@@ -45,34 +97,34 @@ public static class ExtensionsType
         return typeof(Nullable<>).MakeGenericType(type);
     }
 
-    public static string FullNameFormatted(this Type type)
+    private static string NameFormatted(this Type type, bool fullName, bool fullNameForGenericArguments)
     {
+        if (Constant.Type_PrimitiveAlias.TryGetValue(type, out var s)) return s;
+
+        var name = fullName ? type.FullName ?? type.Name : type.Name;
+        if (string.IsNullOrEmpty(name)) return name;
+
+        if (!type.IsGeneric()) return name;
+
         // https://stackoverflow.com/a/25287378
-        if (type.IsGenericType)
-        {
-            var name = type.FullName ?? type.Name;
+        /*
             return string.Format(
                 "{0}<{1}>",
                 name.Substring(0, name.LastIndexOf("`", StringComparison.InvariantCulture)),
                 string.Join(", ", type.GetGenericArguments().Select(FullNameFormatted)));
-        }
+        */
 
-        return type.FullName;
+        var sb = new StringBuilder();
+        sb.Append(name.Substring(0, name.LastIndexOf("`", StringComparison.InvariantCulture)));
+        sb.Append('<');
+        sb.Append(type.GetGenericArguments().Select(o => NameFormatted(o, fullNameForGenericArguments, fullNameForGenericArguments)).ToStringDelimited(", "));
+        sb.Append('>');
+        return sb.ToString();
     }
 
-    public static string NameFormatted(this Type type)
-    {
-        // https://stackoverflow.com/a/25287378
-        if (type.IsGenericType)
-        {
-            return string.Format(
-                "{0}<{1}>",
-                type.Name.Substring(0, type.Name.LastIndexOf("`", StringComparison.InvariantCulture)),
-                string.Join(", ", type.GetGenericArguments().Select(NameFormatted)));
-        }
+    public static string FullNameFormatted(this Type type, bool fullNameForGenericArguments = true) => NameFormatted(type, true, fullNameForGenericArguments);
 
-        return type.Name;
-    }
+    public static string NameFormatted(this Type type, bool fullNameForGenericArguments = false) => NameFormatted(type, false, fullNameForGenericArguments);
 
     public static IEnumerable<Type> GetTypesOf<T>(this Assembly assembly, bool allowAbstract = false, bool allowInterface = false, bool requireNoArgConstructor = false, bool namespaceSystem = false)
     {
@@ -138,16 +190,18 @@ public static class ExtensionsType
     {
         private readonly IBucketReadOnly<Type, object> bucket = new BucketCacheThreadSafeCopyOnWrite<Type, object>(Activator.CreateInstance);
         public IEnumerable<Type> Keys => bucket.Keys;
-        public object this[Type key] => key == null ? null : key.IsValueType ? bucket[key] : null;
+        public object this[Type key] => key == null ? null : key.IsPrimitive || key.IsValueType || key.IsEnum ? bucket[key] : null;
     }
 
     public static object GetDefaultValue(this Type type) => getDefaultValueCache[type];
 
+    /*
     public static object GetDefaultValue2(this Type type)
     {
         var o = Expression.Lambda<Func<object>>(Expression.Convert(Expression.Default(type), typeof(object))).Compile()();
         return o;
     }
+    */
 
     #endregion DefaultValue
 
@@ -168,7 +222,7 @@ public static class ExtensionsType
         enumType.CheckIsEnum(nameof(enumType));
         enumItemName = enumItemName.CheckNotNullTrimmed(nameof(enumItemName));
 
-        foreach (var sc in Constant.STRINGCOMPARERS)
+        foreach (var sc in Constant.StringComparers)
         {
             foreach (var name in enumType.GetEnumNames())
             {
@@ -187,7 +241,7 @@ public static class ExtensionsType
 
     private static readonly Dictionary<Type, Dictionary<string, object>> getEnumValueCache = new();
     private static readonly object getEnumValueCacheLock = new();
-    
+
     public static object GetEnumValue(this Type enumType, string enumItemName)
     {
         enumType.CheckIsEnum(nameof(enumType));
@@ -203,21 +257,127 @@ public static class ExtensionsType
                     var enumValueString = enumValue.ToString();
                     if (enumValueString != null) enumItemDic[enumValueString] = enumValue;
                 }
+
                 getEnumValueCache.Add(enumType, enumItemDic);
             }
 
             return enumItemDic.TryGetValue(enumItemName, out var enumObject) ? enumObject : null;
         }
-        
     }
-    
-    
+
+    private static Func<string, object> GetParseEnumDelegate(Type tEnum)
+    {
+        // https://stackoverflow.com/a/41594057
+        var eValue = Expression.Parameter(typeof(string), "value"); // (String value)
+        var tReturn = typeof(object);
+
+        return
+            Expression.Lambda<Func<string, object>>(
+                Expression.Block(tReturn,
+                    Expression.Convert( // We need to box the result (tEnum -> Object)
+                        Expression.Switch(tEnum, eValue,
+                            Expression.Block(tEnum,
+                                Expression.Throw(Expression.New(typeof(Exception).GetConstructor(Type.EmptyTypes)!)),
+                                Expression.Default(tEnum)
+                            ),
+                            null,
+                            Enum.GetValues(tEnum).Cast<object>().Select(v => Expression.SwitchCase(
+                                Expression.Constant(v),
+                                Expression.Constant(v.ToString())
+                            )).ToArray()
+                        ), tReturn
+                    )
+                ), eValue
+            ).Compile();
+    }
+
+    private static Func<string, TEnum> GetParseEnumDelegate<TEnum>()
+    {
+        // https://stackoverflow.com/a/41594057
+        var eValue = Expression.Parameter(typeof(string), "value"); // (String value)
+        var tEnum = typeof(TEnum);
+
+        return
+            Expression.Lambda<Func<string, TEnum>>(
+                Expression.Block(tEnum,
+                    Expression.Switch(tEnum, eValue,
+                        Expression.Block(tEnum,
+                            Expression.Throw(Expression.New(typeof(Exception).GetConstructor(Type.EmptyTypes))),
+                            Expression.Default(tEnum)
+                        ),
+                        null,
+                        Enum.GetValues(tEnum).Cast<object>().Select(v => Expression.SwitchCase(
+                            Expression.Constant(v),
+                            Expression.Constant(v.ToString())
+                        )).ToArray()
+                    )
+                ), eValue
+            ).Compile();
+    }
+
+
     /// <summary>
     /// https://stackoverflow.com/a/51441889
     /// </summary>
     /// <param name="info"></param>
-    /// <param name="nonPublic"></param>
     /// <returns></returns>
-    public static bool IsStatic(this PropertyInfo info, bool nonPublic = false) => info.GetAccessors(nonPublic).Any(x => x.IsStatic);
-    
+    public static bool IsStatic(this PropertyInfo info) => info.GetAccessors(true).Any(x => x.IsStatic);
+
+    public static Type[] BaseTypes(this Type type)
+    {
+        var list = new List<Type>();
+        while (true)
+        {
+            var typeBase = type.BaseType;
+            if (typeBase == null) break;
+            if (typeBase == type) break; // Should not happen but just to be safe
+            list.Add(typeBase);
+            type = typeBase;
+        }
+
+        return list.ToArray();
+    }
+
+    public static bool HasNoArgConstructor(this Type type, BindingFlags flags = BindingFlags.Instance | BindingFlags.Public) => type.GetConstructors(flags).Any(o => o.GetParameters().Length == 0);
+
+    public static bool IsStatic(this Type type) => type.IsAbstract && type.IsSealed;
+
+    public static bool IsAnonymous(this Type type)
+    {
+        if (!string.IsNullOrEmpty(type.Namespace)) return false;
+        if (!type.Name.Contains("Anon")) return false;
+        if (!type.Name.Contains("Type")) return false;
+        if (!type.GetCustomAttributes(typeof(CompilerGeneratedAttribute)).Any()) return false;
+        return true;
+    }
+
+    public static bool IsCompilerGenerated(this Type type) => type.GetCustomAttributes(typeof(CompilerGeneratedAttribute)).Any();
+
+    public static string GetEnumNames(this Type enumType, string delimiter, bool isSorted = false) => isSorted ? Enum.GetNames(enumType).OrderByOrdinalThenOrdinalIgnoreCase().ToStringDelimited(delimiter) : Enum.GetNames(enumType).ToStringDelimited(delimiter);
+
+    #region Is
+
+    /// <summary>
+    /// https://stackoverflow.com/a/72797084
+    /// </summary>
+    /// <param name="type"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static bool Is<T>(this Type type) => type == typeof(T);
+
+    public static bool Is<T1, T2>(this Type type) => type.Is<T1>() || type.Is<T2>();
+
+    public static bool Is<T1, T2, T3>(this Type type) => type.Is<T1, T2>() || type.Is<T3>();
+
+    public static bool Is<T1, T2, T3, T4>(this Type type) => type.Is<T1, T2, T3>() || type.Is<T4>();
+
+    public static bool Is<T1, T2, T3, T4, T5>(this Type type) => type.Is<T1, T2, T3, T4>() || type.Is<T5>();
+
+    public static bool Is<T1, T2, T3, T4, T5, T6>(this Type type) => type.Is<T1, T2, T3, T4, T5>() || type.Is<T6>();
+
+    public static bool Is<T1, T2, T3, T4, T5, T6, T7>(this Type type) => type.Is<T1, T2, T3, T4, T5, T6>() || type.Is<T7>();
+
+    public static bool Is<T1, T2, T3, T4, T5, T6, T7, T8>(this Type type) => type.Is<T1, T2, T3, T4, T5, T6, T7>() || type.Is<T8>();
+
+    #endregion Is
 }

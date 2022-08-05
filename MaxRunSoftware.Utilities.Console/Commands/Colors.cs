@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class Colors : Command
@@ -39,7 +35,7 @@ public class Colors : Command
             ColorValue = colorValue;
         }
 
-        private static List<Color> Colors => Constant.COLORS
+        private static List<Color> Colors => Constant.Colors
             .Select(o => new Color(o.Key, o.Value))
             .OrderBy(o => o.ColorName, StringComparer.OrdinalIgnoreCase)
             .ToList();

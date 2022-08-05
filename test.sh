@@ -23,6 +23,7 @@ cd test
 
 #clear
 
+
 echo --- SQL MSSQL ---
 ./huc sql -c="$mssql" -s="SELECT TOP 100 * FROM Orders" Orders100.txt
 ./huc sql -c="$mssql" -s="SELECT * FROM Orders; SELECT * FROM Employees" Orders.txt Employees.txt
@@ -154,6 +155,14 @@ echo --- ZIP ---
 ./huc zip testdata.zip "testdata?.txt"
 
 
-
+echo --- DirectoryList ---
+./huc GenerateRandomFile ./testsub1/testSub11/myfile11.txt
+./huc GenerateRandomFile ./testsub1/myfile1.txt
+./huc GenerateRandomFile ./testsub1/testSub11/myfile11.txt
+./huc GenerateRandomFile ./testsub1/testSub11/myfile12.txt
+./huc GenerateRandomFile ./testsub1/testSub12/myfile21.txt
+./huc GenerateRandomFile ./testsub2/myfile75657.txt
+./huc DirectoryListTextLines . directoryList.txt -dts=9 -fpat=*.txt
+./huc sqlload -drop -c="$mssql" -d=NorthWind -t=DirectoryListTextLines directoryList.txt
 
 

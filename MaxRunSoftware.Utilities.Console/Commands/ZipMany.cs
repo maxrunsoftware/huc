@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
 using System.Threading;
 using ICSharpCode.SharpZipLib.Zip;
 
@@ -96,7 +94,7 @@ public class ZipMany : Command
     protected override void ExecuteInternal()
     {
         bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10);
-        bufferSize = bufferSizeMegabytes * (int)Constant.BYTES_MEGA;
+        bufferSize = bufferSizeMegabytes * (int)Constant.Bytes_Mega;
 
         compressionLevel = GetArgParameterOrConfigInt(nameof(compressionLevel), "l", 9);
         if (compressionLevel < 0) compressionLevel = 0;

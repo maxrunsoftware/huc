@@ -12,131 +12,88 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Data;
-using Microsoft.Data.SqlClient;
-using MySql.Data.MySqlClient;
-using Oracle.ManagedDataAccess.Client;
-using Xunit.Abstractions;
+namespace MaxRunSoftware.Utilities.Tests.Sql;
 
-namespace MaxRunSoftware.Utilities.Tests;
-
-public abstract class SqlTestBase<TSql> where TSql : Sql, new()
+[Trait("Type", "Sql")]
+public abstract class SqlTestBase : TestBase
 {
-    protected readonly ITestOutputHelper output;
+    protected SqlTestBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
+}
 
-    protected SqlTestBase(ITestOutputHelper testOutputHelper) { output = testOutputHelper; }
+public abstract class SqlTestBase<TSql> : SqlTestBase where TSql : Utilities.Sql, new()
+{
+    protected SqlTestBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 
     protected abstract IDbConnection CreateConnection();
 
     protected abstract IReadOnlyList<string> Queries { get; }
 
-    private TSql CreateSql() => new TSql { ConnectionFactory = CreateConnection };
-    
-    [Fact]
+    protected TSql CreateSql() => new() { ConnectionFactory = CreateConnection };
+
+    [TestFact]
     public void QueryTests()
     {
         var c = CreateSql();
-        
+
         var src = c.ExecuteQuery(Queries[0]);
         Assert.Single(src);
         var sr = src[0];
-        output.WriteLine(sr.Columns.Names.ToStringDelimited(", "));
+        Info(sr.Columns.Names.ToStringDelimited(", "));
         Assert.Equal(typeof(int), sr.Columns[0].DataType);
 
         src = c.ExecuteQuery(Queries[1]);
         Assert.Single(src);
         sr = src[0];
-        output.WriteLine(sr.Columns.Names.ToStringDelimited(", "));
+        Info(sr.Columns.Names.ToStringDelimited(", "));
         Assert.Equal(typeof(int), sr.Columns[0].DataType);
-        
-        
-        
-        
     }
 
-   
 
-    [Fact]
+    [TestFact]
     public void GetCurrentDatabaseName()
     {
-        var c = CreateSql();
-        Assert.NotNull(c.GetCurrentDatabaseName());
+        var o = CreateSql().GetCurrentDatabaseName();
+        Info(o);
+        Assert.NotNull(o);
     }
-    
-    [Fact]
+
+    [TestFact]
     public void GetCurrentSchemaName()
     {
-        var c = CreateSql();
-        Assert.NotNull(c.GetCurrentSchemaName());
+        var o = CreateSql().GetCurrentSchemaName();
+        Info(o);
+        Assert.NotNull(o);
     }
-    
-    [Fact]
+
+    [TestFact]
     public void GetDatabases()
     {
-        var c = CreateSql();
-        Assert.NotEmpty(c.GetDatabases());
+        var os = CreateSql().GetDatabases();
+        Info(os);
+        Assert.NotEmpty(os);
     }
-    
-    [Fact]
+
+    [TestFact]
     public void GetSchemas()
     {
-        var c = CreateSql();
-        Assert.NotEmpty(c.GetSchemas());
+        var os = CreateSql().GetSchemas();
+        Info(os);
+        Assert.NotEmpty(os);
     }
 
-    [Fact]
+    [TestFact]
     public void GetTables()
     {
-        var c = CreateSql();
-        Assert.NotEmpty(c.GetTables());
+        var os = CreateSql().GetTables();
+        Info(os);
+        Assert.NotEmpty(os);
     }
 
-    [Fact]
+    [TestFact]
     public void GetTableColumns()
     {
-        var c = CreateSql();
-        var o = c.GetTableColumns();
-        Assert.NotEmpty(o);
+        var os = CreateSql().GetTableColumns();
+        Info(os);
+        Assert.NotEmpty(os);
     }
-    
-}
-
-public class MsSqlTests : SqlTestBase<SqlMsSql>
-{
-    protected override IDbConnection CreateConnection() => new SqlConnection(Config.Sql_MsSql_ConnectionString);
-
-    public MsSqlTests(ITestOutputHelper output) : base(output) { }
-
-    protected override IReadOnlyList<string> Queries => new[]
-    {
-        "SELECT * FROM NORTHWIND.dbo.ORDERS",
-        "SELECT * FROM NORTHWIND.dbo.ORDERS WHERE 1=0",
-        
-    };
-}
-
-public class MySqlTests : SqlTestBase<SqlMySql>
-{
-    protected override IDbConnection CreateConnection() => new MySqlConnection(Config.Sql_MySql_ConnectionString);
-
-    public MySqlTests(ITestOutputHelper output) : base(output) { }
-
-    protected override IReadOnlyList<string> Queries => new[]
-    {
-        "SELECT * FROM NORTHWIND.ORDERS",
-        "SELECT * FROM NORTHWIND.ORDERS WHERE 1=0",
-    };
-}
-
-public class OracleTests : SqlTestBase<SqlOracle>
-{
-    protected override IDbConnection CreateConnection() => new OracleConnection(Config.Sql_Oracle_ConnectionString);
-
-    public OracleTests(ITestOutputHelper output) : base(output) { }
-
-    protected override IReadOnlyList<string> Queries => new[]
-    {
-        "SELECT * FROM NORTHWIND.ORDERS",
-        "SELECT * FROM NORTHWIND.ORDERS WHERE 1=0",
-    };
 }

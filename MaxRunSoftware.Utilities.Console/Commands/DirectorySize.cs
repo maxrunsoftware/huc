@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class DirectorySize : Command
@@ -45,10 +41,10 @@ public class DirectorySize : Command
 
         var sizes = new List<(long size, string suffix)>
         {
-            (Constant.BYTES_TERA, "TB"),
-            (Constant.BYTES_GIGA, "GB"),
-            (Constant.BYTES_MEGA, "MB"),
-            (Constant.BYTES_KILO, "KB"),
+            (Constant.Bytes_Tera, "TB"),
+            (Constant.Bytes_Giga, "GB"),
+            (Constant.Bytes_Mega, "MB"),
+            (Constant.Bytes_Kilo, "KB"),
             (-1, "B")
         };
 

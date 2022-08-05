@@ -12,12 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Security.Authentication;
-using System.Text;
 using System.Threading;
 using MaxRunSoftware.Utilities.External;
 
@@ -222,7 +217,7 @@ public abstract class FtpBase : Command
         }
 
         log.Debug("Connection successful");
-        var bs = bufferSizeMegabytes * (uint)Constant.BYTES_MEGA;
+        var bs = bufferSizeMegabytes * (uint)Constant.Bytes_Mega;
         log.Debug($"Setting Buffer Size: {bs}");
         c.SetBufferSize(bs);
         return c;

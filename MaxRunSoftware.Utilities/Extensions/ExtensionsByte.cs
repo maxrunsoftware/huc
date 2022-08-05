@@ -271,7 +271,7 @@ public static class ExtensionsByte
         {
             for (var i = 0; i < len; i++)
             {
-                if (b1[i] != b2[i]) { return false; }
+                if (b1[i] != b2[i]) return false;
             }
         }
 

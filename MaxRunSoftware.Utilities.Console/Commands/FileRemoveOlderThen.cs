@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public abstract class FileRemoveOlderThenBase : Command
@@ -48,12 +45,12 @@ public abstract class FileRemoveOlderThenBase : Command
         var now = DateTime.UtcNow;
         var threshold = CalcThreshold(now, numberOfInt);
 
-        log.Debug("Now UTC: " + now.ToStringYYYYMMDDHHMMSS());
-        log.Debug("Date threshold UTC: " + threshold.ToStringYYYYMMDDHHMMSS());
+        log.Debug("Now UTC: " + now.ToString(DateTimeToStringFormat.YYYY_MM_DD_HH_MM_SS));
+        log.Debug("Date threshold UTC: " + threshold.ToString(DateTimeToStringFormat.YYYY_MM_DD_HH_MM_SS));
         foreach (var file in files)
         {
             var lastWriteTime = File.GetLastWriteTimeUtc(file);
-            log.Debug(file + " [" + lastWriteTime.ToStringYYYYMMDDHHMMSS() + "]");
+            log.Debug(file + " [" + lastWriteTime.ToString(DateTimeToStringFormat.YYYY_MM_DD_HH_MM_SS) + "]");
             if (lastWriteTime < threshold)
             {
                 log.Info("Removing file: " + file);

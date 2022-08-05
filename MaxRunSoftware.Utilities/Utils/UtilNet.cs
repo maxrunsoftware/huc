@@ -140,7 +140,7 @@ public static partial class Util
             {
                 if (Headers.TryGetValue("Content-Type", out var list))
                 {
-                    if (list.Count > 0) { return list[0]; }
+                    if (list.Count > 0) return list[0];
                 }
 
                 return null;
@@ -183,7 +183,7 @@ public static partial class Util
                 if (valList.Count == 1) { sb.AppendLine("\t" + key + ": " + valList[0]); }
                 else
                 {
-                    for (var i = 0; i < valList.Count; i++) { sb.AppendLine("\t" + key + "[" + i + "]: " + valList[i]); }
+                    for (var i = 0; i < valList.Count; i++) sb.AppendLine("\t" + key + "[" + i + "]: " + valList[i]);
                 }
             }
 

@@ -18,7 +18,7 @@ namespace MaxRunSoftware.Utilities;
 
 public static class ExtensionsStream
 {
-    public static long Read(this Stream stream, [InstantHandle] Action<byte[]> action, int bufferSize = (int)(Constant.BYTES_MEGA * 10))
+    public static long Read(this Stream stream, [InstantHandle] Action<byte[]> action, int bufferSize = (int)(Constant.Bytes_Mega * 10))
     {
         var buffer = new byte[bufferSize];
         int read;
@@ -39,7 +39,7 @@ public static class ExtensionsStream
         return totalRead;
     }
 
-    public static long Read(this StreamReader reader, [InstantHandle] Action<char[]> action, int bufferSize = (int)(Constant.BYTES_MEGA * 10))
+    public static long Read(this StreamReader reader, [InstantHandle] Action<char[]> action, int bufferSize = (int)(Constant.Bytes_Mega * 10))
     {
         var buffer = new char[bufferSize];
         int read;
@@ -67,7 +67,7 @@ public static class ExtensionsStream
     /// <param name="source">The current stream.</param>
     /// <param name="target">The stream that will contain the contents of the current stream.</param>
     /// <param name="bufferSize">The size of the buffer to use.</param>
-    public static long CopyToWithCount(this Stream source, Stream target, int bufferSize = Constant.BUFFER_SIZE_OPTIMAL)
+    public static long CopyToWithCount(this Stream source, Stream target, int bufferSize = Constant.BufferSize_Optimal)
     {
         source.CheckNotNull(nameof(source));
         target.CheckNotNull(nameof(target));
@@ -85,7 +85,7 @@ public static class ExtensionsStream
         return totalCount;
     }
 
-    public static void WriteToFile(this Stream stream, string path, int bufferSize = Constant.BUFFER_SIZE_OPTIMAL)
+    public static void WriteToFile(this Stream stream, string path, int bufferSize = Constant.BufferSize_Optimal)
     {
         var directoryName = Path.GetDirectoryName(path);
         if (directoryName != null) Directory.CreateDirectory(directoryName);

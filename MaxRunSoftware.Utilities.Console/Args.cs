@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-
 namespace MaxRunSoftware.Utilities.Console;
 
 public class Args
@@ -83,7 +77,7 @@ public class Args
             }
             else
             {
-                if (arg.EqualsCaseInsensitive("HELP")) { IsHelp = true; }
+                if (arg.EqualsIgnoreCase("HELP")) { IsHelp = true; }
                 else if (Command == null) { Command = arg; }
                 else { values.Add(arg); }
             }
@@ -137,7 +131,7 @@ public class Args
                 {
                     if (!File.Exists(filename)) throw new FileNotFoundException("File not found " + filename, filename);
 
-                    var fileData = Util.FileRead(filename, Constant.ENCODING_UTF8);
+                    var fileData = Util.FileRead(filename, Constant.Encoding_UTF8);
                     if (!IsExpandFileArgsNoTrim) fileData = fileData.TrimOrNull();
 
                     fileData = fileData ?? "";
@@ -170,7 +164,7 @@ public class Args
         {
             if (Parameters.TryGetValue(key, out var v))
             {
-                if (v != null) { return v; }
+                if (v != null) return v;
             }
         }
 

@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.DirectoryServices.Protocols;
 using System.Globalization;
-using System.Text;
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -42,7 +39,7 @@ public class LdapEntryAttributeValue
             if (s.EndsWith("Z") || s.EndsWith("z"))
                 // ReSharper disable once StringLiteralTypo
             {
-                if (DateTime.TryParseExact(s, "yyyyMMddHHmmss.0Z", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt)) { return dt.ToUniversalTime(); }
+                if (DateTime.TryParseExact(s, "yyyyMMddHHmmss.0Z", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt)) return dt.ToUniversalTime();
             }
 
             if (Long != null)
@@ -115,7 +112,7 @@ public class LdapEntryAttributeValue
 
     public override string ToString()
     {
-        if (DateTimeUtc != null && DateTimeUtc != DateTime.MinValue.ToUniversalTime()) return DateTimeUtc.Value.ToStringISO8601();
+        if (DateTimeUtc != null && DateTimeUtc != DateTime.MinValue.ToUniversalTime()) return DateTimeUtc.Value.ToString(DateTimeToStringFormat.ISO_8601);
 
         if (Int != null) return Int.ToString();
 

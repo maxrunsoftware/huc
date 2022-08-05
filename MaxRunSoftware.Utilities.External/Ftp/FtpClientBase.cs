@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
 namespace MaxRunSoftware.Utilities.External;
 
 public abstract class FtpClientBase : IFtpClient
@@ -29,7 +24,7 @@ public abstract class FtpClientBase : IFtpClient
 
     protected FtpClientBase()
     {
-        log = Logging.LogFactory.GetLogger(GetType());
+        log = Logging.GetLogger(GetType());
         serverInfo = new Lazy<string>(GetServerInfo);
     }
 

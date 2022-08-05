@@ -50,12 +50,20 @@ public static class ExtensionsIO
         if (file == null) return -1;
 
         // https://stackoverflow.com/a/26473940
-        if (file.Attributes.HasFlag(FileAttributes.ReparsePoint)) // probably symbolic link
-            // https://stackoverflow.com/a/57454136
+        if (file.IsSymbolic())
         {
+            // https://stackoverflow.com/a/57454136
             using (Stream fs = Util.FileOpenRead(file.FullName)) { return fs.Length; }
         }
 
         return file.Length;
     }
+
+    /// <summary>
+    /// Checks whether a file is a Symbolic link.
+    /// This is unreliable https://stackoverflow.com/a/26473940
+    /// </summary>
+    /// <param name="file">File to check</param>
+    /// <returns>true if file is a symbolic link, otherwise false</returns>
+    public static bool IsSymbolic(this FileInfo file) => file != null && file.Attributes.HasFlag(FileAttributes.ReparsePoint);
 }

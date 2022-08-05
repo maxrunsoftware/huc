@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using OpenQA.Selenium;
 
 namespace MaxRunSoftware.Utilities.External;
@@ -269,7 +265,7 @@ public class WebBrowserElementSearch
                 if (elems == null) { newElems.AddRange(by.FindElements(context)); }
                 else
                 {
-                    foreach (var elem in elems) { newElems.AddRange(elem.FindElements(by)); }
+                    foreach (var elem in elems) newElems.AddRange(elem.FindElements(by));
                 }
 
                 elems = newElems;

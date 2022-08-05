@@ -12,11 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class SystemInfo : Command
@@ -40,7 +35,7 @@ public class SystemInfo : Command
     private void AddOS(IDictionary<string, object> d)
     {
         d["Type"] = Constant.OS;
-        d["Architecture"] = (Constant.OS_X32 ? "32" : "64") + "-bit";
+        d["Architecture"] = (Constant.OS_x32 ? "32" : "64") + "-bit";
 
         var os = Environment.OSVersion;
 

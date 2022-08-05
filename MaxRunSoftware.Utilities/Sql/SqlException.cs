@@ -52,7 +52,7 @@ public class SqlException : Exception
                 string val;
                 if (p.Value == null || p.Value.Equals(DBNull.Value)) { val = "NULL"; }
                 else if (p.DbType == DbType.Binary && p.Value is byte[] bytes) { val = "byte[" + bytes.Length + "]"; }
-                else if (Constant.DBTYPES_NUMERIC.Contains(p.DbType)) { val = p.Value.ToString(); }
+                else if (Constant.DbTypes_Numeric.Contains(p.DbType)) { val = p.Value.ToString(); }
                 else { val = "'" + p.Value + "'"; }
 
                 sql = sql.Replace(p.ParameterName, val);

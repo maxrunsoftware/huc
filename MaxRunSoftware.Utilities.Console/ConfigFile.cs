@@ -12,19 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console;
 
 public class ConfigFile : IBucketReadOnly<string, string>
 {
-    private static readonly ILogger log = Program.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Program.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
     private readonly IDictionary<string, string> values = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     public static string Name => Path.GetFileName(FullPathName);
@@ -34,7 +28,7 @@ public class ConfigFile : IBucketReadOnly<string, string>
     {
         get
         {
-            var fileName = Constant.CURRENT_EXE;
+            var fileName = Constant.Path_Current_File;
             if (fileName == null) throw new InvalidOperationException("Could not determine current executable name");
 
             return fileName;
@@ -63,11 +57,11 @@ public class ConfigFile : IBucketReadOnly<string, string>
         }
     }
 
-    private static string Key => Constant.ID.Replace("-", "");
+    private static string Key => Constant.Id.Replace("-", "");
 
     public string Encrypt(string unencryptedData)
     {
-        var encryptedData = Encryption.EncryptSymmetric(Constant.ENCODING_UTF8.GetBytes(Key), Constant.ENCODING_UTF8.GetBytes(unencryptedData));
+        var encryptedData = Encryption.EncryptSymmetric(Constant.Encoding_UTF8.GetBytes(Key), Constant.Encoding_UTF8.GetBytes(unencryptedData));
         var encryptedDataBase64 = Util.Base64(encryptedData);
         var encryptedDataBase64Padded = ProgramPasswordEscape + encryptedDataBase64;
         return encryptedDataBase64Padded;
@@ -79,8 +73,8 @@ public class ConfigFile : IBucketReadOnly<string, string>
 
         var encryptedDataBase64 = encryptedData.Substring(ProgramPasswordEscape.Length);
         var encryptedDataBytes = Util.Base64(encryptedDataBase64);
-        var unencryptedData = Encryption.DecryptSymmetric(Constant.ENCODING_UTF8.GetBytes(Key), encryptedDataBytes);
-        return Constant.ENCODING_UTF8.GetString(unencryptedData);
+        var unencryptedData = Encryption.DecryptSymmetric(Constant.Encoding_UTF8.GetBytes(Key), encryptedDataBytes);
+        return Constant.Encoding_UTF8.GetString(unencryptedData);
     }
 
 
@@ -89,7 +83,7 @@ public class ConfigFile : IBucketReadOnly<string, string>
         try
         {
             var props = new JavaProperties();
-            var data = Util.FileRead(fileName, Constant.ENCODING_UTF8);
+            var data = Util.FileRead(fileName, Constant.Encoding_UTF8);
             props.LoadFromString(data);
             foreach (var kvp in props.ToDictionary())
             {
@@ -119,7 +113,7 @@ public class ConfigFile : IBucketReadOnly<string, string>
         {
             if (commandObject is Command commandObject2)
             {
-                foreach (var p in commandObject2.Help.Parameters) { commandObjectParams.Add(commandObject.Name + "." + p.p1); }
+                foreach (var p in commandObject2.Help.Parameters) commandObjectParams.Add(commandObject.Name + "." + p.p1);
             }
         }
 
@@ -143,6 +137,6 @@ public class ConfigFile : IBucketReadOnly<string, string>
         var sb = new StringBuilder();
         foreach (var commandObjectParam in commandObjectParams) sb.AppendLine(commandObjectParam + "=");
 
-        Util.FileWrite(propFile, sb.ToString(), Constant.ENCODING_UTF8);
+        Util.FileWrite(propFile, sb.ToString(), Constant.Encoding_UTF8);
     }
 }

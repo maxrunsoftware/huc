@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -54,12 +50,12 @@ public class FtpGet : FtpBase
 
             foreach (var f in objects.Where(o => o.Type == FtpClientFileType.File))
             {
-                if (string.Equals(f.Name, fileName)) { return f; }
+                if (string.Equals(f.Name, fileName)) return f;
             }
 
             foreach (var f in objects.Where(o => o.Type == FtpClientFileType.File))
             {
-                if (string.Equals(f.Name, fileName, StringComparison.OrdinalIgnoreCase)) { return f; }
+                if (string.Equals(f.Name, fileName, StringComparison.OrdinalIgnoreCase)) return f;
             }
         }
 
@@ -117,7 +113,7 @@ public class FtpGet : FtpBase
                 if (search)
                 {
                     var file = FindFile(c, remoteFileName);
-                    if (file != null) { remoteFilePath = file.FullName; }
+                    if (file != null) remoteFilePath = file.FullName;
                     //remoteFileName = file.Name;
                 }
 

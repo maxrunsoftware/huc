@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
@@ -31,7 +28,7 @@ public class WebServerUtilityGenerateRandom : WebServerUtilityBase
     <br><br>
 
     <label for='characters'>Characters </label>
-    <input type='text' id='characters' name='characters' size='80' value='{Constant.CHARS_0_9 + Constant.CHARS_A_Z_LOWER}'>
+    <input type='text' id='characters' name='characters' size='80' value='{Constant.Chars_0_9_String + Constant.Chars_A_Z_Lower_String}'>
     <br><br>
 
     <label for='count'>Count </label>

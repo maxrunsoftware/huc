@@ -12,19 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.DirectoryServices.Protocols;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace MaxRunSoftware.Utilities.External;
 
 public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<LdapEntryAttributeValue>>
 {
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
     private static readonly IReadOnlyList<LdapEntryAttributeValue> empty = new List<LdapEntryAttributeValue>();
     private readonly Dictionary<string, List<LdapEntryAttributeValue>> dictionary = new(StringComparer.OrdinalIgnoreCase);
     public Guid ObjectGUID { get; }
@@ -242,7 +236,7 @@ public class LdapEntryAttributeCollection : IBucketReadOnly<string, IEnumerable<
             if (kvp.Value.Count == 1) { sb.AppendLine("  " + kvp.Key + ": " + kvp.Value.First()); }
             else
             {
-                for (var i = 0; i < kvp.Value.Count; i++) { sb.AppendLine("  " + kvp.Key + "[" + i + "]: " + kvp.Value[i]); }
+                for (var i = 0; i < kvp.Value.Count; i++) sb.AppendLine("  " + kvp.Key + "[" + i + "]: " + kvp.Value[i]);
             }
         }
 

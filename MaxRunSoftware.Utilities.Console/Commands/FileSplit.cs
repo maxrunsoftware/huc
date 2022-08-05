@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.IO;
-using System.Linq;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class FileSplit : Command
@@ -43,7 +39,7 @@ public class FileSplit : Command
 
         log.Debug(targetFiles, nameof(targetFiles));
 
-        var sourceFileData = Util.FileRead(sourceFile, Constant.ENCODING_UTF8);
+        var sourceFileData = Util.FileRead(sourceFile, Constant.Encoding_UTF8);
         var sourceFileDataLines = sourceFileData.SplitOnNewline();
         // ReSharper disable once RedundantAssignment
         sourceFileData = null;
@@ -58,7 +54,7 @@ public class FileSplit : Command
         {
             var part = parts[i];
             var partData = part.ToStringDelimited(Environment.NewLine);
-            Util.FileWrite(targetFiles[i], partData, Constant.ENCODING_UTF8);
+            Util.FileWrite(targetFiles[i], partData, Constant.Encoding_UTF8);
         }
     }
 }

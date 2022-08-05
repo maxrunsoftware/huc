@@ -12,88 +12,92 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
-using System.IO;
-
 // ReSharper disable StringLiteralTypo
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
-public class DirectoryList : Command
+public class DirectoryList : DirectoryListBase
 {
     protected override void CreateHelp(CommandHelpBuilder help)
     {
+        base.CreateHelp(help);
         help.AddSummary("Scans all files and directories in target directory and exports that information to a tab delimited file");
-        help.AddParameter(nameof(creationTime), "ct", "Creation time (false)");
-        help.AddParameter(nameof(creationTimeUtc), "ctu", "Creation time UTC (false)");
-        help.AddParameter(nameof(lastAccessTime), "lat", "Last access time (false)");
-        help.AddParameter(nameof(lastAccessTimeUtc), "latu", "Last access time UTC (false)");
-        help.AddParameter(nameof(lastWriteTime), "lwt", "Last write time (false)");
-        help.AddParameter(nameof(lastWriteTimeUtc), "lwtu", "Last write time UTC (false)");
-        help.AddParameter(nameof(name), "n", "Name (false)");
-        help.AddParameter(nameof(nameFull), "nf", "Full path and name (false)");
-        help.AddParameter(nameof(nameRelative), "nr", "Full path and name minus the <directory> path (false)");
-        help.AddParameter(nameof(path), "p", "Full path (false)");
-        help.AddParameter(nameof(pathRelative), "pr", "Full path minus the <directory> path (false)");
-        help.AddParameter(nameof(parentName), "pn", "The singular name of the parent directory (false)");
-        help.AddParameter(nameof(type), "t", "Whether this is a File or Directory or Unknown (false)");
-        help.AddParameter(nameof(size), "s", "Size in bytes (false)");
-        help.AddParameter(nameof(recursiveDepth), "rd", "The depth to recursively scan subdirectories (0)");
-        help.AddParameter(nameof(pattern), "pat", "The name pattern to match on (*)");
+
         help.AddParameter(nameof(includeFiles), "if", "Whether to include files (true)");
         help.AddParameter(nameof(includeDirectories), "id", "Whether to include directories (true)");
+        help.AddParameter(nameof(includeTargetDirectory), "itd", "Whether to include the target directory (false)");
+
         help.AddValue("<directory> <tab delimited filename>");
         help.AddExample("MyDirectory mydata.txt");
         help.AddExample("C:\\windows mywindata.txt");
     }
 
-    private bool creationTime;
-    private bool creationTimeUtc;
-    private bool lastAccessTime;
-    private bool lastAccessTimeUtc;
-    private bool lastWriteTime;
-    private bool lastWriteTimeUtc;
-    private bool name;
-    private bool nameFull;
-    private bool nameRelative;
-    private bool path;
-    private bool pathRelative;
-    private bool parentName;
-    private bool type;
-    private bool size;
-    private int recursiveDepth;
-    private string pattern;
-    private bool includeFiles;
-    private bool includeDirectories;
+    protected bool includeFiles;
+    protected bool includeDirectories;
+    protected bool includeTargetDirectory;
+
+
+    protected Utilities.Table ToTable()
+    {
+        var ps = Parsers.Where(o => o.IsEnabled).ToList();
+        var list = new List<List<string>>();
+        var header = ps.Select(o => o.Name.Capitalize()).ToList();
+        list.Add(header);
+
+        foreach (var o in TargetDirectory.ObjectsRecursive)
+        {
+            if (!o.IsExist) continue;
+            if (!ShouldInclude(o, FilePatterns, includeTargetDirectory, includeFiles, includeDirectories)) continue;
+            var row = new List<string>(header.Count);
+            foreach (var p in ps) row.Add(p.Parse(o));
+
+            list.Add(row);
+        }
+
+        return Utilities.Table.Create(list, true);
+    }
 
     protected override void ExecuteInternal()
     {
-        creationTime = GetArgParameterOrConfigBool(nameof(creationTime), "ct", false);
-        creationTimeUtc = GetArgParameterOrConfigBool(nameof(creationTimeUtc), "ctu", false);
-        lastAccessTime = GetArgParameterOrConfigBool(nameof(lastAccessTime), "lat", false);
-        lastAccessTimeUtc = GetArgParameterOrConfigBool(nameof(lastAccessTimeUtc), "latu", false);
-        lastWriteTime = GetArgParameterOrConfigBool(nameof(lastWriteTime), "lwt", false);
-        lastWriteTimeUtc = GetArgParameterOrConfigBool(nameof(lastWriteTimeUtc), "lwtu", false);
-        name = GetArgParameterOrConfigBool(nameof(name), "n", false);
-        nameFull = GetArgParameterOrConfigBool(nameof(nameFull), "nf", false);
-        nameRelative = GetArgParameterOrConfigBool(nameof(nameRelative), "nr", false);
-        path = GetArgParameterOrConfigBool(nameof(path), "p", false);
-        pathRelative = GetArgParameterOrConfigBool(nameof(pathRelative), "pr", false);
-        parentName = GetArgParameterOrConfigBool(nameof(parentName), "pn", false);
-        type = GetArgParameterOrConfigBool(nameof(type), "t", false);
-        size = GetArgParameterOrConfigBool(nameof(size), "s", false);
-        recursiveDepth = GetArgParameterOrConfigInt(nameof(recursiveDepth), "rd", 0);
-        pattern = GetArgParameterOrConfig(nameof(pattern), "pat", "*");
+        base.ExecuteInternal();
+
         includeFiles = GetArgParameterOrConfigBool(nameof(includeFiles), "if", true);
         includeDirectories = GetArgParameterOrConfigBool(nameof(includeDirectories), "id", true);
+        includeTargetDirectory = GetArgParameterOrConfigBool(nameof(includeTargetDirectory), "itd", false);
 
-        var targetDirectory = GetArgValueTrimmed(0);
-        log.DebugParameter(nameof(targetDirectory), targetDirectory);
-        if (targetDirectory == null) throw ArgsException.ValueNotSpecified(nameof(targetDirectory));
+        if (Parsers.All(o => !o.IsEnabled))
+        {
+            log.Info("No arguments specified so enabling all except readers");
+            foreach (var p in Parsers) p.IsEnabled = true;
+        }
 
-        targetDirectory = Path.GetFullPath(targetDirectory);
-        log.DebugParameter(nameof(targetDirectory), targetDirectory);
 
+        var targetFile = GetArgValueTrimmed(1);
+        log.Debug(nameof(targetFile), targetFile);
+        if (targetFile == null) throw new ArgsException(nameof(targetFile), $"No {nameof(targetFile)} specified to save to");
+        targetFile = Path.GetFullPath(targetFile);
+        log.Debug(nameof(targetFile), targetFile);
+
+        DeleteExistingFile(targetFile);
+
+        var t = ToTable();
+        log.Info("Successfully created " + t);
+        WriteTableTab(targetFile, t);
+        log.Info("Successfully wrote file with " + (t.Count + 1) + " lines");
+    }
+
+    /*
+    protected override void CreateHelp(CommandHelpBuilder help)
+    {
+        help.AddSummary("Scans all files and directories in target directory and exports that information to a tab delimited file");
+        help.AddValue("<directory> <tab delimited filename>");
+        help.AddExample("MyDirectory mydata.txt");
+        help.AddExample("C:\\windows mywindata.txt");
+    }
+
+  
+    protected override void ExecuteInternal()
+    {
         var targetTabFile = GetArgValueTrimmed(1);
         log.DebugParameter(nameof(targetTabFile), targetTabFile);
         if (targetTabFile == null) throw ArgsException.ValueNotSpecified(nameof(targetTabFile));
@@ -102,24 +106,25 @@ public class DirectoryList : Command
         log.DebugParameter(nameof(targetTabFile), targetTabFile);
 
         var header = new List<string>();
+        
+        if (listTime) header.Add(nameof(listTime));
+        if (listTimeUtc) header.Add(nameof(listTimeUtc));
         if (creationTime) header.Add(nameof(creationTime));
-
         if (creationTimeUtc) header.Add(nameof(creationTimeUtc));
-
         if (lastAccessTime) header.Add(nameof(lastAccessTime));
-
         if (lastAccessTimeUtc) header.Add(nameof(lastAccessTimeUtc));
-
         if (lastWriteTime) header.Add(nameof(lastWriteTime));
-
         if (lastWriteTimeUtc) header.Add(nameof(lastWriteTimeUtc));
-
+        
         if (name) header.Add(nameof(name));
-
         if (nameFull) header.Add(nameof(nameFull));
-
         if (nameRelative) header.Add(nameof(nameRelative));
-
+        
+        if (parentDirectoryName) header.Add(nameof(parentDirectoryName));
+        if (parentDirectoryNameFull) header.Add(nameof(parentDirectoryNameFull));
+        
+        if (parentDirectoryNameFull) header.Add(nameof(parentDirectoryNameFull));
+        
         if (path) header.Add(nameof(path));
 
         if (pathRelative) header.Add(nameof(pathRelative));
@@ -138,7 +143,7 @@ public class DirectoryList : Command
         {
             var row = new List<string>();
 
-            var fullPath = listingEntry.Path;
+            var fullPath = listingEntry.PathFull;
             var basePath = targetDirectory;
             if (fullPath.Length == basePath.Length) continue; // same path, exclude target dir
 
@@ -154,7 +159,7 @@ public class DirectoryList : Command
 
             if (!include) continue;
 
-            var depth = Util.PathParse(fullPath).Length - Util.PathParse(basePath).Length - 1;
+            var depth = Util.PathParts(fullPath).Length - Util.PathParts(basePath).Length - 1;
             if (depth > recursiveDepth) continue;
 
             if (pattern != null && pattern != "*")
@@ -202,4 +207,5 @@ public class DirectoryList : Command
         DeleteExistingFile(targetTabFile);
         WriteTableTab(targetTabFile, table);
     }
+    */
 }

@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using EmbedIO;
 using HttpMultipartParser;
 using MaxRunSoftware.Utilities.External;
@@ -111,8 +108,8 @@ public abstract class WebServerUtilityBase
     {
         Context = context;
         var responseFormat = GetParameterString("format", "html").TrimOrNull() ?? "html";
-        if (responseFormat.EqualsCaseInsensitive(nameof(Format.Json))) { ResponseFormat = Format.Json; }
-        else if (responseFormat.EqualsCaseInsensitive(nameof(Format.Xml))) { ResponseFormat = Format.Xml; }
+        if (responseFormat.EqualsIgnoreCase(nameof(Format.Json))) { ResponseFormat = Format.Json; }
+        else if (responseFormat.EqualsIgnoreCase(nameof(Format.Xml))) { ResponseFormat = Format.Xml; }
         else { ResponseFormat = Format.Html; }
 
         if (ResponseFormat == Format.Json) return HandleJson();
@@ -131,7 +128,7 @@ public abstract class WebServerUtilityBase
     public virtual HttpVerbs Verbs => HttpVerbs.Get;
     protected readonly ILogger log;
 
-    protected WebServerUtilityBase() { log = Program.LogFactory.GetLogger(GetType()); }
+    protected WebServerUtilityBase() { log = Program.GetLogger(GetType()); }
 
 
     public string ToJson(object o) => Json.Serialize(o, true);

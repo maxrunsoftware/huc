@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
-using System.Text;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public abstract class ConvertBase : Command
@@ -35,7 +32,7 @@ public abstract class ConvertBase : Command
     protected override void ExecuteInternal()
     {
         encoding = GetArgParameterOrConfigEncoding(nameof(encoding), "en");
-        bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10) * (int)Constant.BYTES_MEGA;
+        bufferSizeMegabytes = GetArgParameterOrConfigInt(nameof(bufferSizeMegabytes), "b", 10) * (int)Constant.Bytes_Mega;
 
         var inputFile = GetArgValueTrimmed(0);
         log.DebugParameter(nameof(inputFile), inputFile);
@@ -49,7 +46,7 @@ public abstract class ConvertBase : Command
         if (outputFile == null) throw new ArgsException(nameof(outputFile), $"No {nameof(outputFile)} specified");
 
         outputFile = Path.GetFullPath(outputFile);
-        if (inputFile.EqualsCaseInsensitive(outputFile)) throw new ArgsException(nameof(outputFile), $"{nameof(outputFile)} cannot be the same as {nameof(inputFile)}");
+        if (inputFile.EqualsIgnoreCase(outputFile)) throw new ArgsException(nameof(outputFile), $"{nameof(outputFile)} cannot be the same as {nameof(inputFile)}");
 
         log.DebugParameter(nameof(outputFile), outputFile);
         DeleteExistingFile(outputFile);
@@ -122,7 +119,7 @@ public class ConvertBase16ToBase64 : ConvertTextToBinary
 {
     protected override string Summary => "Converts base 16 file to base 64 file";
 
-    protected override byte[] Convert(string str) => Constant.ENCODING_UTF8.GetBytes(Util.Base64(Util.Base16(str)));
+    protected override byte[] Convert(string str) => Constant.Encoding_UTF8.GetBytes(Util.Base64(Util.Base16(str)));
 }
 
 public class ConvertBase64ToBinary : ConvertTextToBinary
@@ -136,5 +133,5 @@ public class ConvertBase64ToBase16 : ConvertTextToBinary
 {
     protected override string Summary => "Converts base 64 file to base 16 file";
 
-    protected override byte[] Convert(string str) => Constant.ENCODING_UTF8.GetBytes(Util.Base16(Util.Base64(str)));
+    protected override byte[] Convert(string str) => Constant.Encoding_UTF8.GetBytes(Util.Base16(Util.Base64(str)));
 }

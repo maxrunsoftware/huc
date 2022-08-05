@@ -30,7 +30,7 @@ public class SqlMySql : Sql
         //InsertBatchSizeMax = 2000;
 
         // https://dev.mysql.com/doc/refman/8.0/en/identifiers.html
-        ValidIdentifierChars.AddRange(Constant.CHARS_ALPHANUMERIC + "$_");
+        ValidIdentifierChars.AddRange(Constant.Chars_Alphanumeric_String + "$_");
         ReservedWords.AddRange(SqlMySqlReservedWords.WORDS.SplitOnWhiteSpace().TrimOrNull().WhereNotNull());
     }
 
@@ -58,7 +58,7 @@ public class SqlMySql : Sql
     {
         database = database.TrimOrNull();
         schema = schema.TrimOrNull();
-        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        if (database != null && schema != null && !database.EqualsIgnoreCase(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
 
         var dbName = database ?? schema;
 
@@ -79,7 +79,7 @@ public class SqlMySql : Sql
 
             if (dbName == null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
-            if (dbName != null && !dbName.EqualsCaseInsensitive(so.DatabaseName)) continue;
+            if (dbName != null && !dbName.EqualsIgnoreCase(so.DatabaseName)) continue;
 
             yield return so;
         }
@@ -90,7 +90,7 @@ public class SqlMySql : Sql
         database = database.TrimOrNull();
         schema = schema.TrimOrNull();
         table = table.TrimOrNull();
-        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        if (database != null && schema != null && !database.EqualsIgnoreCase(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
 
         var dbName = database ?? schema;
 
@@ -144,9 +144,9 @@ public class SqlMySql : Sql
 
             if (dbName == null && ExcludedSchemas.Contains(so.SchemaName)) continue;
 
-            if (dbName != null && !dbName.EqualsCaseInsensitive(so.DatabaseName)) continue;
+            if (dbName != null && !dbName.EqualsIgnoreCase(so.DatabaseName)) continue;
 
-            if (table != null && !table.EqualsCaseInsensitive(so.TableName)) continue;
+            if (table != null && !table.EqualsIgnoreCase(so.TableName)) continue;
 
             yield return so;
         }
@@ -159,7 +159,7 @@ public class SqlMySql : Sql
 
         table = Unescape(table.TrimOrNull()).CheckNotNullTrimmed(nameof(table));
 
-        return GetTables(dbName, dbName).Any(o => o.TableName.EqualsCaseInsensitive(table));
+        return GetTables(dbName, dbName).Any(o => o.TableName.EqualsIgnoreCase(table));
     }
 
     public override bool DropTable(string database, string schema, string table)
@@ -183,7 +183,7 @@ public class SqlMySql : Sql
         database = database.TrimOrNull();
         schema = schema.TrimOrNull();
         table = table.TrimOrNull();
-        if (database != null && schema != null && !database.EqualsCaseInsensitive(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
+        if (database != null && schema != null && !database.EqualsIgnoreCase(schema)) throw new ArgumentException($"Arguments {nameof(database)} '{database}' and {nameof(schema)} '{schema}' cannot both be specified with different values");
 
         var db = database ?? schema;
 

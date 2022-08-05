@@ -12,15 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.DirectoryServices.ActiveDirectory;
 using System.DirectoryServices.Protocols;
-using System.Linq;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Principal;
-using System.Text;
 
 namespace MaxRunSoftware.Utilities.External;
 
@@ -33,7 +28,7 @@ public class ActiveDirectoryCore : IDisposable
     private readonly ActiveDirectoryObjectCache cache = new();
 
     // ReSharper disable once InconsistentNaming
-    protected static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    protected static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     protected readonly string username;
     protected readonly string password;
@@ -442,7 +437,7 @@ public class ActiveDirectoryCore : IDisposable
 
         for (var i = 0; i < dn1Parts.Length; i++)
         {
-            if (!string.Equals(dn1Parts[i], dn2Parts[i], StringComparison.OrdinalIgnoreCase)) { return false; }
+            if (!string.Equals(dn1Parts[i], dn2Parts[i], StringComparison.OrdinalIgnoreCase)) return false;
         }
 
         return true;

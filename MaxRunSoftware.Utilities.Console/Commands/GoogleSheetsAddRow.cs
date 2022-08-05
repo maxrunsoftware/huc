@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Linq;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class GoogleSheetsAddRow : GoogleSheetsBase
@@ -43,7 +40,7 @@ public class GoogleSheetsAddRow : GoogleSheetsBase
 
         for (var i = 0; i < values.Count; i++)
         {
-            if (string.Equals(values[i], "null", StringComparison.OrdinalIgnoreCase)) { values[i] = null; }
+            if (string.Equals(values[i], "null", StringComparison.OrdinalIgnoreCase)) values[i] = null;
         }
 
         using (var c = CreateConnection())

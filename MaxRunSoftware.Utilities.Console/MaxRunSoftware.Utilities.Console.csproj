@@ -14,10 +14,14 @@
         <NoWarn>1701;1702;CA1416</NoWarn>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\MaxRunSoftware.Utilities\MaxRunSoftware.Utilities.csproj"/>
-        <ProjectReference Include="..\MaxRunSoftware.Utilities.External\MaxRunSoftware.Utilities.External.csproj"/>
+        <ProjectReference Include="..\MaxRunSoftware.Utilities\MaxRunSoftware.Utilities.csproj" />
+        <ProjectReference Include="..\MaxRunSoftware.Utilities.External\MaxRunSoftware.Utilities.External.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="Commands\"/>
+        <Folder Include="Commands2" />
+        <Folder Include="Commands\" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="CommandLineParser" Version="2.9.1" />
     </ItemGroup>
 </Project>

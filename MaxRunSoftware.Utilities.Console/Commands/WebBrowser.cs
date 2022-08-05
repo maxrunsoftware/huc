@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using MaxRunSoftware.Utilities.External;
 
@@ -169,7 +165,7 @@ public class WebBrowser : Command
         var scriptFileData = ReadFile(scriptFile);
 
         var root = XmlReader.Read(scriptFileData);
-        if (!root.Name.EqualsCaseInsensitive("browser")) throw new Exception("No <browser> root element is defined");
+        if (!root.Name.EqualsIgnoreCase("browser")) throw new Exception("No <browser> root element is defined");
 
         var allNodes = new List<XmlElement> { root };
         allNodes.AddRange(root.ChildrenAll);
@@ -182,7 +178,7 @@ public class WebBrowser : Command
 
                 foreach (var attributeKey in node.Attributes.Keys.ToArray())
                 {
-                    if (node.Attributes[attributeKey].TrimOrNull() != null && node.Attributes[attributeKey].Contains(templateKey)) { node.Attributes[attributeKey] = node.Attributes[attributeKey].Replace(templateKey, templateVal); }
+                    if (node.Attributes[attributeKey].TrimOrNull() != null && node.Attributes[attributeKey].Contains(templateKey)) node.Attributes[attributeKey] = node.Attributes[attributeKey].Replace(templateKey, templateVal);
                 }
 
                 if (node.Value.TrimOrNull() != null && node.Value.Contains(templateKey)) node.Value = node.Value.Replace(templateKey, templateVal);
@@ -208,12 +204,12 @@ public class WebBrowser : Command
                 actionNum++;
                 log.Debug($"Executing action {actionNum} {element.Name}");
 
-                if (element.Name.EqualsCaseInsensitive("sleep")) { ActionSleep(element); }
-                else if (element.Name.EqualsCaseInsensitive("text")) { ActionText(element); }
-                else if (element.Name.EqualsCaseInsensitive("click")) { ActionClick(element); }
-                else if (element.Name.EqualsCaseInsensitive("select")) { ActionSelect(element); }
-                else if (element.Name.EqualsCaseInsensitive("goto")) { ActionGoTo(element); }
-                else if (element.Name.EqualsCaseInsensitive("cookieSave")) { ActionCookieSave(element); }
+                if (element.Name.EqualsIgnoreCase("sleep")) { ActionSleep(element); }
+                else if (element.Name.EqualsIgnoreCase("text")) { ActionText(element); }
+                else if (element.Name.EqualsIgnoreCase("click")) { ActionClick(element); }
+                else if (element.Name.EqualsIgnoreCase("select")) { ActionSelect(element); }
+                else if (element.Name.EqualsIgnoreCase("goto")) { ActionGoTo(element); }
+                else if (element.Name.EqualsIgnoreCase("cookieSave")) { ActionCookieSave(element); }
                 else { log.Warn($"Unknown action <{element.Name}>"); }
             }
         }

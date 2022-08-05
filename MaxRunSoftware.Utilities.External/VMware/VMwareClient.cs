@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Reflection;
-using System.Text;
 using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -28,7 +24,7 @@ public class VMwareClient : IDisposable
 {
     // https://developer.vmware.com/docs/vsphere-automation/v7.0U1/
 
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
     private readonly string hostname;
     private readonly string username;

@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -67,7 +63,7 @@ public class VMwareList : VMwareBase
         var h = new HashSet<string>(ObjectTypeNames, StringComparer.OrdinalIgnoreCase);
         foreach (var objectType in objectTypes)
         {
-            if (!h.Contains(objectType)) { throw new ArgsException(nameof(objectType), $"Invalid <{nameof(objectType)}> specified: {objectType}"); }
+            if (!h.Contains(objectType)) throw new ArgsException(nameof(objectType), $"Invalid <{nameof(objectType)}> specified: {objectType}");
         }
 
         foreach (var objectType in objectTypes)
@@ -86,7 +82,7 @@ public class VMwareList : VMwareBase
         objectType = "VMware" + objectType;
         foreach (var kvp in handlerFunctions)
         {
-            if (objectType.EqualsCaseInsensitive(kvp.Key)) { return kvp.Value; }
+            if (objectType.EqualsIgnoreCase(kvp.Key)) return kvp.Value;
         }
 
         return null;

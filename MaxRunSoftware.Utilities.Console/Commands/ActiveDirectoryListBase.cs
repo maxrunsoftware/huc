@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using MaxRunSoftware.Utilities.External;
 
 namespace MaxRunSoftware.Utilities.Console.Commands;
@@ -50,7 +46,7 @@ public abstract class ActiveDirectoryListBase : ActiveDirectoryBase
         {
             foreach (var propertyToInclude in propertiesToInclude)
             {
-                if (allPropertyName.EqualsWildcard(propertyToInclude, true)) { properties.Add(allPropertyName); }
+                if (allPropertyName.EqualsWildcard(propertyToInclude, true)) properties.Add(allPropertyName);
             }
         }
 

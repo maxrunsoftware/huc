@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
-using System.Linq;
-
 namespace MaxRunSoftware.Utilities.Console.Commands;
 
 public class DirectoryRemoveEmpty : Command
@@ -34,7 +31,7 @@ public class DirectoryRemoveEmpty : Command
         var subDirectories = Util.FileListDirectories(targetDirectory, true)
             .Select(Path.GetFullPath)
             .Where(o => o.Length > targetDirectory.Length)
-            .Where(o => !o.EqualsCaseInsensitive(targetDirectory))
+            .Where(o => !o.EqualsIgnoreCase(targetDirectory))
             .OrderBy(o => o.Length)
             .Reverse()
             .ToList();

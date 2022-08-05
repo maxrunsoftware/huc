@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using EmbedIO;
@@ -32,6 +28,7 @@ public class WebServer : IDisposable
     {
         public Swan.Logging.LogLevel LogLevel { get; }
         private readonly ILogger logSwan;
+
 
         private SwanLogger(Swan.Logging.LogLevel logLevel, ILogger logSwan)
         {
@@ -80,18 +77,18 @@ public class WebServer : IDisposable
 
                     break;
                 case Swan.Logging.LogLevel.Fatal:
-                    if (logEvent.Exception == null) { logSwan.Critical(logEvent.Message); }
-                    else { logSwan.Critical(logEvent.Message, logEvent.Exception); }
+                    if (logEvent.Exception == null) { logSwan.Error(logEvent.Message); }
+                    else { logSwan.Error(logEvent.Message, logEvent.Exception); }
 
                     break;
             }
         }
     }
 
-    private static readonly ILogger log = Logging.LogFactory.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
+    private static readonly ILogger log = Logging.GetLogger(MethodBase.GetCurrentMethod()!.DeclaringType);
 
-    private readonly SingleUse started = new();
-    private readonly SingleUse disposable = new();
+    private readonly SingleUse started;
+    private readonly SingleUse disposable;
     private static readonly SingleUse registerLoggers = new();
 
     private static void RegisterLoggers()
@@ -104,7 +101,14 @@ public class WebServer : IDisposable
 
     private EmbedIO.WebServer server;
 
-    public WebServer() { RegisterLoggers(); }
+    public WebServer()
+    {
+        var locker = new object();
+        started = new SingleUse(locker);
+        disposable = new SingleUse(locker);
+
+        RegisterLoggers();
+    }
 
     private async Task ProcessAction(IHttpContext context, Func<IHttpContext, object> handler)
     {

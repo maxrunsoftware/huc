@@ -43,7 +43,7 @@ public class GenerateKeyPair : Command
 
         var keyPair = Encryption.GenerateKeyPair(length);
 
-        WriteFile(publicKeyFile, keyPair.publicKey, Constant.ENCODING_UTF8);
-        WriteFile(privateKeyFile, keyPair.privateKey, Constant.ENCODING_UTF8);
+        WriteFile(publicKeyFile, keyPair.publicKey, Constant.Encoding_UTF8);
+        WriteFile(privateKeyFile, keyPair.privateKey, Constant.Encoding_UTF8);
     }
 }
