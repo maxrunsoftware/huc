@@ -223,4 +223,25 @@ public static class ExtensionsReflection
     }
 
     #endregion FieldInfo
+
+    /// <summary>
+    /// https://stackoverflow.com/a/38110036
+    /// </summary>
+    /// <param name="info"></param>
+    /// <returns></returns>
+    public static bool IsOut(this ParameterInfo info) => info.ParameterType.IsByRef && !info.IsOut;
+
+    /// <summary>
+    /// https://stackoverflow.com/a/38110036
+    /// </summary>
+    /// <param name="info"></param>
+    /// <returns></returns>
+    public static bool IsIn(this ParameterInfo info) => info.ParameterType.IsByRef && info.IsIn;
+
+    /// <summary>
+    /// https://stackoverflow.com/a/38110036
+    /// </summary>
+    /// <param name="info"></param>
+    /// <returns></returns>
+    public static bool IsRef(this ParameterInfo info) => info.ParameterType.IsByRef && !info.IsOut;
 }

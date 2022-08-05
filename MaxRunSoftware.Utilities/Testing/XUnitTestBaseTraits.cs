@@ -1,11 +1,11 @@
 // Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,21 +16,21 @@ namespace MaxRunSoftware.Utilities;
 
 public abstract partial class XUnitTestBase
 {
-    private readonly Lazy<XUnitTraitCollection> testTraits;
+    private readonly Lzy<XUnitTraitCollection> testTraits;
 
     protected XUnitTraitCollection TestTraits => testTraits.Value;
 
 
-    private static readonly Dictionary<IReflectionType, List<IReflectionMethod>> factAttributeMethods = new();
+    private static readonly Dictionary<TypeSlim, List<MethodInfo>> factAttributeMethods = new();
 
-    private static List<IReflectionMethod> GetFactAttributeMethods(IReflectionType factAttributeType)
+    private static List<MethodInfo> GetFactAttributeMethods(TypeSlim factAttributeType)
     {
         lock (lockerStatic)
         {
             if (factAttributeMethods.TryGetValue(factAttributeType, out var list)) return list;
 
             //staticMessagesLog.Add("Looking for methods with attribute: " + factAttributeType);
-            var methods = new List<IReflectionMethod>();
+            var methods = new List<MethodInfo>();
             factAttributeMethods.Add(factAttributeType, methods);
 
             var assembly = factAttributeType.Parent;
@@ -47,14 +47,14 @@ public abstract partial class XUnitTestBase
         }
     }
 
-    private static readonly Dictionary<IReflectionType, Dictionary<CallerInfo, IReflectionMethod>> callerMethods = new();
+    private static readonly Dictionary<TypeSlim, Dictionary<CallerInfo, MethodInfo>> callerMethods = new();
 
     public static XUnitTraitCollection GetAttributeTraits<TAttribute>(TAttribute factAttribute, Func<TAttribute, CallerInfo> getCaller) where TAttribute : Attribute
     {
         var factAttributeTypeReflection = Reflection.GetType(factAttribute.GetType());
         lock (lockerStatic)
         {
-            if (!callerMethods.TryGetValue(factAttributeTypeReflection, out var d)) callerMethods.Add(factAttributeTypeReflection, d = new Dictionary<CallerInfo, IReflectionMethod>());
+            if (!callerMethods.TryGetValue(factAttributeTypeReflection, out var d)) callerMethods.Add(factAttributeTypeReflection, d = new Dictionary<CallerInfo, MethodInfo>());
             var caller = getCaller(factAttribute);
             if (!d.TryGetValue(caller, out var method))
             {

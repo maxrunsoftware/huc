@@ -77,7 +77,7 @@ public abstract partial class XUnitTestBase : IDisposable
         TestNameMethod = methodName;
         Logger = logWriter;
 
-        testTraits = new Lazy<XUnitTraitCollection>(() => XUnitTraitCollection.Get(Reflection.GetType(getType)));
+        testTraits = new Lzy<XUnitTraitCollection>(() => XUnitTraitCollection.Get(getType));
 
         TestNumber = testNumberCount.Next();
         timeStart = DateTime.Now;

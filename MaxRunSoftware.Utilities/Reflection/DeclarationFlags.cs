@@ -287,5 +287,16 @@ public static class DeclarationFlagsExtensions
         return flags;
     }
 
+    public static DeclarationFlags GetDeclarationFlags(this MemberInfo info) =>    info switch {
+            ConstructorInfo c => c.GetDeclarationFlags(),
+            EventInfo e => e.GetDeclarationFlags(),
+            FieldInfo f => f.GetDeclarationFlags(),
+            MethodInfo m => m.GetDeclarationFlags(),
+            PropertyInfo p => p.GetDeclarationFlags(),
+            TypeInfo t => t.GetDeclarationFlags(),
+            _ => throw new NotImplementedException()
+        };
+
+
     #endregion GetDeclarationFlags
 }

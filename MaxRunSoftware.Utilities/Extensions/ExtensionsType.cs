@@ -355,6 +355,34 @@ public static class ExtensionsType
 
     public static string GetEnumNames(this Type enumType, string delimiter, bool isSorted = false) => isSorted ? Enum.GetNames(enumType).OrderByOrdinalThenOrdinalIgnoreCase().ToStringDelimited(delimiter) : Enum.GetNames(enumType).ToStringDelimited(delimiter);
 
+    public static bool IsRealType(this Type type)
+    {
+        if (type.IsGenericParameter) return false;
+        if (type.IsAnonymous()) return false;
+        if (type.IsCompilerGenerated()) return false;
+
+        if (typeof(Delegate).IsAssignableFrom(type)) return false;
+
+        var invalidPrefixes = new[] { "<>c__" };
+        var invalidSuffixes = new[] { "<>c", "&", "[]" };
+
+        var name = type.Name.TrimOrNull();
+        if (name == null) return false;
+
+        if (invalidPrefixes.Any(invalid => name.Equals(invalid) || name.StartsWith(invalid))) return false;
+        if (invalidSuffixes.Any(invalid => name.Equals(invalid) || name.EndsWith(invalid))) return false;
+
+        if (type.IsArray)
+        {
+            var arrayType = type.GetElementType();
+            if (arrayType == null) return false;
+            if (!IsRealType(arrayType)) return false;
+        }
+
+        return true;
+    }
+
+
     #region Is
 
     /// <summary>

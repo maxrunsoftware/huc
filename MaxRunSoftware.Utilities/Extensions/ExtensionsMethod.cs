@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -173,5 +173,67 @@ public static class ExtensionsMethod
         var signature = type.FullName.TrimOrNull() ?? type.Name;
         if (type.IsGeneric()) signature = signature.Substring(0, signature.IndexOf('`'));
         return signature;
+    }
+
+
+    public static bool IsPropertyMethod(this MethodInfo info) => IsPropertyMethod(info, true, true);
+    public static bool IsPropertyMethodGet(this MethodInfo info) => IsPropertyMethod(info, true, false);
+    public static bool IsPropertyMethodSet(this MethodInfo info) => IsPropertyMethod(info, false, true);
+
+    private static bool IsPropertyMethod(MethodInfo info, bool isCheckGet, bool isCheckSet)
+    {
+        (isCheckGet || isCheckSet).AssertTrue();
+
+        // https://stackoverflow.com/a/73908
+        if (!info.IsSpecialName) return false;
+        if ((info.Attributes & MethodAttributes.HideBySig) == 0) return false;
+
+
+        var result = true;
+        if (isCheckGet && isCheckSet)
+        {
+            if (!info.Name.StartsWithAny("get_", "set_")) result = false;
+        }
+        else if (isCheckGet)
+        {
+            if (!info.Name.StartsWith("get_")) result = false;
+        }
+        else if (isCheckSet)
+        {
+            if (!info.Name.StartsWith("set_")) result = false;
+        }
+
+        if (!result) return false;
+
+        // https://stackoverflow.com/a/40128143
+        var reflectedType = info.ReflectedType;
+        if (reflectedType != null)
+        {
+            var methodHashCode = info.GetHashCode();
+            foreach (var p in reflectedType.GetProperties(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+            {
+                if (isCheckGet)
+                {
+                    var m = p.GetGetMethod(true);
+                    if (m != null)
+                    {
+                        if (m.GetHashCode() == methodHashCode) return true;
+                    }
+                }
+
+                if (isCheckSet)
+                {
+                    var m = p.GetSetMethod(true);
+                    if (m != null)
+                    {
+                        if (m.GetHashCode() == methodHashCode) return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }
