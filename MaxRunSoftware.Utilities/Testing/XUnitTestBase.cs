@@ -65,7 +65,7 @@ public abstract class XUnitTestBase : IDisposable
     // ReSharper disable once InconsistentNaming
     private readonly Action<string> Logger;
 
-    protected virtual string TestName => TestNameClass.CheckPropertyNotNullTrimmed(nameof(TestNameClass), type) + "." + TestNameMethod.CheckPropertyNotNullTrimmed(nameof(TestNameClass), type);
+    protected virtual string TestName => TestNameClass.CheckNotNullTrimmed(type: CheckType.Property, parent: type) + "." + TestNameMethod.CheckNotNullTrimmed(type: CheckType.Property, parent: type);
     private readonly Counter counter = new();
     protected int NextInt() => counter.Next();
     protected readonly object locker = new();
@@ -116,7 +116,7 @@ public abstract class XUnitTestBase : IDisposable
     private readonly Lzy<string> workingDirectory;
     private string WorkingDirectory_Build()
     {
-        var tempDirectory = ConfigTempDirectory.CheckPropertyNotNull(nameof(ConfigTempDirectory), type);
+        var tempDirectory = ConfigTempDirectory.CheckNotNull(type: CheckType.Property, parent: type);
         tempDirectory = Path.GetFullPath(tempDirectory);
         tempDirectory.CheckDirectoryExists(nameof(ConfigTempDirectory));
 
@@ -279,7 +279,7 @@ public abstract class XUnitTestBase : IDisposable
     private void Log(string message)
     {
         if (logCurrentLineNumber.Current > LogMaxLines) return;
-        var log = Logger.CheckPropertyNotNull(nameof(Logger), GetType());
+        var log = Logger.CheckNotNull(type: CheckType.Property, parent: GetType());
         log(message);
         logCurrentLineNumber.Next();
     }

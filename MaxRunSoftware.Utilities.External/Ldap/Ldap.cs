@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -130,7 +130,7 @@ public class Ldap : IDisposable
     public Ldap(string server, ushort portNumber, AuthType authType = AuthType.Anonymous, string userName = null, string password = null, string domainName = null, bool useLogonCredentials = false, string searchBaseDNdefault = null)
     {
         this.server = server = server.CheckNotNullTrimmed(nameof(server));
-        port = portNumber = portNumber.CheckNotZeroNotNegative(nameof(portNumber));
+        port = portNumber = portNumber.CheckMin((ushort)1);
 
         userName = userName.TrimOrNull();
         domainName = domainName.TrimOrNull();
@@ -400,7 +400,7 @@ public class Ldap : IDisposable
         const int ldapErrorInvalidCredentials = 0x31;
 
         server = server.CheckNotNullTrimmed(nameof(server));
-        portNumber = portNumber.CheckNotZeroNotNegative(nameof(portNumber));
+        portNumber = portNumber.CheckMin(1);
         userName = userName.CheckNotNullTrimmed(nameof(userName));
         password = password.CheckNotNull(nameof(password));
         domainName = domainName.TrimOrNull();

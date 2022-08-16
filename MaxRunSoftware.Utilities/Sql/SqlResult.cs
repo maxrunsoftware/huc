@@ -22,7 +22,10 @@ public abstract class SqlResultBase
 
     protected SqlResultBase() : this(true) { }
 
-    protected SqlResultBase(bool createLogger) { log = createLogger ? Constant.GetLogger(GetType()) : Constant.GetLoggerNull(); }
+    protected SqlResultBase(bool createLogger)
+    {
+        log = createLogger ? Constant.GetLogger(GetType()) : Constant.GetLoggerNull();
+    }
 }
 
 public class SqlResultCollection : SqlResultBase, IReadOnlyList<SqlResult>
@@ -122,7 +125,10 @@ public class SqlResultColumn : SqlResultBase
     public string DataTypeName => SchemaColumn.DataTypeName;
     public bool? IsNullable => SchemaColumn.IsNullable;
 
-    public SqlResultColumn(SqlDataReaderSchemaColumn schemaColumn) { SchemaColumn = schemaColumn.CheckNotNull(nameof(schemaColumn)); }
+    public SqlResultColumn(SqlDataReaderSchemaColumn schemaColumn)
+    {
+        SchemaColumn = schemaColumn.CheckNotNull(nameof(schemaColumn));
+    }
 }
 
 public class SqlResultRowCollection : SqlResultBase, IReadOnlyList<SqlResultRow>

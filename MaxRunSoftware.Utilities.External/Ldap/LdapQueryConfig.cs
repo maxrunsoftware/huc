@@ -69,7 +69,7 @@ public class LdapQueryConfig : IEquatable<LdapQueryConfig>
             .ToList()
             .AsReadOnly();
 
-        hashCode = Util.GenerateHashCode(BaseDn?.ToLower(), Scope, QueryPageSize, ChaseReferrals, Util.GenerateHashCodeEnumerable(Attributes.WhereNotNull().Select(o => o.ToLower())));
+        hashCode = Util.Hash(BaseDn?.ToLower(), Scope, QueryPageSize, ChaseReferrals, Util.HashEnumerable(Attributes.WhereNotNull().Select(o => o.ToLower())));
     }
 
     public override bool Equals(object obj) => Equals(obj as LdapQueryConfig);

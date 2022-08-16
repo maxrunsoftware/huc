@@ -25,7 +25,10 @@ public class BucketStoreCachedWrapper<TKey, TValue> : BucketStoreBase<TKey, TVal
     private readonly Dictionary<string, CacheEntry> cache = new(StringComparer.OrdinalIgnoreCase);
     private readonly object locker = new();
 
-    public BucketStoreCachedWrapper(IBucketStore<TKey, TValue> bucketStore) { this.bucketStore = bucketStore.CheckNotNull(nameof(bucketStore)); }
+    public BucketStoreCachedWrapper(IBucketStore<TKey, TValue> bucketStore)
+    {
+        this.bucketStore = bucketStore.CheckNotNull(nameof(bucketStore));
+    }
 
     public TimeSpan CacheTime { get; set; } = TimeSpan.Zero;
 

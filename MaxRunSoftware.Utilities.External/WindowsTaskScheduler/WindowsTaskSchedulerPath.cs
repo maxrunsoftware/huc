@@ -55,7 +55,10 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
 
     public WindowsTaskSchedulerPath(Task task) : this(task.Folder.Path + "/" + task.Name) { }
 
-    public WindowsTaskSchedulerPath(IEnumerable<string> pathParts) { PathFull = pathParts.ToList(); }
+    public WindowsTaskSchedulerPath(IEnumerable<string> pathParts)
+    {
+        PathFull = pathParts.ToList();
+    }
 
     public WindowsTaskSchedulerPath(TaskFolder folder) : this(folder.Path) { }
     public WindowsTaskSchedulerPath(string path) : this((path ?? string.Empty).Split('/', '\\').TrimOrNull().WhereNotNull()) { }
@@ -81,7 +84,7 @@ public class WindowsTaskSchedulerPath : IEquatable<WindowsTaskSchedulerPath>, IC
 
     public override bool Equals(object obj) => Equals(obj as WindowsTaskSchedulerPath);
 
-    public override int GetHashCode() => Util.GenerateHashCode(PathFull.Select(o => o.ToUpper()));
+    public override int GetHashCode() => Util.Hash(PathFull.Select(o => o.ToUpper()));
 
     public WindowsTaskSchedulerPath Add(string name) => new(PathFull.ToArray().AppendHead(name));
 }

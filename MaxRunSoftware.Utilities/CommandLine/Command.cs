@@ -12,18 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Runtime.CompilerServices;
-
 namespace MaxRunSoftware.Utilities.CommandLine;
 
-[AttributeUsage(AttributeTargets.Property)]
-public class ArgumentAttribute : PropertyAttribute
+public interface ICommand
 {
-    public int Index { get; }
-    public int? MinCount { get; set; }
+    void Execute();
+}
 
-    public ArgumentAttribute(int index, string description, [CallerFilePath] string? filePath = null, [CallerLineNumber] int lineNumber = int.MinValue, [CallerMemberName] string? memberName = null) : base(description, filePath, lineNumber, memberName)
-    {
-        Index = index;
-    }
+public abstract class Command : ICommand
+{
+    public abstract void Execute();
 }

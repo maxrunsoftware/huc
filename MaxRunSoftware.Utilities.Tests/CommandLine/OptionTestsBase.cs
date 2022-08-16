@@ -1,11 +1,11 @@
 // Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,28 +24,28 @@ public abstract class OptionTestsBase : CommandTestsBase
 
 internal static class OptionTestsExtensions
 {
-    public static OptionDetail Single(this IEnumerable<OptionDetail> details, string name)
+    public static OptionAttributeDetail Single(this IEnumerable<OptionAttributeDetail> details, string name)
     {
         var items = details.Where(o => StringComparer.Ordinal.Equals(o.Name, name)).ToList();
         Assert.Single(items);
         return items[0];
     }
 
-    public static OptionDetail Single(this IEnumerable<OptionDetail> details) => details.Single(CommandTestsBase.PROPERTY);
+    public static OptionAttributeDetail Single(this IEnumerable<OptionAttributeDetail> details) => details.Single(CommandTestsBase.PROPERTY);
 
 
-    public static OptionDetailWrapped Single(this IEnumerable<OptionDetailWrapped> details, string name)
+    public static OptionAttributeDetailWrapped Single(this IEnumerable<OptionAttributeDetailWrapped> details, string name)
     {
-        var detailsWrapped = details as ICollection<OptionDetailWrapped> ?? details.ToList();
+        var detailsWrapped = details as ICollection<OptionAttributeDetailWrapped> ?? details.ToList();
         var items = detailsWrapped.Where(o => StringComparer.Ordinal.Equals(o.Detail?.Name, name)).ToList();
         if (items.Count == 0) items = detailsWrapped.Where(o => StringComparer.Ordinal.Equals(o.Info.Name, name)).ToList();
         Assert.Single(items);
         return items[0];
     }
 
-    public static OptionDetailWrapped Single(this IEnumerable<OptionDetailWrapped> details) => details.Single(CommandTestsBase.PROPERTY);
+    public static OptionAttributeDetailWrapped Single(this IEnumerable<OptionAttributeDetailWrapped> details) => details.Single(CommandTestsBase.PROPERTY);
 
-    public static T SetValueNew<T>(this OptionDetail detail, string? valueString) where T : new()
+    public static T SetValueNew<T>(this OptionAttributeDetail detail, string? valueString) where T : new()
     {
         var o = new T();
         detail.SetValue(o, valueString);
@@ -53,7 +53,7 @@ internal static class OptionTestsExtensions
     }
 
     // ReSharper disable once UnusedParameter.Global
-    public static T SetValueNew<T>(this OptionDetail detail, T oOld, string? valueString) where T : new()
+    public static T SetValueNew<T>(this OptionAttributeDetail detail, T oOld, string? valueString) where T : new()
     {
         var o = new T();
         detail.SetValue(o, valueString);

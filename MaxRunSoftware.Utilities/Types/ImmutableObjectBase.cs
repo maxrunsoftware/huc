@@ -1,11 +1,11 @@
 // Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-//
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+// 
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,6 +60,7 @@ public abstract class ImmutableObjectBase : IComparable
 
     protected static Lzy<T> CreateLazy<T>(Func<T> valueFactory) => new(valueFactory);
 
+    /*
     #region IsEqual
 
     protected static bool IsEqual<T>(T? x, T? y) where T : IEquatable<T>
@@ -110,23 +111,7 @@ public abstract class ImmutableObjectBase : IComparable
     protected static int CompareOrdinalIgnoreCase(string? x, string? y) => StringComparer.OrdinalIgnoreCase.Compare(x, y);
 
     #endregion Compare
-
-    #region Hash
-
-    protected static int Hash<T1>(T1? t1) => Util.GenerateHashCode(t1);
-    protected static int Hash<T1, T2>(T1? t1, T2? t2) => Util.GenerateHashCode(t1, t2);
-    protected static int Hash<T1, T2, T3>(T1? t1, T2? t2, T3? t3) => Util.GenerateHashCode(t1, t2, t3);
-    protected static int Hash<T1, T2, T3, T4>(T1? t1, T2? t2, T3? t3, T4? t4) => Util.GenerateHashCode(t1, t2, t3, t4);
-    protected static int Hash<T1, T2, T3, T4, T5>(T1? t1, T2? t2, T3? t3, T4? t4, T5? t5) => Util.GenerateHashCode(t1, t2, t3, t4, t5);
-    protected static int Hash<T1, T2, T3, T4, T5, T6>(T1? t1, T2? t2, T3? t3, T4? t4, T5? t5, T6? t6) => Util.GenerateHashCode(t1, t2, t3, t4, t5, t6);
-    protected static int Hash<T1, T2, T3, T4, T5, T6, T7>(T1? t1, T2? t2, T3? t3, T4? t4, T5? t5, T6? t6, T7? t7) => Util.GenerateHashCode(t1, t2, t3, t4, t5, t6, t7);
-    protected static int Hash<T1, T2, T3, T4, T5, T6, T7, T8>(T1? t1, T2? t2, T3? t3, T4? t4, T5? t5, T6? t6, T7? t7, T8? t8) => Util.GenerateHashCode(t1, t2, t3, t4, t5, t6, t7, t8);
-    protected static int HashEnumerable<TItem>(IEnumerable<TItem> enumerable) => Util.GenerateHashCodeEnumerable(enumerable);
-    protected static int HashReadOnlyCollection<TItem>(IReadOnlyCollection<TItem> collection) => Util.GenerateHashCodeReadOnlyCollection(collection);
-    protected static int HashCollection<TItem>(ICollection<TItem> collection) => Util.GenerateHashCodeCollection(collection);
-    protected static int HashArray<TItem>(TItem[] array) => Util.GenerateHashCodeArray(array);
-
-    #endregion Hash
+    */
 
     #endregion Helpers
 }

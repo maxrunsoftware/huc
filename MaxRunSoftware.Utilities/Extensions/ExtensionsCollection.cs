@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -223,12 +223,11 @@ public static class ExtensionsCollection
 
     #region Multidimensional Arrays
 
-    public static List<T[]> ToList<T>(this T[,] array, int listPadding = 0)
+    public static List<T[]> ToList<T>(this T[,] array, ushort listPadding = 0)
     {
         // TODO: I'm sure there are tons of performance tweaks for this such as using Array.Copy somehow.
         var lenRows = array.CheckNotNull(nameof(array)).GetLength(0);
         var lenColumns = array.GetLength(1);
-        listPadding.CheckNotNegative(nameof(listPadding));
 
         var list = new List<T[]>(lenRows + listPadding);
 
@@ -679,6 +678,26 @@ public static class ExtensionsCollection
         if (str != null) collection.Add(str);
 
         return str;
+    }
+
+    public static TCollection AddRange<TCollection, TItem>(this TCollection collection, params TItem?[] items) where TCollection : ICollection<TItem?>
+    {
+        foreach (var item in items)
+        {
+            collection.Add(item);
+        }
+
+        return collection;
+    }
+
+    public static TCollection AddRange<TCollection>(this TCollection collection, params object?[] items) where TCollection : ICollection<object?>
+    {
+        foreach (var item in items)
+        {
+            collection.Add(item);
+        }
+
+        return collection;
     }
 
     /*
@@ -1132,7 +1151,7 @@ public static class ExtensionsCollection
     /// <remarks>
     /// Can be called as either static method: EnumerableExtensions.Compare(a, b) or extension method: a.Compare(b).
     /// </remarks>
-    public static bool EqualsEnumerable<T>(this IEnumerable<T> obj, IEnumerable<T> other) where T : IEquatable<T>
+    public static bool EqualsEnumerable<T>(this IEnumerable<T?>? obj, IEnumerable<T?>? other)
     {
         if (obj == null) return other == null;
         if (other == null) return false;

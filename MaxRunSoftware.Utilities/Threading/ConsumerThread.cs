@@ -24,7 +24,10 @@ public class ConsumerThread<T> : ConsumerThreadBase<T>
 {
     private readonly Action<T> action;
 
-    public ConsumerThread(BlockingCollection<T> queue, Action<T> action) : base(queue) { this.action = action.CheckNotNull(nameof(action)); }
+    public ConsumerThread(BlockingCollection<T> queue, Action<T> action) : base(queue)
+    {
+        this.action = action.CheckNotNull(nameof(action));
+    }
 
     protected override void WorkConsume(T item) => action(item);
 }

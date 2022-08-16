@@ -21,6 +21,36 @@ namespace MaxRunSoftware.Utilities;
 
 public static class ExtensionsReflection
 {
+    #region BindingFlags
+
+    public static bool IsIgnoreCase(this BindingFlags flags) => (flags & BindingFlags.IgnoreCase) != 0;
+    public static bool IsDeclaredOnly(this BindingFlags flags) => (flags & BindingFlags.DeclaredOnly) != 0;
+    public static bool IsInstance(this BindingFlags flags) => (flags & BindingFlags.Instance) != 0;
+    public static bool IsStatic(this BindingFlags flags) => (flags & BindingFlags.Static) != 0;
+    public static bool IsPublic(this BindingFlags flags) => (flags & BindingFlags.Public) != 0;
+    public static bool IsNonPublic(this BindingFlags flags) => (flags & BindingFlags.NonPublic) != 0;
+    public static bool IsFlattenHierarch(this BindingFlags flags) => (flags & BindingFlags.FlattenHierarchy) != 0;
+
+    public static bool IsInvokeMethod(this BindingFlags flags) => (flags & BindingFlags.InvokeMethod) != 0;
+    public static bool IsCreateInstance(this BindingFlags flags) => (flags & BindingFlags.CreateInstance) != 0;
+    public static bool IsGetField(this BindingFlags flags) => (flags & BindingFlags.GetField) != 0;
+    public static bool IsSetField(this BindingFlags flags) => (flags & BindingFlags.SetField) != 0;
+    public static bool IsGetProperty(this BindingFlags flags) => (flags & BindingFlags.GetProperty) != 0;
+    public static bool IsSetProperty(this BindingFlags flags) => (flags & BindingFlags.SetProperty) != 0;
+
+    public static bool IsPutDispProperty(this BindingFlags flags) => (flags & BindingFlags.PutDispProperty) != 0;
+    public static bool IsPutRefDispProperty(this BindingFlags flags) => (flags & BindingFlags.PutRefDispProperty) != 0;
+
+    public static bool IsExactBinding(this BindingFlags flags) => (flags & BindingFlags.ExactBinding) != 0;
+    public static bool IsSuppressChangeType(this BindingFlags flags) => (flags & BindingFlags.SuppressChangeType) != 0;
+
+    public static bool IsOptionalParamBinding(this BindingFlags flags) => (flags & BindingFlags.OptionalParamBinding) != 0;
+
+    public static bool IsIgnoreReturn(this BindingFlags flags) => (flags & BindingFlags.IgnoreReturn) != 0;
+    public static bool IsDoNotWrapExceptions(this BindingFlags flags) => (flags & BindingFlags.DoNotWrapExceptions) != 0;
+
+    #endregion BindingFlags
+
     public static string GetFileVersion(this Assembly assembly) => FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
 
     public static string GetVersion(this Assembly assembly) => assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version;

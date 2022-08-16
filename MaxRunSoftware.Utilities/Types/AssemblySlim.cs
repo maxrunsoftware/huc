@@ -144,4 +144,11 @@ public sealed class AssemblySlim : IEquatable<AssemblySlim>, IComparable<Assembl
     }
 
     #endregion Static
+
+    #region Implicit / Explicit
+
+    public static implicit operator Assembly(AssemblySlim assemblySlim) => assemblySlim.Assembly;
+    public static explicit operator AssemblySlim(Assembly assembly) => new(assembly);
+
+    #endregion Implicit / Explicit
 }

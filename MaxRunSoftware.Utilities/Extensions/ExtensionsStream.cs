@@ -71,7 +71,7 @@ public static class ExtensionsStream
     {
         source.CheckNotNull(nameof(source));
         target.CheckNotNull(nameof(target));
-        bufferSize.CheckNotZeroNotNegative(nameof(bufferSize));
+        bufferSize.CheckMin(1);
 
         var array = new byte[bufferSize];
         long totalCount = 0;

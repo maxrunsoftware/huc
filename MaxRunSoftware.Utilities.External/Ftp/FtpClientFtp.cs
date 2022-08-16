@@ -37,8 +37,8 @@ public class FtpClientFtp : FtpClientBase
 
     public FtpClientFtp(string host, ushort port, string username, string password)
     {
-        host = host.CheckNotNullTrimmed(nameof(host));
-        port = port.CheckNotZero(nameof(port));
+        host = host.CheckNotNullTrimmed();
+        port = port.CheckMin((ushort)1);
         username = username.TrimOrNull();
         password = password.TrimOrNull();
         username ??= password = "anonymous";
@@ -53,8 +53,8 @@ public class FtpClientFtp : FtpClientBase
 
     public FtpClientFtp(string host, ushort port, string username, string password, FtpClientFtpSEncryptionMode encryptionMode, SslProtocols sslProtocols = SslProtocols.None)
     {
-        host = host.CheckNotNullTrimmed(nameof(host));
-        port = port.CheckNotZero(nameof(port));
+        host = host.CheckNotNullTrimmed();
+        port = port.CheckMin((ushort)1);
         username = username.TrimOrNull();
         password = password.TrimOrNull();
         username ??= password = "anonymous";

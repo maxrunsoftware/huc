@@ -83,7 +83,7 @@ public sealed class TableColumn : IEquatable<TableColumn>
         dbType = new Lazy<DbType>(() => table.Count == 0 ? DbType.String : Util.GuessDbType(table.Select(o => o[Index])));
         numericPrecision = new Lazy<int>(() => table.Count == 0 ? 0 : GetNumericPrecision(table, Index));
         numericScale = new Lazy<int>(() => table.Count == 0 ? 0 : GetNumericScale(table, Index));
-        hashCode = new Lazy<int>(() => Util.GenerateHashCode(Table.Id, Index, Name.ToUpper()));
+        hashCode = new Lazy<int>(() => Util.Hash(Table.Id, Index, Name.ToUpper()));
     }
 
     private int GetNumericPrecision(Table table, int index)

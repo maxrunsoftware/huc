@@ -25,7 +25,7 @@ public sealed class SqlObjectDatabase : SqlObject, IEquatable<SqlObjectDatabase>
     {
         DatabaseName = databaseName;
 
-        hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper());
+        hashCode = Util.Hash(DatabaseName?.ToUpper());
     }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectDatabase);
@@ -55,7 +55,7 @@ public sealed class SqlObjectSchema : SqlObject, IEquatable<SqlObjectSchema>
         DatabaseName = databaseName;
         SchemaName = schemaName;
 
-        hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper());
+        hashCode = Util.Hash(DatabaseName?.ToUpper(), SchemaName?.ToUpper());
     }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectSchema);
@@ -88,7 +88,7 @@ public sealed class SqlObjectTable : SqlObject, IEquatable<SqlObjectTable>
         SchemaName = schemaName;
         TableName = tableName;
 
-        hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
+        hashCode = Util.Hash(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper());
     }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectTable);
@@ -155,7 +155,7 @@ public sealed class SqlObjectTableColumn : SqlObject, IEquatable<SqlObjectTableC
         NumericScale = numericScale;
         ColumnDefault = columnDefault;
 
-        hashCode = Util.GenerateHashCode(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper(), ColumnName?.ToUpper(), Ordinal);
+        hashCode = Util.Hash(DatabaseName?.ToUpper(), SchemaName?.ToUpper(), TableName?.ToUpper(), ColumnName?.ToUpper(), Ordinal);
     }
 
     public override bool Equals(object obj) => Equals(obj as SqlObjectTableColumn);

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,9 +47,15 @@ public class Ssh : IDisposable
 
     public string ClientVersion => Client.ConnectionInfo.ClientVersion;
 
-    public Ssh(string host, ushort port, string username, string password) { client = (SshClient)CreateClient(host, port, username, password, null, typeof(SshClient)); }
+    public Ssh(string host, ushort port, string username, string password)
+    {
+        client = (SshClient)CreateClient(host, port, username, password, null, typeof(SshClient));
+    }
 
-    public Ssh(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys) { client = (SshClient)CreateClient(host, port, username, null, privateKeys, typeof(SshClient)); }
+    public Ssh(string host, ushort port, string username, IEnumerable<SshKeyFile> privateKeys)
+    {
+        client = (SshClient)CreateClient(host, port, username, null, privateKeys, typeof(SshClient));
+    }
 
     public string RunCommand(string command)
     {
@@ -62,7 +68,7 @@ public class Ssh : IDisposable
     {
         clientType.CheckNotNull(nameof(clientType));
         host = host.CheckNotNullTrimmed(nameof(host));
-        port = port.CheckNotZero(nameof(port));
+        port = port.CheckMin((ushort)1);
         username = username.CheckNotNullTrimmed(nameof(username));
         password = password.TrimOrNull();
         var pks = (keyFiles ?? Enumerable.Empty<SshKeyFile>()).WhereNotNull().ToList();

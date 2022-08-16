@@ -17,7 +17,10 @@ namespace MaxRunSoftware.Utilities;
 public abstract class ReadOnlyListBase<T> : IReadOnlyList<T>
 {
     private readonly IReadOnlyList<T> list;
-    protected ReadOnlyListBase(IReadOnlyList<T> list) { this.list = list.CheckNotNull(nameof(list)); }
+    protected ReadOnlyListBase(IReadOnlyList<T> list)
+    {
+        this.list = list.CheckNotNull(nameof(list));
+    }
 
     public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)list).GetEnumerator();

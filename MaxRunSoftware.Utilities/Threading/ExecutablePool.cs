@@ -157,8 +157,8 @@ public class ExecutablePool : IDisposable
         var cfg = new ExecutablePoolConfig(config);
 
         cfg.Enumerator.CheckNotNull(configOriginalTypeName + "." + nameof(IExecutablePoolConfig.Enumerator));
-        cfg.NumberOfThreads.CheckNotZeroNotNegative(configOriginalTypeName + "." + nameof(IExecutablePoolConfig.NumberOfThreads));
-        cfg.NumberOfThreads.CheckMax(configOriginalTypeName + "." + nameof(IExecutablePoolConfig.NumberOfThreads), maxNumberOfThreads);
+        cfg.NumberOfThreads.CheckMin(1, configOriginalTypeName + "." + nameof(IExecutablePoolConfig.NumberOfThreads));
+        cfg.NumberOfThreads.CheckMax(maxNumberOfThreads, configOriginalTypeName + "." + nameof(IExecutablePoolConfig.NumberOfThreads));
 
         cfg.SynchronizationLock ??= new object();
 

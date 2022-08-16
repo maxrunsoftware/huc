@@ -69,7 +69,7 @@ public static class ExtensionsString
     /// <param name="str"></param>
     /// <param name="numberOfCharactersToRemove"></param>
     /// <returns></returns>
-    public static string RemoveLeft(this string str, int numberOfCharactersToRemove) => numberOfCharactersToRemove.CheckNotNegative(nameof(numberOfCharactersToRemove)) >= str.Length ? string.Empty : str.Substring(numberOfCharactersToRemove);
+    public static string RemoveLeft(this string str, int numberOfCharactersToRemove) => numberOfCharactersToRemove.CheckMin(1) >= str.Length ? string.Empty : str.Substring(numberOfCharactersToRemove);
 
     /// <summary>
     /// Removes the rightmost characters from a string
@@ -77,7 +77,7 @@ public static class ExtensionsString
     /// <param name="str"></param>
     /// <param name="numberOfCharactersToRemove"></param>
     /// <returns></returns>
-    public static string RemoveRight(this string str, int numberOfCharactersToRemove) => numberOfCharactersToRemove.CheckNotNegative(nameof(numberOfCharactersToRemove)) >= str.Length ? string.Empty : str.Substring(0, str.Length - numberOfCharactersToRemove);
+    public static string RemoveRight(this string str, int numberOfCharactersToRemove) => numberOfCharactersToRemove.CheckMin(1) >= str.Length ? string.Empty : str.Substring(0, str.Length - numberOfCharactersToRemove);
 
     /// <summary>
     /// Removes the rightmost character from a string
@@ -141,14 +141,14 @@ public static class ExtensionsString
 
     public static string Right(this string str, int characterCount)
     {
-        characterCount.CheckNotNegative(nameof(characterCount));
+        characterCount.CheckMin(0);
         characterCount = Math.Min(characterCount, str.Length);
         return str.Substring(str.Length - characterCount, characterCount);
     }
 
     public static string Left(this string str, int characterCount)
     {
-        characterCount.CheckNotNegative(nameof(characterCount));
+        characterCount.CheckMin(0);
         characterCount = Math.Min(characterCount, str.Length);
         return str.Substring(0, characterCount);
     }

@@ -28,7 +28,7 @@ public sealed class TypeSlim : IEquatable<TypeSlim>, IComparable<TypeSlim>, ICom
         Assembly = new AssemblySlim(type.Assembly);
         NameFull = NameFull_Build(type);
         TypeHashCode = Type.GetHashCode();
-        getHashCode = Util.GenerateHashCode(TypeHashCode, Assembly.GetHashCode(), StringComparer.Ordinal.GetHashCode(NameFull));
+        getHashCode = Util.Hash(TypeHashCode, Assembly.GetHashCode(), StringComparer.Ordinal.GetHashCode(NameFull));
     }
 
     #region Override
@@ -92,4 +92,11 @@ public sealed class TypeSlim : IEquatable<TypeSlim>, IComparable<TypeSlim>, ICom
     }
 
     #endregion Static
+
+    #region Implicit / Explicit
+
+    public static implicit operator Type(TypeSlim typeSlim) => typeSlim.Type;
+    public static explicit operator TypeSlim(Type type) => new(type);
+
+    #endregion Implicit / Explicit
 }

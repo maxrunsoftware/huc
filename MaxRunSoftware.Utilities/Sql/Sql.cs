@@ -39,7 +39,10 @@ public abstract class Sql
     public ISet<string> ReservedWords { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public ISet<char> ValidIdentifierChars { get; } = new HashSet<char>();
 
-    protected Sql() { log = Constant.GetLogger(GetType()); }
+    protected Sql()
+    {
+        log = Constant.GetLogger(GetType());
+    }
 
     public abstract string GetCurrentDatabaseName();
     public abstract string GetCurrentSchemaName();

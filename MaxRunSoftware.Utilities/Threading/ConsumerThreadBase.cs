@@ -33,7 +33,10 @@ public abstract class ConsumerThreadBase<T> : ThreadBase
 
     public int ItemsCompleted => itemsCompleted;
 
-    protected ConsumerThreadBase(BlockingCollection<T> queue) { this.queue = queue.CheckNotNull(nameof(queue)); }
+    protected ConsumerThreadBase(BlockingCollection<T> queue)
+    {
+        this.queue = queue.CheckNotNull(nameof(queue));
+    }
 
     private bool ShouldExitWorkLoop()
     {

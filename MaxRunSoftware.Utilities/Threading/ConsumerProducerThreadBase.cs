@@ -25,7 +25,10 @@ public abstract class ConsumerProducerThreadBase<TConsume, TProduce> : ConsumerT
     private readonly BlockingCollection<TProduce> producerQueue;
     private readonly CancellationTokenSource cancellation = new();
 
-    protected ConsumerProducerThreadBase(BlockingCollection<TConsume> consumerQueue, BlockingCollection<TProduce> producerQueue) : base(consumerQueue) { this.producerQueue = producerQueue.CheckNotNull(nameof(producerQueue)); }
+    protected ConsumerProducerThreadBase(BlockingCollection<TConsume> consumerQueue, BlockingCollection<TProduce> producerQueue) : base(consumerQueue)
+    {
+        this.producerQueue = producerQueue.CheckNotNull(nameof(producerQueue));
+    }
 
     protected override void WorkConsume(TConsume item)
     {
