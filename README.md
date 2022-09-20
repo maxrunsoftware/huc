@@ -1,5 +1,7 @@
 # HUC: Various Command Line Tools To Make Your Life Easier
 ## [Max Run Software](https://www.maxrunsoftware.com)
+If you find HUC useful PLEASE let us know at dev@maxrunsoftware.com  We are working on a 2.0 branch that keeps the same CLI but adds a ton of features. If you have a feature request feel free to submit an issue and we'll try and get it added to the 2.0 branch.
+If you just want to discuss programming or have a great idea, feel free to reach out anytime.
 
 HUC is a simple to use open source command line tool for performing various tasks.
 It is a self contained executable built on DotNet 5 and has builds available for Windows, Mac, and Linux
