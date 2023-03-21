@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,7 +55,7 @@ public class SqlDownload : SqlQueryBase
             log.Debug(e);
         }
     }
-    
+
     private class FileDownload
     {
         public string FileName { get; set; }
@@ -63,7 +63,7 @@ public class SqlDownload : SqlQueryBase
         public Dictionary<string, string> Cookies { get; } = new();
         public int ResultNum { get; set; }
         public int RowNum { get; set; }
-        
+
     }
 
     private List<FileDownload> ParseTable(Utilities.Table table, int resultSetNum)
@@ -109,14 +109,14 @@ public class SqlDownload : SqlQueryBase
             fileDownload.RowNum = rowNum;
             fileDownload.ResultNum = resultSetNum;
             foreach (var c in cookieColumns) fileDownload.Cookies[c.Name.Substring(7)] = row[c];
-                
+
             if (fileDownload.FileName == null) continue; // TODO: Log message
             if (fileDownload.FileUrl == null) continue; // TODO: Log message
-                
+
             fileDownloads.Add(fileDownload);
         }
 
-        
+
         return fileDownloads;
     }
 
@@ -129,7 +129,7 @@ public class SqlDownload : SqlQueryBase
         var tables = ExecuteTables();
 
         var fileDownloads = new List<FileDownload>();
-        
+
         var resultSetNum = 0;
         foreach (var table in tables)
         {
@@ -139,20 +139,32 @@ public class SqlDownload : SqlQueryBase
 
         log.Info($"Downloading {fileDownloads.Count} files");
 
-        var pool = new ConsumerThreadPool<FileDownload>(ProcessFileDownload);
-        pool.NumberOfThreads = threads;
-        foreach (var fileDownload in fileDownloads)
+        if (threads > 1)
         {
-            pool.AddWorkItem(fileDownload);
-        }
-        
-        pool.FinishedAddingWorkItems();
+            // Use thread pool if more then one thread
+            var pool = new ConsumerThreadPool<FileDownload>(ProcessFileDownload);
+            pool.NumberOfThreads = threads;
+            foreach (var fileDownload in fileDownloads)
+            {
+                pool.AddWorkItem(fileDownload);
+            }
 
-        while (!pool.IsComplete)
-        {
-            Thread.Sleep(1000);
+            pool.FinishedAddingWorkItems();
+
+            while (!pool.IsComplete)
+            {
+                Thread.Sleep(1000);
+            }
         }
-        
+        else
+        {
+            // just use current thread
+            foreach (var fileDownload in fileDownloads)
+            {
+                ProcessFileDownload(fileDownload);
+            }
+        }
+
         log.Info($"Downloads complete " + fileDownloads.Count);
     }
 }
