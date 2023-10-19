@@ -45,7 +45,7 @@ Global
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
 		$0.StandardHeader = $2
-		$2.Text = @/*\nCopyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)\n\nLicensed under the Apache License, Version 2.0 (the "License");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an "AS IS" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/
+		$2.Text = @/*\nCopyright (c) 2023 Max Run Software (dev@maxrunsoftware.com)\n\nLicensed under the Apache License, Version 2.0 (the "License");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\nhttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an "AS IS" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/
 		$0.VersionControlPolicy = $3
 		$0.TextStylePolicy = $4
 		$4.inheritsSet = null
@@ -56,6 +56,6 @@ Global
 		$6.FileWidth = 80
 		$6.TabsToSpaces = True
 		$6.scope = text/plain
-		version = 2.0.0
+		version = 1.13.1
 	EndGlobalSection
 EndGlobal

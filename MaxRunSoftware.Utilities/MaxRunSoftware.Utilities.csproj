@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <ReleaseVersion>2.0.0</ReleaseVersion>
+        <ReleaseVersion>1.13.1</ReleaseVersion>
         <Description>Various helper methods and functions</Description>
         <PackageVersion>$(ReleaseVersion)</PackageVersion>
         <Authors>Max Run Software</Authors>
@@ -16,7 +16,7 @@
         <PackageProjectUrl>https://github.com/maxrunsoftware/huc</PackageProjectUrl>
         <Summary>Various tools and helper functions</Summary>
         <Title>Max Run Software Utilities</Title>
-        <Copyright>(c) Max Run Software 2022</Copyright>
+        <Copyright>(c) Max Run Software 2023</Copyright>
         <IncludeSymbols>true</IncludeSymbols>
         <IncludeSource>true</IncludeSource>
     </PropertyGroup>
