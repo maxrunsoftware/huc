@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2022 Max Run Software (dev@maxrunsoftware.com)
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 // http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,11 +45,11 @@ public class FtpClientFtp : FtpClientBase
         username = username.TrimOrNull();
         password = password.TrimOrNull();
         username ??= password = "anonymous";
-        client = new FtpClient(host, port, new NetworkCredential(username, password));
+        client = new FtpClient(host: host, port: port, user: username, pass: password, logger: new FtpLogger(log));
+        client.Connect();
         log.Debug("Connecting to FTP server " + host + ":" + port + " with username " + username);
         //FtpTrace.LogPassword = true;
         //FtpTrace.LogPrefix = true;
-        client.OnLogEvent = LogMessage;
         client.Connect();
         log.Debug("Connection successful");
     }
@@ -62,41 +62,50 @@ public class FtpClientFtp : FtpClientBase
         password = password.TrimOrNull();
         username ??= password = "anonymous";
 
-        client = new FtpClient(host, port, new NetworkCredential(username, password));
+        client = new FtpClient(host: host, port: port, user: username, pass: password, logger: new FtpLogger(log));
         client.ValidateCertificate += (_, e) =>
         {
             log.Debug("Cert: " + e.Certificate.GetRawCertDataString());
             e.Accept = true;
         };
-        client.EncryptionMode = (FtpEncryptionMode)typeof(FtpEncryptionMode).GetEnumValue(encryptionMode.ToString());
 
-        client.SslProtocols = sslProtocols;
+        client.Config.EncryptionMode = (FtpEncryptionMode)typeof(FtpEncryptionMode).GetEnumValue(encryptionMode.ToString());
+        client.Config.SslProtocols = sslProtocols;
 
         log.Debug("Connecting to FTPS server " + host + ":" + port + " with username " + username);
         //FtpTrace.LogPassword = true;
         //FtpTrace.LogPrefix = true;
-        client.OnLogEvent = LogMessage;
         client.Connect();
         log.Debug("Connection successful");
     }
 
-    private void LogMessage(FtpTraceLevel ftpTraceLevel, string message)
+    private class FtpLogger : IFtpLogger
     {
-        var msg = "FTP: " + message;
-        if (ftpTraceLevel == FtpTraceLevel.Verbose) { log.Trace(msg); }
-        else if (ftpTraceLevel == FtpTraceLevel.Info) { log.Debug(msg); }
-        else if (ftpTraceLevel == FtpTraceLevel.Warn) { log.Warn(msg); }
-        else if (ftpTraceLevel == FtpTraceLevel.Error) log.Error(msg);
+        private readonly ILogger log;
+        public FtpLogger(ILogger log) => this.log = log.CheckNotNull(nameof(log));
+
+        public void Log(FtpLogEntry entry)
+        {
+            var msg = "FTP: ";
+            if (entry.Message != null) msg += entry.Message;
+            if (entry.Exception != null) msg += entry.Exception.ToString();
+
+            var ftpTraceLevel = entry.Severity;
+            if (ftpTraceLevel == FtpTraceLevel.Verbose) { log.Trace(msg); }
+            else if (ftpTraceLevel == FtpTraceLevel.Info) { log.Debug(msg); }
+            else if (ftpTraceLevel == FtpTraceLevel.Warn) { log.Warn(msg); }
+            else if (ftpTraceLevel == FtpTraceLevel.Error) log.Error(msg);
+        }
     }
 
-    protected override void GetFile(string remoteFile, Stream localStream) => Client.Download(localStream, remoteFile);
+    protected override void GetFile(string remoteFile, Stream localStream) => Client.DownloadStream(localStream, remoteFile);
 
     protected override void PutFile(string remoteFile, Stream localStream)
     {
         var success = false;
         try
         {
-            Client.Upload(localStream, remoteFile);
+            Client.UploadStream(localStream, remoteFile);
             success = true;
         }
         catch (Exception e) { log.Warn("Error putting file using security protocol, retrying with all known security protocols", e); }
@@ -106,7 +115,7 @@ public class FtpClientFtp : FtpClientBase
             try
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-                Client.Upload(localStream, remoteFile);
+                Client.UploadStream(localStream, remoteFile);
             }
             catch (Exception ee)
             {
@@ -125,9 +134,9 @@ public class FtpClientFtp : FtpClientBase
             if (!fullName.StartsWith("/")) fullName = "/" + fullName;
 
             var type = FtpClientFileType.Unknown;
-            if (file.Type == FtpFileSystemObjectType.Directory) { type = FtpClientFileType.Directory; }
-            else if (file.Type == FtpFileSystemObjectType.File) { type = FtpClientFileType.File; }
-            else if (file.Type == FtpFileSystemObjectType.Link) type = FtpClientFileType.Link;
+            if (file.Type == FtpObjectType.Directory) { type = FtpClientFileType.Directory; }
+            else if (file.Type == FtpObjectType.File) { type = FtpClientFileType.File; }
+            else if (file.Type == FtpObjectType.Link) type = FtpClientFileType.Link;
 
             fileList.Add(new FtpClientFile(name, fullName, type));
         }
